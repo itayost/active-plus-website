@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Senior-friendly typography */
+.privacy-content {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.privacy-content ul {
+  list-style-type: disc;
+  padding-inline-start: 1.5rem;
+}
+
+.privacy-content li {
+  margin-bottom: 0.5rem;
+}
