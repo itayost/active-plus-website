@@ -16,16 +16,16 @@ export default function Header() {
               בית
             </Link>
             <Link
-              href="/about"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              אודות
-            </Link>
-            <Link
               href="/privacy-policy"
               className="text-gray-600 hover:text-primary-600 transition-colors"
             >
               מדיניות פרטיות
+            </Link>
+            <Link
+              href="/delete-account"
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
+              מחיקת חשבון
             </Link>
           </div>
         </div>
