@@ -8,7 +8,10 @@ export type DeleteAccountResult = {
   message: string;
 };
 
-// In-memory rate limiting (per deployment instance)
+// In-memory rate limiting. Note this is per serverless instance and resets on
+// cold start, so it throttles casual abuse rather than a determined attacker.
+// The real guarantee that one address cannot pile up requests is the partial
+// unique index on (email) WHERE status='pending'.
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX = 3; // max 3 requests per IP per hour
@@ -63,11 +66,19 @@ export async function submitDeletionRequest(
     return { success: false, message: "כתובת אימייל לא תקינה" };
   }
 
-  // Rate limiting by IP
+  // Rate limiting by IP.
+  //
+  // x-vercel-forwarded-for is set by the platform and cannot be spoofed by the
+  // caller. The leftmost value of x-forwarded-for CAN be: a client that sends
+  // its own header has its value preserved ahead of the real address, so
+  // reading [0] let anyone reset their own rate-limit bucket at will.
   const headersList = await headers();
   const ip =
-    headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    headersList.get("x-real-ip") ||
+    headersList.get("x-vercel-forwarded-for")?.trim() ||
+    headersList.get("x-real-ip")?.trim() ||
+    // Last resort off-Vercel: take the RIGHTMOST entry, the one appended by the
+    // closest proxy, rather than the client-controllable leftmost.
+    headersList.get("x-forwarded-for")?.split(",").pop()?.trim() ||
     "unknown";
 
   if (isRateLimited(ip)) {
@@ -80,48 +91,41 @@ export async function submitDeletionRequest(
   try {
     const supabase = createServiceClient();
 
-    // Check if user exists (don't reveal this to the client)
-    // Paginate through users to find match — listUsers doesn't support email filtering
-    let userExists = false;
-    let page = 1;
-    const perPage = 1000;
-    while (true) {
-      const { data } = await supabase.auth.admin.listUsers({ page, perPage });
-      const users = data?.users ?? [];
-      if (users.some((u) => u.email === email)) {
-        userExists = true;
-        break;
-      }
-      if (users.length < perPage) break;
-      page++;
+    // The request is queued unconditionally, without checking whether the
+    // address belongs to a real account. Deliberate, and it removes three
+    // problems at once:
+    //
+    //  * Enumeration. The previous version only inserted for real users, so
+    //    the work done — and the time it took — differed by whether the
+    //    address existed. The uniform success message did not hide that.
+    //  * Cost. Establishing existence meant listUsers() paging through the
+    //    WHOLE auth table on every submission (551 users today), which is an
+    //    amplification vector: cheap to send, expensive to serve.
+    //  * Coverage. Most trainees authenticate by phone and have no email at
+    //    all (207 of 551), so an email match could never have found them —
+    //    their genuine requests were being silently dropped.
+    //
+    // A queued row is not a deletion; an admin reviews it. The partial unique
+    // index on (email) WHERE status='pending' keeps duplicates out, and the
+    // rate limit bounds volume.
+    const { error } = await supabase
+      .from("account_deletion_requests")
+      .insert({ email, ip_address: ip });
+
+    // Unique constraint violation = a pending request already exists
+    if (error?.code === "23505") {
+      return {
+        success: true,
+        message: "בקשה למחיקת חשבון כבר קיימת במערכת. נטפל בה בהקדם האפשרי.",
+      };
     }
 
-    // Always show success to prevent email enumeration
-    // But only insert a request if user actually exists
-    if (userExists) {
-      const { error } = await supabase
-        .from("account_deletion_requests")
-        .insert({
-          email,
-          ip_address: ip,
-        });
-
-      // Unique constraint violation = pending request already exists
-      if (error?.code === "23505") {
-        return {
-          success: true,
-          message:
-            "בקשה למחיקת חשבון כבר קיימת במערכת. נטפל בה בהקדם האפשרי.",
-        };
-      }
-
-      if (error) {
-        console.error("Failed to insert deletion request:", error.message);
-        return {
-          success: false,
-          message: "אירעה שגיאה. נא לנסות שוב מאוחר יותר",
-        };
-      }
+    if (error) {
+      console.error("Failed to insert deletion request:", error.message);
+      return {
+        success: false,
+        message: "אירעה שגיאה. נא לנסות שוב מאוחר יותר",
+      };
     }
 
     return {
