@@ -37,6 +37,6 @@ for (const size of [
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
     const cta = page.getByRole("banner").getByRole("link", { name: "בדיקת התאמה" });
     await expect(cta).toBeVisible();
-    expect(await cta.evaluate((el) => getComputedStyle(el).whiteSpace)).toBe("nowrap");
+    expect(await cta.evaluate((el) => getComputedStyle(el).textWrap)).toBe("nowrap");
   });
 }
