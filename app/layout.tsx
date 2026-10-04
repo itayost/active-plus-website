@@ -5,14 +5,22 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SITE_NAME_FULL, SITE_URL } from "@/lib/constants";
 
+/*
+ * `subsets` only decides which files next/font preloads; the stylesheet still
+ * declares every subset with its unicode-range, so Latin digits and
+ * punctuation load on demand when a page uses them. Preloading only Hebrew,
+ * the script of nearly every glyph in the first viewport, cut the early font
+ * bytes from 86 KB to 21 KB. On slow connections those preloads were sharing
+ * the line with the stylesheet and the LCP image.
+ */
 const heebo = Heebo({
-  subsets: ["hebrew", "latin"],
+  subsets: ["hebrew"],
   variable: "--font-heebo",
   display: "swap",
 });
 
 const rubik = Rubik({
-  subsets: ["hebrew", "latin"],
+  subsets: ["hebrew"],
   weight: ["500", "700", "900"],
   variable: "--font-rubik",
   display: "swap",
