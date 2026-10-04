@@ -81,7 +81,7 @@ export default function FeatureCards() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => goTo(index - 1)}
+              onClick={() => canPrev && goTo(index - 1)}
               aria-disabled={!canPrev || undefined}
               className={CAROUSEL_ARROW}
             >
@@ -90,7 +90,7 @@ export default function FeatureCards() {
             </button>
             <button
               type="button"
-              onClick={() => goTo(index + 1)}
+              onClick={() => canNext && goTo(index + 1)}
               aria-disabled={!canNext || undefined}
               className={CAROUSEL_ARROW}
             >

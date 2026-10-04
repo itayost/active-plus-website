@@ -9,8 +9,10 @@ import { scrollBehaviorFor } from "@/lib/media";
  *
  * The arrows are meant to be wired with aria-disabled, not disabled: a
  * disabled button drops keyboard focus to <body> the moment the track reaches
- * its end, and the next Tab restarts from the top of the page. goTo already
- * clamps, so a press on an exhausted arrow is a harmless no-op.
+ * its end, and the next Tab restarts from the top of the page. Guard each
+ * click with canPrev/canNext: when several cards are visible the track ends
+ * (atEnd) before index reaches the last card, and calling goTo there would
+ * advance index past what is on screen, leaving later "previous" presses dead.
  */
 export function useSnapCarousel<T extends HTMLElement>(count: number) {
   const trackRef = useRef<T>(null);
