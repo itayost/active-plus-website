@@ -42,6 +42,12 @@ describe("history entries", () => {
     expect(readEntry({ apFunnel: { idx: 0, base: 1 } })).toBeNull();
   });
 
+  it("keeps how many tab entries come before the funnel's first, when it is known", () => {
+    expect(readEntry({ apFunnel: { idx: 2, base: 0, before: 0 } })).toEqual({ idx: 2, base: 0, before: 0 });
+    expect(readEntry({ apFunnel: { idx: 2, base: 0, before: -1 } })).toEqual({ idx: 2, base: 0 });
+    expect(readEntry({ apFunnel: { idx: 2, base: 0, before: "0" } })).toEqual({ idx: 2, base: 0 });
+  });
+
   it("adds the entry to the current state, keeping the router's keys and the original intact", () => {
     const current = { __NA: true, __PRIVATE_NEXTJS_INTERNALS_TREE: ["", {}] };
     const next = withEntry(current, { idx: 3, base: 1 });
@@ -99,8 +105,9 @@ describe("planPop", () => {
     expect(planPop(here, { idx: 4, base: 0 }, chair, false)).toEqual({ kind: "undo", delta: -1 });
   });
 
-  it("holds while back is not allowed, pushing the entry straight back", () => {
-    expect(planPop(here, { idx: 2, base: 0 }, chair, true)).toEqual({ kind: "hold", entry: { idx: 3, base: 0 } });
+  it("holds while back is not allowed by going forward again, so later entries survive a long jump", () => {
+    expect(planPop(here, { idx: 2, base: 0 }, chair, true)).toEqual({ kind: "hold", delta: 1 });
+    expect(planPop(here, { idx: 0, base: 0 }, chair, true)).toEqual({ kind: "hold", delta: 3 });
   });
 
   it("goes back one screen per entry", () => {
@@ -114,5 +121,11 @@ describe("planPop", () => {
   it("leaves to the page before the funnel when there is nothing left to go back to", () => {
     const gender = advance(initialState());
     expect(planPop({ idx: 4, base: 1 }, { idx: 3, base: 1 }, gender, false)).toEqual({ kind: "leave", delta: -3 });
+    expect(planPop({ idx: 4, base: 1, before: 2 }, { idx: 3, base: 1, before: 2 }, gender, false)).toEqual({ kind: "leave", delta: -3 });
+  });
+
+  it("exits to the home page when the funnel's first entry is the tab's first (a link opened in a new tab)", () => {
+    const gender = advance(initialState());
+    expect(planPop({ idx: 2, base: 0, before: 0 }, { idx: 1, base: 0, before: 0 }, gender, false)).toEqual({ kind: "exit" });
   });
 });

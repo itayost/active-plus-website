@@ -11,7 +11,17 @@ import { back, canGoBack, type FunnelState } from "./machine";
  * a back gesture becomes one funnel back per entry popped, whatever the
  * entries were created by (this visit, or an earlier one before a reload).
  */
-export type Entry = { idx: number; base: number };
+export type Entry = {
+  idx: number;
+  base: number;
+  /**
+   * How many of the tab's entries come before the funnel's first (`base`), when
+   * known: history.length - 1 when the funnel tags a fresh entry, carried on
+   * every push. 0 means the funnel opened the tab (a link in a new tab), so
+   * there is no page before it to go back to.
+   */
+  before?: number;
+};
 
 /** The key the funnel's entry lives under in history.state, beside the router's own keys. */
 const KEY = "apFunnel";
@@ -22,8 +32,9 @@ export function readEntry(state: unknown): Entry | null {
   if (typeof state !== "object" || state === null) return null;
   const entry = (state as Record<string, unknown>)[KEY];
   if (typeof entry !== "object" || entry === null) return null;
-  const { idx, base } = entry as { idx?: unknown; base?: unknown };
-  return isIndex(idx) && isIndex(base) && base <= idx ? { idx, base } : null;
+  const { idx, base, before } = entry as { idx?: unknown; base?: unknown; before?: unknown };
+  if (!isIndex(idx) || !isIndex(base) || base > idx) return null;
+  return isIndex(before) ? { idx, base, before } : { idx, base };
 }
 
 /** The current history state (the router's keys included) with the funnel's entry set. */
@@ -54,10 +65,15 @@ export type PopPlan =
   | { kind: "none" }
   /** A forward gesture: the funnel cannot redo a screen, so history.go(delta) returns to it. */
   | { kind: "undo"; delta: number }
-  /** Back is not allowed right now: push this entry to put the one just popped back. */
-  | { kind: "hold"; entry: Entry }
+  /**
+   * Back is not allowed right now: history.go(delta) forward to the entry the funnel is on,
+   * so the entries above it survive even a long-press jump of several.
+   */
+  | { kind: "hold"; delta: number }
   /** Nothing left to go back to in the funnel: history.go(delta) to the page before it. */
   | { kind: "leave"; delta: number }
+  /** Nothing left to go back to, and no page before the funnel in this tab: replace with the home page. */
+  | { kind: "exit" }
   /** Show `state`, now standing on `entry`. */
   | { kind: "back"; state: FunnelState; entry: Entry };
 
@@ -67,9 +83,12 @@ export function planPop(here: Entry, landed: Entry | null, state: FunnelState, b
   const delta = landed.idx - here.idx;
   if (delta === 0) return { kind: "none" };
   if (delta > 0) return { kind: "undo", delta: -delta };
-  if (blocked) return { kind: "hold", entry: { idx: landed.idx + 1, base: landed.base } };
+  if (blocked) return { kind: "hold", delta: -delta };
   let next = state;
   for (let n = 0; n < -delta && canGoBack(next); n++) next = back(next);
-  if (next === state) return { kind: "leave", delta: landed.base - landed.idx - 1 };
+  if (next === state) {
+    // history.go() past the tab's first entry silently does nothing: the visitor would be stuck.
+    return landed.before === 0 ? { kind: "exit" } : { kind: "leave", delta: landed.base - landed.idx - 1 };
+  }
   return { kind: "back", state: next, entry: landed };
 }

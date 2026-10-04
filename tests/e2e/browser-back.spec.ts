@@ -136,6 +136,52 @@ test.describe("sign-in", () => {
     await expect(page).toHaveURL(/\/payment$/);
   });
 
+  test("a two-entry jump back while the code is checked returns to otp and keeps every entry", async ({ page }) => {
+    stub = await stubSupabase(page);
+    await seed(page, "register", THROUGH_TIME);
+    await signIn(page, "רחל כהן");
+    const entries = await page.evaluate(() => history.length);
+
+    const release = stub.hold("/auth/v1/verify");
+    await codeBox(page).fill(GOOD_CODE);
+    await expect.poll(() => stub?.to("/auth/v1/verify").length).toBe(1);
+    await page.evaluate(() => history.go(-2)); // a long press on back, picking two screens back
+    await expect.poll(() => funnelEntry(page)).toBe(2);
+    await expectStep(page, "otp");
+    expect(await page.evaluate(() => history.length)).toBe(entries);
+
+    release();
+    await expect(page).toHaveURL(/\/payment$/);
+  });
+
+  test("opened straight on /questionnaire in a new tab, every back press does something and gender's leaves", async ({ page }) => {
+    // A link opened in a new tab (a Meta ad, an in-app browser): /questionnaire is the tab's first entry.
+    await page.goto("/");
+    await page.evaluate((answers) => {
+      localStorage.setItem("ap.funnel.step", "register");
+      localStorage.setItem("ap.funnel.answers", JSON.stringify(answers));
+    }, THROUGH_TIME);
+    const [tab] = await Promise.all([page.waitForEvent("popup"), page.evaluate(() => void window.open("/questionnaire"))]);
+    stub = await stubSupabase(tab);
+    await expect(tab.locator("[data-funnel-root][data-ready]")).toBeAttached();
+    await expectStep(tab, "register");
+    expect(await tab.evaluate(() => history.length)).toBe(1);
+
+    await signIn(tab, "רחל כהן");
+    await codeBox(tab).fill(GOOD_CODE);
+    await expect(tab).toHaveURL(/\/payment$/);
+
+    await tab.goBack();
+    await expect(tab).toHaveURL(/\/questionnaire$/);
+    await expect(tab.locator("[data-funnel-root][data-ready]")).toBeAttached();
+    await expectStep(tab, "welcome2"); // the hand-off cleared the session
+    await screen(tab).getByRole("button", { name: COPY.welcome2.cta }).click();
+    await expectStep(tab, "gender");
+
+    await tab.goBack();
+    await expect(tab).toHaveURL(/\/$/);
+  });
+
   test("'ערוך מספר' takes the otp screen off the back history", async ({ page }) => {
     stub = await stubSupabase(page);
     await seed(page, "register", THROUGH_TIME);

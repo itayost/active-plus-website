@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { planPop, pushesEntry, readEntry, withEntry, type Entry } from "@/lib/funnel/browser-history";
 import { back, canGoBack, type FunnelState } from "@/lib/funnel/machine";
@@ -18,6 +19,7 @@ type Options = {
  * history state, so Next's keys stay on it.
  */
 export function useBrowserBack({ state, blocked, show }: Options) {
+  const router = useRouter();
   // The funnel's entry the browser is on; null until the restore has tagged one.
   const position = useRef<Entry | null>(null);
   // What a popstate acts on: the screen and lock as last rendered.
@@ -31,23 +33,28 @@ export function useBrowserBack({ state, blocked, show }: Options) {
       const here = position.current;
       if (!here) return;
       const plan = planPop(here, readEntry(event.state), latest.current.state, latest.current.blocked);
-      if (plan.kind === "undo" || plan.kind === "leave") {
+      if (plan.kind === "none") return;
+      // undo and hold return to the entry the funnel is on: its position stands.
+      if (plan.kind === "undo" || plan.kind === "hold") {
         window.history.go(plan.delta);
-      } else if (plan.kind === "hold") {
-        window.history.pushState(withEntry(window.history.state, plan.entry), "");
-        position.current = plan.entry;
-      } else if (plan.kind === "back") {
-        position.current = plan.entry;
-        show(plan.state);
+        return;
       }
+      // The browser is on the landed entry now, whatever happens next.
+      position.current = readEntry(event.state);
+      if (plan.kind === "leave") window.history.go(plan.delta);
+      else if (plan.kind === "exit") router.replace("/");
+      else show(plan.state);
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [show]);
+  }, [show, router]);
 
-  /** On restore: tag the entry the funnel opened on (never push). One kept from before a reload keeps its place. */
+  /**
+   * On restore: tag the entry the funnel opened on (never push). One kept from before a reload keeps
+   * its place. A fresh one is the tab's newest entry, so history.length - 1 entries come before it.
+   */
   const tag = useCallback(() => {
-    const entry = readEntry(window.history.state) ?? { idx: 0, base: 0 };
+    const entry = readEntry(window.history.state) ?? { idx: 0, base: 0, before: window.history.length - 1 };
     window.history.replaceState(withEntry(window.history.state, entry), "");
     position.current = entry;
   }, []);
@@ -56,7 +63,7 @@ export function useBrowserBack({ state, blocked, show }: Options) {
   const forward = useCallback((prev: FunnelState, next: FunnelState) => {
     const here = position.current;
     if (!here || !pushesEntry(prev, next)) return;
-    const entry = { idx: here.idx + 1, base: here.base };
+    const entry = { ...here, idx: here.idx + 1 };
     window.history.pushState(withEntry(window.history.state, entry), "");
     position.current = entry;
   }, []);
