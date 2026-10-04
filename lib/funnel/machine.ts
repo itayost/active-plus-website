@@ -6,6 +6,13 @@ import type { Answers, Step } from "./types";
 /** The time step's two screens: A picks the part of the day, B the hour within it. */
 export type TimeView = { sub: "A" | "B"; segment: Segment | null };
 
+/**
+ * register's two screens (name, then phone) and the number the code went to.
+ * The number lives in memory only, never in storage: "ערוך מספר" and back from
+ * otp find it filled in, a reload asks for it again.
+ */
+export type RegisterView = { sub: "name" | "phone"; phone: string };
+
 export type FunnelState = {
   step: Step;
   /** Steps to return to with back, most recent last. */
@@ -15,6 +22,7 @@ export type FunnelState = {
   /** The current screen's unconfirmed choice; saved only on "המשך". */
   draft: Answers;
   time: TimeView;
+  register: RegisterView;
 };
 
 export const initialState = (): FunnelState => ({
@@ -23,6 +31,7 @@ export const initialState = (): FunnelState => ({
   answers: {},
   draft: {},
   time: { sub: "A", segment: null },
+  register: { sub: "name", phone: "" },
 });
 
 const timeView = (sub: TimeView["sub"], answers: Answers): TimeView => {
@@ -42,6 +51,7 @@ function moveTo(state: FunnelState, target: Step, answers: Answers): FunnelState
     answers,
     draft: {},
     time: target === "time" ? timeView("A", answers) : state.time,
+    register: target === "register" ? { ...state.register, sub: "name" } : state.register,
   };
 }
 
@@ -58,9 +68,23 @@ export const showHours = (state: FunnelState, segment: Segment): FunnelState => 
   time: { sub: "B", segment },
 });
 
+/** register: the name is saved, now the phone. */
+export const showPhone = (state: FunnelState): FunnelState => ({
+  ...state,
+  draft: {},
+  register: { ...state.register, sub: "phone" },
+});
+
+/** The code is on its way to `phone`: on to otp, keeping the number for "ערוך מספר". */
+export const codeSent = (state: FunnelState, phone: string): FunnelState =>
+  advance({ ...state, register: { ...state.register, phone } });
+
 export function back(state: FunnelState): FunnelState {
   if (state.step === "time" && state.time.sub === "B") {
     return { ...state, draft: {}, time: { ...state.time, sub: "A" } };
+  }
+  if (state.step === "register" && state.register.sub === "phone") {
+    return { ...state, draft: {}, register: { ...state.register, sub: "name" } };
   }
   // The app replays the 9.4s loader on back from time; the web goes straight to bodyAreas.
   const target = state.step === "time" ? "bodyAreas" : state.history.at(-1);
@@ -72,6 +96,8 @@ export function back(state: FunnelState): FunnelState {
     history: cut >= 0 ? state.history.slice(0, cut) : state.history,
     draft: {},
     time: target === "time" ? timeView("B", state.answers) : state.time,
+    // otp's back is "ערוך מספר": the phone screen, number kept.
+    register: target === "register" ? { ...state.register, sub: state.step === "otp" ? "phone" : "name" } : state.register,
   };
 }
 

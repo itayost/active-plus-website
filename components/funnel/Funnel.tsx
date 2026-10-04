@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { advance, back, initialState, restore, showHours, type FunnelState } from "@/lib/funnel/machine";
+import { advance, back, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
 import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import type { Segment } from "@/lib/funnel/time";
@@ -25,6 +25,8 @@ export default function Funnel() {
   const [moves, setMoves] = useState(0);
   // The step the saved session restored to; null until the restore has run.
   const [restored, setRestored] = useState<Step | null>(null);
+  // Signed in and merged: nothing to go back to, and cancelling no longer applies.
+  const [complete, setComplete] = useState(false);
 
   useEffect(() => {
     const { answers } = loadSession();
@@ -72,6 +74,14 @@ export default function Funnel() {
       showHours: () => {
         if (state.time.segment) go(showHours(state, state.time.segment));
       },
+      saveName: (name: string) => {
+        const answers = cleanOffBranch({ ...state.answers, full_name: name });
+        saveAnswers(answers);
+        go(showPhone({ ...state, answers }));
+      },
+      codeSent: (phone: string) => go(codeSent(state, phone)),
+      editPhone: () => go(back(state)),
+      complete: () => setComplete(true),
     }),
     [state, go],
   );
@@ -79,7 +89,11 @@ export default function Funnel() {
   const onBack = useCallback(() => go(back(state)), [state, go]);
 
   const { step } = state;
-  const canGoBack = state.history.length > 0 || (step === "time" && state.time.sub === "B");
+  const canGoBack =
+    !complete &&
+    (state.history.length > 0 ||
+      (step === "time" && state.time.sub === "B") ||
+      (step === "register" && state.register.sub === "phone"));
 
   return (
     <div
@@ -91,11 +105,12 @@ export default function Funnel() {
         <FunnelChrome
           dot={indicator(step, state.answers)}
           canGoBack={canGoBack}
-          bare={step === "planBuilding"}
+          bare={step === "planBuilding" || complete}
+          register={step === "register" ? state.register.sub : null}
           onBack={onBack}
         />
         <section
-          key={`${step}-${state.time.sub}`}
+          key={`${step}-${state.time.sub}-${state.register.sub}`}
           aria-labelledby={STEP_TITLE_ID}
           data-step={step}
           className="mt-[clamp(1.5rem,3vw,2.25rem)]"

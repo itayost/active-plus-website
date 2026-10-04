@@ -19,7 +19,8 @@ const ANSWER_OF: Partial<Record<Step, keyof Answers>> = {
 const TRANSIENT: ReadonlySet<Step> = new Set(["planBuilding"]);
 
 /** A saved step that cannot be resumed as-is, mapped to where the visitor picks up instead. */
-const RESUME_AS: Partial<Record<Step, Step>> = { otp: "register" };
+// otp needs the number, which is never stored; payment is a page of its own, not a funnel screen.
+const RESUME_AS: Partial<Record<Step, Step>> = { otp: "register", payment: "register" };
 
 function isAnswered(step: Step, answers: Answers): boolean {
   const key = ANSWER_OF[step];

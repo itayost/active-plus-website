@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advance, back, initialState, restore, showHours, type FunnelState } from "@/lib/funnel/machine";
+import { advance, back, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
 import type { Answers } from "@/lib/funnel/types";
 
 const ALL: Answers = {
@@ -98,5 +98,50 @@ describe("funnel machine", () => {
 
   it("restores time on its segment screen", () => {
     expect(restore("time", ALL).time).toEqual({ sub: "A", segment: "afternoon" });
+  });
+
+  describe("register and otp", () => {
+    const WITH_TIME = ["bodyAreas", "time"] as FunnelState["step"][];
+
+    it("arrives on register's name screen", () => {
+      const next = advance({ ...at("time", ["bodyAreas"]), register: { sub: "phone", phone: "0501234567" } });
+      expect(next.step).toBe("register");
+      expect(next.register).toEqual({ sub: "name", phone: "0501234567" });
+    });
+
+    it("name -> phone stays on register, and back returns to the name", () => {
+      const phone = showPhone(at("register", WITH_TIME));
+      expect(phone.step).toBe("register");
+      expect(phone.register.sub).toBe("phone");
+      expect(phone.history).toEqual(WITH_TIME);
+      const prev = back(phone);
+      expect(prev.step).toBe("register");
+      expect(prev.register.sub).toBe("name");
+      expect(prev.history).toEqual(WITH_TIME);
+    });
+
+    it("a sent code moves to otp with the number kept", () => {
+      const otp = codeSent(showPhone(at("register", WITH_TIME)), "050-1234567");
+      expect(otp.step).toBe("otp");
+      expect(otp.history).toEqual([...WITH_TIME, "register"]);
+      expect(otp.register.phone).toBe("050-1234567");
+    });
+
+    it("back from otp is 'edit number': the phone screen with the number filled in", () => {
+      const prev = back(codeSent(showPhone(at("register", WITH_TIME)), "0501234567"));
+      expect(prev.step).toBe("register");
+      expect(prev.register).toEqual({ sub: "phone", phone: "0501234567" });
+      expect(prev.history).toEqual(WITH_TIME);
+    });
+
+    it("back from the name screen goes to time", () => {
+      expect(back(at("register", WITH_TIME)).step).toBe("time");
+    });
+
+    it("a resumed otp starts over on the name screen without a number", () => {
+      const state = restore("otp", { ...ALL, full_name: "רחל" });
+      expect(state.step).toBe("register");
+      expect(state.register).toEqual({ sub: "name", phone: "" });
+    });
   });
 });

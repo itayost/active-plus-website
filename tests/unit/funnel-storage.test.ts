@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
+import { GENDER_FOR_PAYMENT, handOffToPayment, loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 
 const DAY = 86_400_000;
 
@@ -20,6 +20,7 @@ function memoryStorage(): Storage {
 describe("funnel storage", () => {
   beforeEach(() => {
     vi.stubGlobal("localStorage", memoryStorage());
+    vi.stubGlobal("sessionStorage", memoryStorage());
   });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -89,6 +90,29 @@ describe("funnel storage", () => {
       vi.spyOn(localStorage, "getItem").mockImplementation(() => { throw new Error("blocked"); });
       vi.spyOn(localStorage, "setItem").mockImplementation(() => { throw new Error("blocked"); });
       expect(() => saveStep("gender")).not.toThrow();
+      expect(loadStep()).toBeNull();
+    });
+  });
+
+  describe("hand-off to payment", () => {
+    it("keeps the gender for the payment page and clears the local session", () => {
+      const { id } = loadSession();
+      saveAnswers({ gender: "female", full_name: "רחל" });
+      saveStep("otp");
+      handOffToPayment("female");
+      expect(sessionStorage.getItem(GENDER_FOR_PAYMENT)).toBe("female");
+      expect(loadStep()).toBeNull();
+      expect(loadSession().answers).toEqual({});
+      expect(loadSession().id).not.toBe(id);
+    });
+    it("stores nothing for an unknown gender", () => {
+      handOffToPayment(undefined);
+      expect(sessionStorage.getItem(GENDER_FOR_PAYMENT)).toBeNull();
+    });
+    it("still clears the session when sessionStorage is blocked", () => {
+      vi.spyOn(sessionStorage, "setItem").mockImplementation(() => { throw new Error("blocked"); });
+      saveStep("otp");
+      expect(() => handOffToPayment("male")).not.toThrow();
       expect(loadStep()).toBeNull();
     });
   });

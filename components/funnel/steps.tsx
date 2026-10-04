@@ -8,8 +8,10 @@ import type { Answers, Step } from "@/lib/funnel/types";
 import BodyAreas from "./BodyAreas";
 import { Reinforcement2, SocialProof, Welcome2 } from "./Interstitial";
 import OptionList from "./OptionList";
+import Otp from "./Otp";
 import { ContinueButton, FootNote, Lines, StepTitle, Subtitle } from "./parts";
 import PlanBuilding from "./PlanBuilding";
+import Register from "./Register";
 import TimeStep from "./TimeStep";
 import YearSelect from "./YearSelect";
 
@@ -25,6 +27,14 @@ export type StepActions = {
   start: () => void;
   setSegment: (segment: Segment) => void;
   showHours: () => void;
+  /** register: save the name, then ask for the phone. */
+  saveName: (name: string) => void;
+  /** The SMS code is on its way to this number: on to otp. */
+  codeSent: (phone: string) => void;
+  /** otp's "ערוך מספר": back to the phone screen, number kept. */
+  editPhone: () => void;
+  /** Signed in and merged: the chrome drops back and cancel. */
+  complete: () => void;
 };
 
 type Text = string | Gendered;
@@ -107,16 +117,6 @@ function BodyAreasStep({ state, actions }: { state: FunnelState; actions: StepAc
   );
 }
 
-/** Temporary register/otp screen: sign-in arrives with plan 2, Task 5. */
-function SignInStub() {
-  return (
-    <div className="rounded-card bg-surface p-[clamp(1rem,3.5vw,2.5rem)] shadow-lift-2">
-      <StepTitle>{COPY.stub.title}</StepTitle>
-      <p className="mt-3 max-w-measure text-lead text-ink-soft">{COPY.stub.body}</p>
-    </div>
-  );
-}
-
 /** The element for the current step. */
 export function renderStep(state: FunnelState, actions: StepActions): ReactElement {
   const { step, answers } = state;
@@ -154,8 +154,26 @@ export function renderStep(state: FunnelState, actions: StepActions): ReactEleme
           }}
         />
       );
+    case "otp":
+      return (
+        <Otp
+          phone={state.register.phone}
+          answers={answers}
+          onEditPhone={actions.editPhone}
+          onComplete={actions.complete}
+        />
+      );
     default:
-      // register, otp and payment: not built yet.
-      return <SignInStub />;
+      // register; payment is its own page and never resumes here (lib/funnel/history).
+      return (
+        <Register
+          view={state.register}
+          gender={gender}
+          name={state.draft.full_name ?? answers.full_name ?? ""}
+          onNameChange={(full_name) => actions.setDraft({ full_name })}
+          onName={actions.saveName}
+          onCodeSent={actions.codeSent}
+        />
+      );
   }
 }

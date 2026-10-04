@@ -3,54 +3,13 @@ import { expect, test, type Page } from "@playwright/test";
 import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers, Step } from "../../lib/funnel/types";
+import { choose, expectStep, firstLine, next, open, reload, screen, seed, stored, title } from "./funnel-helpers";
 
 /*
-  The questionnaire keeps everything in localStorage (no network writes until
-  sign-in, which is not built yet), so these tests drive the real page and
-  read the stored session back. Waits are on headings and attributes only.
+  The questionnaire keeps everything in localStorage until sign-in (covered in
+  signin.spec.ts), so these tests drive the real page and read the stored
+  session back.
 */
-
-const title = (page: Page) => page.locator("#funnel-step-title");
-const screen = (page: Page) => page.locator("main section[data-step]");
-const next = (page: Page) => screen(page).getByRole("button", { name: COPY.common.next, exact: true });
-const choose = (page: Page, label: string) => screen(page).getByRole("radiogroup").getByText(label, { exact: true }).click();
-const firstLine = (text: string) => text.split("\n")[0];
-
-/** The funnel marks itself ready once the saved session (if any) has been restored. */
-async function open(page: Page) {
-  await page.goto("/questionnaire");
-  await expect(page.locator("[data-funnel-root][data-ready]")).toBeAttached();
-}
-
-async function reload(page: Page) {
-  await page.reload();
-  await expect(page.locator("[data-funnel-root][data-ready]")).toBeAttached();
-}
-
-async function expectStep(page: Page, step: Step, timeout?: number) {
-  await expect(screen(page)).toHaveAttribute("data-step", step, { timeout });
-}
-
-async function stored(page: Page): Promise<{ step: string | null; answers: Answers }> {
-  return page.evaluate(() => ({
-    step: localStorage.getItem("ap.funnel.step"),
-    answers: JSON.parse(localStorage.getItem("ap.funnel.answers") ?? "{}"),
-  }));
-}
-
-/** Resume straight into a step with these answers, as a returning visitor would. */
-async function seed(page: Page, step: Step, answers: Answers) {
-  await open(page);
-  await page.evaluate(
-    ([s, a]) => {
-      localStorage.setItem("ap.funnel.step", s);
-      localStorage.setItem("ap.funnel.answers", JSON.stringify(a));
-    },
-    [step, answers] as const,
-  );
-  await reload(page);
-  await expectStep(page, step);
-}
 
 const THROUGH_FREQUENCY: Answers = {
   gender: "male",
@@ -110,7 +69,7 @@ async function walkToReinforcement(
   await expectStep(page, "reinforcement2");
 }
 
-/** reinforcement2 -> the sign-in stub. */
+/** reinforcement2 -> register's name screen. */
 async function finishFromReinforcement(page: Page) {
   await next(page).click();
   await expectStep(page, "frequency");
@@ -132,7 +91,7 @@ async function finishFromReinforcement(page: Page) {
   await next(page).click();
 
   await expectStep(page, "register");
-  await expect(title(page)).toHaveText(COPY.stub.title);
+  await expect(page.getByRole("progressbar", { name: COPY.register.nameHeader })).toBeVisible();
 }
 
 test.describe("with reduced motion", () => {

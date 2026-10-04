@@ -90,17 +90,51 @@ export function ContinueButton({
   onClick,
   disabled = false,
   label = COPY.common.next,
+  type = "button",
 }: {
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
   label?: string;
+  /** "submit" inside a form, so Enter in the field sends it too. */
+  type?: "button" | "submit";
 }) {
   return (
     <div className="mt-7 grid gap-3">
-      <Button size="lg" className="w-full flex-wrap gap-y-1" disabled={disabled} onClick={onClick}>
+      <Button size="lg" type={type} className="w-full flex-wrap gap-y-1" disabled={disabled} onClick={onClick}>
         {label}
       </Button>
     </div>
+  );
+}
+
+/** A text field at rest, focused (border shift) and invalid (burgundy), per DESIGN.md Inputs. */
+export const fieldClass = (invalid: boolean) =>
+  cn(
+    "min-h-[60px] w-full min-w-0 rounded-field border-2 bg-white px-4 py-3.5 text-lead text-ink caret-blue-deep",
+    "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] focus:outline-none",
+    // An invalid field stays burgundy while focused, so the error is never hidden by the focus colour.
+    invalid ? "border-burgundy" : "border-hairline hover:border-ink/25 focus:border-blue-deep",
+  );
+
+/** The message under a field: mounted only with text, so role="alert" announces it once. */
+export function FieldError({ id, text }: { id: string; text: string }) {
+  if (!text) return null;
+  return (
+    <p id={id} role="alert" className="mt-2.5 rounded-field bg-burgundy-wash px-3.5 py-2.5 font-medium text-burgundy">
+      {text}
+    </p>
+  );
+}
+
+/** The tinted icon tile above the phone and code headings. */
+export function StepIcon({ children }: { children: ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[18px] bg-blue-wash text-blue-deep [&_svg]:h-7 [&_svg]:w-7"
+    >
+      {children}
+    </span>
   );
 }
 

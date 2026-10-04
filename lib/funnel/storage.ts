@@ -83,3 +83,22 @@ export function loadStep(now = Date.now()): Step | null {
   if (!isStep(raw)) return null;
   return RESTORE_AS[raw] ?? raw;
 }
+
+/** sessionStorage key the payment page reads for its gendered wording. */
+export const GENDER_FOR_PAYMENT = "ap.funnel.gender";
+
+/**
+ * After a successful merge: the answers now live on the profile, so the local
+ * session is cleared, but the gender is kept for the payment page (the app's
+ * paywall lost it to exactly this reset).
+ */
+export function handOffToPayment(gender: Answers["gender"]): void {
+  if (gender) {
+    try {
+      sessionStorage.setItem(GENDER_FOR_PAYMENT, gender);
+    } catch {
+      // Blocked storage: the payment page falls back to its neutral wording.
+    }
+  }
+  resetSession();
+}

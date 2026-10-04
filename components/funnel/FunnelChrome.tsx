@@ -7,10 +7,36 @@ type Props = {
   /** The step's dot (1-8), or null for steps without one. */
   dot: { index: number; total: number } | null;
   canGoBack: boolean;
-  /** planBuilding shows neither back nor cancel. */
+  /** planBuilding (and a finished sign-in) shows neither back nor cancel. */
   bare: boolean;
+  /** register's own header in place of the dots: name (50%), then phone (100%). */
+  register?: "name" | "phone" | null;
   onBack: () => void;
 };
+
+const REGISTER_HEADER = {
+  name: { label: COPY.register.nameHeader, value: 50 },
+  phone: { label: COPY.register.phoneHeader, value: 100 },
+} as const;
+
+function RegisterBar({ sub }: { sub: "name" | "phone" }) {
+  const { label, value } = REGISTER_HEADER[sub];
+  return (
+    <>
+      <span className="block font-display text-[1.125rem] font-bold leading-[1.3] text-ink-soft">{label}</span>
+      <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={value}
+        className="mt-1.5 h-2 max-w-[320px] overflow-hidden rounded-pill bg-ink/10"
+      >
+        <i className="block h-full rounded-pill bg-green-deep forced-colors:bg-[Highlight]" style={{ width: `${value}%` }} />
+      </div>
+    </>
+  );
+}
 
 function Dots({ index, total }: { index: number; total: number }) {
   const label = COPY.chrome.dots.replace("{i}", String(index)).replace("{n}", String(total));
@@ -34,7 +60,7 @@ function Dots({ index, total }: { index: number; total: number }) {
 }
 
 /** The funnel's top row: back | progress dots | cancel. */
-export default function FunnelChrome({ dot, canGoBack, bare, onBack }: Props) {
+export default function FunnelChrome({ dot, canGoBack, bare, register = null, onBack }: Props) {
   const showBack = canGoBack && !bare;
   return (
     <div className="flex min-h-12 items-center gap-4 max-[420px]:gap-2">
@@ -51,7 +77,9 @@ export default function FunnelChrome({ dot, canGoBack, bare, onBack }: Props) {
       >
         <ArrowBackIcon className="h-6 w-6" />
       </button>
-      <div className="min-w-0 flex-1">{dot ? <Dots index={dot.index} total={dot.total} /> : null}</div>
+      <div className="min-w-0 flex-1">
+        {dot ? <Dots index={dot.index} total={dot.total} /> : register ? <RegisterBar sub={register} /> : null}
+      </div>
       {bare ? null : (
         <Link
           href="/"

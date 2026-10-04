@@ -34,6 +34,10 @@ describe("resumeStep", () => {
     const all = { ...THROUGH_CHAIR, standing_stability: "seated", training_frequency_choice: "none", pain_areas: ["none"], training_time_of_day: "09:00" };
     expect(resumeStep("otp", all)).toBe("register");
   });
+  it("never resumes on payment, which is a page of its own", () => {
+    const all = { ...THROUGH_CHAIR, standing_stability: "seated", training_frequency_choice: "none", pain_areas: ["none"], training_time_of_day: "09:00" };
+    expect(resumeStep("payment", all)).toBe("register");
+  });
 });
 
 describe("restoreHistory", () => {

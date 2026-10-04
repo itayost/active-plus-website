@@ -42,11 +42,6 @@ export const COPY = {
     cancel: "ביטול",
     dots: "שלב {i} מתוך {n}",
   },
-  /** Temporary register/otp screen until sign-in ships (plan 2, Task 5). */
-  stub: {
-    title: "כמעט סיימנו",
-    body: "התשובות שלך נשמרו. ההרשמה עם מספר טלפון תתווסף כאן בקרוב.",
-  },
   gender: {
     title: "מהו המגדר שלך?",
     subtitle: "המגדר שלך משפיע על מדדים גופניים חשובים.\nאנחנו משתמשים במידע הזה כדי לספק לך תוכן מותאם אישית.",
@@ -202,11 +197,24 @@ export const COPY = {
     phoneSecure: "הפרטים שלך מאובטחים",
     phoneCta: "שלחו לי קוד",
     phoneFooter: "לוקח פחות מדקה • ללא התחייבות",
+    /*
+      The spec's consent line, split so its two documents can be links:
+      lead + terms + " " + and + privacy. The spec writes "ו מדיניות" with a
+      space (the app joins a link there); Hebrew attaches the "ו", as the
+      approved mockup does.
+    */
     consent: {
-      fem: "בלחיצה על \"שלחו לי קוד\" אני מאשרת את תנאי השימוש ו מדיניות הפרטיות",
-      masc: "בלחיצה על \"שלחו לי קוד\" אני מאשר את תנאי השימוש ו מדיניות הפרטיות",
-    } as Gendered,
+      lead: {
+        fem: "בלחיצה על \"שלחו לי קוד\" אני מאשרת את",
+        masc: "בלחיצה על \"שלחו לי קוד\" אני מאשר את",
+      } as Gendered,
+      terms: "תנאי השימוש",
+      and: "ו",
+      privacy: "מדיניות הפרטיות",
+    },
     phoneError: "מספר טלפון לא תקין",
+    /** Task 5 brief: signInWithOtp refused or failed. */
+    sendFailed: "לא הצלחנו לשלוח קוד. בדקו את המספר ונסו שוב.",
   },
   otp: {
     title: "קוד אימות נשלח אליך",
@@ -215,8 +223,20 @@ export const COPY = {
     resendIn: "שלח שוב בעוד {n} שניות",
     resend: "לא קיבלת קוד? שלח שוב",
     editPhone: "ערוך מספר",
+    /** The single code input's accessible name (approved mockup). */
+    codeLabel: "קוד אימות, {n} ספרות",
+    /** Wrong or expired code (approved mockup; the app's ErrorMapper says the same). */
+    wrongCode: "קוד האימות שגוי",
+    /** 429 from verify (the app's ErrorMapper wording). */
+    rateLimited: "יותר מדי ניסיונות, נסה מאוחר יותר",
+    /** Network or server failure on verify. Not in the spec or the app: written for the web. */
+    verifyFailed: "לא הצלחנו לאמת את הקוד. נסו שוב.",
     finishing: "מסיימים את ההרשמה...",
     mergeFailed: "לא הצלחנו לסיים את ההרשמה",
     retry: "נסו שוב",
+    /** An existing user after fill_missing_funnel_answers (Task 5 brief). */
+    welcomeBack: "ברוכים השבים, {name}",
+    /** The hand-off action to /payment (approved mockup). */
+    toPayment: "לבחירת מסלול",
   },
 } as const;
