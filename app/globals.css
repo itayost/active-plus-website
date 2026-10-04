@@ -600,3 +600,10 @@ html {
     margin-bottom: 1.25rem;
   }
 }
+
+/* A returning visitor's saved step replaces the server-rendered welcome2 on
+   mount. Until then (flag set by lib/funnel/resume-script, cleared by Funnel)
+   welcome2 keeps its height but is not shown, announced or clickable. */
+[data-funnel-resume] section[data-step="welcome2"] {
+  visibility: hidden;
+}

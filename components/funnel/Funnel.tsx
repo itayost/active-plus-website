@@ -5,7 +5,7 @@ import { advance, back, initialState, restore, showHours, type FunnelState } fro
 import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import type { Segment } from "@/lib/funnel/time";
-import type { Answers } from "@/lib/funnel/types";
+import type { Answers, Step } from "@/lib/funnel/types";
 import FunnelChrome from "./FunnelChrome";
 import { STEP_TITLE_ID } from "./parts";
 import { renderStep, type StepActions } from "./steps";
@@ -15,17 +15,32 @@ import { renderStep, type StepActions } from "./steps";
  * the answers, persists them through lib/funnel/storage, and hands each step
  * its slice of state and the actions it may take. Steps are presentational.
  *
- * The server renders welcome2; on mount the saved session (if any) replaces it.
+ * The server renders welcome2; on mount the saved session (if any) replaces it
+ * (lib/funnel/resume-script hides welcome2 from a returning visitor until then),
+ * and the root gets data-ready.
  */
 export default function Funnel() {
   const [state, setState] = useState<FunnelState>(initialState);
   // Counts navigations, so focus moves to the new heading on every move but not on the first paint.
   const [moves, setMoves] = useState(0);
+  // The step the saved session restored to; null until the restore has run.
+  const [restored, setRestored] = useState<Step | null>(null);
 
   useEffect(() => {
     const { answers } = loadSession();
-    setState(restore(loadStep(), answers));
+    const next = restore(loadStep(), answers);
+    setState(next);
+    setRestored(next.step);
   }, []);
+
+  // Runs after the restored step has rendered: lift the pre-hydration hide
+  // (even when the restore landed on welcome2), and put a returning visitor
+  // on their step's heading.
+  useEffect(() => {
+    if (restored === null) return;
+    delete document.documentElement.dataset.funnelResume;
+    if (restored !== "welcome2") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
+  }, [restored]);
 
   useEffect(() => {
     if (moves === 0) return;
@@ -67,7 +82,11 @@ export default function Funnel() {
   const canGoBack = state.history.length > 0 || (step === "time" && state.time.sub === "B");
 
   return (
-    <div className="bg-sunken pb-[clamp(3.5rem,7vw,6rem)] pt-[clamp(1.25rem,3vw,2.5rem)]">
+    <div
+      data-funnel-root=""
+      data-ready={restored === null ? undefined : ""}
+      className="bg-sunken pb-[clamp(3.5rem,7vw,6rem)] pt-[clamp(1.25rem,3vw,2.5rem)]"
+    >
       <div className="mx-auto max-w-[860px] gutter-x">
         <FunnelChrome
           dot={indicator(step, state.answers)}

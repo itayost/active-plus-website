@@ -4,9 +4,9 @@ import type { Answers, Step } from "./types";
 
 const ID = "ap.funnel.session_id";
 const ANSWERS = "ap.funnel.answers";
-const STAMP = "ap.funnel.updated_at";
-const STEP = "ap.funnel.step";
-const TTL = SESSION_TTL_DAYS * 86_400_000;
+export const STAMP = "ap.funnel.updated_at";
+export const STEP = "ap.funnel.step";
+export const TTL = SESSION_TTL_DAYS * 86_400_000;
 
 function safeGet(key: string): string | null {
   try {

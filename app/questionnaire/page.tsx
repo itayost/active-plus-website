@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Funnel from "@/components/funnel/Funnel";
+import { RESUME_SCRIPT } from "@/lib/funnel/resume-script";
 
 export const metadata: Metadata = {
   title: "בדיקת התאמה",
@@ -9,5 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default function QuestionnairePage() {
-  return <Funnel />;
+  return (
+    <>
+      {/* Before the funnel so it runs ahead of welcome2's markup: see lib/funnel/resume-script. */}
+      <script dangerouslySetInnerHTML={{ __html: RESUME_SCRIPT }} />
+      <Funnel />
+    </>
+  );
 }

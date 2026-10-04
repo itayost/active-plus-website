@@ -16,6 +16,17 @@ const next = (page: Page) => screen(page).getByRole("button", { name: COPY.commo
 const choose = (page: Page, label: string) => screen(page).getByRole("radiogroup").getByText(label, { exact: true }).click();
 const firstLine = (text: string) => text.split("\n")[0];
 
+/** The funnel marks itself ready once the saved session (if any) has been restored. */
+async function open(page: Page) {
+  await page.goto("/questionnaire");
+  await expect(page.locator("[data-funnel-root][data-ready]")).toBeAttached();
+}
+
+async function reload(page: Page) {
+  await page.reload();
+  await expect(page.locator("[data-funnel-root][data-ready]")).toBeAttached();
+}
+
 async function expectStep(page: Page, step: Step, timeout?: number) {
   await expect(screen(page)).toHaveAttribute("data-step", step, { timeout });
 }
@@ -29,7 +40,7 @@ async function stored(page: Page): Promise<{ step: string | null; answers: Answe
 
 /** Resume straight into a step with these answers, as a returning visitor would. */
 async function seed(page: Page, step: Step, answers: Answers) {
-  await page.goto("/questionnaire");
+  await open(page);
   await page.evaluate(
     ([s, a]) => {
       localStorage.setItem("ap.funnel.step", s);
@@ -37,7 +48,7 @@ async function seed(page: Page, step: Step, answers: Answers) {
     },
     [step, answers] as const,
   );
-  await page.reload();
+  await reload(page);
   await expectStep(page, step);
 }
 
@@ -59,7 +70,7 @@ async function walkToReinforcement(
   onSocialProof: () => Promise<void> = async () => {},
 ) {
   const fem = gender === "female";
-  await page.goto("/questionnaire");
+  await open(page);
   await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
 
   await expectStep(page, "gender");
@@ -161,7 +172,7 @@ test.describe("with reduced motion", () => {
   });
 
   test("continue stays disabled until an answer is chosen", async ({ page }) => {
-    await page.goto("/questionnaire");
+    await open(page);
     await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
     await expectStep(page, "gender");
     await expect(title(page)).toBeFocused();
@@ -210,26 +221,52 @@ test.describe("with reduced motion", () => {
     await expect(screen(page).getByRole("button", { name: "ברך" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  test("the other-hour picker stores a 15-minute slot", async ({ page }) => {
+  test("the other-hour picker saves a 15-minute slot and moves on, as the app does", async ({ page }) => {
     await seed(page, "time", { ...THROUGH_FREQUENCY, pain_areas: ["none"] });
     await choose(page, "אחר הצהריים");
     await next(page).click();
-    await screen(page).getByRole("button", { name: COPY.time.otherHour }).click();
-    await screen(page).getByLabel(COPY.time.pickerTitle).selectOption("19:45");
+    await screen(page).getByRole("button", { name: COPY.time.otherHour.masc }).click();
+    const picker = screen(page).getByLabel(COPY.time.pickerTitle.masc, { exact: true });
+    await expect(picker).toBeFocused();
+    await picker.selectOption("19:45");
     await screen(page).getByRole("button", { name: COPY.time.pickerConfirm }).click();
-    await expect(screen(page).getByRole("radio", { name: "19:45" })).toBeChecked();
-    await next(page).click();
     await expectStep(page, "register");
     expect((await stored(page)).answers.training_time_of_day).toBe("19:45");
   });
 
+  test("the custom-time button and picker label speak in the feminine to a woman", async ({ page }) => {
+    await seed(page, "time", { ...THROUGH_FREQUENCY, gender: "female", pain_areas: ["none"] });
+    await choose(page, "בוקר");
+    await next(page).click();
+    await screen(page).getByRole("button", { name: "בחרי שעה אחרת שמתאימה לי" }).click();
+    await expect(screen(page).getByLabel("בחרי שעה", { exact: true })).toBeFocused();
+  });
+
   test("a reload resumes on the same step with the answers kept", async ({ page }) => {
     await walkToReinforcement(page, "male", "alone");
-    await page.reload();
+    await reload(page);
     await expectStep(page, "reinforcement2");
+    await expect(title(page)).toBeFocused();
+    expect(await page.evaluate(() => document.documentElement.dataset.funnelResume)).toBeUndefined();
     await page.getByRole("button", { name: COPY.chrome.back }).click();
     await expectStep(page, "challengeArea");
     await expect(screen(page).getByRole("radio", { name: COPY.challengeArea.options[0].label })).toBeChecked();
+  });
+
+  test("before the page's JavaScript runs, a returning visitor never sees welcome2", async ({ page }) => {
+    await seed(page, "chairRise", { gender: "male", date_of_birth: "1961-01-01", aspiration_goal: "all", daily_activity_level: "mostly_sitting" });
+    // Block every script file: only the inline resume check can run, as in the moment before hydration.
+    await page.route("**/*.js", (route) => route.abort());
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-funnel-resume", "");
+    await expect(page.locator('section[data-step="welcome2"]')).toBeHidden();
+  });
+
+  test("a first-time visitor sees welcome2 straight from the server", async ({ page }) => {
+    await page.route("**/*.js", (route) => route.abort());
+    await page.goto("/questionnaire");
+    await expect(page.locator("html")).not.toHaveAttribute("data-funnel-resume");
+    await expect(page.locator('section[data-step="welcome2"]').getByRole("heading")).toBeVisible();
   });
 
   test("cancel leaves for the home page and keeps the answers", async ({ page }) => {
