@@ -134,7 +134,7 @@ export default function FeatureCards() {
               </div>
 
               <div className="flex flex-1 flex-col p-[clamp(min(1.5rem,7.5vw),3vw,3rem)] lg:ps-[clamp(min(1rem,5vw),2vw,2rem)]">
-                <h3 className="text-[clamp(1.5rem,1.2rem+1.4vw,2.5rem)] font-display font-black leading-tight">
+                <h3 className="text-card-title font-display font-black leading-tight">
                   {card.title}
                 </h3>
                 <div className={`mt-5 space-y-4 ${SOFT[card.tone]}`}>

@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
         >
           {C.hero.title}
         </h1>
-        <p className="mt-6 max-w-[44ch] text-[clamp(1.2rem,1.05rem+0.8vw,1.5rem)] font-medium leading-snug text-white/90">
+        <p className="mt-6 max-w-[44ch] text-lead font-medium leading-snug text-white/90">
           {C.hero.sub}
         </p>
         <Button href={FIT_CHECK.href} variant="onColor" size="lg" className="mt-10">

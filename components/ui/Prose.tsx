@@ -25,7 +25,7 @@ export default function Prose({
           return (
             <Fragment key={`${block.text}-${index}`}>
               {h2Count === 2 ? figure : null}
-              <h2 className="mb-4 mt-14 text-[clamp(1.5rem,1.25rem+1.2vw,2.25rem)] font-display font-bold first:mt-0">
+              <h2 className="mb-4 mt-14 text-h2-prose font-display font-bold first:mt-0">
                 {block.text}
               </h2>
             </Fragment>

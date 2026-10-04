@@ -49,7 +49,7 @@ export default function AboutPage() {
           </Reveal>
           <div className="grid gap-[clamp(1.5rem,3vw,2.25rem)]">
             {C.story.map((p) => (
-              <p key={p} className="max-w-[36ch] text-[clamp(1.25rem,1.1rem+0.6vw,1.5rem)] leading-[1.55] text-ink-soft">
+              <p key={p} className="max-w-[36ch] text-lead text-ink-soft">
                 {p}
               </p>
             ))}

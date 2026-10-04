@@ -26,7 +26,7 @@ export default function Logo({ className = "" }: { className?: string }) {
       />
       {/* logo-wordmark collapses inside the header at enlarged text; the
           link keeps its name through aria-label either way. */}
-      <span className="logo-wordmark font-display text-[1.375rem] font-black min-[421px]:text-h3 leading-none tracking-tight">
+      <span className="logo-wordmark font-display text-h3 font-black leading-none tracking-tight">
         <span className="text-blue-deep">פעילים</span>
         <span className="text-green-deep">+</span>
       </span>

@@ -63,7 +63,7 @@ export default function Hero() {
             <span className="block text-emphasis">וחדות המחשבה</span>
           </h1>
 
-          <p className="mt-6 max-w-[34ch] text-[clamp(1.2rem,1.05rem+0.8vw,1.625rem)] font-medium leading-snug text-white/90">
+          <p className="mt-6 max-w-[34ch] text-lead font-medium leading-snug text-white/90">
             רק 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.
           </p>
 

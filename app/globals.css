@@ -328,13 +328,13 @@ html {
     font-size: min(clamp(2.125rem, 1.4rem + 3.6vw, 5.5rem), max(1.75rem, 11.5dvh));
   }
 
-  /* The lead's width-driven step (0.8vw) is what makes it 32px on a wide
-     landscape phone at 150%; here it is held to the height instead, never
-     below the 18px body floor in the reader's own text size. */
+  /* The lead's width-driven step (the text-lead clamp) is what makes it
+     large on a wide landscape phone at 150%; here it is held to the height
+     instead, never below the 18px body floor in the reader's own text size. */
   .hero-stack > p {
     margin-top: min(0.75rem, 2dvh);
     max-width: 52ch;
-    font-size: max(1.125rem, min(clamp(1.2rem, 1.05rem + 0.8vw, 1.625rem), 7dvh));
+    font-size: max(1.125rem, min(clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem), 7dvh));
   }
 
   .hero-stack > div {

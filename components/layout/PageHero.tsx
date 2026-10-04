@@ -56,7 +56,7 @@ export default function PageHero({
         <h1
           className={`font-display font-black ${INK[tone]} ${
             article
-              ? "max-w-[24ch] text-[clamp(2rem,1.3rem+2.6vw,4.25rem)] leading-[1.08]"
+              ? "max-w-[24ch] text-h1-article leading-[1.08]"
               : "max-w-[20ch] text-h1"
           }`}
         >

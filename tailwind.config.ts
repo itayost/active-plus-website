@@ -76,6 +76,12 @@ const config: Config = {
         h3: ["clamp(1.375rem, 1.15rem + 0.7vw, 1.875rem)", { lineHeight: "1.25" }],
         h2: ["clamp(1.875rem, 1.3rem + 2vw, 3.75rem)", { lineHeight: "1.1" }],
         h1: ["clamp(2.125rem, 1.4rem + 3.6vw, 5.5rem)", { lineHeight: "1.02" }],
+        /* The three in-between steps DESIGN.md sanctions. Size only: each
+           call site keeps its own leading, and Prose h2s inherit the global
+           heading leading. */
+        "h1-article": "clamp(2rem, 1.3rem + 2.6vw, 4.25rem)", // long editorial h1
+        "h2-prose": "clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)", // article-body h2
+        "card-title": "clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem)", // field-card title
       },
       maxWidth: {
         measure: "var(--measure)",
