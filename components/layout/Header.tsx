@@ -13,13 +13,24 @@ import {
   FIT_CHECK,
   NAV,
 } from "@/lib/constants";
+import PhoneNumber from "@/components/ui/PhoneNumber";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [lifted, setLifted] = useState(false);
+  // Where the drawer puts the fit-check pill: at the top when the bar has had
+  // to drop it (large text, see globals.css), at the foot otherwise.
+  const [pillOnTop, setPillOnTop] = useState(false);
   const pathname = usePathname();
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const pillSlotRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+
+  const openDrawer = useCallback(() => {
+    const pill = pillSlotRef.current?.firstElementChild;
+    setPillOnTop(pill ? getComputedStyle(pill).display === "none" : false);
+    setOpen(true);
+  }, []);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -93,10 +104,10 @@ export default function Header() {
           Nothing is ever pushed past the inline end, where html's
           overflow-x: clip would silently hide the menu toggle.
         */}
-        <div className="mx-auto flex max-w-shell flex-wrap items-center justify-between gap-2 gutter-x min-[421px]:gap-x-6 py-3">
+        <div className="header-row mx-auto flex max-w-shell flex-wrap items-center justify-between gap-2 gutter-x min-[421px]:gap-x-6 py-3">
           <Logo />
 
-          <nav aria-label="ניווט ראשי" className="hidden lg:block">
+          <nav aria-label="ניווט ראשי" className="desktop-nav hidden lg:block">
             <ul className="flex items-center gap-1">
               {NAV.map((item) => (
                 <li key={item.href}>
@@ -120,7 +131,7 @@ export default function Header() {
               so at enlarged text the pill wraps its own label before the row
               has to wrap. Their minimum is still their content, which keeps
               the row-wrap fallback for browsers without container queries. */}
-          <div className="header-actions ms-auto flex items-center justify-end gap-2 max-lg:flex-[1_1_0%]">
+          <div ref={pillSlotRef} className="header-actions ms-auto flex items-center justify-end gap-2 max-lg:flex-[1_1_0%]">
             <Button
               href={FIT_CHECK.href}
               className="fit-pill text-center leading-tight max-[420px]:px-4 max-[420px]:text-base"
@@ -130,10 +141,10 @@ export default function Header() {
             <button
               ref={toggleRef}
               type="button"
-              onClick={() => (open ? close() : setOpen(true))}
+              onClick={() => (open ? close() : openDrawer())}
               aria-expanded={open}
               aria-controls="site-drawer"
-              className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken lg:hidden"
+              className="nav-toggle inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken lg:hidden"
             >
               <span className="sr-only">{open ? "סגירת התפריט" : "פתיחת התפריט"}</span>
               <MenuIcon className="h-7 w-7" />
@@ -149,8 +160,8 @@ export default function Header() {
         tabIndex={-1}
         aria-hidden="true"
         onClick={close}
-        className={`fixed inset-0 z-40 bg-ink/45 backdrop-blur-[2px] transition-opacity duration-[var(--dur)] lg:hidden ${
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-40 bg-ink/45 backdrop-blur-[2px] transition-opacity duration-[var(--dur)] ${
+          open ? "opacity-100" : "pointer-events-none opacity-0 lg:hidden"
         }`}
       />
 
@@ -172,23 +183,37 @@ export default function Header() {
         aria-modal="true"
         aria-label="תפריט האתר"
         inert={!open}
-        className={`drawer-safe fixed inset-y-0 start-0 z-50 flex w-[min(88vw,380px)] flex-col overflow-y-auto overscroll-contain bg-surface motion-reduce:transition-none lg:hidden ${
+        className={`drawer-safe fixed inset-y-0 start-0 z-50 flex w-[min(88vw,380px)] flex-col overflow-y-auto overscroll-contain bg-surface motion-reduce:transition-none ${
           open
             ? "visible translate-x-0 shadow-lift-3 [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s]"
-            : "invisible translate-x-full shadow-none rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
+            : "invisible translate-x-full shadow-none lg:hidden rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-hairline px-5 py-3">
+        {/* The close row is sized in px, capped at 56px: at 200% a 3rem
+            button made this row a sixth of a portrait screen and a third of
+            a landscape one, before a single menu item. */}
+        <div className="flex items-center justify-between border-b border-hairline px-5 py-[12px]">
           <Logo />
           <button
             type="button"
             onClick={close}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken"
+            className="inline-flex h-[min(3rem,56px)] w-[min(3rem,56px)] items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken"
           >
             <span className="sr-only">סגירת התפריט</span>
-            <CloseIcon className="h-7 w-7" />
+            <CloseIcon className="h-[min(1.75rem,32px)] w-[min(1.75rem,32px)]" />
           </button>
         </div>
+
+        {/* With the text enlarged the bar has no room for the pill, so the
+            drawer leads with it: the site's one action is still the first
+            thing under the reader's thumb when the menu opens. */}
+        {pillOnTop ? (
+          <div className="px-5 pt-5">
+            <Button href={FIT_CHECK.href} size="lg" className="w-full text-center">
+              {FIT_CHECK.label}
+            </Button>
+          </div>
+        ) : null}
 
         <nav aria-label="ניווט האתר" className="flex-1 px-5 py-4">
           <ul className="flex flex-col">
@@ -213,15 +238,17 @@ export default function Header() {
         {/* A phone number is the fastest route for this audience, so the
             drawer ends with it rather than with another link. */}
         <div className="border-t border-hairline px-5 py-5">
-          <Button href={FIT_CHECK.href} size="lg" className="w-full">
-            {FIT_CHECK.label}
-          </Button>
+          {pillOnTop ? null : (
+            <Button href={FIT_CHECK.href} size="lg" className="mb-4 w-full text-center">
+              {FIT_CHECK.label}
+            </Button>
+          )}
           <a
             href={`tel:${CONTACT_PHONE_TEL}`}
-            className="mt-4 flex min-h-12 items-center gap-3 text-ink-soft transition-colors hover:text-blue-deep"
+            className="flex min-h-12 items-center gap-3 text-ink-soft transition-colors hover:text-blue-deep"
           >
             <PhoneIcon className="h-6 w-6 shrink-0 text-blue-deep" />
-            <span dir="ltr">{CONTACT_PHONE}</span>
+            <span dir="ltr"><PhoneNumber value={CONTACT_PHONE} /></span>
           </a>
           <p className="mt-1 ps-9 text-ink-soft">{CONTACT_HOURS}</p>
         </div>
