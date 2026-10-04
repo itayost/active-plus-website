@@ -49,7 +49,7 @@ export default function PartnersBand() {
         id="partners-label"
         className="text-center font-display text-lead font-bold text-ink-soft"
       >
-        עובדים איתנו
+        שיתופי פעולה
       </h2>
 
       {/* The mask keeps logos from appearing and vanishing at hard edges. */}

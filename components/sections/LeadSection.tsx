@@ -6,12 +6,14 @@ import { CONTACT_HOURS, CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants
 
 export default function LeadSection({
   source,
-  heading = "השאירו פרטים ונחזור אליכם",
+  heading = "השאירו פרטים ונחזור אליכם לתיאום",
   lede = "שיחה קצרה, בלי התחייבות — נבין מה מתאים לכם ונסביר איך מתחילים.",
+  withEmail = true,
 }: {
   source: string;
   heading?: string;
   lede?: string;
+  withEmail?: boolean;
 }) {
   return (
     <section
@@ -55,7 +57,7 @@ export default function LeadSection({
 
           <Reveal delayIndex={1}>
             <div className="rounded-card bg-surface p-[clamp(1.5rem,3vw,2.5rem)] shadow-lift-2">
-              <LeadForm source={source} submitLabel="שליחה" />
+              <LeadForm source={source} submitLabel="שליחה" withEmail={withEmail} />
             </div>
           </Reveal>
         </div>

@@ -43,6 +43,8 @@ type Props = {
   /** Long form adds a topic select and a free-text message. */
   detailed?: boolean;
   submitLabel?: string;
+  /** Show the optional email field. The home page asks for name and phone only. */
+  withEmail?: boolean;
   className?: string;
 };
 
@@ -70,6 +72,7 @@ export default function LeadForm({
   source,
   detailed = false,
   submitLabel = "שליחה",
+  withEmail = true,
   className = "",
 }: Props) {
   const [state, formAction] = useActionState(submitLead, INITIAL);
@@ -185,6 +188,7 @@ export default function LeadForm({
           <FieldError field="phone" />
         </div>
 
+        {withEmail ? (
         <div className={detailed ? "" : "sm:col-span-2"}>
           <label
             htmlFor={`${uid}-email`}
@@ -207,6 +211,7 @@ export default function LeadForm({
           />
           <FieldError field="email" />
         </div>
+        ) : null}
 
         {detailed ? (
           <>

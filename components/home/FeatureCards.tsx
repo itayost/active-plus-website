@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import { Shell } from "@/components/ui/Section";
+import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
 import { FEATURE_CARDS, FIT_CHECK, type Tone } from "@/lib/constants";
 
@@ -53,41 +53,7 @@ const SOFT: Record<Tone, string> = {
 };
 
 export default function FeatureCards() {
-  const trackRef = useRef<HTMLUListElement>(null);
-  const [index, setIndex] = useState(0);
-
-  const goTo = useCallback((next: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const clamped = Math.max(0, Math.min(next, FEATURE_CARDS.length - 1));
-    const card = track.children[clamped] as HTMLElement | undefined;
-    card?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "start",
-    });
-    setIndex(clamped);
-  }, []);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible) return;
-        const next = Array.from(track.children).indexOf(visible.target);
-        if (next >= 0) setIndex(next);
-      },
-      { root: track, threshold: 0.6 },
-    );
-
-    Array.from(track.children).forEach((child) => observer.observe(child));
-    return () => observer.disconnect();
-  }, []);
+  const { trackRef, index, goTo } = useSnapCarousel<HTMLUListElement>(FEATURE_CARDS.length);
 
   return (
     <section
