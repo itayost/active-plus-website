@@ -42,7 +42,7 @@ export default function FitCheckClose({ tone, cta, heading, headingId, body }: P
 
   if (tone === "blue") {
     return (
-      <div className="grid gap-8 rounded-card bg-blue p-[clamp(2rem,5vw,3.5rem)] text-white shadow-lift-2">
+      <div className="grid gap-8 rounded-card bg-blue [--focus-ring:#ffffff] p-[clamp(2rem,5vw,3.5rem)] text-white shadow-lift-2">
         <h2
           id={headingId}
           className="max-w-[22ch] font-display text-[clamp(1.75rem,1.3rem+1.8vw,2.75rem)] font-black leading-[1.15]"
@@ -58,7 +58,7 @@ export default function FitCheckClose({ tone, cta, heading, headingId, body }: P
   }
 
   return (
-    <div className="rounded-card bg-green px-[clamp(1.5rem,5vw,4rem)] py-[clamp(2.5rem,6vw,4.5rem)] text-center text-white">
+    <div className="rounded-card bg-green [--focus-ring:#ffffff] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(2.5rem,6vw,4.5rem)] text-center text-white">
       <h2
         id={headingId}
         className="mx-auto max-w-[22ch] text-h2 font-display font-black"
