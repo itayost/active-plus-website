@@ -9,7 +9,7 @@
  */
 export const PROTECTED_PATHS = ["/delete-account", "/privacy-policy"] as const;
 
-export const LEGACY_REDIRECTS = [
+export const LEGACY_REDIRECTS: readonly { source: string; destination: string }[] = [
   { source: "/dual-tasking", destination: "/how-it-works" },
   { source: "/research", destination: "/about" },
   { source: "/team", destination: "/about" },
@@ -19,4 +19,4 @@ export const LEGACY_REDIRECTS = [
   { source: "/articles/improve-memory-after-50", destination: "/articles/memory-after-50" },
   { source: "/articles/balance-after-50", destination: "/articles/body-after-50" },
   { source: "/articles/brain-plasticity-dual-tasking", destination: "/articles/brain-and-movement" },
-] as const;
+];
