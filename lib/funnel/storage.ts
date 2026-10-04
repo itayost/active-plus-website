@@ -50,11 +50,29 @@ function expireIfStale(now: number): void {
   if (stamp && now - stamp > TTL) resetSession();
 }
 
+const VERSION_BYTE = 6;
+const VARIANT_BYTE = 8;
+
+/** An RFC 4122 version 4 id from 16 random bytes: version nibble 4, variant bits 10. */
+function uuidFromRandomBytes(): string {
+  const random = crypto.getRandomValues(new Uint8Array(16));
+  const bytes = Array.from(random, (b, i) =>
+    i === VERSION_BYTE ? (b & 0x0f) | 0x40 : i === VARIANT_BYTE ? (b & 0x3f) | 0x80 : b,
+  );
+  const hex = bytes.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join("-");
+}
+
+/** crypto.randomUUID is missing before Safari 15.4 (older iPads); getRandomValues is not. */
+function newSessionId(): string {
+  return typeof crypto.randomUUID === "function" ? crypto.randomUUID().toLowerCase() : uuidFromRandomBytes();
+}
+
 export function loadSession(now = Date.now()): { id: string; answers: Answers } {
   expireIfStale(now);
   let id = safeGet(ID);
   if (!id) {
-    id = crypto.randomUUID().toLowerCase();
+    id = newSessionId();
     safeSet(ID, id);
     safeSet(STAMP, String(now));
   }

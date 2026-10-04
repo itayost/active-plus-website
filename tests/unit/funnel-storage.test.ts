@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { webcrypto } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GENDER_FOR_PAYMENT, handOffToPayment, loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 
@@ -59,6 +60,29 @@ describe("funnel storage", () => {
     expect(s.answers).toEqual({});
     expect(() => saveAnswers({ gender: "male" })).not.toThrow();
     expect(() => resetSession()).not.toThrow();
+  });
+
+  describe("session id without crypto.randomUUID (Safari before 15.4)", () => {
+    const V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+    it("builds an RFC 4122 v4 id from getRandomValues", () => {
+      const getRandomValues = vi.fn(<T extends ArrayBufferView>(array: T) => webcrypto.getRandomValues(array as never) as T);
+      vi.stubGlobal("crypto", { getRandomValues });
+      const { id } = loadSession();
+      expect(id).toMatch(V4);
+      expect(id[14]).toBe("4"); // version nibble
+      expect("89ab").toContain(id[19]); // variant nibble
+      expect(getRandomValues).toHaveBeenCalledTimes(1);
+      expect(loadSession().id).toBe(id);
+    });
+
+    it("sets the version and variant bits whatever the random bytes are", () => {
+      for (const fill of [0x00, 0xff]) {
+        resetSession();
+        vi.stubGlobal("crypto", { getRandomValues: <T extends ArrayBufferView>(array: T) => (new Uint8Array(array.buffer).fill(fill), array) });
+        expect(loadSession().id).toMatch(V4);
+      }
+    });
   });
 
   describe("current step", () => {
