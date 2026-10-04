@@ -288,6 +288,30 @@ test("while the code is checked, back, 'ערוך מספר' and resend are inert"
   expect(stub.to("/auth/v1/otp")).toHaveLength(1);
 });
 
+test("while the code is sent, back is hidden, and cancelling then leaves the visitor off otp", async ({ page }) => {
+  const stub = await start(page);
+  const beacons: string[] = [];
+  await page.route("**/api/funnel-event", (route) => {
+    beacons.push(route.request().postData() ?? "");
+    return route.fulfill({ status: 204 });
+  });
+  await toPhone(page);
+  await phoneInput(page).fill("0501234567");
+  const release = stub.hold("/auth/v1/otp");
+  await screen(page).getByRole("button", { name: R.phoneCta }).click();
+  await expect.poll(() => stub.to("/auth/v1/otp").length).toBe(1);
+  await expect(back(page)).toBeHidden();
+
+  await page.getByRole("link", { name: COPY.chrome.cancel }).click();
+  await expect(page).toHaveURL(/\/$/);
+  const answered = page.waitForResponse((r) => r.url().endsWith("/auth/v1/otp"));
+  release();
+  await answered;
+  await settle(page);
+  expect((await stored(page)).step).toBe("register");
+  expect(beacons.join("\n")).not.toContain("register_submit");
+});
+
 test("a verify that answers after the visitor has left does not merge or move them to /payment", async ({ page }) => {
   const stub = await start(page);
   await toOtp(page);

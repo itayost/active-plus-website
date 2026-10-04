@@ -35,7 +35,7 @@ export type StepActions = {
   editPhone: () => void;
   /** Signed in and merged: the chrome drops back and cancel. */
   complete: () => void;
-  /** otp is checking a code or merging: the chrome hides back meanwhile. */
+  /** A code is being sent or checked, or the answers merged: the chrome hides back meanwhile. */
   setBusy: (busy: boolean) => void;
 };
 
@@ -176,6 +176,7 @@ export function renderStep(state: FunnelState, actions: StepActions): ReactEleme
           onNameChange={(full_name) => actions.setDraft({ full_name })}
           onName={actions.saveName}
           onCodeSent={actions.codeSent}
+          onBusy={actions.setBusy}
         />
       );
   }

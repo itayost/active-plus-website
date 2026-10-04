@@ -74,13 +74,29 @@ type PhoneProps = {
   /** The number from an earlier send, so "ערוך מספר" finds it filled in. */
   initialPhone: string;
   onSent: (phone: string) => void;
+  /** True while the code is being sent: the funnel's back is hidden, as on otp. */
+  onBusy: (busy: boolean) => void;
 };
 
-function PhoneStep({ gender, initialPhone, onSent }: PhoneProps) {
+function PhoneStep({ gender, initialPhone, onSent, onBusy }: PhoneProps) {
   const [phone, setPhone] = useState(initialPhone);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  // False once the phone screen has unmounted (back, cancel): a send that resolves later must not act.
+  const alive = useRef(true);
+
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    onBusy(sending);
+  }, [sending, onBusy]);
+  useEffect(() => () => onBusy(false), [onBusy]);
 
   const fail = (message: string) => {
     setError(message);
@@ -94,6 +110,7 @@ function PhoneStep({ gender, initialPhone, onSent }: PhoneProps) {
     setSending(true);
     const supabase = await loadBrowserSupabase();
     const result = supabase ? await sendCode(supabase, toE164(phone)) : "error";
+    if (!alive.current) return;
     setSending(false);
     if (result === "ok") return onSent(phone.trim());
     fail(result === "rateLimited" ? COPY.otp.rateLimited : C.sendFailed);
@@ -159,14 +176,17 @@ type Props = {
   onNameChange: (name: string) => void;
   onName: (name: string) => void;
   onCodeSent: (phone: string) => void;
+  onBusy: (busy: boolean) => void;
 };
 
 /** register: the name, then the phone the code is sent to. */
-export default function Register({ view, gender, name, onNameChange, onName, onCodeSent }: Props) {
+export default function Register({ view, gender, name, onNameChange, onName, onCodeSent, onBusy }: Props) {
   // Start fetching the Supabase client while the visitor types, so the send does not wait for it.
   useEffect(() => {
     void loadBrowserSupabase();
   }, []);
-  if (view.sub === "phone") return <PhoneStep gender={gender} initialPhone={view.phone} onSent={onCodeSent} />;
+  if (view.sub === "phone") {
+    return <PhoneStep gender={gender} initialPhone={view.phone} onSent={onCodeSent} onBusy={onBusy} />;
+  }
   return <NameStep gender={gender} name={name} onChange={onNameChange} onSubmit={onName} />;
 }
