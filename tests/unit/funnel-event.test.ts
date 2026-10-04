@@ -70,6 +70,22 @@ describe("parseFunnelEvent", () => {
     expect(parsed?.data).toEqual({ ok: 1 });
   });
 
+  it.each([
+    ["a nested object", { a: { b: 1 } }],
+    ["an array value", { a: [1, 2] }],
+    ["a nested object after valid keys", { ok: 1, deep: { x: "y" } }],
+  ])("rejects data with %s", (_label, data) => {
+    expect(parseFunnelEvent(body({ data }))).toBeNull();
+  });
+
+  it("accepts string, number, boolean and null values", () => {
+    expect(parseFunnelEvent(body({ data: { s: "a", n: 1, b: false, z: null } }))?.data).toEqual({ s: "a", n: 1, b: false, z: null });
+  });
+
+  it("drops a PII key before judging the rest, even when its value is nested", () => {
+    expect(parseFunnelEvent(body({ data: { name: { first: "x" }, ok: 1 } }))?.data).toEqual({ ok: 1 });
+  });
+
   it("rejects data over the byte cap and accepts data at it", () => {
     expect(parseFunnelEvent(body({ data: { blob: "a".repeat(MAX_DATA_BYTES) } }))).toBeNull();
     const fits = MAX_DATA_BYTES - JSON.stringify({ b: "" }).length;

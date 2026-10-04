@@ -65,6 +65,8 @@ export type ParsedFunnelEvent = {
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
+const isPrimitive = (value: unknown) => value === null || ["string", "number", "boolean"].includes(typeof value);
+
 /** Validates an incoming analytics body. Returns null for anything that must not be stored. */
 export function parseFunnelEvent(body: unknown): ParsedFunnelEvent | null {
   if (!isPlainObject(body)) return null;
@@ -74,6 +76,7 @@ export function parseFunnelEvent(body: unknown): ParsedFunnelEvent | null {
   if (data !== undefined && !isPlainObject(data)) return null;
 
   const kept = Object.fromEntries(Object.entries(data ?? {}).filter(([key]) => !PII_KEYS.has(key.toLowerCase())));
+  if (!Object.values(kept).every(isPrimitive)) return null;
   if (new TextEncoder().encode(JSON.stringify(kept)).length > MAX_DATA_BYTES) return null;
   return { sessionId: sessionId.toLowerCase(), step, data: kept };
 }

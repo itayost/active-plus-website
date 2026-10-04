@@ -11,15 +11,36 @@ const done = () => new Response(null, { status: 204 });
 
 /**
  * sendBeacon with a Blob may arrive as application/json or text/plain, so the
- * body is always read as text (capped) and parsed here.
+ * body is always read as text and parsed here. The read is bounded: a chunked
+ * request has no content-length, so bytes are counted as they arrive and the
+ * stream is cancelled once the cap is passed.
  */
 async function readBody(request: Request): Promise<unknown> {
-  const declared = Number(request.headers.get("content-length") ?? 0);
-  if (declared > MAX_BODY_BYTES) return null;
-  const text = await request.text();
-  if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) return null;
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) return null;
+  if (!request.body) return null;
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done: finished, value } = await reader.read();
+    if (finished) break;
+    total += value.byteLength;
+    if (total > MAX_BODY_BYTES) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
   try {
-    return JSON.parse(text);
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     return null;
   }
@@ -27,7 +48,8 @@ async function readBody(request: Request): Promise<unknown> {
 
 export async function POST(request: Request) {
   const ip = clientIp(request.headers);
-  if (ip !== "unknown" && isRateLimited(ip)) return done();
+  // An unresolvable address shares one "unknown" bucket: skipping the limit would let a caller opt out of it.
+  if (isRateLimited(ip)) return done();
 
   const event = parseFunnelEvent(await readBody(request));
   if (!event) return done();

@@ -64,6 +64,55 @@ describe("POST /api/funnel-event", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
+  function chunked(text: string, size: number) {
+    const bytes = new TextEncoder().encode(text);
+    let sent = 0;
+    const state = { cancelled: false, pulled: 0 };
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (sent >= bytes.length) return controller.close();
+        controller.enqueue(bytes.slice(sent, sent + size));
+        sent += size;
+        state.pulled = sent;
+      },
+      cancel() {
+        state.cancelled = true;
+      },
+    });
+    const response = POST(
+      new Request("http://localhost/api/funnel-event", {
+        method: "POST",
+        headers: { "content-type": "text/plain", "x-vercel-forwarded-for": nextIp() },
+        body: stream,
+        duplex: "half",
+      } as RequestInit),
+    );
+    return Object.assign(response, { state, total: bytes.length });
+  }
+
+  it("reads a chunked body with no content-length and inserts when under the cap", async () => {
+    expect((await chunked(JSON.stringify(valid), 7)).status).toBe(204);
+    expect(insert).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops reading a chunked body over the cap and does not insert", async () => {
+    const pending = chunked(JSON.stringify({ ...valid, pad: "a".repeat(100_000) }), 512);
+    const res = await pending;
+    expect(res.status).toBe(204);
+    expect(pending.state.cancelled).toBe(true);
+    expect(pending.state.pulled).toBeLessThan(pending.total);
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("rate limits requests with no resolvable address under one shared key", async () => {
+    const anon = () =>
+      POST(new Request("http://localhost/api/funnel-event", { method: "POST", body: JSON.stringify(valid) }));
+    for (let i = 0; i < 120; i++) await anon();
+    expect(insert).toHaveBeenCalledTimes(120);
+    expect((await anon()).status).toBe(204);
+    expect(insert).toHaveBeenCalledTimes(120);
+  });
+
   it("strips PII keys before the insert", async () => {
     await post({ ...valid, data: { phone: "0501234567", name: "x", step: 1 } });
     expect(insert.mock.calls[0][0].data).toEqual({ step: 1, funnel_version: "v2-web" });
