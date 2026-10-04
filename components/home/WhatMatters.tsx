@@ -9,7 +9,46 @@ import { WHAT_MATTERS } from "@/content/home";
 
 const ROTATE_MS = 6000;
 
+/** Without photos the three points read as one plain list: no rotator, no toggles. */
 export default function WhatMatters() {
+  const hasImages = WHAT_MATTERS.some((w) => w.image);
+  return (
+    <section
+      aria-labelledby="matters-heading"
+      className="bg-sunken py-[var(--section-y)]"
+    >
+      <Shell>
+        <h2 id="matters-heading" className="text-h2 font-display font-black">
+          מה חשוב לנו?
+        </h2>
+        {hasImages ? <MattersRotator /> : <MattersList />}
+      </Shell>
+    </section>
+  );
+}
+
+function MattersList() {
+  return (
+    <ul className="mt-12 grid gap-8 md:grid-cols-3">
+      {WHAT_MATTERS.map((w) => (
+        <li
+          key={w.title}
+          className="grid grid-cols-[auto_1fr] gap-4 rounded-[20px] bg-surface p-6 shadow-lift-1"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-deep text-white">
+            <CheckIcon className="h-5 w-5" />
+          </span>
+          <span>
+            <h3 className="text-h3 font-display font-bold">{w.title}</h3>
+            <p className="mt-2 text-ink-soft">{w.body}</p>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function MattersRotator() {
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -28,70 +67,50 @@ export default function WhatMatters() {
   const item = WHAT_MATTERS[active];
 
   return (
-    <section
-      aria-labelledby="matters-heading"
-      className="bg-sunken py-[var(--section-y)]"
+    <div
+      className="mt-12 grid items-center gap-12 lg:grid-cols-2"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocusCapture={() => setFocused(true)}
+      onBlurCapture={() => setFocused(false)}
     >
-      <Shell>
-        <h2 id="matters-heading" className="text-h2 font-display font-black">
-          מה חשוב לנו?
-        </h2>
-        <div
-          className="mt-12 grid items-center gap-12 lg:grid-cols-2"
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onFocusCapture={() => setFocused(true)}
-          onBlurCapture={() => setFocused(false)}
-        >
-          <ul className="space-y-3">
-            {WHAT_MATTERS.map((w, i) => (
-              <li key={w.title}>
-                <button
-                  type="button"
-                  aria-pressed={i === active}
-                  onClick={() => setActive(i)}
-                  className="grid w-full grid-cols-[auto_1fr] gap-4 rounded-[20px] p-4 text-start transition-colors hover:bg-surface"
-                >
-                  <span
-                    className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-deep ${
-                      i === active
-                        ? "bg-green-deep text-white"
-                        : "text-green-deep"
-                    }`}
-                  >
-                    <CheckIcon className="h-5 w-5" />
-                  </span>
-                  <span>
-                    <span className="block text-h3 font-display font-bold">
-                      {w.title}
-                    </span>
-                    <span className="mt-1 block text-ink-soft">{w.body}</span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <Reveal>
-            {item.image ? (
-              <Image
-                src={item.image}
-                alt=""
-                width={1200}
-                height={900}
-                className="h-auto w-full rounded-[22px] shadow-lift-2"
-              />
-            ) : (
-              <div
-                role="img"
-                aria-label={item.title}
-                className="flex aspect-[4/3] items-center justify-center rounded-[22px] bg-surface p-6 text-center text-ink-faint shadow-lift-1"
+      <ul className="space-y-3">
+        {WHAT_MATTERS.map((w, i) => (
+          <li key={w.title}>
+            <button
+              type="button"
+              aria-pressed={i === active}
+              onClick={() => setActive(i)}
+              className="grid w-full grid-cols-[auto_1fr] gap-4 rounded-[20px] p-4 text-start transition-colors hover:bg-surface"
+            >
+              <span
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-deep ${
+                  i === active ? "bg-green-deep text-white" : "text-green-deep"
+                }`}
               >
-                {item.title}
-              </div>
-            )}
-          </Reveal>
-        </div>
-      </Shell>
-    </section>
+                <CheckIcon className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block text-h3 font-display font-bold">
+                  {w.title}
+                </span>
+                <span className="mt-1 block text-ink-soft">{w.body}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <Reveal>
+        {item.image ? (
+          <Image
+            src={item.image}
+            alt=""
+            width={1200}
+            height={900}
+            className="h-auto w-full rounded-[22px] shadow-lift-2"
+          />
+        ) : null}
+      </Reveal>
+    </div>
   );
 }

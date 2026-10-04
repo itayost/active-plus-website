@@ -108,7 +108,7 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Button
               href={FIT_CHECK.href}
-              className="!whitespace-nowrap [text-wrap:nowrap] max-[420px]:px-4 max-[420px]:text-[1.0625rem]"
+              className="!whitespace-nowrap [text-wrap:nowrap] max-[420px]:px-4 max-[420px]:text-base"
             >
               {FIT_CHECK.label}
             </Button>

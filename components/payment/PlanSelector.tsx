@@ -3,6 +3,7 @@
 import Button from "@/components/ui/Button";
 import { ArrowIcon, CheckIcon } from "@/components/ui/icons";
 import { PLAN_INCLUDES, PLANS, type PlanId } from "@/lib/constants";
+import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { annualSavings, formatShekel } from "@/lib/pricing";
 
 const PAYMENT_METHODS = ["Bit", "Apple Pay", "Google Pay", "Visa", "Mastercard"] as const;
@@ -11,8 +12,12 @@ const GROUP_LABEL_ID = "plan-group-label";
 type Props = {
   selected: PlanId;
   onSelect: (id: PlanId) => void;
-  /** Called by "המשך לרכישה". The owner decides where the buyer goes next. */
-  onContinue: () => void;
+  /**
+   * Called by "המשך לרכישה". Pass it only when the web checkout exists (flag
+   * on, plan 3). In phase 1 the owner omits it and no continue button renders,
+   * because the store fallback sits directly under the plans.
+   */
+  onContinue?: () => void;
 };
 
 /**
@@ -20,6 +25,9 @@ type Props = {
  * Tab and form semantics come from the browser; the label only paints them.
  */
 export default function PlanSelector({ selected, onSelect, onContinue }: Props) {
+  // Card and wallet methods only apply to the web checkout. In phase 1 the
+  // buyer pays in the app stores, so listing them would mislead.
+  const showMethods = WEB_CHECKOUT_ENABLED;
   return (
     <>
       <div
@@ -61,7 +69,7 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
                     {plan.longName}
                   </span>
                   {isAnnual ? (
-                    <span className="ms-auto whitespace-nowrap rounded-pill bg-[#0f2230] px-4 py-1.5 font-display text-base font-bold text-yellow">
+                    <span className="ms-auto whitespace-nowrap rounded-pill bg-ink px-4 py-1.5 font-display text-lead font-bold text-yellow">
                       {`חיסכון של ${formatShekel(annualSavings())}`}
                     </span>
                   ) : null}
@@ -96,7 +104,11 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
         })}
       </div>
 
-      <div className="mt-10 grid gap-8 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-end">
+      <div
+        className={`mt-10 grid gap-8 ${
+          showMethods ? "md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-end" : ""
+        }`}
+      >
         <div>
           <h3 className="font-display text-h3 font-bold">מה כלול בשני המסלולים</h3>
           <ul className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -111,29 +123,33 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
           </ul>
         </div>
 
-        <div>
-          <p id="payment-methods-label" className="text-base text-ink-faint">
-            אמצעי תשלום
-          </p>
-          <ul
-            aria-labelledby="payment-methods-label"
-            dir="ltr"
-            className="mt-3 flex flex-wrap gap-2"
-          >
-            {PAYMENT_METHODS.map((method) => (
-              <li
-                key={method}
-                className="inline-flex min-h-[40px] items-center rounded-pill border-2 border-hairline bg-surface px-4 font-display text-base font-bold text-ink-soft"
-              >
-                {method}
-              </li>
-            ))}
-          </ul>
-          <Button size="lg" className="mt-6 w-full" onClick={onContinue}>
-            המשך לרכישה
-            <ArrowIcon className="h-5 w-5" />
-          </Button>
-        </div>
+        {showMethods ? (
+          <div>
+            <p id="payment-methods-label" className="text-base text-ink-faint">
+              אמצעי תשלום
+            </p>
+            <ul
+              aria-labelledby="payment-methods-label"
+              dir="ltr"
+              className="mt-3 flex flex-wrap gap-2"
+            >
+              {PAYMENT_METHODS.map((method) => (
+                <li
+                  key={method}
+                  className="inline-flex min-h-[40px] items-center rounded-pill border-2 border-hairline bg-surface px-4 font-display text-base font-bold text-ink-soft"
+                >
+                  {method}
+                </li>
+              ))}
+            </ul>
+            {onContinue ? (
+              <Button size="lg" className="mt-6 w-full" onClick={onContinue}>
+                המשך לרכישה
+                <ArrowIcon className="h-5 w-5" />
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </>
   );

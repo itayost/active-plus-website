@@ -23,7 +23,7 @@ export default function PlansTeaser() {
           </p>
         </Reveal>
 
-        <ul className="mt-12 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <ul className="mt-12 grid items-stretch gap-6 lg:grid-cols-2">
           {PLANS.map((plan, index) => (
             <Reveal as="li" key={plan.id} delayIndex={index}>
               <article
@@ -47,13 +47,13 @@ export default function PlansTeaser() {
                     {plan.name}
                   </h3>
                   {plan.featured ? (
-                    <p className="absolute top-5 start-6 rounded-pill bg-[#0f2230]/85 px-4 py-2 font-display text-lead font-bold text-yellow">
+                    <p className="absolute top-5 start-6 rounded-pill bg-ink/85 px-4 py-2 font-display text-lead font-bold text-yellow">
                       {`חיסכון של ${formatShekel(annualSavings())}`}
                     </p>
                   ) : null}
                 </div>
 
-                <div className="flex flex-1 flex-col justify-between gap-6 bg-surface p-[clamp(1.5rem,3vw,2.25rem)]">
+                <div className="mt-auto flex flex-1 flex-col justify-between gap-6 bg-surface p-[clamp(1.5rem,3vw,2.25rem)]">
                   <div>
                     <p className="font-display text-[clamp(2rem,1.6rem+1.6vw,3rem)] font-black leading-none tracking-tight text-ink">
                       {`${plan.price} ₪`}{" "}
@@ -63,12 +63,12 @@ export default function PlansTeaser() {
                   </div>
 
                   <Button
-                    href="/payment"
+                    href={`/payment?plan=${plan.id}`}
                     variant={plan.featured ? "primary" : "outline"}
                     size="lg"
                     className="w-full"
                   >
-                    לבחירת מסלולים
+                    {plan.id === "annual" ? "לבחירת המנוי השנתי" : "לבחירת המנוי החודשי"}
                     <ArrowIcon className="h-5 w-5" />
                   </Button>
                 </div>

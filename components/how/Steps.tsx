@@ -17,7 +17,7 @@ export default function Steps({ steps }: { steps: Step[] }) {
         >
           <span
             dir="ltr"
-            className="inline-flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-pill bg-blue-wash font-display text-[1.875rem] font-black tracking-tight text-blue-deep shadow-[0_0_0_8px_var(--surface)] lg:h-[5.5rem] lg:w-[5.5rem] lg:text-[2.25rem]"
+            className="inline-flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-pill bg-blue-wash font-display text-[1.875rem] font-black tracking-tight text-blue-deep shadow-[0_0_0_8px_var(--surface)] lg:h-[5.5rem] lg:w-[5.5rem] lg:text-h3"
           >
             {s.n}
           </span>
