@@ -26,14 +26,16 @@ function failed(data: unknown, error: unknown): boolean {
 
 /**
  * fill_missing_funnel_answers raises 'no trainee profile for the authenticated user'
- * (ERRCODE no_data_found, P0002) for a user row without a trainee profile. Matched on the
- * message, which is specific to that raise; P0002 alone could come from elsewhere.
+ * with ERRCODE no_data_found (P0002) for a user row without a trainee profile.
+ * Both must match: P0002 alone could come from elsewhere in the function.
  */
+const NO_PROFILE_CODE = "P0002";
 const NO_PROFILE_MESSAGE = "no trainee profile";
 
 function isNoProfile(error: unknown): boolean {
-  const message = typeof error === "object" && error !== null ? (error as { message?: unknown }).message : undefined;
-  return typeof message === "string" && message.startsWith(NO_PROFILE_MESSAGE);
+  if (typeof error !== "object" || error === null) return false;
+  const { code, message } = error as { code?: unknown; message?: unknown };
+  return code === NO_PROFILE_CODE && typeof message === "string" && message.startsWith(NO_PROFILE_MESSAGE);
 }
 
 async function run(supabase: SupabaseClient, sessionId: string, answers: Answers): Promise<FinishResult> {

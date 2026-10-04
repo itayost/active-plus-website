@@ -78,14 +78,14 @@ describe("finishSignup", () => {
     expect(r).toEqual({ kind: "noProfile" });
   });
 
-  it("recognises the missing trainee profile by its message when the code is absent", async () => {
+  it("keeps the no-profile message retryable when it does not come with P0002", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const r = await finishSignup(
       fakeSupabase({ profileName: "מאמנת", rpcError: { message: NO_PROFILE.message } }) as never,
       "s1",
       {},
     );
-    expect(r).toEqual({ kind: "noProfile" });
+    expect(r).toEqual({ kind: "error", path: "existing" });
   });
 
   it("keeps other P0002 failures retryable", async () => {
