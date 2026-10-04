@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
+import { LEGACY_REDIRECTS } from "./lib/redirects";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return LEGACY_REDIRECTS.map((r) => ({ ...r, permanent: true }));
+  },
   async headers() {
     return [
       {
