@@ -32,34 +32,34 @@ export const FIT_CHECK = { href: "/questionnaire", label: "בדיקת התאמה
  * Two plans. The annual is one charge of 708 ₪ that the buyer may split into
  * up to 12 installments; the monthly recurs at 99 ₪ with no commitment.
  *
- * The brief prints "חיסכון של 600 ש״ח" for the annual, but 99 x 12 - 708 is
- * 480, so the figure shown is the one the prices actually produce.
+ * The brief prints a saving of 600, but the prices produce a different figure,
+ * so the saving shown is computed from the prices by annualSavings() in lib/pricing.ts.
  */
 export const PLANS = [
   {
     id: "annual",
-    name: "מנוי שנתי",
+    name: "שנתי",
+    longName: "מנוי שנתי",
     price: 59,
     priceSuffix: "לחודש",
     terms: "708 ₪ לשנה, בהתחייבות ל־12 חודשים",
     total: 708,
     maxInstallments: 12,
-    note: "חיסכון של 480 ₪",
-    image: "/img/plan-annual.webp",
-    alt: "זוג מבוגרים הולכים יחד בשביל לאורך הים",
+    image: "/img/v2/plan-annual.webp",
+    alt: "",
     featured: true,
   },
   {
     id: "monthly",
-    name: "מנוי חודשי",
+    name: "חודשי",
+    longName: "מנוי חודשי",
     price: 99,
     priceSuffix: "לחודש",
     terms: "חיוב חודשי, ללא התחייבות",
     total: 99,
     maxInstallments: 1,
-    note: null,
-    image: "/img/plan-monthly.webp",
-    alt: "אישה בבגדי אימון עומדת בסלון ביתה",
+    image: "/img/v2/plan-monthly.webp",
+    alt: "",
     featured: false,
   },
 ] as const;
@@ -76,10 +76,7 @@ export const PLAN_INCLUDES = [
 ] as const;
 
 /**
- * Three cards, each opening its own explainer page. The card photos the brief
- * describes have not arrived; until they do, each card carries the existing
- * illustration closest to its subject, and `pending` names the photo that
- * replaces it.
+ * Three cards, each opening its own explainer page, each with its client photo.
  */
 export const FEATURE_CARDS = [
   {
@@ -91,9 +88,8 @@ export const FEATURE_CARDS = [
       "המערכת לומדת את הביצועים שלכם, מספקת משוב, ומדייקת את התוכנית מאימון לאימון.",
     ],
     href: "/personal-plan",
-    image: "/img/card-1.webp",
-    alt: "איור של דמות פעילים+ מוקפת באייקונים של זיכרון, מספרים ושאלה",
-    pending: "תמונה של מבוגר בתרגיל מכרע צידי",
+    image: "/img/v2/card-personal-plan.webp",
+    alt: "מבוגר בתרגיל מכרע צידי בסלון, לצד רשימת התרגילים שלו",
   },
   {
     id: "motion-detection",
@@ -104,9 +100,8 @@ export const FEATURE_CARDS = [
       "כדי לעזור לכם לבצע כל תרגיל בצורה מדויקת יותר ולהפיק ממנו יותר.",
     ],
     href: "/motion-detection",
-    image: "/img/card-3.webp",
-    alt: "זוג מבוגרים מבצעים סקוואט מול הטלפון, עם זיהוי שלד ומשוב ביצוע על המסך",
-    pending: "תמונה של אישה מרימה ידיים ב־Y עם זיהוי תנועה",
+    image: "/img/v2/card-motion.webp",
+    alt: "אישה מרימה ידיים בתנוחת Y מול הטלפון, עם נקודות זיהוי התנועה",
   },
   {
     id: "progress",
@@ -116,9 +111,8 @@ export const FEATURE_CARDS = [
       "המערכת עוקבת אחר מדדים כמו קשב, זיכרון, מהירות תגובה, איכות התנועה והשליטה בגוף כדי להראות לכם מה משתפר ואיפה כדאי להתמקד יותר.",
     ],
     href: "/progress",
-    image: "/img/card-2.webp",
-    alt: "איור של דוח התקדמות עם ציון, גרף עולה ומדדי תנועה וחשיבה",
-    pending: "תמונה של מבוגר מסתכל על טאבלט עם מסך ההתקדמות",
+    image: "/img/v2/card-progress.webp",
+    alt: "מבוגר מחייך מול טאבלט עם מסך ההתקדמות שלו",
   },
 ] as const;
 
