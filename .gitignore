@@ -46,3 +46,8 @@ next-env.d.ts
 # graphify: local tool output, regenerable. Only the report is committed.
 graphify-out/*
 !graphify-out/GRAPH_REPORT.md
+
+# test results
+test-results/
+playwright-report/
+coverage/
