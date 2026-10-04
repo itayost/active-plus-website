@@ -145,9 +145,23 @@ html {
   phone number, which is exactly where the home indicator sits.
 */
 .drawer-safe {
+  padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/*
+  The dark hero card runs almost edge to edge, inset by a few pixels so its
+  corners read. Held sideways on a notched phone that inset is narrower than
+  the camera housing, so the card's own padding is not enough to keep the
+  headline clear of it. The media may run under the notch; the inset that
+  frames the card widens on whichever physical edge the hardware is eating,
+  exactly as .gutter-x does for the shell.
+*/
+.hero-inset {
+  padding-left: max(clamp(0.625rem, 1.4vw, 1.5rem), env(safe-area-inset-left));
+  padding-right: max(clamp(0.625rem, 1.4vw, 1.5rem), env(safe-area-inset-right));
 }
 
 /*
@@ -297,15 +311,30 @@ html {
        its content, and the CTA clears the fold on its own arithmetic instead of
        a number picked for one handset. */
     min-height: 0;
-    padding-block: clamp(1.25rem, 4vh, 2.25rem);
+    padding-block: clamp(min(1.25rem, 4dvh), 4vh, 2.25rem);
   }
 
+  /* The headline sized for a portrait card wraps to four lines held
+     sideways, and at enlarged text that alone outgrows the screen. Here it
+     takes the width the landscape card has (26ch, two lines) and is capped
+     by the screen's height, while the 2.125rem floor still follows the
+     reader's text size. */
+  .hero-stack > h1 {
+    max-width: 26ch;
+    font-size: min(clamp(2.125rem, 1.4rem + 3.6vw, 5.5rem), max(1.75rem, 11.5dvh));
+  }
+
+  /* The lead's width-driven step (0.8vw) is what makes it 32px on a wide
+     landscape phone at 150%; here it is held to the height instead, never
+     below the 18px body floor in the reader's own text size. */
   .hero-stack > p {
-    margin-top: 0.75rem;
+    margin-top: min(0.75rem, 2dvh);
+    max-width: 52ch;
+    font-size: max(1.125rem, min(clamp(1.2rem, 1.05rem + 0.8vw, 1.625rem), 7dvh));
   }
 
   .hero-stack > div {
-    margin-top: 1.25rem;
+    margin-top: min(1.25rem, 4dvh);
   }
 }
 
