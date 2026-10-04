@@ -127,7 +127,7 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
 
         {showMethods ? (
           <div>
-            <p id="payment-methods-label" className="text-base text-ink-faint">
+            <p id="payment-methods-label" className="text-base text-ink-soft">
               אמצעי תשלום
             </p>
             <ul

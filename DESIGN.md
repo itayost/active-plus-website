@@ -157,7 +157,7 @@ Every field value is the brightest tone of its hue that still clears 4.5:1 with 
 - **Hero Field** (`--hero-field`, Tailwind `hero`): the near-black teal ground of the Dark Hero Card. Its photo/video scrims are the same colour at partial alpha.
 - **Ink**: primary text, AAA on white; also the ground of the savings pill, the carousel progress fill and the skip link.
 - **Ink Soft** (AAA on white and on Cool Paper): secondary text, ledes, body inside neutral cards, nav labels at rest, long-form article body.
-- **Ink Faint**: tertiary text, captions and fine print.
+- **Ink Faint** (AA only: 5.28:1 on white, 4.86:1 on Cool Paper): placeholders, image captions and the faded first line of a large display heading. Never instructions, hints, labels or legal links, which use `ink-soft`.
 - **Surface White**: the base ground and raised-card background.
 - **Cool Paper** (`--surface-sunken`): the sunken ground that alternates with white to separate sections (What Matters, Testimonials, FAQ, narrow interludes on the explainers).
 - **Hairline**: the border colour for inputs, plan cards at rest, dividers and accordion rules. Unboxed lists and carousel arrows use `ink/15` instead, so the rule reads on Cool Paper.
@@ -173,7 +173,7 @@ Every field value is the brightest tone of its hue that still clears 4.5:1 with 
 
 **The Inverted Action Exception.** Actions on a colour field are white pills, except on the light lavender field, where a white pill has nothing to stand against. There the action is the `purple` Button variant (filled `purple-deep`). The rule is "the action carries the strongest available contrast against its own field".
 
-**The AA-on-Field Exception (stated, not accidental).** Every text colour clears AAA on white and on Cool Paper. White text on a colour field reaches AA (4.5:1) and stops; AAA is unreachable at these hues without darkening the brand past recognition. So fields carry short card copy only, and every long-form reading surface stays on `ink-soft` over a neutral ground. Secondary copy on a field is the field's own foreground at the lowest opacity that still clears 4.5:1 there (green 95%, blue 90%, burgundy 85%, purple-deep 90% on lavender), never gray.
+**The AA-on-Field Exception (stated, not accidental).** Ink and Ink Soft clear AAA on white and on Cool Paper; Ink Faint is AA only and is restricted to text that carries no meaning of its own (see Neutral). White text on a colour field reaches AA (4.5:1) and stops; AAA is unreachable at these hues without darkening the brand past recognition. So fields carry short card copy only, and every long-form reading surface stays on `ink-soft` over a neutral ground. Secondary copy on a field is the field's own foreground at the lowest opacity that still clears 4.5:1 there (green 95%, blue 90%, burgundy 85%, purple-deep 90% on lavender), never gray.
 
 **The Var-Alpha Rule.** Every colour is a CSS variable, and Tailwind opacity modifiers on them (`bg-ink/85`, `border-ink/15`) are generated through a `color-mix(in srgb, ...)` helper in `tailwind.config.ts`. Use the modifier on the token; never hand-write an rgba copy of a token value.
 

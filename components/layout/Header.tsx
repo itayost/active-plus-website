@@ -223,7 +223,7 @@ export default function Header() {
             <PhoneIcon className="h-6 w-6 shrink-0 text-blue-deep" />
             <span dir="ltr">{CONTACT_PHONE}</span>
           </a>
-          <p className="mt-1 ps-9 text-ink-faint">{CONTACT_HOURS}</p>
+          <p className="mt-1 ps-9 text-ink-soft">{CONTACT_HOURS}</p>
         </div>
       </div>
     </>

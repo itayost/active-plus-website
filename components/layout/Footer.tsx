@@ -116,7 +116,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-hairline pt-7 text-ink-faint sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-hairline pt-7 text-ink-soft sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} פעילים+ · המרכז לשיפור התנועה</p>
           <ul className="flex flex-wrap gap-x-6">
             {LEGAL.map((item) => (

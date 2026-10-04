@@ -121,7 +121,7 @@ export default function DeleteAccountForm() {
           placeholder="your@email.com"
           className={inputClass(emailInvalid)}
         />
-        <p id={EMAIL_HINT_ID} className="mt-2 text-ink-faint">
+        <p id={EMAIL_HINT_ID} className="mt-2 text-ink-soft">
           הכניסו את כתובת האימייל שאיתה נרשמתם לאפליקציה
         </p>
       </div>
@@ -147,7 +147,7 @@ export default function DeleteAccountForm() {
           placeholder='הקלידו "מחיקת חשבון"'
           className={inputClass(confirmationInvalid)}
         />
-        <p id={CONFIRMATION_HINT_ID} className="mt-2 text-ink-faint">
+        <p id={CONFIRMATION_HINT_ID} className="mt-2 text-ink-soft">
           הקלידו &quot;מחיקת חשבון&quot; לאישור
         </p>
       </div>

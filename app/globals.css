@@ -17,9 +17,13 @@
   --surface-raised: #ffffff;
   --hairline: #dfe7ed;
 
-  /* Ink — every step is AAA (≥7:1) against both --surface and
+  /* Ink. --ink and --ink-soft are AAA (≥7:1) against both --surface and
      --surface-sunken, because the longest reading task on the site is an
-     article set in --ink-soft. */
+     article set in --ink-soft. --ink-faint is NOT: it measures 5.28:1 on
+     --surface and 4.86:1 on --surface-sunken, which is AA only. It is kept for
+     text that carries no meaning of its own: placeholders, image captions and
+     the faded first line of a large display heading. Instructions, hints,
+     labels, legal links and anything else a reader needs go in --ink-soft. */
   --ink: #0f2230;
   --ink-soft: #375260;
   --ink-faint: #576f7d;

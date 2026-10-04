@@ -231,7 +231,7 @@ export default function LeadForm({
             className="mb-2 block font-display font-bold"
           >
             אימייל{" "}
-            <span className="font-sans font-normal text-ink-faint">(לא חובה)</span>
+            <span className="font-sans font-normal text-ink-soft">(לא חובה)</span>
           </label>
           <input
             id={`${uid}-email`}
@@ -278,7 +278,7 @@ export default function LeadForm({
                 className="mb-2 block font-display font-bold"
               >
                 פירוט הפנייה{" "}
-                <span className="font-sans font-normal text-ink-faint">
+                <span className="font-sans font-normal text-ink-soft">
                   (לא חובה)
                 </span>
               </label>
@@ -334,7 +334,7 @@ export default function LeadForm({
         <SubmitButton label={submitLabel} pending={isPending} />
       </div>
 
-      <p className="mt-4 text-ink-faint">
+      <p className="mt-4 text-ink-soft">
         הפרטים נשמרים אצלנו בלבד ומשמשים ליצירת קשר. אפשר לקרוא את{" "}
         <a href="/privacy-policy" className="underline hover:text-blue-deep">
           מדיניות הפרטיות
