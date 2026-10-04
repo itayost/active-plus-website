@@ -54,6 +54,8 @@ export default function Testimonials() {
 
       <ul
         ref={trackRef}
+        tabIndex={0}
+        aria-label="ביקורות לקוחות"
         className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {TESTIMONIALS.map((item, i) => (
