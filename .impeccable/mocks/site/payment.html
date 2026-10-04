@@ -71,6 +71,18 @@
   .segs li { height: 8px; border-radius: 999px; background: rgb(15 34 48 / .1); }
   .segs li.done { background: var(--green-deep); }
   .segs li.now { background: var(--blue-deep); }
+  .who { margin-bottom: 1.75rem; padding: 1rem 1.25rem; border-radius: 20px; background: var(--green-wash); }
+  .who-row { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .6rem; }
+  .who-line { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .6rem; font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; overflow-wrap: anywhere; }
+  .who .ok { width: 28px; height: 28px; }
+  .who .dot-sep { color: var(--ink-soft); font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; }
+  @media (max-width: 560px) {
+    .who-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .25rem .75rem; }
+    .who-line { flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.35; }
+    .who .dot-sep { display: none; }
+  }
+  .who-panel { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgb(15 34 48 / .12); }
+  .who-panel .field { margin-bottom: 1rem; }
   .co-step { margin-top: 2rem; }
   .co-step h3 { font-size: calc(var(--t-h2) * .78); font-weight: 900; line-height: 1.12; }
   .co-step .intro { color: var(--ink-soft); font-size: var(--t-lead); margin-bottom: .35rem; }
@@ -254,10 +266,27 @@
 
       <div class="form-card co-card" id="coCard">
         <div id="coFlow">
+          <div class="who" id="signedIn" role="group" aria-label="הפרטים שאומתו בהרשמה" hidden>
+            <div class="who-row">
+              <span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+              <p class="who-line"><span id="siName"></span><span class="dot-sep" aria-hidden="true">·</span><span class="ltr" id="siPhone"></span></p>
+              <span class="dot-sep" aria-hidden="true">·</span>
+              <button class="linkish" type="button" id="siEdit" aria-expanded="false" aria-controls="siPanel">עריכה</button>
+            </div>
+            <form class="who-panel" id="siPanel" novalidate hidden>
+              <div class="field">
+                <label for="siNameInput">השם המלא שלך</label>
+                <input id="siNameInput" class="input" autocomplete="name" aria-describedby="eSiName">
+                <p class="err" id="eSiName" role="alert"></p>
+              </div>
+              <button class="btn btn-primary" type="submit">שמירה</button>
+              <p class="note">מספר הטלפון הוא החשבון שאיתו נכנסים לאפליקציה, ולכן הוא לא נערך כאן. שאלה ללקוח: להוסיף כאן "זה לא המספר שלי", שמנתק ומחזיר להרשמה?</p>
+            </form>
+          </div>
           <div class="stepper">
             <p class="stepper-label" id="stepLabel" aria-live="polite">שלב 1 מתוך 4</p>
           </div>
-          <ol class="segs" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+          <ol class="segs" id="segs" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
 
           <form class="co-step" data-step="1" novalidate>
             <h3 tabindex="-1">מה שמך?</h3>
@@ -435,14 +464,32 @@
     annual:  { name: 'מנוי שנתי', price: '59 ₪ לחודש', total: 708, totalText: '708 ₪ לשנה, חיוב אחד', maxInstallments: 12 },
     monthly: { name: 'מנוי חודשי', price: '99 ₪ לחודש', total: 99, totalText: '99 ₪ לחודש, חיוב חודשי', maxInstallments: 0 },
   };
-  const STEP_COUNT = 4;
   const CODE_LENGTH = 6;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-  let state = { plan: 'annual', step: 1, codeSent: false, verifiedPhone: null, details: { name: '', email: '', phone: '' } };
+  /* Arriving from the questionnaire signed in (?signedin=1): name and phone were
+     verified there, so only email (step 2) and the summary/card (step 4) remain. */
+  const SIGNED_IN = new URLSearchParams(window.location.search).get('signedin') === '1';
+  const SEQUENCE = SIGNED_IN ? [2, 4] : [1, 2, 3, 4];
+  const SAMPLE_IDENTITY = { name: 'דנה כהן', phone: '0501234567' };
+  function signedInIdentity() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('ap.mock.signedin') ?? 'null');
+      if (saved && saved.name && /^05\d{8}$/.test(saved.phone)) return saved;
+    } catch { /* storage blocked or corrupt: use the sample identity */ }
+    return SAMPLE_IDENTITY;
+  }
+  const identity = SIGNED_IN ? signedInIdentity() : null;
+
+  let state = {
+    plan: 'annual', step: SEQUENCE[0], codeSent: false,
+    verifiedPhone: identity ? identity.phone : null,
+    details: { name: identity ? identity.name : '', email: '', phone: identity ? identity.phone : '' },
+  };
   const update = (patch) => { state = { ...state, ...patch }; };
+  const neighbour = (step, offset) => SEQUENCE[SEQUENCE.indexOf(step) + offset];
 
   /* ---------- Formatting / validation ---------- */
   const digitsOnly = (s) => s.replace(/\D/g, '');
@@ -485,16 +532,59 @@
   $('#inst').addEventListener('change', renderInstallments);
 
   /* ---------- Steps ---------- */
-  function showStep(step) {
+  function showStep(step, { quiet = false } = {}) {
     update({ step });
+    const at = SEQUENCE.indexOf(step) + 1;
     $$('.co-step').forEach((el) => { el.hidden = Number(el.dataset.step) !== step; });
-    $$('.segs li').forEach((li, i) => { li.className = i + 1 < step ? 'done' : i + 1 === step ? 'now' : ''; });
-    $('#stepLabel').textContent = `שלב ${step} מתוך ${STEP_COUNT}`;
+    $$('#segs li').forEach((li, i) => { li.className = i + 1 < at ? 'done' : i + 1 === at ? 'now' : ''; });
+    $('#stepLabel').textContent = `שלב ${at} מתוך ${SEQUENCE.length}`;
     if (step === 3) renderPhoneState();
     if (step === 4) renderSummary();
+    if (quiet) return;
     const target = $(`.co-step[data-step="${step}"] h3`);
     target?.focus({ preventScroll: true });
     $('#coCard').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  /* Signed-in identity row: name can be corrected; the phone is the account. */
+  function renderIdentity() {
+    $('#siName').textContent = state.details.name;
+    $('#siPhone').textContent = formatPhone(state.details.phone);
+  }
+  function setupSignedIn() {
+    const segs = $('#segs');
+    segs.innerHTML = SEQUENCE.map(() => '<li></li>').join('');
+    segs.style.gridTemplateColumns = `repeat(${SEQUENCE.length}, 1fr)`;
+    if (!SIGNED_IN) return;
+    $('#signedIn').hidden = false;
+    renderIdentity();
+    $$('.co-step[data-step="2"] [data-prev], .sum [data-go="1"], .sum [data-go="3"]').forEach((el) => { el.hidden = true; });
+    const panel = $('#siPanel');
+    const toggle = $('#siEdit');
+    toggle.addEventListener('click', () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open) { $('#siNameInput').value = state.details.name; $('#siNameInput').focus(); }
+    });
+    panel.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = $('#siNameInput');
+      if (!isValidName(input.value)) return setError(input, $('#eSiName'), 'השם צריך להכיל לפחות 2 תווים');
+      setError(input, $('#eSiName'), '');
+      update({ details: { ...state.details, name: input.value.trim() } });
+      renderIdentity();
+      if (state.step === 4) renderSummary();
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
+    });
+    panel.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
+    });
   }
 
   function renderSummary() {
@@ -520,7 +610,7 @@
     if (!isValidEmail(input.value)) return setError(input, $('#eEmail'), 'כתובת האימייל לא תקינה. למשל: name@example.com');
     setError(input, $('#eEmail'), '');
     update({ details: { ...state.details, email: input.value.trim() } });
-    showStep(3);
+    showStep(neighbour(2, 1));
   });
 
   /* Phone + SMS code: the number must be verified before step 4. */
@@ -584,7 +674,7 @@
     });
   });
 
-  $$('[data-prev]').forEach((b) => b.addEventListener('click', () => showStep(Math.max(1, state.step - 1))));
+  $$('[data-prev]').forEach((b) => b.addEventListener('click', () => showStep(neighbour(state.step, -1) ?? SEQUENCE[0])));
   $$('[data-go]').forEach((b) => b.addEventListener('click', () => showStep(Number(b.dataset.go))));
 
   $('#payBtn').addEventListener('click', () => {
@@ -601,9 +691,11 @@
     section.hidden = false;
     renderPlan();
     section.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
-    $('#fName').focus({ preventScroll: true });
+    $(SIGNED_IN ? '#fEmail' : '#fName').focus({ preventScroll: true });
   });
 
+  setupSignedIn();
+  showStep(SEQUENCE[0], { quiet: true });
   renderPlan();
 })();
 </script>

@@ -10,127 +10,189 @@
 <link rel="stylesheet" href="mocks.css">
 
 <style>
-  /* Questionnaire funnel (page-specific; tokens from mocks.css only) */
+  /* Sign-up funnel v5 (page-specific; tokens from mocks.css only) */
   [hidden] { display: none !important; }
+  [tabindex="-1"]:focus { outline: none; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .line { display: block; }
   .funnel-ground { padding-block: clamp(1.25rem, 3vw, 2.5rem) clamp(3.5rem, 7vw, 6rem); }
   .funnel { max-width: 860px; margin-inline: auto; padding-inline: var(--gutter); }
 
+  /* Review notes */
   details.note { margin-top: 0; }
+  details.note + details.note { margin-top: .5rem; }
   details.note summary { list-style: none; min-height: 48px; display: flex; align-items: center; gap: .5rem; cursor: pointer; font-family: "Rubik"; font-weight: 700; }
   details.note summary::-webkit-details-marker { display: none; }
   details.note summary svg { width: 18px; height: 18px; flex-shrink: 0; transition: transform 200ms var(--ease); }
   details.note[open] summary svg { transform: rotate(180deg); }
-  details.note p { padding-bottom: .35rem; }
+  details.note p + p, details.note fieldset { margin-top: .5rem; }
+  details.note p:last-child { padding-bottom: .35rem; }
+  .mock-toggle { border: 0; padding: 0; margin: 0; display: grid; gap: .25rem; }
+  .mock-toggle label { display: flex; align-items: center; gap: .6rem; min-height: 44px; cursor: pointer; }
+  .mock-toggle input { width: 22px; height: 22px; accent-color: var(--blue-deep); flex-shrink: 0; }
 
+  /* Top row: back | progress | cancel */
   .f-top { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; min-height: 48px; }
-  .back { width: 48px; height: 48px; flex-shrink: 0; border-radius: 999px; border: 2px solid rgb(15 34 48 / .15); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 160ms var(--ease); }
+  .back { width: 48px; height: 48px; flex-shrink: 0; border-radius: 999px; border: 2px solid rgb(15 34 48 / .15); background: var(--surface); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 160ms var(--ease), transform 160ms var(--ease); }
   .back:hover { border-color: rgb(15 34 48 / .35); }
+  .back:active { transform: scale(.96); }
   .back svg { width: 24px; height: 24px; }
-  .back.is-hidden { visibility: hidden; }
-  .dots { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 8px; flex: 1; }
-  .dots li { width: 10px; height: 10px; border-radius: 999px; background: rgb(15 34 48 / .14); transition: background-color 200ms var(--ease); }
-  .dots li.done { background: var(--blue-deep); }
-  .dots li.now { width: 28px; background: var(--blue-deep); }
-  .dots-count { font-size: 1rem; color: var(--ink-faint); white-space: nowrap; }
+  .is-hidden { visibility: hidden; }
+  .f-progress { flex: 1; min-width: 0; }
+  .dots { display: flex; align-items: center; gap: 8px; }
+  .dots i { width: 10px; height: 10px; border-radius: 999px; background: rgb(15 34 48 / .14); flex-shrink: 0; transition: background-color 200ms var(--ease); }
+  .dots i.done { background: var(--blue-deep); }
+  .dots i.now { width: 28px; background: var(--blue-deep); }
+  .reg-label { display: block; font-family: "Rubik"; font-weight: 700; font-size: 1.125rem; color: var(--ink-soft); line-height: 1.3; }
+  .reg-bar { margin-top: .4rem; height: 8px; border-radius: 999px; background: rgb(15 34 48 / .1); overflow: hidden; max-width: 320px; }
+  .reg-bar i { display: block; height: 100%; border-radius: 999px; background: var(--green-deep); }
+  .cancel { min-height: 48px; display: inline-flex; align-items: center; padding-inline: .9rem; border-radius: 999px; color: var(--ink-soft); font-family: "Rubik"; font-weight: 700; font-size: 1.125rem; text-decoration: none; flex-shrink: 0; }
+  .cancel:hover { background: rgb(15 34 48 / .06); color: var(--ink); }
 
+  /* Screen */
   .screen { margin-top: clamp(1.5rem, 3vw, 2.25rem); }
   .screen.enter { animation: screenIn 260ms var(--ease) both; }
   @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .q-title { font-family: "Rubik"; font-weight: 900; font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem); line-height: 1.15; letter-spacing: -0.025em; }
-  .q-title em { font-style: normal; color: var(--green-deep); }
-  [tabindex="-1"]:focus { outline: none; }
+  .q-title em, .inter-title em { font-style: normal; color: var(--green-deep); }
   .q-sub { margin-top: .75rem; }
+  .step-icon { width: 56px; height: 56px; border-radius: 18px; background: var(--blue-wash); color: var(--blue-deep); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
+  .step-icon svg { width: 28px; height: 28px; }
 
-  .options { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; gap: .75rem; }
-  .options.grid2 { grid-template-columns: 1fr 1fr; }
-  .options.grid2 .wide { grid-column: 1 / -1; }
+  /* Option cards: native radios inside labels */
+  .options { margin: 1.75rem 0 0; display: grid; gap: .75rem; }
   .opt {
-    width: 100%; min-height: 72px; display: flex; align-items: center; gap: 1rem;
+    position: relative; width: 100%; min-height: 72px; display: flex; align-items: center; gap: 1rem;
     padding: 1rem 1.25rem; border: 2px solid var(--hairline); border-radius: 20px;
     background: var(--surface); color: var(--ink); font: inherit; text-align: start; cursor: pointer;
     transition: border-color 160ms var(--ease), background-color 160ms var(--ease), transform 160ms var(--ease);
   }
   .opt:hover { border-color: rgb(15 34 48 / .3); }
   .opt:active { transform: scale(.99); }
-  .opt[aria-checked="true"] { border-color: var(--blue-deep); background: var(--blue-wash); }
-  .opt .txt { flex: 1; min-width: 0; }
-  .opt .lbl { display: block; font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; line-height: 1.3; }
-  .opt .desc { display: block; margin-top: .2rem; color: var(--ink-soft); font-size: 1.125rem; line-height: 1.45; }
+  .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+  .opt:has(input:focus-visible), .opt:focus-visible { outline: 3px solid var(--blue-deep); outline-offset: 3px; }
+  .opt:has(input:checked), .opt[aria-pressed="true"] { border-color: var(--blue-deep); background: var(--blue-wash); }
+  .opt .lbl { flex: 1; min-width: 0; font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; line-height: 1.3; overflow-wrap: anywhere; }
   .tick { width: 32px; height: 32px; flex-shrink: 0; border-radius: 999px; border: 2px solid rgb(15 34 48 / .2); background: var(--surface); color: #fff; display: inline-flex; align-items: center; justify-content: center; }
-  .opt[role="checkbox"] .tick { border-radius: 9px; }
   .tick svg { width: 18px; height: 18px; opacity: 0; }
-  .opt[aria-checked="true"] .tick { background: var(--blue-deep); border-color: var(--blue-deep); }
-  .opt[aria-checked="true"] .tick svg { opacity: 1; }
+  .opt:has(input:checked) .tick, .opt[aria-pressed="true"] .tick { background: var(--blue-deep); border-color: var(--blue-deep); }
+  .opt:has(input:checked) .tick svg, .opt[aria-pressed="true"] .tick svg { opacity: 1; }
+  .chips { grid-template-columns: repeat(auto-fit, minmax(max(6.5em, calc(50% - .4rem)), 1fr)); gap: .75rem; font-size: 1.25rem; }
+  .chips .opt { font-size: 1rem; }
+  .chips .tick { width: 28px; height: 28px; border-radius: 9px; }
+  .chips .wide { grid-column: 1 / -1; }
 
   .f-actions { margin-top: 1.75rem; display: grid; gap: .75rem; }
-  .f-actions .btn { width: 100%; }
+  .f-actions .btn { width: 100%; flex-wrap: wrap; row-gap: .25rem; }
   .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
-  .f-foot { margin-top: 1.25rem; display: flex; align-items: center; justify-content: center; gap: .5rem; color: var(--ink-faint); text-align: center; }
+  .f-foot { margin-top: 1.25rem; display: flex; align-items: center; justify-content: center; gap: .5rem; color: var(--ink-soft); text-align: center; }
   .f-foot svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-  .select-wrap { position: relative; }
-  .select-wrap select { appearance: none; -webkit-appearance: none; padding-inline-end: 3.25rem; cursor: pointer; }
-  .select-wrap svg { position: absolute; top: 50%; inset-inline-end: 1rem; width: 22px; height: 22px; transform: translateY(-50%); pointer-events: none; color: var(--ink-soft); }
   .reassure { margin-top: 1rem; color: var(--ink-soft); }
+  .select-wrap { position: relative; margin-top: 1.75rem; }
+  .select-wrap select { appearance: none; -webkit-appearance: none; padding-inline-end: 3.25rem; cursor: pointer; font-family: "Rubik"; font-weight: 700; }
+  .select-wrap svg { position: absolute; top: 50%; inset-inline-end: 1rem; width: 22px; height: 22px; transform: translateY(-50%); pointer-events: none; color: var(--ink-soft); }
+  .note.ask { margin-top: 1.5rem; }
+
+  /* Time: "other hour" */
+  .btn-outline.other { width: 100%; border-color: var(--green-deep); color: var(--green-deep); }
+  .btn-outline.other[aria-expanded="true"] { background: var(--green-wash); }
+  .other-panel { margin-top: .75rem; padding: 1.25rem; border-radius: 20px; background: var(--surface); border: 2px solid var(--hairline); }
+  .other-panel .select-wrap { margin-top: .5rem; }
+  .other-panel .btn { width: 100%; margin-top: 1rem; }
 
   /* Interstitial cards */
-  .inter { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--lift-2); padding: clamp(1.5rem, 4vw, 2.75rem); }
-  .inter .media { margin: calc(-1 * clamp(.5rem, 1.5vw, 1rem)) calc(-1 * clamp(.5rem, 1.5vw, 1rem)) 1.75rem; }
-  .inter .media img { width: 100%; height: auto; aspect-ratio: 16 / 8; object-fit: cover; border-radius: 20px; }
-  .callouts { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
+  .inter { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--lift-2); padding: clamp(1rem, 3.5vw, 2.5rem); }
+  .inter-title { font-family: "Rubik"; font-weight: 900; font-size: clamp(2rem, 1.4rem + 2.2vw, 3rem); line-height: 1.08; letter-spacing: -0.025em; }
+  .inter .lead { margin-top: 1rem; }
+  .split { display: grid; gap: 1.75rem; }
+  .split .media img { width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 30%; border-radius: 20px; }
+  @media (min-width: 760px) {
+    .split { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: stretch; gap: clamp(1.5rem, 3vw, 2.5rem); }
+    .split .media img { aspect-ratio: auto; min-height: 420px; max-height: 560px; }
+    .split .copy { display: flex; flex-direction: column; justify-content: center; }
+  }
+  .sp-media { height: clamp(220px, 30vw, 320px); border-radius: 20px; margin-bottom: 1.75rem; background-color: var(--green-wash); background-repeat: no-repeat; }
+  .sp-media.female { background-size: auto 125%; background-position: 50% 0; }
+  .sp-media.male { background-size: contain; background-position: 50% 100%; }
+  .sp-bullets { list-style: none; margin: 1.25rem 0 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1.5rem; font-family: "Rubik"; font-weight: 700; color: var(--blue-deep); }
+  .sp-bullets li { display: inline-flex; align-items: center; }
+  .sp-bullets li::before { content: ""; width: 7px; height: 7px; flex-shrink: 0; border-radius: 999px; background: var(--green); margin-inline-end: .55rem; }
+  .callouts { list-style: none; margin: 1.75rem 0 0; padding: 1.5rem 0 0; border-top: 1px solid var(--hairline); display: grid; gap: 1.1rem; }
   .callouts li { display: grid; grid-template-columns: 52px 1fr; gap: 1rem; align-items: center; }
   .ico { width: 52px; height: 52px; border-radius: 16px; background: var(--blue-wash); color: var(--blue-deep); display: inline-flex; align-items: center; justify-content: center; }
   .ico.green { background: var(--green-wash); color: var(--green-deep); }
   .ico.purple { background: var(--purple-wash); color: var(--purple-deep); }
   .ico svg { width: 26px; height: 26px; }
   .callouts b { display: block; font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; line-height: 1.3; }
-  .callouts span { display: block; color: var(--ink-soft); line-height: 1.45; }
-  .tip { margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: 16px; background: var(--green-wash); color: var(--green-deep); font-weight: 500; }
-  .plan-card { margin-top: 1.75rem; display: flex; gap: 1rem; align-items: center; padding: 1.25rem; border-radius: 20px; background: var(--sunken); }
-  .plan-card b { display: block; font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; }
-  .plan-card span { color: var(--ink-soft); }
-  .pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
-  .avatars { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
-  .avatars li { width: 60px; height: 60px; border-radius: 999px; overflow: hidden; box-shadow: 0 0 0 4px var(--surface); }
-  .avatars li + li { margin-inline-start: -14px; }
-  .avatars img { width: 100%; height: 100%; object-fit: cover; }
-
-  /* Pain prevalence */
-  .stats { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; gap: 1.25rem; }
-  .stat-head { display: flex; align-items: baseline; gap: .75rem; }
-  .stat-num { font-family: "Rubik"; font-weight: 900; font-size: 2rem; line-height: 1; color: var(--blue-deep); min-width: 3.2ch; }
-  .bar { margin-top: .5rem; height: 10px; border-radius: 999px; background: var(--sunken); overflow: hidden; }
-  .bar i { display: block; height: 100%; border-radius: 999px; background: var(--blue-deep); }
+  .callouts div span { display: block; color: var(--ink-soft); line-height: 1.45; }
 
   /* Plan building */
-  .build-pct { font-family: "Rubik"; font-weight: 900; font-size: clamp(2.5rem, 2rem + 2vw, 3.5rem); line-height: 1; color: var(--green-deep); margin-top: 1.25rem; }
-  .build-bar { margin-top: 1rem; height: 12px; border-radius: 999px; background: rgb(15 34 48 / .1); overflow: hidden; }
-  .build-bar i { display: block; height: 100%; background: var(--green-deep); border-radius: 999px; transform-origin: right center; transform: scaleX(0); }
-  .build-list { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; gap: 1rem; }
-  .build-list li { display: flex; align-items: center; gap: .9rem; opacity: .45; transition: opacity 300ms var(--ease); }
-  .build-list li.on { opacity: 1; }
+  .build { text-align: center; }
+  .ring { position: relative; width: min(10rem, 100%); aspect-ratio: 1; margin: 0 auto 1.5rem; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring .track { stroke: rgb(15 34 48 / .1); }
+  .ring .fill { stroke: var(--green-deep); stroke-linecap: round; }
+  .ring b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: "Rubik"; font-weight: 900; font-size: 2.5rem; color: var(--green-deep); }
+  .build-list { list-style: none; margin: 1.75rem auto 0; padding: 0; display: grid; gap: 1rem; max-width: 30rem; text-align: start; }
+  .build-list li { display: flex; align-items: center; gap: .9rem; color: var(--ink-soft); transition: color 300ms var(--ease); }
+  .build-list li.on { color: var(--ink); font-weight: 500; }
   .build-list li.on .tick { background: var(--green-deep); border-color: var(--green-deep); }
   .build-list li.on .tick svg { opacity: 1; }
-  .spinner { width: 44px; height: 44px; border-radius: 999px; border: 4px solid var(--blue-wash); border-top-color: var(--blue-deep); animation: spin 900ms linear infinite; margin: 0 auto 1rem; }
+
+  /* Register + OTP */
+  .form .field { margin-top: 1.75rem; }
+  .input.invalid { border-color: var(--burgundy); }
+  .err { margin-top: .6rem; padding: .6rem .9rem; border-radius: 12px; background: var(--burgundy-wash); color: var(--burgundy); font-weight: 500; }
+  .err:empty { display: none; }
+  .secure { margin-top: .75rem; display: flex; align-items: center; gap: .5rem; color: var(--ink-soft); }
+  .secure svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .meta { margin-top: 1rem; text-align: center; color: var(--ink-soft); }
+  .meta .sep::before { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 999px; background: currentColor; vertical-align: middle; margin-inline: .6rem; }
+  .consent { margin-top: .75rem; text-align: center; color: var(--ink-soft); font-size: 1.125rem; }
+  .consent a { color: var(--green-deep); font-weight: 700; text-underline-offset: 3px; }
+  .sent-to { margin-top: .35rem; font-family: "Rubik"; font-weight: 700; font-size: var(--t-lead); }
+  .otp { position: relative; width: fit-content; max-width: 100%; margin-top: 1.75rem; border-radius: 18px; }
+  .otp-boxes { display: grid; grid-template-columns: repeat(6, minmax(0, 4rem)); justify-content: center; gap: .5rem; }
+  .otp-box { height: 4.25rem; border: 2px solid var(--hairline); border-radius: 14px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-family: "Rubik"; font-weight: 700; font-size: 2rem; color: var(--ink); transition: border-color 160ms var(--ease); }
+  .otp:focus-within .otp-box.next { border-color: var(--blue-deep); box-shadow: 0 0 0 3px var(--blue-wash); }
+  .otp.invalid .otp-box { border-color: var(--burgundy); }
+  .otp input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; font-size: 16px; color: transparent; caret-color: transparent; cursor: text; }
+  .otp:has(input:focus-visible) { outline: 3px solid var(--blue-deep); outline-offset: 6px; }
+  .resend { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; min-height: 48px; }
+  .resend .wait { color: var(--ink-soft); }
+  .linkish { min-height: 48px; display: inline-flex; align-items: center; padding: 0 .5rem; border: 0; background: none; color: var(--blue-deep); font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; border-radius: 10px; }
+  .linkish:hover { background: var(--blue-wash); }
+  .finishing { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; background: rgb(242 246 249 / .94); font-family: "Rubik"; font-weight: 700; font-size: var(--t-h3); color: var(--ink); text-align: center; padding: var(--gutter); }
+  .spinner { width: 56px; height: 56px; border-radius: 999px; border: 5px solid var(--blue-wash); border-top-color: var(--blue-deep); animation: spin 900ms linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-line { text-align: center; color: var(--ink-soft); font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; padding-block: 2rem; }
 
-  /* Result */
-  .summary { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; gap: 0; border-block: 1px solid var(--hairline); }
-  .summary li { display: grid; grid-template-columns: 52px 1fr; gap: 1rem; align-items: center; padding-block: 1rem; }
-  .summary li + li { border-top: 1px solid var(--hairline); }
-  .summary small { display: block; color: var(--ink-faint); font-size: 1.125rem; }
-  .summary b { display: block; font-family: "Rubik"; font-weight: 700; font-size: 1.25rem; line-height: 1.35; }
+  /* Hand-off */
+  .done { text-align: center; }
+  .big-ok { width: 84px; height: 84px; margin: 0 auto 1.5rem; border-radius: 999px; background: var(--green-deep); color: #fff; display: flex; align-items: center; justify-content: center; }
+  .big-ok svg { width: 42px; height: 42px; }
+  .done .f-actions { max-width: 28rem; margin-inline: auto; }
 
+  /* The shared header overflows by ~5px at 320 (mocks.css, all pages); tighten it on this page. */
+  @media (max-width: 340px) { .site-header .shell { gap: .5rem; } .header-end { gap: .25rem; } }
+  /* ...and at enlarged text the nowrap pill cannot fit: let the row and the pill wrap. */
+  .site-header .shell { flex-wrap: wrap; }
+  .header-end .btn { white-space: normal; }
   @media (max-width: 420px) {
     .opt { padding: .9rem 1rem; gap: .75rem; }
-    .options.grid2 { gap: .6rem; }
+    .f-top { gap: .5rem; }
+    .dots { gap: 6px; }
+    .dots i { width: 9px; height: 9px; }
+    .dots i.now { width: 22px; }
+    .cancel { padding-inline: .5rem; }
+  }
+  @media (forced-colors: active) {
+    .opt:has(input:checked), .opt[aria-pressed="true"] { outline: 3px solid Highlight; }
+    .dots i.now, .dots i.done, .reg-bar i { background: Highlight; }
   }
   @media (prefers-reduced-motion: reduce) {
     .screen.enter { animation: none; }
-    .spinner { animation: none; }
-    .opt, .back, .build-list li, .dots li { transition: none; }
+    .spinner { animation: none; border-top-color: var(--blue-wash); border-color: var(--blue-deep); }
+    .opt, .back, .build-list li, .dots i, .otp-box { transition: none; }
   }
 </style>
 </head>
@@ -185,25 +247,38 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         הערה למוקאפ
       </summary>
-      <p>השאלות כאן זהות לשאלון ההרשמה באפליקציה, כולל ההסתעפויות לפי רמת התפקוד. התשובות יישמרו בפרופיל של המשתמש אחרי אימות מספר הטלפון בשלב התשלום.</p>
+      <p>השאלות כאן הן שאלון ההרשמה של האפליקציה כפי שהוא עובד היום: אותו סדר, אותן הסתעפויות ואותו נוסח, כולל לשון נקבה כשנבחר "נקבה". בסוף השאלון נרשמים עם שם ומספר טלפון, ורק אחרי אימות הקוד שנשלח ב־SMS התשובות נשמרות בפרופיל של המשתמש. משם ממשיכים לבחירת מסלול כשהמשתמש כבר מחובר.</p>
+    </details>
+    <details class="note">
+      <summary>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        הדגמה: מה קורה אחרי אימות הקוד
+      </summary>
+      <p>כל קוד בן 6 ספרות מתקבל. הקוד <span class="ltr">000000</span> מדגים קוד שגוי.</p>
+      <fieldset class="mock-toggle">
+        <legend class="sr-only">תוצאה אחרי אימות הקוד</legend>
+        <label><input type="radio" name="mockOutcome" value="new" checked>משתמש חדש: התשובות נשמרות בפרופיל החדש</label>
+        <label><input type="radio" name="mockOutcome" value="existing">משתמש קיים (דוד לוי): משלימים רק תשובות חסרות, השם לא משתנה</label>
+        <label><input type="radio" name="mockOutcome" value="error">תקלה בשמירת התשובות</label>
+      </fieldset>
     </details>
 
     <div class="f-top">
-      <button class="back is-hidden" id="backBtn" type="button" aria-label="חזרה לשאלה הקודמת">
+      <button class="back is-hidden" id="backBtn" type="button" aria-label="חזרה">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
-      <ol class="dots" id="dots" aria-hidden="true"></ol>
-      <span class="sr-only" id="dotsLabel" aria-live="polite"></span>
+      <div class="f-progress" id="progress"></div>
+      <a class="cancel" id="cancelLink" href="home.html">ביטול</a>
     </div>
 
-    <section class="screen" id="screen" aria-live="off"></section>
-
-    <p class="f-foot" id="footNote" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-      המידע שלך בטוח ומאובטח
-    </p>
+    <section class="screen" id="screen" aria-labelledby="stepTitle"></section>
   </div>
 </main>
+
+<div class="finishing" id="finishing" role="status" hidden>
+  <div class="spinner" aria-hidden="true"></div>
+  <p>מסיימים את ההרשמה...</p>
+</div>
 
 <!-- FOOTER:start -->
 <footer class="site-footer">
@@ -240,636 +315,672 @@
 <!-- FOOTER:end -->
 
 <script>
-/* Mockup only: a faithful web mirror of the app's sign-up funnel (FunnelOrchestrator).
-   No network calls; answers live in memory for the length of the visit. */
+/* Mockup only: the app's sign-up funnel v5 (docs/superpowers/specs/2026-10-04-funnel-v5.md).
+   No network calls; answers live in memory for the visit. */
 (() => {
   'use strict';
 
-  const ADVANCE_DELAY_MS = 250;
-  const BUILD_DURATION_MS = 2500;
-  const EXPLAINER_LOADING_MS = 900;
-  const MIN_AGE = 55;
+  const CURRENT_YEAR = new Date().getFullYear();
+  const MIN_AGE = 30;
   const MAX_AGE = 100;
-  const CURRENT_YEAR = 2026;
+  const DEFAULT_AGE = 65;
+  const BAND_FALLBACK = 50;
+  const PLAN_BUILD_MS = 6000;
+  const BUILD_HOLD_MS = 500;
+  const RESEND_SECONDS = 12;
+  const OTP_LENGTH = 6;
+  const VERIFY_MS = 300;
+  const FINISH_MS = 1400;
+  const WRONG_CODE = '000000';
+  const EXISTING_NAME = 'דוד לוי';
+  const IMG = '../../../public/img/funnel/';
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Icons (24-grid, stroke 1.75, round caps/joins) ---------- */
+  /* ---------- Icons (24 grid, 1.75 stroke) ---------- */
   const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const ICON = {
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-    arrowNext: svg('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
-    strength: svg('<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>'),
-    energy: svg('<path d="M13 3L5 13.5h6L10 21l8-10.5h-6L13 3z"/>'),
-    heart: svg('<path d="M12 20s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.6 12 20 12 20z"/>'),
-    shield: svg('<path d="M12 3l7 3v5.5c0 4.3-3 8-7 9.5-4-1.5-7-5.2-7-9.5V6l7-3z"/><path d="M9 12l2 2 4-4"/>'),
-    clock: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
-    target: svg('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".75"/>'),
-    smile: svg('<circle cx="12" cy="12" r="8.5"/><path d="M8.5 14a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01"/>'),
-    move: svg('<circle cx="13" cy="4.5" r="1.75"/><path d="M9 21l2.5-6 2.5 2.5V21M8 11l3-3.5 3 1 2.5 3M11.5 15l1-5"/>'),
-    calendar: svg('<rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>'),
-    chair: svg('<path d="M7 3.5v9h10M7 12.5V20M17 12.5V20M7 16h10M17 3.5v9"/>'),
-    sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>'),
-    spot: svg('<circle cx="12" cy="10" r="3"/><path d="M12 21s-6.5-5.5-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.5 12 21 12 21z"/>'),
+    forward: svg('<path d="M19 12H5M11 6l-6 6 6 6"/>'),
+    lock: svg('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
     chevron: svg('<path d="M6 9l6 6 6-6"/>'),
+    strength: svg('<path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>'),
+    move: svg('<circle cx="13" cy="4.5" r="1.75"/><path d="M9 21l2.5-6 2.5 2.5V21M8 11l3-3.5 3 1 2.5 3M11.5 15l1-5"/>'),
+    heart: svg('<path d="M12 20s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.6 12 20 12 20z"/>'),
+    phone: svg('<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>'),
   };
 
-  /* ---------- Answer helpers ---------- */
-  const PATH_BY_LEVEL = { fully_independent: 'independent', balance_issues: 'unstable', chair_only: 'chair' };
-  const pathOf = (a) => PATH_BY_LEVEL[a.functionalityLevel] ?? null;
-  const shouldSkipPain = (a) => Array.isArray(a.painAreas) && a.painAreas.length === 1 && a.painAreas[0] === 'none';
-  const reportedPain = (a) => Array.isArray(a.painAreas) && a.painAreas.length > 0 && !shouldSkipPain(a);
-  /* Gendered copy: female first, male second; before gender is known, the neutral/plural form. */
-  const g = (a, female, male, neutral) => a.gender === 'female' ? female : a.gender === 'male' ? male : (neutral ?? male);
+  /* ---------- Helpers ---------- */
+  const g = (a, fem, masc) => (a.gender === 'female' ? fem : masc);
   const ltr = (s) => `<span class="ltr">${s}</span>`;
+  const lines = (arr) => arr.map((l) => `<span class="line">${l}</span>`).join('');
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pad = (n) => String(n).padStart(2, '0');
+  const opt = (label, value) => ({ label, value });
 
-  /* ---------- Routing (mirrors FunnelOrchestrator) ---------- */
-  const ORDER = [
-    'welcome2', 'gender', 'dob', 'socialProof', 'goal', 'aspiration', 'aspirationAffirm',
-    'functionality', 'pathFollowup', 'trackTen', 'balanceTest', 'motivation', 'motivationExplainer',
-    'bodyAreas', 'bodyAreasReassure', 'painStats', 'painSeverity', 'timeSegment', 'timeHour',
-    'planBuilding', 'result',
-  ];
+  const toLocalPhone = (raw) => {
+    const d = String(raw).trim().replace(/[\s-]/g, '');
+    if (d.startsWith('+972')) return `0${d.slice(4)}`;
+    if (d.startsWith('972')) return `0${d.slice(3)}`;
+    return d;
+  };
+  const isIsraeliMobile = (raw) => /^05\d{8}$/.test(toLocalPhone(raw));
+  const formatLocal = (local) => `${local.slice(0, 3)}-${local.slice(3)}`;
 
-  /** Pure: which step follows `step` given `answers`. */
-  function next(step, answers) {
-    if (step === 'bodyAreas') return shouldSkipPain(answers) ? 'timeSegment' : 'bodyAreasReassure';
-    if (step === 'painStats') return pathOf(answers) === 'independent' ? 'painSeverity' : 'timeSegment';
-    const i = ORDER.indexOf(step);
-    return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null;
+  /* ---------- Funnel core (mirrors the app's FunnelOrchestrator) ---------- */
+  const ORDER = ['welcome2', 'gender', 'dob', 'socialProof', 'aspiration', 'activityLevel', 'chairRise',
+    'challengeArea', 'standingComfort', 'reinforcement2', 'frequency', 'bodyAreas', 'planBuilding',
+    'time', 'register', 'otp', 'handoff'];
+  const onHandles = (a) => a.chair_rise_capability === 'with_handles';
+
+  function nextStep(step, a) {
+    switch (step) {
+      case 'chairRise': return onHandles(a) ? 'standingComfort' : 'challengeArea';
+      case 'challengeArea':
+      case 'standingComfort': return 'reinforcement2';
+      case 'handoff': return null;
+      default: return ORDER[ORDER.indexOf(step) + 1] ?? null;
+    }
   }
 
-  /** Pure: the dot-indicator steps (10, or 11 when an independent user reported pain). */
-  function indicatorSteps(answers) {
-    const steps = ['gender', 'goal', 'aspiration', 'functionality', 'pathFollowup', 'trackTen', 'balanceTest', 'motivation', 'bodyAreas'];
-    if (pathOf(answers) === 'independent' && reportedPain(answers)) steps.push('painSeverity');
-    steps.push('time');
-    return steps;
-  }
-  const dotIdOf = (step) => (step === 'timeSegment' || step === 'timeHour') ? 'time' : step;
+  const DOTS = { gender: 1, aspiration: 2, activityLevel: 3, chairRise: 4, challengeArea: 5, standingComfort: 5, frequency: 6, bodyAreas: 7, time: 8 };
+  const DOT_TOTAL = 8;
 
-  /* Answers that depend on another answer are dropped when it changes. */
-  const DEPENDENTS = {
-    functionalityLevel: ['functionalityPathFollowup', 'singleLegBalance', 'chairRiseCapability', 'painLevel'],
-    painAreas: ['painLevel'],
-    timeSegment: ['trainingTimeOfDay'],
-  };
-  function withAnswer(answers, field, value) {
-    const changed = JSON.stringify(answers[field]) !== JSON.stringify(value);
-    const nextAnswers = { ...answers, [field]: value };
-    if (!changed) return nextAnswers;
-    return (DEPENDENTS[field] ?? []).reduce((acc, key) => {
-      const { [key]: _dropped, ...rest } = acc;
-      return rest;
-    }, nextAnswers);
+  /** Drop the follow-up answer of the branch the user is no longer on. */
+  function cleanOffBranch(a) {
+    const { standing_stability, mobility_challenge, ...rest } = a;
+    if (onHandles(a)) return standing_stability ? { ...rest, standing_stability } : rest;
+    return mobility_challenge ? { ...rest, mobility_challenge } : rest;
   }
 
-  /* ---------- Content ---------- */
-  const AREA = {
-    neck:           { label: 'צוואר', place: 'הצוואר' },
-    shoulders_neck: { label: 'כתף',   place: 'הכתפיים', stat: 58, statText: 'סובלים מבעיות בכתפיים ובצוואר' },
-    elbows:         { label: 'מרפק',  place: 'המרפקים', stat: 28, statText: 'סובלים מבעיות במרפקים' },
-    lower_back:     { label: 'גב תחתון', place: 'הגב התחתון', stat: 67, statText: 'סובלים מבעיות גב תחתון', tagline: 'לנוע בנוחות גדולה יותר' },
-    hips:           { label: 'ירך',   place: 'הירכיים', stat: 40, statText: 'סובלים מבעיות בירכיים' },
-    knees:          { label: 'ברך',   place: 'הברכיים', stat: 61, statText: 'סובלים מבעיות בברכיים', tagline: 'כל צעד מתחיל בברך' },
-    ankle:          { label: 'קרסול', place: 'הקרסול', stat: 22, statText: 'סובלים מבעיות בקרסול' },
+  const PAIN_ORDER = ['neck', 'shoulders_neck', 'elbows', 'lower_back', 'hips', 'knees', 'ankle', 'none'];
+  function toggleBodyArea(current, area) {
+    if (area === 'none') return current.includes('none') ? [] : ['none'];
+    const without = current.filter((x) => x !== 'none');
+    const nextSet = without.includes(area) ? without.filter((x) => x !== area) : [...without, area];
+    return PAIN_ORDER.filter((x) => nextSet.includes(x));
+  }
+
+  const SEGMENTS = {
+    morning:   { label: 'בוקר',        title: ['באיזו שעה בבוקר', 'מתאים לך?'],        presets: ['08:00', '09:00', '10:00'], from: 5,  to: 10, open: 9 },
+    midday:    { label: 'צהריים',      title: ['באיזו שעה בצהריים', 'מתאים לך?'],      presets: ['11:00', '12:00', '13:00'], from: 11, to: 15, open: 12 },
+    afternoon: { label: 'אחר הצהריים', title: ['באיזו שעה אחר הצהריים', 'מתאים לך?'], presets: ['16:00', '17:00', '18:00'], from: 16, to: 21, open: 17 },
   };
-  const HOURS = {
-    morning:   { label: 'בוקר',        hours: ['08:00', '09:00', '10:00'] },
-    noon:      { label: 'צהריים',      hours: ['11:00', '12:00', '13:00'] },
-    afternoon: { label: 'אחר הצהריים', hours: ['16:00', '17:00', '18:00'] },
+  const segmentOf = (time) => {
+    const h = time ? Number(time.slice(0, 2)) : NaN;
+    return Object.keys(SEGMENTS).find((k) => h >= SEGMENTS[k].from && h <= SEGMENTS[k].to) ?? null;
+  };
+  const slotsFor = (seg) => {
+    const out = [];
+    for (let h = SEGMENTS[seg].from; h <= SEGMENTS[seg].to; h += 1) for (let m = 0; m < 60; m += 15) out.push(`${pad(h)}:${pad(m)}`);
+    return out;
   };
 
-  const STEPS = {
-    welcome2: { kind: 'welcome' },
-
+  /* ---------- Question copy (verbatim from the spec) ---------- */
+  const QUESTIONS = {
     gender: {
-      kind: 'single', field: 'gender', dot: true,
-      title: () => 'מהו המגדר שלך?',
-      sub: () => 'המגדר שלך משפיע על מדדים גופניים חשובים.<br>אנחנו משתמשים במידע הזה כדי לספק לך תוכן מותאם אישית.',
-      options: () => [{ label: 'זכר', value: 'male' }, { label: 'נקבה', value: 'female' }],
+      key: 'gender',
+      title: () => ['מהו המגדר שלך?'],
+      sub: () => ['המגדר שלך משפיע על מדדים גופניים חשובים.', 'אנחנו משתמשים במידע הזה כדי לספק לך תוכן מותאם אישית.'],
+      options: () => [opt('זכר', 'male'), opt('נקבה', 'female')],
+      lockFoot: true,
     },
-
-    dob: { kind: 'dob', field: 'dateOfBirth' },
-
-    socialProof: { kind: 'socialProof' },
-
-    goal: {
-      kind: 'single', field: 'focusAreas', dot: true,
-      title: () => 'מה המטרה העיקרית שלך?',
-      sub: () => 'נרצה להבין מה הכי חשוב לך,<br>כדי להתאים לך תוכנית שתומכת במטרה שלך.',
-      options: () => [
-        { label: 'לשפר כוח ושיווי משקל', value: 'strength,balance' },
-        { label: 'לשפר גמישות', value: 'flexibility' },
-        { label: 'להרגיש יותר אנרגטי ביום-יום', value: 'cardio' },
-      ],
-    },
-
     aspiration: {
-      kind: 'single', field: 'aspirationGoal', dot: true,
-      title: (a) => `בעוד 10 שנים מהיום,<br>מה הכי חשוב לך שעדיין ${g(a, 'תוכלי', 'תוכל')} לעשות?`,
-      options: () => [
-        { label: 'לשמור על כושר וחיוניות', value: 'fitness' },
-        { label: 'לטייל וליהנות מהחיים', value: 'leisure' },
-        { label: 'לשחק עם המשפחה והנכדים', value: 'family' },
-        { label: 'כל התשובות נכונות', value: 'all' },
-      ],
+      key: 'aspiration_goal',
+      title: () => ['בעוד 10 שנים מהיום,', 'מה חשוב לך להמשיך לעשות?'],
+      options: () => [opt('לשמור על כושר וחיוניות', 'fitness'), opt('לטייל וליהנות מהחיים', 'leisure'), opt('לשחק עם המשפחה והנכדים', 'family'), opt('כל התשובות נכונות', 'all')],
     },
-
-    aspirationAffirm: {
-      kind: 'affirm',
-      title: () => 'הבחירה שלך <em>חשובה.</em>',
-      sub: () => 'תרגול של כמה דקות ביום<br>יכול לעשות שינוי גדול לאורך זמן.',
-      callouts: () => [
-        { icon: 'energy', title: 'יותר אנרגיה ביום שלך' },
-        { icon: 'smile', title: 'תחושת חיוניות וחיוביות' },
-        { icon: 'heart', title: 'שיפור איכות החיים ביום-יום' },
-      ],
-      tip: () => 'תרגול קצר וקבוע – בשביל אנרגיה שנשארת איתך.',
-    },
-
-    functionality: {
-      kind: 'single', field: 'functionalityLevel', dot: true,
-      title: () => 'מה רמת התפקוד שלך?',
-      sub: (a) => g(a, 'בחרי מה שהכי מתאים למצבך', 'בחר מה שהכי מתאים למצבך', 'בחרו מה שהכי מתאים למצבכם'),
+    activityLevel: {
+      key: 'daily_activity_level',
+      title: () => ['איך נראה רוב היום שלך?'],
+      sub: () => ['רמת הפעילות שלך תעזור לנו לדייק עבורך את התוכנית האישית'],
       options: (a) => [
-        { label: g(a, 'עצמאית לחלוטין', 'עצמאי לחלוטין'), desc: `אני ${g(a, 'מתפקדת', 'מתפקד')} בקלות בפעילויות היומיום ורוצה לשמור על כושר ובריאות.`, value: 'fully_independent' },
-        { label: `לפעמים ${g(a, 'מרגישה', 'מרגיש')} חוסר יציבות`, desc: 'תרגול עם תמיכה לשיפור שיווי משקל וביטחון בתנועה.', value: 'balance_issues' },
-        { label: `${g(a, 'מרגישה בטוחה', 'מרגיש בטוח')} יותר בישיבה`, desc: 'תרגול בישיבה על כיסא לחיזוק הגוף ולהגברת התנועתיות.', value: 'chair_only' },
+        opt(g(a, 'אני פעילה במהלך היום', 'אני פעיל במהלך היום'), 'very_active'),
+        opt(g(a, 'אני פעילה בחלק מהיום', 'אני פעיל בחלק מהיום'), 'partially_active'),
+        opt('אני רוב היום בישיבה', 'mostly_sitting'),
       ],
     },
-
-    pathFollowup: {
-      kind: 'single', field: 'functionalityPathFollowup', dot: true,
-      title: (a) => ({
-        independent: 'איך נראה היום שלך מבחינת תנועה?',
-        unstable: `מתי ${g(a, 'את מרגישה הכי פחות יציבה', 'אתה מרגיש הכי פחות יציב')}?`,
-        chair: `${g(a, 'תארי', 'תאר')} את מוגבלות התנועה`,
-      })[pathOf(a)],
-      options: (a) => ({
-        independent: [
-          { label: 'פעיל מאוד במהלך היום', value: 'regularly' },
-          { label: 'פעיל בחלק מהיום', value: 'occasionally' },
-          { label: 'רוב היום בישיבה', value: 'never' },
-        ],
-        unstable: [
-          { label: 'בהליכה', value: 'walking' },
-          { label: 'בעמידה ממושכת', value: 'prolonged_standing' },
-          { label: 'בקימה מכיסא', value: 'varies' },
-        ],
-        chair: [
-          { label: 'מתקשה משמעותית', value: 'significant' },
-          { label: 'מתקשה', value: 'prefer_seated' },
-          { label: 'מתקשה מעט', value: 'mild' },
-        ],
-      })[pathOf(a)],
-    },
-
-    trackTen: {
-      kind: 'single', field: 'trainingFrequencyChoice', dot: true,
-      title: () => 'מה הכי נכון לגביך היום?',
-      sub: () => 'רמת הפעילות הנוכחית שלך תעזור לנו<br>להתאים לך, לדייק עבורך את התוכנית האישית.',
+    chairRise: {
+      key: 'chair_rise_capability',
+      title: (a) => [g(a, 'כשאת קמה מכיסא בבית', 'כשאתה קם מכיסא בבית')],
+      sub: () => ['כדי להתאים לך תוכנית אישית'],
       options: (a) => [
-        { label: `${g(a, 'מתרגלת', 'מתרגל')} באופן קבוע`, desc: 'כמה פעמים בשבוע, יש שגרה', value: 'regular' },
-        { label: `${g(a, 'מתרגלת', 'מתרגל')} מדי פעם`, desc: 'לא מסודר, לפי הזמן', value: 'occasional' },
-        { label: `לא ${g(a, 'מתרגלת', 'מתרגל')}`, desc: `${g(a, 'מחפשת', 'מחפש')} להתחיל`, value: 'none' },
+        opt(g(a, 'קמה בקלות', 'קם בקלות'), 'alone'),
+        opt(g(a, 'קמה עם מעט מאמץ', 'קם עם מעט מאמץ'), 'with_support'),
+        opt(g(a, 'נעזרת בידיות', 'נעזר בידיות'), 'with_handles'),
       ],
     },
-
-    balanceTest: {
-      kind: 'single', dot: true,
-      field: (a) => pathOf(a) === 'chair' ? 'chairRiseCapability' : 'singleLegBalance',
-      title: (a) => pathOf(a) === 'chair'
-        ? `${g(a, 'כשאת קמה', 'כשאתה קם')} מכיסא בבית`
-        : `כמה זמן ${g(a, 'את מצליחה', 'אתה מצליח')} לעמוד על רגל אחת?`,
-      sub: (a) => pathOf(a) === 'chair' ? 'נרצה להבין את רמת העצמאות שלך<br>כדי להתאים לך תרגול נכון.' : '',
-      options: (a) => pathOf(a) === 'chair'
-        ? [
-            { label: `${g(a, 'קמה', 'קם')} בקלות`, value: 'alone' },
-            { label: `${g(a, 'קמה', 'קם')} עם מעט מאמץ`, value: 'with_support' },
-            { label: `${g(a, 'נעזרת', 'נעזר')} בידיות`, value: 'cannot' },
-          ]
-        : [
-            { label: `${g(a, 'מצליחה', 'מצליח')} בקלות`, desc: 'מעל 10 שניות', value: 'over_10s' },
-            { label: g(a, 'מצליחה', 'מצליח'), desc: 'בין 5 ל-10 שניות', value: 'between_5_and_10s' },
-            { label: `לא ${g(a, 'מצליחה', 'מצליח')} בכלל`, value: 'cannot' },
-          ],
+    challengeArea: {
+      key: 'mobility_challenge',
+      title: () => ['מה כבר לא מרגיש קל כמו פעם?'],
+      sub: (a) => [g(a, 'בחרי את מה שהכי נכון עבורך', 'בחר את מה שהכי נכון עבורך')],
+      options: () => [opt('עלייה במדרגות', 'stairs'), opt('הליכה למרחקים', 'walking'), opt('קימה מהרצפה', 'floor_rise'), opt('אף אחד מאלה', 'none')],
     },
-
-    motivation: {
-      kind: 'single', field: 'primaryMotivation', dot: true,
-      title: () => 'מה נותן לך<br>הכי הרבה מוטיבציה?',
-      sub: () => 'נרצה להבין מה מניע אותך,<br>כדי להתאים לך תרגול נכון.',
-      options: () => [
-        { label: 'להרגיש טוב עם עצמי', value: 'strength_balance' },
-        { label: 'לשמור על הבריאות', value: 'flexibility' },
-        { label: 'להרגיש ביטחון', value: 'energy' },
+    standingComfort: {
+      key: 'standing_stability',
+      title: (a) => [g(a, 'איך את מרגישה בזמן עמידה?', 'איך אתה מרגיש בזמן עמידה?')],
+      sub: (a) => [g(a, 'בחרי את התשובה המתאימה ביותר', 'בחר את התשובה המתאימה ביותר')],
+      options: (a) => [
+        opt(g(a, 'אני מרגישה יציבה ונוחה', 'אני מרגיש יציב ונוח'), 'stable'),
+        opt(g(a, 'אני מרגישה יציבה יותר כשאני אוחזת במשהו', 'אני מרגיש יציב יותר כשאני אוחז במשהו'), 'holds_support'),
+        opt(g(a, 'אני מרגישה בטוחה יותר כשאני יושבת', 'אני מרגיש בטוח יותר כשאני יושב'), 'seated'),
       ],
     },
-
-    motivationExplainer: {
-      kind: 'affirm', loading: 'בונים עבורך תוכנית מותאמת אישית…',
-      title: () => '<em>מצוין</em> – אנחנו מתקדמים.',
-      sub: (a) => ({
-        independent: 'לפי הבחירות שלך – התוכנית תתמקד בשמירה על עצמאות, חיזוק הגוף ושיפור היציבות לאורך זמן.',
-        unstable: 'לפי מה שסימנת – התוכנית תתמקד בשיפור שיווי משקל, חיזוק הגוף והעלאת הביטחון בתנועה.',
-        chair: 'לפי הבחירות שלך – התוכנית תתמקד בחיזוק הגוף, שיפור התנועה והעלאת הביטחון בצורה בטוחה ובהדרגה.',
-      })[pathOf(a)],
-      callouts: (a) => [
-        { icon: 'strength', title: 'חיזוק השרירים' },
-        { icon: pathOf(a) === 'chair' ? 'chair' : 'move', title: pathOf(a) === 'chair' ? 'שיפור שיווי המשקל בישיבה' : 'שיפור שיווי המשקל' },
-        { icon: 'shield', title: 'יותר יציבות וביטחון' },
+    frequency: {
+      key: 'training_frequency_choice',
+      title: (a) => [g(a, 'באיזו תדירות את מבצעת פעילות גופנית?', 'באיזו תדירות אתה מבצע פעילות גופנית?')],
+      sub: () => ['רמת הפעילות שלך תעזור לנו לדייק עבורך את התוכנית האישית'],
+      options: (a) => [
+        opt('כמעט כל יום', 'almost_daily'),
+        opt('כ־3 פעמים בשבוע', 'three_week'),
+        opt(`${ltr('1–2')} פעמים בשבוע`, 'one_two_week'),
+        opt(g(a, 'אני לא מתרגלת בכלל', 'אני לא מתרגל בכלל'), 'none'),
       ],
     },
-
-    bodyAreas: { kind: 'multi', field: 'painAreas', dot: true },
-
-    bodyAreasReassure: { kind: 'reassure' },
-    painStats: { kind: 'painStats' },
-
-    painSeverity: {
-      kind: 'single', field: 'painLevel', dot: true,
-      title: () => 'כמה זה משפיע ביום-יום?',
-      options: () => [
-        { label: 'כמעט ולא מורגש', value: 'almost_none' },
-        { label: 'לפעמים מפריע בתנועה', value: 'sometimes_disrupts' },
-        { label: 'משפיע מאוד ואני רוצה לשפר', value: 'affects_significantly' },
-      ],
-    },
-
-    timeSegment: {
-      kind: 'single', field: 'timeSegment', dot: true,
-      title: () => 'באיזה זמן ביום<br>מתאים לך להשקיע בעצמך?',
-      sub: () => 'הרגל קבוע = תוצאה גדולה.',
-      options: () => Object.entries(HOURS).map(([value, h]) => ({ label: h.label, desc: ltr(h.hours.join(' · ')), value })),
-    },
-
-    timeHour: { kind: 'hour', field: 'trainingTimeOfDay', dot: true },
-    planBuilding: { kind: 'building' },
-    result: { kind: 'result' },
   };
+  const BODY_AREAS = [opt('צוואר', 'neck'), opt('כתף', 'shoulders_neck'), opt('מרפק', 'elbows'), opt('גב תחתון', 'lower_back'), opt('ירך', 'hips'), opt('ברך', 'knees'), opt('קרסול', 'ankle')];
 
   /* ---------- State (replaced, never mutated) ---------- */
-  let state = { step: 'welcome2', answers: {}, history: [] };
-  let pendingTimer = null;
-  let buildFrame = null;
+  const freshUi = () => ({ sub: null, segment: null, otherOpen: false, phone: '', nameError: '', phoneError: '', otp: '', otpError: '', resendAt: 0, finishError: false, outcome: 'new' });
+  let state = { step: 'welcome2', history: [], answers: {}, ui: freshUi() };
+  const timers = { raf: null, timeout: null, interval: null };
 
-  const screen = document.getElementById('screen');
-  const backBtn = document.getElementById('backBtn');
-  const dotsEl = document.getElementById('dots');
-  const dotsLabel = document.getElementById('dotsLabel');
-  const footNote = document.getElementById('footNote');
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const screen = $('#screen');
+  const backBtn = $('#backBtn');
+  const progress = $('#progress');
+  const cancelLink = $('#cancelLink');
+  const finishing = $('#finishing');
 
-  const resolve = (v, a) => typeof v === 'function' ? v(a) : v;
-  const fieldOf = (def, a) => resolve(def.field, a);
-  const isQuestion = (kind) => ['single', 'multi', 'dob', 'hour'].includes(kind);
+  const setState = (patch) => { state = { ...state, ...patch }; };
+  const setUi = (patch) => { state = { ...state, ui: { ...state.ui, ...patch } }; };
+  const setAnswers = (patch) => {
+    const merged = { ...state.answers, ...patch };
+    const cleaned = Object.fromEntries(Object.entries(merged).filter(([, v]) => v !== undefined));
+    setState({ answers: cleanOffBranch(cleaned) });
+  };
 
   function clearTimers() {
-    clearTimeout(pendingTimer);
-    pendingTimer = null;
-    if (buildFrame) cancelAnimationFrame(buildFrame);
-    buildFrame = null;
+    if (timers.raf) cancelAnimationFrame(timers.raf);
+    clearTimeout(timers.timeout);
+    clearInterval(timers.interval);
+    timers.raf = null; timers.timeout = null; timers.interval = null;
   }
 
-  function goTo(step) {
+  /* ---------- Navigation ---------- */
+  const TRANSIENT = ['planBuilding', 'handoff'];
+  function goTo(step, sub = null) {
     clearTimers();
-    const transient = state.step === 'planBuilding';
-    const history = step === 'gender' ? [] : transient ? state.history : [...state.history, state.step];
-    state = { ...state, step, history };
-    render(true);
+    const here = { step: state.step, sub: state.ui.sub };
+    let history = TRANSIENT.includes(state.step) ? state.history : [...state.history, here];
+    if (step === 'gender' || step === 'handoff') history = [];
+    setState({ step, history });
+    setUi({ sub, otherOpen: false });
+    render('heading');
   }
   function advance() {
-    const target = next(state.step, state.answers);
+    const target = nextStep(state.step, state.answers);
+    if (target === 'time') return goTo('time', 'A');
+    if (target === 'register') return goTo('register', 'name');
     if (target) goTo(target);
   }
   function goBack() {
     if (!state.history.length) return;
     clearTimers();
-    const history = state.history.slice(0, -1);
-    state = { ...state, step: state.history[state.history.length - 1], history };
-    render(true);
-  }
-  function setAnswer(field, value) {
-    state = { ...state, answers: withAnswer(state.answers, field, value) };
+    const prev = state.history[state.history.length - 1];
+    setState({ step: prev.step, history: state.history.slice(0, -1) });
+    setUi({ sub: prev.sub, otherOpen: false, otpError: '', finishError: false });
+    render('heading');
   }
 
-  /* ---------- Render ---------- */
-  const optionHtml = (o, selected, role) => `
-    <li${o.wide ? ' class="wide"' : ''}>
-      <button type="button" class="opt" role="${role}" aria-checked="${selected}" data-value="${o.value}">
-        <span class="txt"><span class="lbl">${o.label}</span>${o.desc ? `<span class="desc">${o.desc}</span>` : ''}</span>
-        <span class="tick">${ICON.check}</span>
-      </button>
-    </li>`;
-  const heading = (html) => `<h1 class="q-title" tabindex="-1">${html}</h1>`;
-  const subLine = (html) => html ? `<p class="lead q-sub">${html}</p>` : '';
+  /* ---------- Shared markup ---------- */
+  const heading = (arr, cls = 'q-title') => `<h1 class="${cls}" id="stepTitle" tabindex="-1">${lines(arr)}</h1>`;
+  const subLine = (arr) => (arr && arr.length ? `<p class="lead q-sub">${lines(arr)}</p>` : '');
   const continueBtn = (enabled, label = 'המשך') => `<div class="f-actions"><button type="button" class="btn btn-primary lg" data-action="continue"${enabled ? '' : ' disabled'}>${label}</button></div>`;
-  const calloutList = (items) => `<ul class="callouts">${items.map((c) => `
-    <li><span class="ico${c.tone ? ' ' + c.tone : ''}">${ICON[c.icon]}</span><div><b>${c.title}</b>${c.body ? `<span>${c.body}</span>` : ''}</div></li>`).join('')}</ul>`;
+  const radioCard = (name, o, checked) => `
+    <label class="opt"><input type="radio" name="${name}" value="${o.value}"${checked ? ' checked' : ''}><span class="lbl">${o.label}</span><span class="tick">${ICON.check}</span></label>`;
+  const radioGroup = (name, options, current) => `
+    <div class="options" role="radiogroup" aria-labelledby="stepTitle">${options.map((o) => radioCard(name, o, current === o.value)).join('')}</div>`;
+  const lockFoot = (text) => `<p class="f-foot">${ICON.lock}${text}</p>`;
 
-  const RENDERERS = {
-    welcome: () => `
-      <div class="inter">
-        <div class="media"><img src="../../../public/img/hero.webp" alt="" width="1200" height="600"></div>
-        ${heading('להרגיש <em>חזקים ויציבים</em>')}
-        ${subLine('אנחנו נעזור לך לבנות תוכנית אישית שתתאים לך –<br>ותעזור לך להרגיש טוב יותר בכל יום.')}
-        <div class="plan-card"><span class="ico green">${ICON.calendar}</span><div><b>תוכנית בהתאמה אישית</b><span>רק 10 דקות ביום לשמירה על איכות חיים גבוהה</span></div></div>
-        ${continueBtn(true, 'בואו נתחיל')}
+  /* ---------- Renderers ---------- */
+  const R = {
+    welcome2: () => `
+      <div class="inter split">
+        <div class="media"><img src="${IMG}welcome2-hero.webp" alt="" width="788" height="1400"></div>
+        <div class="copy">
+          ${heading(['שומרים על <em>איכות החיים</em>'], 'inter-title')}
+          <p class="lead">מחקרים מראים שתרגול יומי קצר מסייע לשמור על אנרגיה, משקל תקין וכוח בכל גיל</p>
+          ${continueBtn(true, 'בואו נתחיל')}
+        </div>
       </div>`,
 
-    single: (def, a) => {
-      const field = fieldOf(def, a);
-      const current = a[field];
+    question: (a) => {
+      const q = QUESTIONS[state.step];
+      const current = a[q.key];
       return `
-        ${heading(resolve(def.title, a))}
-        ${subLine(resolve(def.sub, a))}
-        <ul class="options" role="radiogroup" aria-label="תשובות">
-          ${resolve(def.options, a).map((o) => optionHtml(o, String(current) === o.value, 'radio')).join('')}
-        </ul>
-        ${continueBtn(current !== undefined)}`;
+        ${heading(q.title(a))}
+        ${subLine(q.sub ? q.sub(a) : null)}
+        ${radioGroup(q.key, q.options(a), current)}
+        ${continueBtn(current !== undefined)}
+        ${q.lockFoot ? lockFoot('המידע שלך בטוח ומאובטח') : ''}`;
     },
 
-    multi: (def, a) => {
-      const chosen = a.painAreas ?? [];
-      const opts = [
-        ...Object.entries(AREA).map(([value, x]) => ({ label: x.label, value })),
-        { label: 'אין משהו מיוחד', value: 'none', wide: true },
-      ];
-      return `
-        ${heading('האם יש אזור שמרגיש פחות חזק, פחות נוח או לפעמים כואב?')}
-        ${subLine('גם תחושה קלה נחשבת. אפשר לבחור יותר מאזור אחד.')}
-        <ul class="options grid2" role="group" aria-label="אזורים בגוף">
-          ${opts.map((o) => optionHtml(o, chosen.includes(o.value), 'checkbox')).join('')}
-        </ul>
-        ${continueBtn(chosen.length > 0)}`;
-    },
-
-    dob: (def, a) => {
-      const selectedYear = a.dateOfBirth ? a.dateOfBirth.slice(0, 4) : '';
+    dob: (a) => {
+      const selected = a.date_of_birth ? Number(a.date_of_birth.slice(0, 4)) : CURRENT_YEAR - DEFAULT_AGE;
       const years = [];
       for (let y = CURRENT_YEAR - MIN_AGE; y >= CURRENT_YEAR - MAX_AGE; y -= 1) years.push(y);
       return `
-        ${heading('מה שנת הלידה שלך?')}
-        ${subLine('כדי להתאים לך תרגול מדויק ובטוח לגיל שלך')}
-        <p class="mt-s"><span class="chip green">גיל ${ltr('55+')} בלבד</span></p>
-        <div class="field mt-s">
-          <label for="year">שנת לידה</label>
-          <div class="select-wrap">
-            <select id="year" class="input" data-role="year">
-              <option value=""${selectedYear ? '' : ' selected'} disabled>בחירת שנה</option>
-              ${years.map((y) => `<option value="${y}"${String(y) === selectedYear ? ' selected' : ''}>${y}</option>`).join('')}
-            </select>
-            ${ICON.chevron}
-          </div>
+        ${heading(['מה שנת הלידה שלך?'])}
+        ${subLine(['כדי להתאים לך תרגול מדויק ובטוח לגיל שלך'])}
+        <div class="select-wrap">
+          <select id="year" class="input" aria-labelledby="stepTitle" data-role="year">
+            ${years.map((y) => `<option value="${y}"${y === selected ? ' selected' : ''}>${y}</option>`).join('')}
+          </select>
+          ${ICON.chevron}
         </div>
         <p class="reassure">המידע שלך נשמר בצורה מאובטחת ולא משותף עם אף אחד</p>
-        ${continueBtn(Boolean(selectedYear))}
-        <p class="f-foot" style="margin-top:1rem">לוקח כמה שניות בלבד</p>`;
+        ${continueBtn(true)}
+        <p class="f-foot">לוקח כמה שניות בלבד</p>
+        <p class="note ask">שאלה ללקוח: באפליקציה אפשר לבחור שנות לידה מגיל ${ltr('30')} ועד ${ltr('100')}, ובאתר מוצג אותו טווח. לפי מסמך המוצר האתר מיועד לגילאי ${ltr('55+')}. האם לחסום באתר שנים שמתחת לגיל ${ltr('55')}, או להשאיר כמו באפליקציה?</p>`;
     },
 
-    socialProof: (def, a) => `
-      <div class="inter">
-        <ul class="avatars" aria-hidden="true">
-          ${[5, 1, 4, 6, 2].map((n) => `<li><img src="../../../public/img/people/${n}.webp" alt="" width="60" height="60"></li>`).join('')}
-        </ul>
-        ${heading(`אלפי ${g(a, 'נשים', 'גברים')} בגילאי ${ltr('50+')}`)}
-        ${subLine(`כבר ${g(a, 'מרגישות', 'מרגישים')} את השינוי עם פעילים פלוס`)}
-        <div class="pills"><span class="chip blue">תוכניות מותאמות אישית</span><span class="chip green">ליווי מקצועי</span><span class="chip purple">תוצאות אמיתיות</span></div>
-        ${calloutList([
-          { icon: 'strength', title: 'חיזוק הגוף', body: 'שיפור מסת השריר וכוח יומיומי' },
-          { icon: 'energy', title: 'ניידות ואנרגיה', body: 'יותר קלות בתנועה ויותר אנרגיה ביום-יום', tone: 'green' },
-          { icon: 'heart', title: 'בריאות כללית', body: 'תוכניות מבוססות מדע לתוצאות לאורך זמן', tone: 'purple' },
-        ])}
-        ${continueBtn(true)}
-      </div>`,
-
-    affirm: (def, a) => `
-      <div class="inter">
-        ${heading(resolve(def.title, a))}
-        ${subLine(resolve(def.sub, a))}
-        ${calloutList(resolve(def.callouts, a))}
-        ${def.tip ? `<p class="tip">${resolve(def.tip, a)}</p>` : ''}
-        ${continueBtn(true)}
-      </div>`,
-
-    reassure: (def, a) => {
-      const areas = (a.painAreas ?? []).filter((k) => AREA[k]);
-      const lead = areas.map((k) => AREA[k].tagline).find(Boolean) ?? 'נתאים את התרגול בשבילך';
+    socialProof: (a) => {
+      const year = a.date_of_birth ? Number(a.date_of_birth.slice(0, 4)) : null;
+      const band = year ? Math.floor((CURRENT_YEAR - year) / 5) * 5 : BAND_FALLBACK;
+      const female = a.gender === 'female';
+      const img = female ? 'social-proof-female.webp' : 'social-proof-male.webp';
       return `
         <div class="inter">
-          ${heading(lead)}
-          ${subLine('התוכנית שלך תיקח בחשבון את מה שסימנת.')}
-          ${calloutList(areas.slice(0, 4).map((k) => ({ icon: 'spot', title: AREA[k].label, body: `נתחשב גם באזור ${AREA[k].place}.` })))}
+          <div class="sp-media ${female ? 'female' : 'male'}" style="background-image:url('${IMG}${img}')" aria-hidden="true"></div>
+          ${heading([`${g(a, 'אלפי נשים', 'אלפי גברים')} בגילאי ${ltr(band + '+')}`], 'inter-title')}
+          <p class="lead">${g(a, 'כבר מרגישות את השינוי עם פעילים פלוס', 'כבר מרגישים את השינוי עם פעילים פלוס')}</p>
+          <ul class="sp-bullets"><li>תוכניות מותאמות אישית</li><li>ליווי מקצועי</li><li>תוצאות אמיתיות</li></ul>
+          <ul class="callouts">
+            <li><span class="ico">${ICON.strength}</span><div><b>חיזוק הגוף</b><span>שיפור מסת השריר וכוח יומיומי</span></div></li>
+            <li><span class="ico green">${ICON.move}</span><div><b>ניידות ואנרגיה</b><span>יותר קלות בתנועה ויותר אנרגיה ביום-יום</span></div></li>
+            <li><span class="ico purple">${ICON.heart}</span><div><b>בריאות כללית</b><span>תוכניות מבוססות מדע לתוצאות לאורך זמן</span></div></li>
+          </ul>
           ${continueBtn(true)}
+          ${lockFoot('המידע שלך בטוח ומאובטח')}
         </div>`;
     },
 
-    painStats: (def, a) => {
-      const rows = (a.painAreas ?? []).map((k) => AREA[k]).filter((x) => x && x.stat);
-      return `
-        <div class="inter">
-          ${heading(g(a, 'את לא לבד.', 'אתה לא לבד.'))}
-          ${subLine('הרבה אנשים בגיל שלך מתמודדים עם אתגרים דומים.')}
-          ${rows.length ? `<ul class="stats">${rows.map((x) => `
-            <li><div class="stat-head"><span class="stat-num">${ltr(x.stat + '%')}</span><span>${x.statText}</span></div>
-            <div class="bar"><i style="width:${x.stat}%"></i></div></li>`).join('')}</ul>` : ''}
-          <p class="tip">אנחנו כאן כדי לעזור לך לחזור <b>לתנועה, הקלה וביטחון.</b></p>
+    reinforcement2: (a) => `
+      <div class="inter split">
+        <div class="media"><img src="${IMG}${a.gender === 'female' ? 'reinforcement2-female' : 'reinforcement2-male'}.webp" alt="" width="788" height="1400"></div>
+        <div class="copy">
+          ${heading(['הגוף מגיב למה <em>שמתרגלים</em>'], 'inter-title')}
+          <p class="lead">לא צריך להתאמן שעות. מחקרים מראים שכמה דקות של תנועה מותאמת אישית בכל יום עושות הבדל משמעותי</p>
           ${continueBtn(true)}
+        </div>
+      </div>`,
+
+    bodyAreas: (a) => {
+      const chosen = a.pain_areas ?? [];
+      const chip = (o, wide) => `
+        <button type="button" class="opt${wide ? ' wide' : ''}" aria-pressed="${chosen.includes(o.value)}" data-area="${o.value}"><span class="lbl">${o.label}</span><span class="tick">${ICON.check}</span></button>`;
+      return `
+        ${heading(['האם יש איזורים שמרגישים פחות נוח או כואבים?'])}
+        <div class="options chips" role="group" aria-labelledby="stepTitle">
+          ${BODY_AREAS.map((o) => chip(o, false)).join('')}
+          ${chip(opt('אין כאב או אי-נוחות', 'none'), true)}
+        </div>
+        ${continueBtn(chosen.length > 0)}`;
+    },
+
+    planBuilding: () => {
+      const items = [['מבינים מה הגוף שלך צריך עכשיו', 28], ['מתאימים תרגול לרמה שלך בדיוק', 56], ['בונים לך דרך פשוטה להתחיל כבר היום', 82]];
+      return `
+        <div class="inter build">
+          <div class="ring" role="progressbar" aria-labelledby="stepTitle" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ring">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="fill" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg>
+            <b aria-hidden="true">${ltr('<span id="pct">0</span>%')}</b>
+          </div>
+          ${heading(['בונים את התוכנית שלך'])}
+          <ul class="build-list">${items.map(([t, at]) => `<li data-at="${at}"><span class="tick">${ICON.check}</span><span>${t}</span></li>`).join('')}</ul>
+          <div id="buildDone" hidden>${continueBtn(true)}</div>
         </div>`;
     },
 
-    hour: (def, a) => {
-      const seg = HOURS[a.timeSegment] ?? HOURS.morning;
-      const current = a.trainingTimeOfDay;
-      const isCustom = current && !seg.hours.includes(current);
-      const customTimes = [];
-      for (let m = 6 * 60; m <= 21 * 60; m += 15) customTimes.push(`${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+    time: (a) => (state.ui.sub === 'B' ? R.timeB(a) : R.timeA(a)),
+
+    timeA: (a) => {
+      const seg = state.ui.segment ?? segmentOf(a.training_time_of_day);
       return `
-        ${heading(g(a, 'בחרי שעה שמתאימה לך', 'בחר שעה שמתאימה לך'))}
-        ${subLine(`${seg.label}, ${ltr(seg.hours[0] + '–' + seg.hours[2])}`)}
-        <ul class="options" role="radiogroup" aria-label="שעה">
-          ${seg.hours.map((h) => optionHtml({ label: ltr(h), value: h }, current === h, 'radio')).join('')}
-          ${optionHtml({ label: 'בחר שעה אחרת שמתאימה לי', value: 'custom' }, Boolean(isCustom), 'radio')}
-        </ul>
-        <div class="field mt-s" id="customHour"${isCustom ? '' : ' hidden'}>
-          <label for="hourSel">בחר שעה</label>
+        ${heading(['באיזה זמן ביום', 'מתאים לך להשקיע בעצמך?'])}
+        ${subLine(['הרגל קבוע = תוצאה גדולה.'])}
+        ${radioGroup('segment', Object.entries(SEGMENTS).map(([value, s]) => opt(s.label, value)), seg)}
+        ${continueBtn(Boolean(seg))}`;
+    },
+
+    timeB: (a) => {
+      const segKey = state.ui.segment;
+      const seg = SEGMENTS[segKey];
+      const current = segmentOf(a.training_time_of_day) === segKey ? a.training_time_of_day : null;
+      const isCustom = current && !seg.presets.includes(current);
+      const options = seg.presets.map((h) => opt(ltr(h), h));
+      if (isCustom) options.push(opt(ltr(current), current));
+      const seed = current ?? `${pad(seg.open)}:00`;
+      return `
+        ${heading(seg.title)}
+        ${subLine([g(a, 'בחרי שעה שמתאימה לך', 'בחר שעה שמתאימה לך')])}
+        ${radioGroup('hour', options, current)}
+        <div class="f-actions">
+          <button type="button" class="btn btn-outline lg other" data-action="toggle-other" aria-expanded="${state.ui.otherOpen}" aria-controls="otherPanel">בחר שעה אחרת שמתאימה לי</button>
+        </div>
+        <div class="other-panel" id="otherPanel"${state.ui.otherOpen ? '' : ' hidden'}>
+          <label class="label" for="otherSel">בחר שעה</label>
           <div class="select-wrap">
-            <select id="hourSel" class="input">
-              ${customTimes.map((t) => `<option value="${t}"${t === (isCustom ? current : '07:00') ? ' selected' : ''}>${t}</option>`).join('')}
-            </select>
+            <select id="otherSel" class="input">${slotsFor(segKey).map((t) => `<option value="${t}"${t === seed ? ' selected' : ''}>${t}</option>`).join('')}</select>
             ${ICON.chevron}
           </div>
-          <button type="button" class="btn btn-outline lg mt-s" data-action="confirm-hour" style="width:100%">אישור</button>
+          <button type="button" class="btn btn-primary lg" data-action="confirm-other">אישור</button>
         </div>
         ${continueBtn(Boolean(current))}`;
     },
 
-    building: () => `
-      <div class="inter">
-        ${heading('בונים את התוכנית שלך')}
-        <p class="build-pct"><span class="ltr" id="buildPct">0%</span></p>
-        <div class="build-bar" role="progressbar" aria-label="בניית התוכנית" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="buildBar"><i></i></div>
-        <ul class="build-list">
-          ${[['מבינים מה הגוף שלך צריך עכשיו', 28], ['מתאימים תרגול לרמה שלך בדיוק', 56], ['בונים לך דרך פשוטה להתחיל כבר היום', 82]]
-            .map(([t, at]) => `<li data-at="${at}"><span class="tick">${ICON.check}</span><span>${t}</span></li>`).join('')}
-        </ul>
-        <div id="buildDone" hidden>${continueBtn(true)}</div>
-      </div>`,
+    register: (a) => (state.ui.sub === 'phone' ? R.registerPhone(a) : R.registerName(a)),
 
-    result: (def, a) => {
-      const path = pathOf(a);
-      const pathText = {
-        independent: 'שמירה על עצמאות, כוח ויציבות',
-        unstable: 'שיפור שיווי המשקל והביטחון בתנועה',
-        chair: 'תרגול בישיבה על כיסא, לחיזוק הגוף והתנועתיות',
-      }[path];
-      const goalText = resolve(STEPS.goal.options, a).find((o) => o.value === a.focusAreas)?.label;
-      const motivationText = resolve(STEPS.motivation.options, a).find((o) => o.value === a.primaryMotivation)?.label;
-      const areas = reportedPain(a) ? a.painAreas.map((k) => AREA[k].label).join(', ') : null;
-      const rows = [
-        { icon: path === 'chair' ? 'chair' : 'move', k: 'במה התוכנית מתמקדת', v: pathText },
-        { icon: 'target', k: 'המטרה שלך', v: goalText },
-        areas ? { icon: 'spot', k: 'נתחשב באזורים', v: areas } : { icon: 'heart', k: 'מה שמניע אותך', v: motivationText },
-        { icon: 'clock', k: 'מתי מתאמנים', v: `10 דקות ביום, ב־${ltr(a.trainingTimeOfDay)}` },
-      ];
+    registerName: (a) => {
+      const err = state.ui.nameError;
       return `
-        <div class="inter">
-          ${heading('התוכנית האישית שלך מוכנה')}
-          ${subLine('הנה מה שלמדנו עליך, והתוכנית בנויה סביבו.')}
-          <ul class="summary">${rows.map((r) => `
-            <li><span class="ico">${ICON[r.icon]}</span><div><small>${r.k}</small><b>${r.v ?? ''}</b></div></li>`).join('')}</ul>
-          <div class="f-actions"><a class="btn btn-primary lg" href="payment.html">לבחירת מסלול ${ICON.arrowNext}</a></div>
+        <form class="form" data-form="name" novalidate>
+          ${heading([g(a, 'איך תרצי שנקרא לך?', 'איך תרצה שנקרא לך?')])}
+          <div class="field">
+            <input id="fullName" class="input${err ? ' invalid' : ''}" autocomplete="name" placeholder="הקלידו את שמכם" aria-labelledby="stepTitle" aria-describedby="nameErr"${err ? ' aria-invalid="true"' : ''} value="${esc(a.full_name ?? '')}">
+            <p class="err" id="nameErr" role="alert">${err}</p>
+          </div>
+          <div class="f-actions"><button type="submit" class="btn btn-primary lg">הבא</button></div>
+        </form>`;
+    },
+
+    registerPhone: (a) => {
+      const err = state.ui.phoneError;
+      return `
+        <form class="form" data-form="phone" novalidate>
+          <span class="step-icon" aria-hidden="true">${ICON.phone}</span>
+          ${heading(['נשלח לך קוד'])}
+          ${subLine(['להמשך מהיר ובטוח'])}
+          <div class="field">
+            <label for="phone">מספר טלפון</label>
+            <input id="phone" class="input${err ? ' invalid' : ''}" type="tel" inputmode="tel" autocomplete="tel" placeholder="${g(a, 'הקלידי מספר טלפון', 'הקלידו מספר טלפון')}" aria-describedby="phoneSecure phoneErr"${err ? ' aria-invalid="true"' : ''} value="${esc(state.ui.phone)}">
+            <p class="secure" id="phoneSecure">${ICON.lock}הפרטים שלך מאובטחים</p>
+            <p class="err" id="phoneErr" role="alert">${err}</p>
+          </div>
+          <div class="f-actions"><button type="submit" class="btn btn-primary lg">שלחו לי קוד</button></div>
+          <p class="meta">לוקח פחות מדקה<span class="sep"></span>ללא התחייבות</p>
+          <p class="consent">${g(a, 'בלחיצה על "שלחו לי קוד" אני מאשרת את', 'בלחיצה על "שלחו לי קוד" אני מאשר את')} <a href="#">תנאי השימוש</a> ו<a href="#">מדיניות הפרטיות</a></p>
+        </form>`;
+    },
+
+    otp: () => {
+      if (state.ui.finishError) {
+        return `
+          <div class="inter done">
+            ${heading(['לא הצלחנו לסיים את ההרשמה'])}
+            <div class="f-actions"><button type="button" class="btn btn-primary lg" data-action="retry-finish">נסו שוב</button></div>
+          </div>`;
+      }
+      const code = state.ui.otp;
+      const boxes = Array.from({ length: OTP_LENGTH }, (_, i) => `<span class="otp-box${i === Math.min(code.length, OTP_LENGTH - 1) ? ' next' : ''}">${code[i] ?? ''}</span>`).join('');
+      return `
+        <span class="step-icon" aria-hidden="true">${ICON.lock}</span>
+        ${heading(['קוד אימות נשלח אליך'])}
+        <p class="lead q-sub">הכנס את הקוד שקיבלת ב־SMS</p>
+        <p class="sent-to">ל-${ltr(formatLocal(state.ui.phone))}</p>
+        <div class="otp${state.ui.otpError ? ' invalid' : ''}" id="otpWrap">
+          <div class="otp-boxes" dir="ltr" aria-hidden="true">${boxes}</div>
+          <input id="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="${OTP_LENGTH}" pattern="[0-9]*" aria-label="קוד אימות, ${OTP_LENGTH} ספרות" aria-describedby="otpErr"${state.ui.otpError ? ' aria-invalid="true"' : ''} value="${code}">
+        </div>
+        <p class="err" id="otpErr" role="alert">${state.ui.otpError}</p>
+        <div class="resend">
+          <span id="resendSlot">${resendMarkup()}</span>
+          <button type="button" class="linkish" data-action="edit-phone">ערוך מספר</button>
+        </div>`;
+    },
+
+    handoff: () => {
+      const existing = state.ui.outcome === 'existing';
+      return `
+        <div class="inter done">
+          <div class="big-ok" aria-hidden="true">${ICON.check}</div>
+          ${heading([existing ? `ברוכים השבים, ${esc(EXISTING_NAME)}` : 'התוכנית האישית שלך מוכנה'], 'inter-title')}
+          <div class="f-actions"><a class="btn btn-primary lg" href="payment.html?signedin=1" data-action="to-payment">לבחירת מסלול ${ICON.forward}</a></div>
         </div>`;
     },
   };
 
-  function renderTopBar(def, a) {
-    const steps = indicatorSteps(a);
-    const showDots = isQuestion(def.kind) && def.dot;
-    const at = steps.indexOf(dotIdOf(state.step));
-    dotsEl.innerHTML = showDots ? steps.map((_, i) => `<li class="${i < at ? 'done' : i === at ? 'now' : ''}"></li>`).join('') : '';
-    dotsEl.dataset.count = showDots ? String(steps.length) : '0';
-    dotsLabel.textContent = showDots ? `שאלה ${at + 1} מתוך ${steps.length}` : '';
-    backBtn.classList.toggle('is-hidden', state.history.length === 0);
-    footNote.hidden = !isQuestion(def.kind);
+  function resendMarkup() {
+    const left = Math.max(0, Math.ceil((state.ui.resendAt - Date.now()) / 1000));
+    return left > 0
+      ? `<span class="wait">שלח שוב בעוד ${ltr(left)} שניות</span>`
+      : '<button type="button" class="linkish" data-action="resend">לא קיבלת קוד? שלח שוב</button>';
   }
 
-  function render(moveFocus) {
-    const def = STEPS[state.step];
+  /* ---------- Top row ---------- */
+  function renderTop() {
+    const { step, ui } = state;
+    const dot = DOTS[step];
+    if (dot) {
+      progress.innerHTML = `<div class="dots" role="img" aria-label="שלב ${dot} מתוך ${DOT_TOTAL}">${Array.from({ length: DOT_TOTAL }, (_, i) => `<i class="${i + 1 < dot ? 'done' : i + 1 === dot ? 'now' : ''}"></i>`).join('')}</div>`;
+    } else if (step === 'register') {
+      const isPhone = ui.sub === 'phone';
+      const label = isPhone ? 'שלב 2 מתוך 2' : 'כבר מסיימים';
+      progress.innerHTML = `<span class="reg-label">${label}</span><div class="reg-bar" role="progressbar" aria-label="${label}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${isPhone ? 100 : 50}"><i style="width:${isPhone ? 100 : 50}%"></i></div>`;
+    } else {
+      progress.innerHTML = '';
+    }
+    const noChrome = TRANSIENT.includes(step);
+    backBtn.classList.toggle('is-hidden', noChrome || state.history.length === 0);
+    backBtn.disabled = noChrome || state.history.length === 0;
+    cancelLink.hidden = noChrome;
+  }
+
+  /* ---------- Render ---------- */
+  const isQuestion = (step) => Boolean(QUESTIONS[step]);
+  function render(focus) {
     const a = state.answers;
-    renderTopBar(def, a);
+    renderTop();
     screen.dataset.step = state.step;
-    if (def.loading && !reducedMotion) {
-      screen.innerHTML = `<div class="inter loading-line"><div class="spinner" aria-hidden="true"></div>${def.loading}</div>`;
-      pendingTimer = setTimeout(() => paint(def, a, moveFocus), EXPLAINER_LOADING_MS);
-      return;
-    }
-    paint(def, a, moveFocus);
-  }
-
-  function paint(def, a, moveFocus) {
-    screen.innerHTML = RENDERERS[def.kind](def, a);
-    screen.classList.remove('enter');
-    void screen.offsetWidth;
-    screen.classList.add('enter');
-    if (def.kind === 'building') runBuild();
-    if (moveFocus) {
-      screen.querySelector('.q-title')?.focus({ preventScroll: true });
-      const top = document.querySelector('.f-top').getBoundingClientRect().top + window.scrollY - 140;
+    screen.innerHTML = isQuestion(state.step) ? R.question(a) : R[state.step](a);
+    if (focus === 'heading') {
+      screen.classList.remove('enter');
+      void screen.offsetWidth;
+      screen.classList.add('enter');
+      $('#stepTitle')?.focus({ preventScroll: true });
+      const stickyBottom = Math.max(0, ...[...document.querySelectorAll('.mockbar, .site-header')].map((el) => el.getBoundingClientRect().bottom));
+      const top = $('.f-top').getBoundingClientRect().top + window.scrollY - stickyBottom - 16;
       if (window.scrollY > top) window.scrollTo({ top, behavior: reducedMotion ? 'auto' : 'smooth' });
+    } else if (focus) {
+      $(focus, screen)?.focus();
     }
+    if (state.step === 'planBuilding') runBuild();
+    if (state.step === 'otp' && !state.ui.finishError) startResendTicker();
   }
 
-  /* Re-paint the options in place (selection state) without a screen transition. */
-  function repaintSelection() {
-    const def = STEPS[state.step];
-    screen.innerHTML = RENDERERS[def.kind](def, state.answers);
-    renderTopBar(def, state.answers);
-  }
-
+  /* ---------- Plan building ---------- */
   function runBuild() {
-    const bar = document.getElementById('buildBar');
-    const fill = bar.querySelector('i');
-    const pct = document.getElementById('buildPct');
+    const ring = $('#ring');
+    const fill = $('.fill', ring);
+    const pct = $('#pct');
     const rows = [...screen.querySelectorAll('.build-list li')];
+    const C = 326.73;
     const paintAt = (p) => {
       const v = Math.round(p * 100);
-      fill.style.transform = `scaleX(${p})`;
-      pct.textContent = `${v}%`;
-      bar.setAttribute('aria-valuenow', String(v));
+      fill.setAttribute('stroke-dashoffset', String(C * (1 - p)));
+      pct.textContent = String(v);
+      ring.setAttribute('aria-valuenow', String(v));
       rows.forEach((li) => li.classList.toggle('on', v >= Number(li.dataset.at)));
     };
     if (reducedMotion) {
       paintAt(1);
-      document.getElementById('buildDone').hidden = false;
+      $('#buildDone').hidden = false;
       return;
     }
     const start = performance.now();
     const tick = (now) => {
-      const p = Math.min(1, (now - start) / BUILD_DURATION_MS);
+      const p = Math.min(1, (now - start) / PLAN_BUILD_MS);
       paintAt(p);
-      if (p < 1) { buildFrame = requestAnimationFrame(tick); return; }
-      buildFrame = null;
-      pendingTimer = setTimeout(advance, 400);
+      if (p < 1) { timers.raf = requestAnimationFrame(tick); return; }
+      timers.raf = null;
+      timers.timeout = setTimeout(advance, BUILD_HOLD_MS);
     };
-    buildFrame = requestAnimationFrame(tick);
+    timers.raf = requestAnimationFrame(tick);
+  }
+
+  /* ---------- OTP ---------- */
+  function startResendTicker() {
+    clearInterval(timers.interval);
+    const slot = $('#resendSlot');
+    timers.interval = setInterval(() => {
+      const hadButton = Boolean($('[data-action="resend"]', slot));
+      slot.innerHTML = resendMarkup();
+      if (hadButton || Date.now() >= state.ui.resendAt) clearInterval(timers.interval);
+    }, 1000);
+  }
+  function paintOtp() {
+    const code = state.ui.otp;
+    [...screen.querySelectorAll('.otp-box')].forEach((box, i) => {
+      box.textContent = code[i] ?? '';
+      box.classList.toggle('next', i === Math.min(code.length, OTP_LENGTH - 1));
+    });
+  }
+  function verifyCode() {
+    timers.timeout = setTimeout(() => {
+      if (state.ui.otp === WRONG_CODE) {
+        setUi({ otp: '', otpError: 'קוד האימות שגוי' });
+        render('#otp');
+        return;
+      }
+      finish();
+    }, VERIFY_MS);
+  }
+  function finish() {
+    finishing.hidden = false;
+    timers.timeout = setTimeout(() => {
+      finishing.hidden = true;
+      const outcome = document.querySelector('input[name="mockOutcome"]:checked')?.value ?? 'new';
+      if (outcome === 'error') {
+        setUi({ finishError: true, outcome });
+        render('heading');
+        return;
+      }
+      setUi({ outcome, finishError: false });
+      rememberForPayment(outcome);
+      goTo('handoff');
+    }, FINISH_MS);
+  }
+  function rememberForPayment(outcome) {
+    const name = outcome === 'existing' ? EXISTING_NAME : (state.answers.full_name ?? '').trim();
+    try { sessionStorage.setItem('ap.mock.signedin', JSON.stringify({ name, phone: state.ui.phone })); } catch { /* storage blocked: payment falls back to its sample identity */ }
   }
 
   /* ---------- Events ---------- */
-  function onOptionClick(btn) {
-    const def = STEPS[state.step];
-    const value = btn.dataset.value;
-    if (def.kind === 'multi') {
-      const order = [...Object.keys(AREA), 'none'];
-      const chosen = state.answers.painAreas ?? [];
-      let nextChosen;
-      if (value === 'none') nextChosen = chosen.includes('none') ? [] : ['none'];
-      else {
-        const base = chosen.filter((v) => v !== 'none');
-        nextChosen = base.includes(value) ? base.filter((v) => v !== value) : [...base, value];
-      }
-      setAnswer('painAreas', order.filter((v) => nextChosen.includes(v)));
-      repaintSelection();
-      screen.querySelector(`[data-value="${value}"]`)?.focus();
-      return;
-    }
-    if (def.kind === 'hour' && value === 'custom') {
-      const box = document.getElementById('customHour');
-      box.hidden = false;
-      screen.querySelectorAll('.opt').forEach((o) => o.setAttribute('aria-checked', String(o === btn)));
-      document.getElementById('hourSel').focus();
-      return;
-    }
-    const field = fieldOf(def, state.answers);
-    setAnswer(field, value);
-    repaintSelection();
-    screen.querySelector(`[data-value="${value}"]`)?.focus();
-    clearTimeout(pendingTimer);
-    pendingTimer = setTimeout(advance, ADVANCE_DELAY_MS);
-  }
-
-  screen.addEventListener('click', (e) => {
-    const opt = e.target.closest('.opt');
-    if (opt) { onOptionClick(opt); return; }
-    const action = e.target.closest('[data-action]')?.dataset.action;
-    if (action === 'continue') advance();
-    if (action === 'confirm-hour') {
-      setAnswer('trainingTimeOfDay', document.getElementById('hourSel').value);
-      advance();
-    }
-  });
   screen.addEventListener('change', (e) => {
-    if (e.target.dataset.role === 'year') {
-      setAnswer('dateOfBirth', `${e.target.value}-01-01`);
-      const btn = screen.querySelector('[data-action="continue"]');
+    const t = e.target;
+    if (t.matches('input[type="radio"]')) {
+      if (state.step === 'time' && t.name === 'segment') {
+        const keep = segmentOf(state.answers.training_time_of_day) === t.value;
+        setUi({ segment: t.value });
+        if (!keep) setAnswers({ training_time_of_day: undefined });
+      } else if (state.step === 'time' && t.name === 'hour') {
+        setAnswers({ training_time_of_day: t.value });
+      } else if (isQuestion(state.step)) {
+        setAnswers({ [QUESTIONS[state.step].key]: t.value });
+      }
+      const btn = $('[data-action="continue"]', screen);
       if (btn) btn.disabled = false;
     }
+    if (t.dataset.role === 'year') setAnswers({ date_of_birth: `${t.value}-01-01` });
   });
+
+  screen.addEventListener('click', (e) => {
+    const area = e.target.closest('[data-area]');
+    if (area) {
+      const nextAreas = toggleBodyArea(state.answers.pain_areas ?? [], area.dataset.area);
+      setAnswers({ pain_areas: nextAreas.length ? nextAreas : undefined });
+      screen.querySelectorAll('[data-area]').forEach((b) => b.setAttribute('aria-pressed', String(nextAreas.includes(b.dataset.area))));
+      $('[data-action="continue"]', screen).disabled = nextAreas.length === 0;
+      return;
+    }
+    const action = e.target.closest('[data-action]')?.dataset.action;
+    if (!action) return;
+    if (action === 'continue') onContinue();
+    if (action === 'toggle-other') { setUi({ otherOpen: !state.ui.otherOpen }); render(state.ui.otherOpen ? '#otherSel' : '[data-action="toggle-other"]'); }
+    if (action === 'confirm-other') {
+      const value = $('#otherSel').value;
+      setAnswers({ training_time_of_day: value });
+      setUi({ otherOpen: false });
+      render(`input[name="hour"][value="${value}"]`);
+    }
+    if (action === 'edit-phone') goBack();
+    if (action === 'resend') { setUi({ resendAt: Date.now() + RESEND_SECONDS * 1000, otpError: '' }); render('[data-action="edit-phone"]'); }
+    if (action === 'retry-finish') { setUi({ finishError: false }); render(null); finish(); }
+  });
+
+  function onContinue() {
+    const { step, ui, answers } = state;
+    if (step === 'welcome2') {
+      setState({ answers: {} });
+      setUi({ ...freshUi(), outcome: ui.outcome });
+      return goTo('gender');
+    }
+    if (step === 'dob' && !answers.date_of_birth) setAnswers({ date_of_birth: `${$('#year').value}-01-01` });
+    if (step === 'time' && ui.sub === 'A') {
+      const seg = ui.segment ?? segmentOf(answers.training_time_of_day);
+      clearTimers();
+      setState({ history: [...state.history, { step: 'time', sub: 'A' }] });
+      setUi({ sub: 'B', segment: seg, otherOpen: false });
+      return render('heading');
+    }
+    advance();
+  }
+
+  screen.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = e.target.dataset.form;
+    if (form === 'name') {
+      const value = $('#fullName').value;
+      if (value.trim().length < 2) { setUi({ nameError: 'השם חייב להכיל לפחות 2 תווים' }); setAnswers({ full_name: value }); return render('#fullName'); }
+      setUi({ nameError: '' });
+      setAnswers({ full_name: value.trim() });
+      clearTimers();
+      setState({ history: [...state.history, { step: 'register', sub: 'name' }] });
+      setUi({ sub: 'phone' });
+      return render('heading');
+    }
+    if (form === 'phone') {
+      const raw = $('#phone').value;
+      if (!isIsraeliMobile(raw)) { setUi({ phone: raw, phoneError: 'מספר טלפון לא תקין' }); return render('#phone'); }
+      setUi({ phone: toLocalPhone(raw), phoneError: '', otp: '', otpError: '', finishError: false, resendAt: Date.now() + RESEND_SECONDS * 1000 });
+      goTo('otp');
+    }
+  });
+
+  screen.addEventListener('input', (e) => {
+    if (e.target.id !== 'otp') return;
+    const digits = e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH);
+    e.target.value = digits;
+    setUi({ otp: digits, otpError: digits ? '' : state.ui.otpError });
+    $('#otpWrap')?.classList.toggle('invalid', Boolean(state.ui.otpError));
+    $('#otpErr').textContent = state.ui.otpError;
+    paintOtp();
+    if (digits.length === OTP_LENGTH) verifyCode();
+  });
+
+  screen.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.ui.otherOpen) {
+      setUi({ otherOpen: false });
+      render('[data-action="toggle-other"]');
+    }
+  });
+
   backBtn.addEventListener('click', goBack);
 
-  /* Hook for the review harness only (routing checks); not part of the design. */
-  window.__funnel = { next, indicatorSteps, getState: () => state };
+  /* Review harness hook only (routing checks); not part of the design. */
+  window.__funnel = { getState: () => state, nextStep, cleanOffBranch, toggleBodyArea };
 
-  render(false);
+  render(null);
 })();
 </script>
 </body>
