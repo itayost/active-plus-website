@@ -58,7 +58,7 @@ export default async function ArticlePage({
         width={1536}
         height={1024}
         sizes="(max-width: 1180px) 92vw, 720px"
-        className="h-auto w-full rounded-[22px] shadow-lift-1"
+        className="h-auto w-full rounded-panel shadow-lift-1"
       />
     </figure>
   ) : null;
@@ -104,7 +104,7 @@ export default async function ArticlePage({
 
             <aside
               aria-labelledby="article-fit"
-              className="mt-16 grid gap-7 rounded-card bg-[var(--green-wash)] p-[clamp(min(1.75rem,8.75vw),4vw,3rem)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+              className="mt-16 grid gap-7 rounded-card bg-green-wash p-[clamp(min(1.75rem,8.75vw),4vw,3rem)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
             >
               <div>
                 <h2
@@ -128,7 +128,7 @@ export default async function ArticlePage({
             aria-label="בדיקת התאמה"
             className="hidden xl:sticky xl:top-36 xl:col-start-2 xl:row-start-1 xl:block"
           >
-            <div className="rounded-card bg-[var(--burgundy-wash)] p-8">
+            <div className="rounded-card bg-burgundy-wash p-8">
               <p className="mb-6 font-display text-h3 font-bold text-burgundy">
                 כ־10 דקות ביום, מהבית ובקצב שמתאים לך.
               </p>
@@ -164,7 +164,7 @@ export default async function ArticlePage({
             <Reveal as="li" key={item.slug} delayIndex={index} className="min-w-0">
               <article className="group flex h-full flex-col rounded-card border border-hairline bg-white shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-2">
                 <div className="p-3 pb-0">
-                  <div className="relative aspect-video overflow-hidden rounded-[20px]">
+                  <div className="relative aspect-video overflow-hidden rounded-tile">
                     <Image
                       src={ARTICLE_MEDIA[item.slug].cover}
                       alt=""

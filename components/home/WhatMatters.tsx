@@ -79,7 +79,7 @@ function MattersRotator() {
               type="button"
               aria-pressed={i === active}
               onClick={() => setActive(i)}
-              className="grid w-full grid-cols-[auto_1fr] gap-4 rounded-[20px] p-4 text-start transition-colors hover:bg-surface"
+              className="grid w-full grid-cols-[auto_1fr] gap-4 rounded-tile p-4 text-start transition-colors hover:bg-surface"
             >
               <span
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-deep ${
@@ -105,7 +105,7 @@ function MattersRotator() {
             alt=""
             width={1200}
             height={900}
-            className="h-auto w-full rounded-[22px] shadow-lift-2"
+            className="h-auto w-full rounded-panel shadow-lift-2"
           />
         ) : null}
       </Reveal>

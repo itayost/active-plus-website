@@ -5,10 +5,10 @@ import { ArrowBackIcon } from "@/components/ui/icons";
 import type { Tone } from "@/lib/constants";
 
 const FIELD: Record<Tone, string> = {
-  blue: "bg-[var(--blue-wash)]",
-  green: "bg-[var(--green-wash)]",
-  purple: "bg-[var(--purple-wash)]",
-  burgundy: "bg-[var(--burgundy-wash)]",
+  blue: "bg-blue-wash",
+  green: "bg-green-wash",
+  purple: "bg-purple-wash",
+  burgundy: "bg-burgundy-wash",
 };
 
 const INK: Record<Tone, string> = {

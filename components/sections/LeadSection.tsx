@@ -23,7 +23,7 @@ export default function LeadSection({
       className="lead-section bg-surface py-[var(--section-y)]"
     >
       <Shell>
-        <div className="lead-panel grid gap-12 rounded-card bg-[var(--green-wash)] p-[clamp(min(1.75rem,8.75vw),4vw,4rem)] lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="lead-panel grid gap-12 rounded-card bg-green-wash p-[clamp(min(1.75rem,8.75vw),4vw,4rem)] lg:grid-cols-[0.85fr_1.15fr]">
           <Reveal>
             <h2
               id="lead-heading"

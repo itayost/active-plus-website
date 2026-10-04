@@ -23,7 +23,7 @@ export const TOPICS = [
 const INITIAL: LeadResult = { status: "idle" };
 
 const FIELD_BASE =
-  "w-full min-w-0 rounded-[14px] border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink " +
+  "w-full min-w-0 rounded-field border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink " +
   "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] " +
   "focus:border-blue-deep focus:outline-none";
 
@@ -359,7 +359,7 @@ export default function LeadForm({
       {state.status === "error" && state.message ? (
         <p
           role="alert"
-          className="mt-5 rounded-[14px] border-2 border-burgundy bg-burgundy-wash px-4 py-3 font-semibold text-burgundy"
+          className="mt-5 rounded-field border-2 border-burgundy bg-burgundy-wash px-4 py-3 font-semibold text-burgundy"
         >
           {state.message}
         </p>

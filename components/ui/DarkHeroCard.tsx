@@ -25,7 +25,7 @@ export default function DarkHeroCard({
       {/* hero-inset: the small frame around the card, widened on a notched
           phone held sideways (globals.css). */}
       <div className="hero-inset mx-auto w-full">
-        <div className="relative isolate overflow-hidden rounded-[clamp(20px,2.5vw,36px)] bg-hero">
+        <div className="relative isolate overflow-hidden rounded-hero bg-hero">
           {background}
           <div className={className}>{children}</div>
         </div>

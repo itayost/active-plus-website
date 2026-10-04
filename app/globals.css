@@ -14,7 +14,6 @@
   /* Ground */
   --surface: #ffffff;
   --surface-sunken: #f2f6f9;
-  --surface-raised: #ffffff;
   --hairline: #dfe7ed;
 
   /* Ink. --ink and --ink-soft are AAA (≥7:1) against both --surface and
@@ -66,7 +65,12 @@
   --gutter: clamp(min(1.25rem, 6.25vw), 4vw, 4.5rem);
   --section-y: clamp(min(4rem, 20vw), min(3rem, 15vw) + 6vw, 8.5rem);
   --measure: 68ch;
-  --hero-field: #08222f;
+  /* Hero Field as channels too: the photo and video scrims grade its alpha
+     with rgb(var(--hero-field-rgb) / a). Not color-mix, because the scrim is
+     what keeps the white headline readable over the picture, and an engine
+     without color-mix would drop the whole gradient. */
+  --hero-field-rgb: 8 34 47;
+  --hero-field: rgb(var(--hero-field-rgb));
 
   /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

@@ -41,7 +41,7 @@ export default function PlansTeaser() {
                   />
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-[linear-gradient(0deg,rgba(8,34,47,0.78)_0%,rgba(8,34,47,0.18)_46%,rgba(8,34,47,0)_72%)]"
+                    className="absolute inset-0 bg-[linear-gradient(0deg,rgb(var(--hero-field-rgb)_/_0.78)_0%,rgb(var(--hero-field-rgb)_/_0.18)_46%,rgb(var(--hero-field-rgb)_/_0)_72%)]"
                   />
                   <h3 className="absolute bottom-5 start-6 font-display text-[clamp(1.75rem,1.3rem+1.8vw,2.75rem)] font-black text-white">
                     {plan.name}

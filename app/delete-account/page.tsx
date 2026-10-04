@@ -40,12 +40,12 @@ export default function DeleteAccountPage() {
         </div>
       </section>
 
-      <section className="my-12 rounded-card border-2 border-burgundy/25 bg-[var(--burgundy-wash)] p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)]">
+      <section className="my-12 rounded-card border-2 border-burgundy/25 bg-burgundy-wash p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)]">
         <h2 className="mb-6 font-display text-h3 font-bold text-burgundy">
           בקשת מחיקת חשבון
         </h2>
 
-        <div className="rounded-[20px] bg-surface p-[clamp(min(1.25rem,6.25vw),2.5vw,2rem)]">
+        <div className="rounded-tile bg-surface p-[clamp(min(1.25rem,6.25vw),2.5vw,2rem)]">
           <DeleteAccountForm />
         </div>
       </section>

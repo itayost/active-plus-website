@@ -101,8 +101,14 @@ const config: Config = {
       animation: {
         marquee: "marquee 38s linear infinite",
       },
+      /* The corner scale from DESIGN.md. Named for their jobs rather than
+         sm/md/lg, which Tailwind already defines at 2-8px. */
       borderRadius: {
-        card: "28px",
+        field: "14px", // inputs and inline alerts
+        tile: "20px", // image tiles inset in a card, list rows
+        panel: "22px", // floating image panels
+        card: "28px", // every card-scale container
+        hero: "clamp(20px, 2.5vw, 36px)", // the Dark Hero Card
         pill: "999px",
       },
     },

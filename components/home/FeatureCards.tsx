@@ -18,10 +18,10 @@ const FIT_CHECK_LABEL = "לבדיקת התאמה";
  * which is how the client drew it and what gives the set its light beat.
  */
 const FIELD: Record<Tone, string> = {
-  blue: "bg-[var(--blue)] text-white",
-  green: "bg-[var(--green)] text-white",
-  purple: "bg-[var(--purple-wash)] text-purple-deep",
-  burgundy: "bg-[var(--burgundy)] text-white",
+  blue: "bg-blue text-white",
+  green: "bg-green text-white",
+  purple: "bg-purple-wash text-purple-deep",
+  burgundy: "bg-burgundy text-white",
 };
 
 /**
@@ -41,7 +41,7 @@ const FIELD: Record<Tone, string> = {
 const ACTION: Record<Tone, string> = {
   blue: "bg-white text-ink [--focus-ring:#ffffff]",
   green: "bg-white text-ink [--focus-ring:#ffffff]",
-  purple: "bg-[var(--purple-deep)] text-white [--focus-ring:var(--ink)]",
+  purple: "bg-purple-deep text-white [--focus-ring:var(--ink)]",
   burgundy: "bg-white text-ink [--focus-ring:#ffffff]",
 };
 
@@ -122,7 +122,7 @@ export default function FeatureCards() {
                 the same treatment keeps all four cards consistent.
               */}
               <div className="w-full shrink-0 p-[clamp(min(0.75rem,3.75vw),1.6vw,1.25rem)] lg:w-[44%]">
-                <div className="relative aspect-[16/10] h-full w-full overflow-hidden rounded-[20px] lg:aspect-auto lg:min-h-[clamp(280px,26vw,460px)]">
+                <div className="relative aspect-[16/10] h-full w-full overflow-hidden rounded-tile lg:aspect-auto lg:min-h-[clamp(280px,26vw,460px)]">
                   <Image
                     src={card.image}
                     alt={card.alt}

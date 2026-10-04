@@ -20,7 +20,7 @@ const CONFIRMATION_HINT_ID = "confirmation-hint";
 const ERROR_ID = "delete-account-error";
 
 const INPUT_CLASS =
-  "w-full rounded-[14px] border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink transition-colors duration-[var(--dur-fast)] focus:border-burgundy focus:outline-none";
+  "w-full rounded-field border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink transition-colors duration-[var(--dur-fast)] focus:border-burgundy focus:outline-none";
 const inputClass = (invalid: boolean) =>
   `${INPUT_CLASS} ${invalid ? "border-burgundy" : "border-hairline hover:border-ink/25"}`;
 
@@ -105,7 +105,7 @@ export default function DeleteAccountForm() {
         aria-live="polite"
         className={
           error
-            ? "mb-6 rounded-[14px] border-2 border-burgundy bg-[var(--burgundy-wash)] px-4 py-3"
+            ? "mb-6 rounded-field border-2 border-burgundy bg-burgundy-wash px-4 py-3"
             : undefined
         }
       >

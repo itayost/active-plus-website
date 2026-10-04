@@ -50,7 +50,7 @@ export default function Hero() {
           */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,34,47,0.62)_0%,rgba(8,34,47,0.86)_38%,rgba(8,34,47,0.86)_62%,rgba(8,34,47,0.62)_100%)]"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(var(--hero-field-rgb)_/_0.62)_0%,rgb(var(--hero-field-rgb)_/_0.86)_38%,rgb(var(--hero-field-rgb)_/_0.86)_62%,rgb(var(--hero-field-rgb)_/_0.62)_100%)]"
           />
         </>
       }

@@ -34,7 +34,7 @@ export default function ProgressPage() {
               height={C.image.height}
               alt={C.image.alt}
               sizes="(max-width: 1024px) 300px, 360px"
-              className="h-auto w-full rounded-[36px] border-8 border-white shadow-lift-2"
+              className="h-auto w-full rounded-card border-8 border-white shadow-lift-2"
             />
           </figure>
 
@@ -52,7 +52,7 @@ export default function ProgressPage() {
             ))}
             <ul className="mt-8 grid gap-4">
               {C.strengths.ifs.map((line) => (
-                <li key={line} className="rounded-[22px] bg-green-wash px-[min(1.5rem,7.5vw)] py-5 text-base text-ink">
+                <li key={line} className="rounded-panel bg-green-wash px-[min(1.5rem,7.5vw)] py-5 text-base text-ink">
                   {line}
                 </li>
               ))}

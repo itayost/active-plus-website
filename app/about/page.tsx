@@ -103,7 +103,7 @@ export default function AboutPage() {
             height={900}
             alt="אישה מחייכת מול טאבלט עם מסך ההתקדמות שלה"
             sizes="(min-width: 1024px) 48vw, 92vw"
-            className="h-auto w-full rounded-[22px] shadow-lift-2"
+            className="h-auto w-full rounded-panel shadow-lift-2"
           />
           <div>
             <h2 id="measure-h" className="text-h2 font-display font-black text-ink">{C.measure.heading}</h2>
@@ -139,7 +139,7 @@ export default function AboutPage() {
                 height={900}
                 alt={m.name}
                 sizes="(min-width: 768px) 30vw, 120px"
-                className="row-span-3 aspect-square h-auto w-full rounded-[20px] object-cover object-[50%_28%] shadow-lift-2 md:aspect-[4/5] md:rounded-card"
+                className="row-span-3 aspect-square h-auto w-full rounded-tile object-cover object-[50%_28%] shadow-lift-2 md:aspect-[4/5] md:rounded-card"
               />
               <h3 className="text-h3 font-display font-bold text-ink md:mt-6">{m.name}</h3>
               <p className="mt-1.5 font-display font-bold leading-snug text-blue-deep">

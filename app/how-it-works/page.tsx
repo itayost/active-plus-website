@@ -77,7 +77,7 @@ export default function HowItWorksPage() {
               {C.dual.examples.map(([move, link, mind]) => (
                 <li
                   key={move}
-                  className="flex flex-wrap items-center gap-x-2.5 gap-y-2 rounded-[20px] bg-surface px-[1.1rem] py-3.5 text-base text-ink-soft shadow-lift-1"
+                  className="flex flex-wrap items-center gap-x-2.5 gap-y-2 rounded-tile bg-surface px-[1.1rem] py-3.5 text-base text-ink-soft shadow-lift-1"
                 >
                   <span className="rounded-pill bg-blue-wash px-3.5 py-1.5 font-display font-bold text-blue-deep">{move}</span>
                   {link}
@@ -110,7 +110,7 @@ export default function HowItWorksPage() {
               ))}
             </div>
           </div>
-          <figure className="mx-auto w-full max-w-[300px] overflow-hidden rounded-[22px] bg-surface shadow-lift-2">
+          <figure className="mx-auto w-full max-w-[300px] overflow-hidden rounded-panel bg-surface shadow-lift-2">
             <Image
               src={C.daily.image.src}
               width={C.daily.image.width}
@@ -133,7 +133,7 @@ export default function HowItWorksPage() {
             {C.progress.body[0]}
           </p>
           <div className="relative isolate flex justify-center px-[clamp(min(1rem,5vw),3vw,2rem)] py-[clamp(1.5rem,4vw,3rem)] before:absolute before:inset-x-0 before:bottom-0 before:top-[18%] before:-z-10 before:rounded-card before:bg-green-wash before:content-['']">
-            <figure className="w-full max-w-[380px] overflow-hidden rounded-[22px] bg-surface shadow-lift-3 lg:max-w-none">
+            <figure className="w-full max-w-[380px] overflow-hidden rounded-panel bg-surface shadow-lift-3 lg:max-w-none">
               <Image
                 src={C.progress.image.src}
                 width={C.progress.image.width}
@@ -177,7 +177,7 @@ export default function HowItWorksPage() {
                   height={900}
                   alt={p.name}
                   sizes="(min-width: 1024px) 22vw, 45vw"
-                  className="aspect-square h-auto w-full rounded-[22px] object-cover object-[50%_25%] shadow-lift-1"
+                  className="aspect-square h-auto w-full rounded-panel object-cover object-[50%_25%] shadow-lift-1"
                 />
                 <h3 className="mt-5 text-h3 font-display font-bold text-ink">{p.name}</h3>
                 <p className="mt-1 text-base text-ink-soft">{p.role}</p>

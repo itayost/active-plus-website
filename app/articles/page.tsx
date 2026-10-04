@@ -20,7 +20,7 @@ const [LEAD, ...MORE] = ARTICLES;
 export default function ArticlesPage() {
   return (
     <>
-      <div className="bg-[var(--burgundy-wash)] pb-[clamp(4rem,8vw,7rem)]">
+      <div className="bg-burgundy-wash pb-[clamp(4rem,8vw,7rem)]">
         <PageHero
           title="מאמרים"
           lede="מה שכדאי לדעת על הגוף, המוח והתנועה אחרי גיל 50."
@@ -33,7 +33,7 @@ export default function ArticlesPage() {
           <Reveal>
             <article className="relative -mt-[clamp(4rem,8vw,7rem)] grid min-w-0 overflow-hidden rounded-card bg-burgundy text-white [--focus-ring:#ffffff] shadow-lift-2 transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
               <div className="p-[clamp(min(0.75rem,3.75vw),1.6vw,1.25rem)]">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] lg:aspect-auto lg:h-full lg:min-h-[460px]">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-tile lg:aspect-auto lg:h-full lg:min-h-[460px]">
                   <Image
                     src={ARTICLE_MEDIA[LEAD.slug].cover}
                     alt=""
@@ -72,7 +72,7 @@ export default function ArticlesPage() {
               <Reveal as="li" key={article.slug} delayIndex={index} className="min-w-0">
                 <article className="group flex h-full flex-col rounded-card border border-hairline bg-white shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-2">
                   <div className="p-3 pb-0">
-                    <div className="relative aspect-video overflow-hidden rounded-[20px]">
+                    <div className="relative aspect-video overflow-hidden rounded-tile">
                       <Image
                         src={ARTICLE_MEDIA[article.slug].cover}
                         alt=""
