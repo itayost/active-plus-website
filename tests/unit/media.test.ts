@@ -14,6 +14,21 @@ describe("shouldLoadHeroVideo", () => {
   it("keeps the poster only for visitors saving data", () => {
     expect(shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: true })).toBe(false);
   });
+  it.each(["slow-2g", "2g", "3g"])("keeps the poster only on a %s connection", (effectiveType) => {
+    expect(
+      shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: false, effectiveType }),
+    ).toBe(false);
+  });
+  it("loads the video on a 4g connection", () => {
+    expect(
+      shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: false, effectiveType: "4g" }),
+    ).toBe(true);
+  });
+  it("loads the video when the browser does not report a connection type", () => {
+    expect(
+      shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: undefined, effectiveType: undefined }),
+    ).toBe(true);
+  });
 });
 
 describe("scrollBehaviorFor", () => {
