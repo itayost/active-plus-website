@@ -3,7 +3,7 @@ import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import { Shell } from "@/components/ui/Section";
 import { ArrowIcon } from "@/components/ui/icons";
-import { FAQ } from "@/content/pages";
+import { FAQ } from "@/content/home";
 
 export default function FaqSection({
   limit,

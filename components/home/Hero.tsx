@@ -5,13 +5,9 @@ import { PlayIcon } from "@/components/ui/icons";
 /**
  * First viewport: one full-width rounded card, content centred inside it.
  *
- * The background is the client's own hero image — a 55+ trainee mid-movement
- * with the neural path lit from leg to brain, which is Dual Tasking made
- * visible and the right audience. It is cropped to a wide band at build time
- * rather than left to object-cover, which decapitated her. The brief lists a
- * hero video as "יצורף";
- * when it arrives it replaces the <Image> below with a muted looping <video>
- * using this same file as its poster, and nothing else here changes.
+ * The background is the client's hero video, muted and looping. The poster
+ * image sits underneath as the LCP element and as the reduced-motion
+ * fallback (the video is hidden there). One action only: the walkthrough.
  */
 export default function Hero() {
   return (
@@ -26,13 +22,25 @@ export default function Hero() {
       <div className="mx-auto w-full px-[clamp(0.625rem,1.4vw,1.5rem)]">
         <div className="relative isolate overflow-hidden rounded-[clamp(20px,2.5vw,36px)] bg-[#08222f]">
           <Image
-            src="/img/hero.webp"
+            src="/img/v2/hero-poster.webp"
             alt=""
             fill
             priority
             sizes="100vw"
-            className="-z-20 object-cover object-[50%_28%]"
+            className="-z-30 object-cover"
           />
+          <video
+            className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="/img/v2/hero-poster.webp"
+            aria-hidden="true"
+          >
+            <source src="/video/hero.mp4" type="video/mp4" />
+          </video>
 
           {/*
             Graded across the reading direction rather than flat: the centre
@@ -48,9 +56,9 @@ export default function Hero() {
             The card's height is driven by viewport width, which is the right
             instinct in portrait and exactly wrong held sideways: 40vw of a wide
             landscape screen asks for a tall card on the one layout that has no
-            height to give, and pushes both actions under the fold. Capping it
-            against the height actually left below the header keeps the decided
-            primary CTA — השארת פרטים — inside the first viewport. `dvh` rather
+            height to give, and pushes the action under the fold. Capping it
+            against the height actually left below the header keeps the
+            action inside the first viewport. `dvh` rather
             than `vh` so a mobile browser's collapsing toolbar does not leave the
             card taller than the screen it is measured against. See the short-
             viewport rule in globals.css, which tightens the stack to match.
@@ -60,20 +68,17 @@ export default function Hero() {
               id="hero-heading"
               className="max-w-[18ch] text-h1 font-display font-black text-white"
             >
-              <span className="block">מערכת לאימון הגוף</span>
-              <span className="block text-[#5fd3ff]">ולחדות המחשבה</span>
+              <span className="block">תוכנית אישית לאימון הגוף</span>
+              <span className="block text-[#5fd3ff]">וחדות המחשבה</span>
             </h1>
 
             <p className="mt-6 max-w-[34ch] text-[clamp(1.2rem,1.05rem+0.8vw,1.625rem)] font-medium leading-snug text-white/90">
-              רק 10 דקות ביום כדי להמשיך לעשות את מה שאנחנו אוהבים.
+              רק 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.
             </p>
 
             <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
-              <Button href="#lead" size="lg" className="w-full sm:w-auto">
-                השארת פרטים
-              </Button>
               <Button
-                href="#how-it-works"
+                href="/how-it-works"
                 variant="onColor"
                 size="lg"
                 className="w-full sm:w-auto"
