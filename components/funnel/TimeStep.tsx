@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Button from "@/components/ui/Button";
 import { COPY, g } from "@/lib/funnel/copy";
 import { defaultSlot, segmentOf, slotsFor, SEGMENTS, type Segment } from "@/lib/funnel/time";
@@ -20,6 +20,8 @@ type Props = {
   onSegment: (segment: Segment) => void;
   onShowHours: () => void;
   onTime: (time: string) => void;
+  /** "אישור" in the custom picker saves that time and moves on, as the app's confirmCustom() does. */
+  onConfirmCustom: (time: string) => void;
   onContinue: () => void;
 };
 
@@ -46,21 +48,23 @@ function SegmentScreen({ view, onSegment, onShowHours }: Pick<Props, "view" | "o
 const OTHER_PANEL_ID = "funnel-other-hour";
 const OTHER_SELECT_ID = "funnel-other-hour-select";
 
-function HourScreen({ segment, gender, saved, draft, onTime, onContinue }: Omit<Props, "view" | "onSegment" | "onShowHours"> & { segment: Segment }) {
+function HourScreen({ segment, gender, saved, draft, onTime, onConfirmCustom, onContinue }: Omit<Props, "view" | "onSegment" | "onShowHours"> & { segment: Segment }) {
   const current = draft ?? (segmentOf(saved) === segment ? saved : undefined);
   const presets: readonly string[] = COPY.time.presets[segment];
   const options = [...presets, ...(current && !presets.includes(current) ? [current] : [])].map((t) => ({ value: t, label: t }));
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(current ?? defaultSlot(segment));
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
+
+  // Opening the panel puts the visitor straight on the picker.
+  useEffect(() => {
+    if (open) selectRef.current?.focus();
+  }, [open]);
 
   const close = () => {
     setOpen(false);
     toggleRef.current?.focus();
-  };
-  const confirm = () => {
-    onTime(pending);
-    close();
   };
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape" && open) close();
@@ -82,7 +86,7 @@ function HourScreen({ segment, gender, saved, draft, onTime, onContinue }: Omit<
           onClick={() => setOpen(!open)}
           className={`inline-flex min-h-[60px] w-full items-center justify-center rounded-[30px] border-2 border-green-deep pill-pad-lg font-display text-lead font-bold text-green-deep transition-[background-color,transform] duration-[var(--dur-fast)] ease-out-expo hover:bg-green-wash active:scale-[0.97] ${open ? "bg-green-wash" : "bg-white"}`}
         >
-          {COPY.time.otherHour}
+          {g(gender, COPY.time.otherHour.fem, COPY.time.otherHour.masc)}
         </button>
       </div>
       <div
@@ -91,10 +95,16 @@ function HourScreen({ segment, gender, saved, draft, onTime, onContinue }: Omit<
         className="mt-3 rounded-tile border-2 border-hairline bg-surface p-5"
       >
         <label htmlFor={OTHER_SELECT_ID} className="mb-2 block font-display font-bold">
-          {COPY.time.pickerTitle}
+          {g(gender, COPY.time.pickerTitle.fem, COPY.time.pickerTitle.masc)}
         </label>
-        <NativeSelect id={OTHER_SELECT_ID} value={pending} options={slotsFor(segment)} onChange={setPending} />
-        <Button size="lg" className="mt-4 w-full" onClick={confirm}>
+        <NativeSelect
+          id={OTHER_SELECT_ID}
+          selectRef={selectRef}
+          value={pending}
+          options={slotsFor(segment)}
+          onChange={setPending}
+        />
+        <Button size="lg" className="mt-4 w-full" onClick={() => onConfirmCustom(pending)}>
           {COPY.time.pickerConfirm}
         </Button>
       </div>

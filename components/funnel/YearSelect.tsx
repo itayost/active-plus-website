@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { ChevronIcon } from "@/components/ui/icons";
 import { STEP_TITLE_ID } from "./parts";
 
@@ -21,8 +22,10 @@ export function NativeSelect({
   options,
   onChange,
   labelledBy,
+  selectRef,
 }: {
   id: string;
+  selectRef?: Ref<HTMLSelectElement>;
   value: string;
   options: readonly string[];
   onChange: (value: string) => void;
@@ -31,6 +34,7 @@ export function NativeSelect({
   return (
     <div className="relative">
       <select
+        ref={selectRef}
         id={id}
         value={value}
         aria-labelledby={labelledBy}

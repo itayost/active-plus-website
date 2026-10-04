@@ -147,6 +147,7 @@ export function renderStep(state: FunnelState, actions: StepActions): ReactEleme
           onSegment={actions.setSegment}
           onShowHours={actions.showHours}
           onTime={(t) => actions.setDraft({ training_time_of_day: t })}
+          onConfirmCustom={(t) => actions.answer({ training_time_of_day: t })}
           onContinue={() => {
             const time = state.draft.training_time_of_day ?? answers.training_time_of_day;
             if (time) actions.answer({ training_time_of_day: time });

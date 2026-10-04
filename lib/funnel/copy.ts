@@ -172,8 +172,13 @@ export const COPY = {
       midday: ["11:00", "12:00", "13:00"],
       afternoon: ["16:00", "17:00", "18:00"],
     },
-    otherHour: "בחר שעה אחרת שמתאימה לי",
-    pickerTitle: "בחר שעה",
+    /*
+      Gendered on purpose: the spec and the app keep these masculine for
+      everyone, but the user decided on 2026-10-04 that a woman gets the
+      feminine form. Do not "fix" them back to match the app.
+    */
+    otherHour: { fem: "בחרי שעה אחרת שמתאימה לי", masc: "בחר שעה אחרת שמתאימה לי" } as Gendered,
+    pickerTitle: { fem: "בחרי שעה", masc: "בחר שעה" } as Gendered,
     pickerConfirm: "אישור",
     /** Picker ranges in whole hours (start inclusive, end inclusive), 15-minute steps. */
     pickerRanges: {

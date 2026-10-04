@@ -32,4 +32,10 @@ describe("copy", () => {
   it("every COPY_KEYS entry is a contract answer key", () => {
     for (const key of COPY_KEYS) expect(ANSWER_KEYS).toContain(key);
   });
+  it("custom-time button and picker label are gendered (user decision, 2026-10-04)", () => {
+    expect(g("female", COPY.time.otherHour.fem, COPY.time.otherHour.masc)).toBe("בחרי שעה אחרת שמתאימה לי");
+    expect(g("male", COPY.time.otherHour.fem, COPY.time.otherHour.masc)).toBe("בחר שעה אחרת שמתאימה לי");
+    expect(g("female", COPY.time.pickerTitle.fem, COPY.time.pickerTitle.masc)).toBe("בחרי שעה");
+    expect(g(undefined, COPY.time.pickerTitle.fem, COPY.time.pickerTitle.masc)).toBe("בחר שעה");
+  });
 });
