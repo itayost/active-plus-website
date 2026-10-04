@@ -79,6 +79,12 @@ export const showPhone = (state: FunnelState): FunnelState => ({
 export const codeSent = (state: FunnelState, phone: string): FunnelState =>
   advance({ ...state, register: { ...state.register, phone } });
 
+/** Whether back leads anywhere: an earlier step, or the first screen of time or register. */
+export const canGoBack = (state: FunnelState): boolean =>
+  state.history.length > 0 ||
+  (state.step === "time" && state.time.sub === "B") ||
+  (state.step === "register" && state.register.sub === "phone");
+
 export function back(state: FunnelState): FunnelState {
   if (state.step === "time" && state.time.sub === "B") {
     return { ...state, draft: {}, time: { ...state.time, sub: "A" } };

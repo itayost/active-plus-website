@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { advance, back, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
+import { advance, canGoBack, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
 import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
@@ -11,6 +11,7 @@ import type { Answers, Step } from "@/lib/funnel/types";
 import FunnelChrome from "./FunnelChrome";
 import { STEP_TITLE_ID } from "./parts";
 import { renderStep, type StepActions } from "./steps";
+import { useBrowserBack } from "./useBrowserBack";
 
 /** The continue taps the app reports as their own events, by the step they leave. */
 const CONTINUE_EVENT: Partial<Record<Step, ActionEvent>> = {
@@ -39,16 +40,27 @@ export default function Funnel() {
   const [sessionId, setSessionId] = useState("");
   // Signed in and merged: nothing to go back to, and cancelling no longer applies.
   const [complete, setComplete] = useState(false);
-  // A code is being checked or the answers merged: back would strand that work.
+  // A code is being sent or checked, or the answers merged: back would strand that work.
   const [busy, setBusy] = useState(false);
 
+  /** Shows a screen and saves where the visitor is; the browser history is the caller's business. */
+  const show = useCallback((next: FunnelState) => {
+    setState(next);
+    saveStep(next.step);
+    setMoves((n) => n + 1);
+  }, []);
+
+  const browser = useBrowserBack({ state, blocked: busy || complete || state.step === "planBuilding", show });
+
+  // `browser` is stable (its callbacks have stable deps), so this runs once.
   useEffect(() => {
     const { id, answers } = loadSession();
     const next = restore(loadStep(), answers);
     setSessionId(id);
     setState(next);
     setRestored(next.step);
-  }, []);
+    browser.tag();
+  }, [browser]);
 
   // Runs after the restored step has rendered: lift the pre-hydration hide
   // (even when the restore landed on welcome2), and put a returning visitor
@@ -81,11 +93,14 @@ export default function Funnel() {
     window.scrollTo({ top: 0 });
   }, [moves]);
 
-  const go = useCallback((next: FunnelState) => {
-    setState(next);
-    saveStep(next.step);
-    setMoves((n) => n + 1);
-  }, []);
+  /** A forward move: the browser gets an entry for it when it adds a back. */
+  const go = useCallback(
+    (next: FunnelState) => {
+      browser.forward(state, next);
+      show(next);
+    },
+    [state, browser, show],
+  );
 
   const actions = useMemo<StepActions>(
     () => ({
@@ -122,24 +137,17 @@ export default function Funnel() {
       },
       editPhone: () => {
         track("otp_edit_phone_tap");
-        go(back(state));
+        browser.goBack(state);
       },
       complete: () => setComplete(true),
       setBusy,
     }),
-    [state, go, track],
+    [state, go, track, browser],
   );
 
-  const onBack = useCallback(() => go(back(state)), [state, go]);
+  const onBack = useCallback(() => browser.goBack(state), [state, browser]);
 
   const { step } = state;
-  const canGoBack =
-    !complete &&
-    !busy &&
-    (state.history.length > 0 ||
-      (step === "time" && state.time.sub === "B") ||
-      (step === "register" && state.register.sub === "phone"));
-
   return (
     <div
       data-funnel-root=""
@@ -149,7 +157,7 @@ export default function Funnel() {
       <div className="mx-auto max-w-[860px] gutter-x">
         <FunnelChrome
           dot={indicator(step, state.answers)}
-          canGoBack={canGoBack}
+          canGoBack={!complete && !busy && canGoBack(state)}
           bare={step === "planBuilding" || complete}
           register={step === "register" ? state.register.sub : null}
           onBack={onBack}
