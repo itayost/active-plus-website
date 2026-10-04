@@ -250,15 +250,30 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-wrap: pretty;
-  /* With the browser's text enlarged, a single Hebrew word in a display
-     heading (פעילים+, ההתקדמות) or a button label can be wider than a phone,
-     and grid and flex items will not shrink below their longest word. At 200%
-     on a 390px phone that pushed headings, plan cards and the lead form past
-     the edge on most pages. `anywhere` lets a word break only when it cannot
-     fit on a line by itself, and, unlike break-word, also lowers the
-     min-content size, so the containers shrink with it. Measured: at the
-     default text size no visible element moves on any route at 320, 390, 768
-     or 1440. */
+}
+
+/*
+  With the browser's text enlarged, a single Hebrew word in a display heading
+  (פעילים+, ההתקדמות) can be wider than a phone, and grid and flex items will
+  not shrink below their longest word. At 200% on a 390px phone that pushed
+  headings and step lists past the edge. `anywhere` lets a word break only
+  when it cannot fit on a line by itself, and, unlike break-word, also lowers
+  the min-content size, so the containers shrink with it. Scoped to the
+  elements that hold running text and headings rather than set on body, so
+  form fields, numbers in pills and other inline UI keep the default.
+  Measured: at the default text size no visible element moves on any route at
+  320, 390, 768 or 1440.
+*/
+h1,
+h2,
+h3,
+h4,
+p,
+li,
+blockquote,
+figcaption,
+dd,
+dt {
   overflow-wrap: anywhere;
 }
 
