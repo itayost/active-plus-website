@@ -35,6 +35,8 @@ export type StepActions = {
   editPhone: () => void;
   /** Signed in and merged: the chrome drops back and cancel. */
   complete: () => void;
+  /** otp is checking a code or merging: the chrome hides back meanwhile. */
+  setBusy: (busy: boolean) => void;
 };
 
 type Text = string | Gendered;
@@ -161,6 +163,7 @@ export function renderStep(state: FunnelState, actions: StepActions): ReactEleme
           answers={answers}
           onEditPhone={actions.editPhone}
           onComplete={actions.complete}
+          onBusy={actions.setBusy}
         />
       );
     default:

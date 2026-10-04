@@ -48,10 +48,16 @@ const SESSION = {
 export type StubOptions = {
   /** null = a new user (no profile row yet). */
   profileName?: string | null;
-  /** HTTP status of /otp; 200 sends the code. */
-  otpStatus?: number;
+  /** Statuses for successive /otp calls (the last repeats); 200 sends the code. */
+  otpStatuses?: number[];
   /** Replies for successive merge_funnel_session calls (the last repeats). */
   mergeStatuses?: number[];
+  /**
+   * The profile name once merge_funnel_session has been called, even when its
+   * reply was a failure: a merge that committed on the server but whose
+   * response never reached the browser.
+   */
+  profileAfterMerge?: string;
 };
 
 export type Call = { path: string; body: unknown; authorization: string | null };
@@ -74,12 +80,32 @@ function bodyOf(request: Request): unknown {
   }
 }
 
-/** Answers Supabase auth and REST calls; returns every call it saw, in order. */
+/** Hosts the page may reach: the app itself and the stub. */
+const ALLOWED = new Set(["localhost", "127.0.0.1", HOST]);
+
+/** The nth reply of a sequence; the last one repeats. */
+const nth = (list: number[], n: number) => list[Math.min(n, list.length - 1)];
+
+/**
+ * Answers Supabase auth and REST calls and returns every call it saw, in
+ * order. Any request to a host other than localhost or the stub is aborted
+ * and recorded in `foreign`.
+ */
 export async function stubSupabase(page: Page, options: StubOptions = {}) {
-  const { profileName = null, otpStatus = 200, mergeStatuses = [200] } = options;
+  const { profileName = null, otpStatuses = [200], mergeStatuses = [200], profileAfterMerge } = options;
   const calls: Call[] = [];
   const foreign: string[] = [];
+  const held = new Map<string, Promise<void>>();
+  let otps = 0;
   let merges = 0;
+
+  // Registered first, so it runs last: everything the Supabase route below does not take.
+  await page.route("**/*", (route) => {
+    const { hostname } = new URL(route.request().url());
+    if (ALLOWED.has(hostname)) return route.fallback();
+    foreign.push(hostname);
+    return route.abort();
+  });
 
   await page.route(/\/(auth|rest)\/v1\//, async (route) => {
     const request = route.request();
@@ -91,9 +117,12 @@ export async function stubSupabase(page: Page, options: StubOptions = {}) {
     if (request.method() === "OPTIONS") return route.fulfill({ status: 204, headers: CORS });
     const path = url.pathname;
     calls.push({ path, body: bodyOf(request), authorization: await request.headerValue("authorization") });
+    await held.get(path);
 
     if (path === "/auth/v1/otp") {
-      return otpStatus === 200 ? json(route, 200, {}) : json(route, otpStatus, { code: otpStatus, error_code: "sms_send_failed", msg: "stub" });
+      const status = nth(otpStatuses, otps);
+      otps += 1;
+      return status === 200 ? json(route, 200, {}) : json(route, status, { code: status, error_code: "sms_send_failed", msg: "stub" });
     }
     if (path === "/auth/v1/verify") {
       const token = (bodyOf(request) as { token?: string } | null)?.token;
@@ -102,9 +131,12 @@ export async function stubSupabase(page: Page, options: StubOptions = {}) {
         : json(route, 403, { code: 403, error_code: "otp_expired", msg: "Token has expired or is invalid" });
     }
     if (path === "/auth/v1/user") return json(route, 200, USER);
-    if (path === "/rest/v1/users") return json(route, 200, profileName === null ? [] : [{ full_name: profileName }]);
+    if (path === "/rest/v1/users") {
+      const name = merges > 0 && profileAfterMerge ? profileAfterMerge : profileName;
+      return json(route, 200, name === null ? [] : [{ full_name: name }]);
+    }
     if (path === "/rest/v1/rpc/merge_funnel_session") {
-      const status = mergeStatuses[Math.min(merges, mergeStatuses.length - 1)];
+      const status = nth(mergeStatuses, merges);
       merges += 1;
       return status === 200
         ? json(route, 200, { success: true, user_id: USER_ID, linked_events: 0 })
@@ -119,5 +151,14 @@ export async function stubSupabase(page: Page, options: StubOptions = {}) {
     /** Hosts other than the stub that the page tried to reach (must stay empty). */
     foreign,
     to: (path: string) => calls.filter((c) => c.path === path),
+    /** Holds replies to `path` until the returned release() is called. */
+    hold(path: string) {
+      let release = () => {};
+      held.set(path, new Promise<void>((resolve) => (release = resolve)));
+      return () => {
+        held.delete(path);
+        release();
+      };
+    },
   };
 }

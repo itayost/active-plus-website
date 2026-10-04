@@ -79,7 +79,7 @@ type PhoneProps = {
 function PhoneStep({ gender, initialPhone, onSent }: PhoneProps) {
   const [phone, setPhone] = useState(initialPhone);
   const [error, setError] = useState("");
-  const sending = useRef(false);
+  const [sending, setSending] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
   const fail = (message: string) => {
@@ -89,19 +89,19 @@ function PhoneStep({ gender, initialPhone, onSent }: PhoneProps) {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (sending.current) return;
+    if (sending) return;
     if (!isIsraeliMobile(phone)) return fail(C.phoneError);
-    sending.current = true;
+    setSending(true);
     const supabase = await loadBrowserSupabase();
-    const ok = supabase ? await sendCode(supabase, toE164(phone)) : false;
-    sending.current = false;
-    if (ok) onSent(phone.trim());
-    else fail(C.sendFailed);
+    const result = supabase ? await sendCode(supabase, toE164(phone)) : "error";
+    setSending(false);
+    if (result === "ok") return onSent(phone.trim());
+    fail(result === "rateLimited" ? COPY.otp.rateLimited : C.sendFailed);
   };
 
   const [lead, rest] = C.phoneFooter.split(" • ");
   return (
-    <form noValidate onSubmit={submit}>
+    <form noValidate onSubmit={submit} aria-busy={sending || undefined}>
       <StepIcon>
         <PhoneIcon />
       </StepIcon>
@@ -131,7 +131,8 @@ function PhoneStep({ gender, initialPhone, onSent }: PhoneProps) {
         </p>
         <FieldError id={PHONE_ERROR_ID} text={error} />
       </div>
-      <ContinueButton type="submit" label={C.phoneCta} />
+      {/* Disabled while sending, label kept: the press visibly took, and a second tap cannot send twice. */}
+      <ContinueButton type="submit" label={C.phoneCta} disabled={sending} />
       <p className="mt-4 text-center text-ink-soft">
         {lead}
         <span aria-hidden="true" className="mx-2.5 inline-block h-[5px] w-[5px] rounded-pill bg-current align-middle" />

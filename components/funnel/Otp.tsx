@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import { ArrowIcon, CheckIcon, LockIcon } from "@/components/ui/icons";
 import { OTP_LENGTH, RESEND_SECONDS } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
-import { finishSignup } from "@/lib/funnel/finish";
+import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
 import { sendCode, verifyCode, type VerifyResult } from "@/lib/funnel/signin";
 import { handOffToPayment, loadSession } from "@/lib/funnel/storage";
 import type { Answers } from "@/lib/funnel/types";
@@ -17,6 +17,7 @@ import { ContinueButton, FieldError, StepIcon, StepTitle, STEP_TITLE_ID, Subtitl
 
 const CODE_ID = "funnel-otp";
 const CODE_ERROR_ID = "funnel-otp-error";
+const RESEND_ERROR_ID = "funnel-otp-resend-error";
 const TICK_MS = 1000;
 const PAYMENT = "/payment";
 
@@ -76,7 +77,6 @@ function CodeBoxes({ code, invalid, busy, onChange, inputRef }: {
         inputMode="numeric"
         autoComplete="one-time-code"
         pattern="[0-9]*"
-        maxLength={OTP_LENGTH}
         aria-label={C.codeLabel.replace("{n}", String(OTP_LENGTH))}
         aria-describedby={invalid ? CODE_ERROR_ID : undefined}
         aria-invalid={invalid ? true : undefined}
@@ -90,7 +90,8 @@ function CodeBoxes({ code, invalid, busy, onChange, inputRef }: {
 }
 
 const LINKISH =
-  "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash";
+  "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
+  "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
 
 type Props = {
   /** The number as the visitor typed it (validated before the code was sent). */
@@ -99,20 +100,42 @@ type Props = {
   onEditPhone: () => void;
   /** Signed in and merged: the funnel hides back and cancel. */
   onComplete: () => void;
+  /** True while a code is being checked or the answers merged: the funnel's back is hidden. */
+  onBusy: (busy: boolean) => void;
 };
 
 /** otp: verify the SMS code, then merge the answers and hand off to /payment. */
-export default function Otp({ phone, answers, onEditPhone, onComplete }: Props) {
+export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }: Props) {
   const router = useRouter();
   const e164 = toE164(phone);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  // A failed resend is about the SMS, not the code: it never marks the boxes invalid.
+  const [resendError, setResendError] = useState("");
+  const [resending, setResending] = useState(false);
   const [phase, setPhase] = useState<Phase>("enter");
   const [name, setName] = useState("");
   const [resendAt, setResendAt] = useState(() => Date.now() + RESEND_SECONDS * 1000);
   const [now, setNow] = useState(() => Date.now());
   const input = useRef<HTMLInputElement>(null);
-  const busy = useRef(false);
+  // False once Otp has unmounted: a verify or merge that resolves later must not act.
+  const alive = useRef(true);
+  // The first attempt failed on the new-user merge. If that merge committed on the
+  // server, the retry finds a name and looks like a returning user; it is not one.
+  const firstWasNew = useRef(false);
+  const locked = phase === "verifying" || phase === "finishing";
+
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    onBusy(locked);
+  }, [locked, onBusy]);
+  useEffect(() => () => onBusy(false), [onBusy]);
 
   const waiting = secondsLeft(resendAt, now);
   useEffect(() => {
@@ -129,7 +152,10 @@ export default function Otp({ phone, answers, onEditPhone, onComplete }: Props) 
   const finish = async () => {
     setPhase("finishing");
     const supabase = await loadBrowserSupabase();
-    const result = supabase ? await finishSignup(supabase, loadSession().id, answers) : ({ kind: "error" } as const);
+    const raw: FinishResult = supabase ? await finishSignup(supabase, loadSession().id, answers) : { kind: "error" };
+    if (!alive.current) return;
+    if (raw.kind === "error" && raw.path === "new") firstWasNew.current = true;
+    const result: FinishResult = raw.kind === "existing" && firstWasNew.current ? { kind: "new" } : raw;
     if (result.kind === "error") return setPhase("failed");
     handOffToPayment(answers.gender);
     onComplete();
@@ -145,6 +171,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete }: Props) 
     setPhase("verifying");
     const supabase = await loadBrowserSupabase();
     const result = supabase ? await verifyCode(supabase, e164, token) : "error";
+    if (!alive.current) return;
     if (result === "ok") return finish();
     setCode("");
     setError(VERIFY_MESSAGE[result]);
@@ -160,12 +187,14 @@ export default function Otp({ phone, answers, onEditPhone, onComplete }: Props) 
   };
 
   const resend = async () => {
-    if (busy.current) return;
-    busy.current = true;
+    if (resending || locked) return;
+    setResending(true);
     const supabase = await loadBrowserSupabase();
-    const ok = supabase ? await sendCode(supabase, e164) : false;
-    busy.current = false;
-    if (!ok) return setError(COPY.register.sendFailed);
+    const result = supabase ? await sendCode(supabase, e164) : "error";
+    if (!alive.current) return;
+    setResending(false);
+    if (result !== "ok") return setResendError(result === "rateLimited" ? C.rateLimited : COPY.register.sendFailed);
+    setResendError("");
     setError("");
     setNow(Date.now());
     setResendAt(Date.now() + RESEND_SECONDS * 1000);
@@ -217,14 +246,15 @@ export default function Otp({ phone, answers, onEditPhone, onComplete }: Props) 
         {waiting > 0 ? (
           <span className="text-ink-soft">{C.resendIn.replace("{n}", String(waiting))}</span>
         ) : (
-          <button type="button" className={LINKISH} onClick={() => void resend()}>
+          <button type="button" className={LINKISH} disabled={locked || resending} onClick={() => void resend()}>
             {C.resend}
           </button>
         )}
-        <button type="button" className={LINKISH} onClick={onEditPhone}>
+        <button type="button" className={LINKISH} disabled={locked} onClick={onEditPhone}>
           {C.editPhone}
         </button>
       </div>
+      <FieldError id={RESEND_ERROR_ID} text={resendError} />
       <div
         role="status"
         className={

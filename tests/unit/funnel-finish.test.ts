@@ -45,7 +45,27 @@ describe("finishSignup", () => {
   it("reports a merge failure instead of throwing", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const r = await finishSignup(fakeSupabase({ rpcError: { message: "boom" } }) as never, "s1", {});
-    expect(r).toEqual({ kind: "error" });
+    expect(r).toMatchObject({ kind: "error" });
+  });
+
+  it("says a failed merge was on the new-user path, so a retry is not mistaken for a returning user", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const r = await finishSignup(fakeSupabase({ rpcError: { code: "500" } }) as never, "s1", {});
+    expect(r).toEqual({ kind: "error", path: "new" });
+  });
+
+  it("says a failed fill was on the existing-user path", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const r = await finishSignup(fakeSupabase({ profileName: "דוד לוי", rpcError: { code: "500" } }) as never, "s1", {});
+    expect(r).toEqual({ kind: "error", path: "existing" });
+  });
+
+  it("treats a fill that answers success: false as a failure", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const sb = fakeSupabase({ profileName: "דוד לוי", rpcData: { success: false } });
+    const r = await finishSignup(sb as never, "s1", { gender: "male" });
+    expect(sb.rpc).toHaveBeenCalledWith("fill_missing_funnel_answers", { p_answers: { gender: "male" } });
+    expect(r).toEqual({ kind: "error", path: "existing" });
   });
 
   it("reads the signed-in user's own row by id", async () => {
@@ -95,7 +115,7 @@ describe("finishSignup", () => {
   it("treats an RPC that answers success: false as a failure", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const r = await finishSignup(fakeSupabase({ rpcData: { success: false } }) as never, "s1", {});
-    expect(r).toEqual({ kind: "error" });
+    expect(r).toEqual({ kind: "error", path: "new" });
   });
 
   it("reports a thrown network failure instead of throwing", async () => {

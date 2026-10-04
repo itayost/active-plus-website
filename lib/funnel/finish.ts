@@ -3,7 +3,16 @@ import { logAuthFailure } from "./log";
 import { buildMergePayload } from "./payload";
 import type { Answers } from "./types";
 
-export type FinishResult = { kind: "new" } | { kind: "existing"; name: string } | { kind: "error" };
+/**
+ * `path` on an error says which RPC failed. A merge can succeed on the server
+ * and still fail on the client (a dropped response), after which the profile
+ * has a name and a retry would look like a returning user; the caller uses
+ * the path to keep treating that visitor as new.
+ */
+export type FinishResult =
+  | { kind: "new" }
+  | { kind: "existing"; name: string }
+  | { kind: "error"; path?: "new" | "existing" };
 
 const ERROR: FinishResult = { kind: "error" };
 
@@ -43,7 +52,7 @@ async function run(supabase: SupabaseClient, sessionId: string, answers: Answers
     const { data, error } = await supabase.rpc("fill_missing_funnel_answers", { p_answers: rest });
     if (failed(data, error)) {
       logAuthFailure("finish:fill", error);
-      return ERROR;
+      return { kind: "error", path: "existing" };
     }
     return { kind: "existing", name: existingName };
   }
@@ -51,7 +60,7 @@ async function run(supabase: SupabaseClient, sessionId: string, answers: Answers
   const { data, error } = await supabase.rpc("merge_funnel_session", { p_session_id: sessionId, p_answers: payload });
   if (failed(data, error)) {
     logAuthFailure("finish:merge", error);
-    return ERROR;
+    return { kind: "error", path: "new" };
   }
   return { kind: "new" };
 }

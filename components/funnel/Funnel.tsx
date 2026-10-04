@@ -27,6 +27,8 @@ export default function Funnel() {
   const [restored, setRestored] = useState<Step | null>(null);
   // Signed in and merged: nothing to go back to, and cancelling no longer applies.
   const [complete, setComplete] = useState(false);
+  // A code is being checked or the answers merged: back would strand that work.
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const { answers } = loadSession();
@@ -82,6 +84,7 @@ export default function Funnel() {
       codeSent: (phone: string) => go(codeSent(state, phone)),
       editPhone: () => go(back(state)),
       complete: () => setComplete(true),
+      setBusy,
     }),
     [state, go],
   );
@@ -91,6 +94,7 @@ export default function Funnel() {
   const { step } = state;
   const canGoBack =
     !complete &&
+    !busy &&
     (state.history.length > 0 ||
       (step === "time" && state.time.sub === "B") ||
       (step === "register" && state.register.sub === "phone"));

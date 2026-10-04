@@ -3,24 +3,28 @@ import { logAuthFailure } from "./log";
 
 type Auth = Pick<SupabaseClient, "auth">;
 
+export type SendResult = "ok" | "rateLimited" | "error";
+
+const TOO_MANY = 429;
+const statusOf = (error: unknown) => (error as { status?: unknown } | null)?.status;
+
 /** Sends the SMS code (delivered by the project's sendAuthOtpSms hook). */
-export async function sendCode(supabase: Auth, e164: string): Promise<boolean> {
+export async function sendCode(supabase: Auth, e164: string): Promise<SendResult> {
   try {
     const { error } = await supabase.auth.signInWithOtp({ phone: e164 });
-    if (!error) return true;
+    if (!error) return "ok";
     logAuthFailure("otp:send", error);
+    return statusOf(error) === TOO_MANY ? "rateLimited" : "error";
   } catch (caught) {
     logAuthFailure("otp:send", caught);
+    return "error";
   }
-  return false;
 }
 
 export type VerifyResult = "ok" | "invalid" | "rateLimited" | "error";
 
-const TOO_MANY = 429;
-
 function classify(error: unknown): VerifyResult {
-  const status = (error as { status?: unknown } | null)?.status;
+  const status = statusOf(error);
   if (status === TOO_MANY) return "rateLimited";
   // Supabase answers a wrong or expired code with 4xx (otp_expired / invalid token).
   if (typeof status === "number" && status >= 400 && status < 500) return "invalid";

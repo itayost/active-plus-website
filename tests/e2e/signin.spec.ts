@@ -34,11 +34,19 @@ const nameInput = (page: Page) => screen(page).getByRole("textbox", { name: R.na
 const phoneInput = (page: Page) => screen(page).getByLabel(R.phoneLabel, { exact: true });
 const codeInput = (page: Page) => screen(page).getByLabel(O.codeLabel.replace("{n}", String(OTP_LENGTH)));
 
+let stub: Awaited<ReturnType<typeof stubSupabase>> | null = null;
+
 async function start(page: Page, options?: StubOptions) {
-  const stub = await stubSupabase(page, options);
+  stub = await stubSupabase(page, options);
   await seed(page, "register", ANSWERED);
   return stub;
 }
+
+// Every sign-in test: nothing may have left for a host other than the app and the stub.
+test.afterEach(() => {
+  expect(stub?.foreign ?? []).toEqual([]);
+  stub = null;
+});
 
 async function toPhone(page: Page, name = "רחל כהן") {
   await nameInput(page).fill(name);
@@ -92,7 +100,7 @@ for (const [kind, phone] of [["a landline", "03-1234567"], ["a short number", "0
 }
 
 test("a refused send says so and stays on the phone screen", async ({ page }) => {
-  await start(page, { otpStatus: 500 });
+  await start(page, { otpStatuses: [500] });
   await toPhone(page);
   await phoneInput(page).fill("0501234567");
   await screen(page).getByRole("button", { name: R.phoneCta }).click();
@@ -107,7 +115,6 @@ test("the code goes to the E.164 number and the otp screen shows it", async ({ p
   await expect(screen(page)).toContainText("ל-050-1234567");
   await expect(codeInput(page)).toHaveAttribute("autocomplete", "one-time-code");
   await expect(codeInput(page)).toHaveAttribute("inputmode", "numeric");
-  expect(stub.foreign).toEqual([]);
 });
 
 test("the code verifies by itself at the sixth digit", async ({ page }) => {
@@ -172,7 +179,6 @@ test("a new user's answers are merged with the session id, then on to /payment",
     keys: ["ap.funnel.session_id", "ap.funnel.answers", "ap.funnel.step"].map((k) => localStorage.getItem(k)),
   }));
   expect(after).toEqual({ gender: "female", keys: [null, null, null] });
-  expect(stub.foreign).toEqual([]);
 });
 
 test("an existing user only gets missing answers filled, keeps their name, and is welcomed back", async ({ page }) => {
@@ -223,4 +229,97 @@ test("the phone screen with an error and the code screen have no serious axe vio
   await screen(page).getByRole("button", { name: R.phoneCta }).click();
   await expectStep(page, "otp");
   expect(await serious()).toEqual([]);
+});
+
+test("while the code is sent, the button waits with its label and the form is busy", async ({ page }) => {
+  const stub = await start(page);
+  await toPhone(page);
+  await phoneInput(page).fill("0501234567");
+  const release = stub.hold("/auth/v1/otp");
+  const send = screen(page).getByRole("button", { name: R.phoneCta });
+  await send.click();
+  await expect(send).toBeDisabled();
+  await expect(screen(page).locator("form")).toHaveAttribute("aria-busy", "true");
+  await send.click({ force: true });
+  release();
+  await expectStep(page, "otp");
+  expect(stub.to("/auth/v1/otp")).toHaveLength(1);
+});
+
+test("while the code is checked, back, 'ערוך מספר' and resend are inert", async ({ page }) => {
+  await page.clock.install();
+  const stub = await start(page);
+  await toOtp(page);
+  await page.clock.fastForward(RESEND_SECONDS * 1000);
+  const resend = screen(page).getByRole("button", { name: O.resend });
+  const edit = screen(page).getByRole("button", { name: O.editPhone });
+  await expect(resend).toBeEnabled();
+
+  const release = stub.hold("/auth/v1/verify");
+  await codeInput(page).fill(GOOD_CODE);
+  await expect.poll(() => stub.to("/auth/v1/verify").length).toBe(1);
+  await expect(resend).toBeDisabled();
+  await expect(edit).toBeDisabled();
+  await expect(back(page)).toBeHidden();
+  await edit.click({ force: true });
+  await resend.click({ force: true });
+  await expectStep(page, "otp");
+
+  release();
+  await expect(page).toHaveURL(/\/payment$/);
+  expect(stub.to("/auth/v1/otp")).toHaveLength(1);
+});
+
+test("a verify that answers after the visitor has left does not merge or move them to /payment", async ({ page }) => {
+  const stub = await start(page);
+  await toOtp(page);
+  const release = stub.hold("/auth/v1/verify");
+  await codeInput(page).fill(GOOD_CODE);
+  await expect.poll(() => stub.to("/auth/v1/verify").length).toBe(1);
+  await page.getByRole("link", { name: COPY.chrome.cancel }).click();
+  await expect(page).toHaveURL(/\/$/);
+
+  const answered = page.waitForResponse((r) => r.url().endsWith("/auth/v1/verify"));
+  release();
+  await answered;
+  await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/$/);
+  expect(stub.calls.filter((c) => c.path.startsWith("/rest/") || c.path === "/auth/v1/user")).toEqual([]);
+});
+
+test("a retry after a merge that committed but failed in the browser still treats the visitor as new", async ({ page }) => {
+  const stub = await start(page, { mergeStatuses: [500, 200], profileAfterMerge: "רחל כהן" });
+  await toOtp(page);
+  await codeInput(page).fill(GOOD_CODE);
+  await expect(title(page)).toHaveText(O.mergeFailed);
+  await screen(page).getByRole("button", { name: O.retry }).click();
+  await expect(page).toHaveURL(/\/payment$/);
+  expect(stub.to("/rest/v1/rpc/fill_missing_funnel_answers")).toHaveLength(1);
+  expect(await page.evaluate(() => sessionStorage.getItem("ap.funnel.gender"))).toBe("female");
+});
+
+test("a refused resend says to wait, without marking the code as wrong", async ({ page }) => {
+  await page.clock.install();
+  await start(page, { otpStatuses: [200, 429] });
+  await toOtp(page);
+  await codeInput(page).pressSequentially("12");
+  await page.clock.fastForward(RESEND_SECONDS * 1000);
+  await screen(page).getByRole("button", { name: O.resend }).click();
+  await expect(screen(page).getByRole("alert")).toHaveText(O.rateLimited);
+  await expect(codeInput(page)).not.toHaveAttribute("aria-invalid", "true");
+  await expect(codeInput(page)).toHaveValue("12");
+});
+
+test.describe("pasting", () => {
+  test.use({ permissions: ["clipboard-read", "clipboard-write"] });
+
+  test("a pasted '123 456' fills all six digits and verifies", async ({ page }) => {
+    const stub = await start(page);
+    await toOtp(page);
+    await page.evaluate((text) => navigator.clipboard.writeText(text), "123 456");
+    await codeInput(page).focus();
+    await page.keyboard.press("ControlOrMeta+V");
+    await expect.poll(() => stub.to("/auth/v1/verify").length).toBe(1);
+    expect(stub.to("/auth/v1/verify")[0].body).toMatchObject({ token: GOOD_CODE });
+  });
 });
