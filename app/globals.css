@@ -96,6 +96,19 @@ html {
 }
 
 /*
+  Snap tracks padded with .gutter-x need the same inset as scroll padding, or
+  the browser's snap area starts at the track's raw edge: on load it scrolled
+  each track by a gutter's width, pushing the first card flush to the screen
+  edge, and that load-time scroll ended Chrome's LCP recording for the whole
+  home page (Lighthouse reported NO_LCP). With the snap port matching the
+  padding, the resting position is already a snap position and nothing moves.
+*/
+.snap-gutter {
+  scroll-padding-left: max(var(--gutter), env(safe-area-inset-left));
+  scroll-padding-right: max(var(--gutter), env(safe-area-inset-right));
+}
+
+/*
   The drawer is the one panel that owns a physical screen edge on all four
   sides, so it takes the insets itself rather than through the shell gutter its
   contents never pass through. Bottom matters most: the drawer ends with the

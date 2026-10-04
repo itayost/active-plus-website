@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { Shell } from "@/components/ui/Section";
-import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
+import { CAROUSEL_ARROW, useSnapCarousel } from "@/components/ui/useSnapCarousel";
 import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
 import { FEATURE_CARDS, FIT_CHECK, type Tone } from "@/lib/constants";
 
@@ -53,7 +53,9 @@ const SOFT: Record<Tone, string> = {
 };
 
 export default function FeatureCards() {
-  const { trackRef, index, goTo } = useSnapCarousel<HTMLUListElement>(FEATURE_CARDS.length);
+  const { trackRef, index, canPrev, canNext, goTo } = useSnapCarousel<HTMLUListElement>(
+    FEATURE_CARDS.length,
+  );
 
   return (
     <section
@@ -80,8 +82,8 @@ export default function FeatureCards() {
             <button
               type="button"
               onClick={() => goTo(index - 1)}
-              disabled={index === 0}
-              className="inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5 hover:border-ink/40 disabled:pointer-events-none disabled:opacity-35"
+              aria-disabled={!canPrev || undefined}
+              className={CAROUSEL_ARROW}
             >
               <span className="sr-only">הכרטיס הקודם</span>
               <ArrowBackIcon className="h-6 w-6" />
@@ -89,8 +91,8 @@ export default function FeatureCards() {
             <button
               type="button"
               onClick={() => goTo(index + 1)}
-              disabled={index >= FEATURE_CARDS.length - 1}
-              className="inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5 hover:border-ink/40 disabled:pointer-events-none disabled:opacity-35"
+              aria-disabled={!canNext || undefined}
+              className={CAROUSEL_ARROW}
             >
               <span className="sr-only">הכרטיס הבא</span>
               <ArrowIcon className="h-6 w-6" />
@@ -101,7 +103,7 @@ export default function FeatureCards() {
 
       <ul
         ref={trackRef}
-        className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="snap-gutter mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {FEATURE_CARDS.map((card, cardIndex) => (
           <li

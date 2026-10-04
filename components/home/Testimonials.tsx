@@ -1,7 +1,7 @@
 "use client";
 
 import { Shell } from "@/components/ui/Section";
-import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
+import { CAROUSEL_ARROW, useSnapCarousel } from "@/components/ui/useSnapCarousel";
 import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
 import { TESTIMONIALS } from "@/content/home";
 
@@ -9,9 +9,6 @@ const SOURCE_LABEL = {
   google: "ביקורת בגוגל",
   facebook: "ביקורת בפייסבוק",
 } as const;
-
-const ARROW =
-  "inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5 hover:border-ink/40 disabled:pointer-events-none disabled:opacity-35";
 
 /**
  * Written reviews only, no star ratings (none were supplied) and no
@@ -21,7 +18,9 @@ const ARROW =
  * arrive they enter above this track as a row of circles with a play button.
  */
 export default function Testimonials() {
-  const { trackRef, index, atEnd, goTo } = useSnapCarousel<HTMLUListElement>(TESTIMONIALS.length);
+  const { trackRef, index, canPrev, canNext, goTo } = useSnapCarousel<HTMLUListElement>(
+    TESTIMONIALS.length,
+  );
 
   return (
     <section
@@ -35,15 +34,20 @@ export default function Testimonials() {
             מה אומרים הלקוחות שלנו
           </h2>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => goTo(index - 1)} disabled={index === 0} className={ARROW}>
+            <button
+              type="button"
+              onClick={() => goTo(index - 1)}
+              aria-disabled={!canPrev || undefined}
+              className={CAROUSEL_ARROW}
+            >
               <span className="sr-only">הביקורת הקודמת</span>
               <ArrowBackIcon className="h-6 w-6" />
             </button>
             <button
               type="button"
               onClick={() => goTo(index + 1)}
-              disabled={atEnd || index >= TESTIMONIALS.length - 1}
-              className={ARROW}
+              aria-disabled={!canNext || undefined}
+              className={CAROUSEL_ARROW}
             >
               <span className="sr-only">הביקורת הבאה</span>
               <ArrowIcon className="h-6 w-6" />
@@ -56,7 +60,7 @@ export default function Testimonials() {
         ref={trackRef}
         tabIndex={0}
         aria-label="ביקורות לקוחות"
-        className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="snap-gutter mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {TESTIMONIALS.map((item, i) => (
           <li

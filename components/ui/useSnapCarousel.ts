@@ -1,8 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { scrollBehaviorFor } from "@/lib/media";
 
-/** Scroll-snap carousel state: which child is most visible, and goTo(index). */
+/**
+ * Scroll-snap carousel state: which child is most visible, whether either
+ * direction still has somewhere to go, and goTo(index).
+ *
+ * The arrows are meant to be wired with aria-disabled, not disabled: a
+ * disabled button drops keyboard focus to <body> the moment the track reaches
+ * its end, and the next Tab restarts from the top of the page. goTo already
+ * clamps, so a press on an exhausted arrow is a harmless no-op.
+ */
 export function useSnapCarousel<T extends HTMLElement>(count: number) {
   const trackRef = useRef<T>(null);
   const [index, setIndex] = useState(0);
@@ -13,8 +22,10 @@ export function useSnapCarousel<T extends HTMLElement>(count: number) {
       const track = trackRef.current;
       if (!track) return;
       const clamped = Math.max(0, Math.min(next, count - 1));
+      // JS scrolling ignores the CSS reduced-motion reset, so ask directly.
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       (track.children[clamped] as HTMLElement | undefined)?.scrollIntoView({
-        behavior: "smooth",
+        behavior: scrollBehaviorFor(reduce),
         block: "nearest",
         inline: "start",
       });
@@ -54,5 +65,18 @@ export function useSnapCarousel<T extends HTMLElement>(count: number) {
     };
   }, []);
 
-  return { trackRef, index, atEnd, goTo };
+  const canPrev = index > 0;
+  const canNext = !atEnd && index < count - 1;
+
+  return { trackRef, index, atEnd, canPrev, canNext, goTo };
 }
+
+/**
+ * Shared arrow styling. Exhausted arrows are aria-disabled: dimmed and inert to
+ * hover, but still focusable, so keyboard focus stays where the reader left it.
+ */
+export const CAROUSEL_ARROW =
+  "inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink " +
+  "transition-[border-color,background-color,transform,opacity] duration-[var(--dur-fast)] " +
+  "hover:-translate-y-0.5 hover:border-ink/40 " +
+  "aria-disabled:cursor-default aria-disabled:opacity-35 aria-disabled:hover:translate-y-0 aria-disabled:hover:border-ink/15";
