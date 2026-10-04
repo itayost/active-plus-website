@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ANSWER_KEYS, FUNNEL_STEPS } from "@/lib/funnel/contract.generated";
+import { COPY_KEYS } from "@/lib/funnel/copy";
 
 describe("contract", () => {
   it("the contract still starts at welcome2 and ends at payment", () => {
@@ -17,6 +18,12 @@ describe("contract", () => {
       "full_name",
     ];
     for (const key of requiredKeys) {
+      expect(ANSWER_KEYS).toContain(key);
+    }
+  });
+
+  it("every COPY_KEYS entry is in ANSWER_KEYS", () => {
+    for (const key of COPY_KEYS) {
       expect(ANSWER_KEYS).toContain(key);
     }
   });
