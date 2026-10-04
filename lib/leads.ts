@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { createServiceClient } from "@/lib/supabase";
+import { clientIp } from "@/lib/request-ip";
 
 export type LeadField = "fullName" | "phone" | "email" | "message";
 
@@ -95,11 +96,7 @@ export async function submitLead(
     return { status: "error", fields };
   }
 
-  const headerList = await headers();
-  const ip =
-    headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    headerList.get("x-real-ip") ??
-    "unknown";
+  const ip = clientIp(await headers());
 
   // An unresolvable IP must not put every such request in one shared bucket,
   // where a single visitor's third submission would block everyone else's.

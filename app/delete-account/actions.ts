@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { createServiceClient } from "@/lib/supabase";
+import { clientIp } from "@/lib/request-ip";
 
 export type DeleteAccountResult = {
   success: boolean;
@@ -66,20 +67,8 @@ export async function submitDeletionRequest(
     return { success: false, message: "כתובת אימייל לא תקינה" };
   }
 
-  // Rate limiting by IP.
-  //
-  // x-vercel-forwarded-for is set by the platform and cannot be spoofed by the
-  // caller. The leftmost value of x-forwarded-for CAN be: a client that sends
-  // its own header has its value preserved ahead of the real address, so
-  // reading [0] let anyone reset their own rate-limit bucket at will.
-  const headersList = await headers();
-  const ip =
-    headersList.get("x-vercel-forwarded-for")?.trim() ||
-    headersList.get("x-real-ip")?.trim() ||
-    // Last resort off-Vercel: take the RIGHTMOST entry, the one appended by the
-    // closest proxy, rather than the client-controllable leftmost.
-    headersList.get("x-forwarded-for")?.split(",").pop()?.trim() ||
-    "unknown";
+  // Rate limiting by IP (trusted-header logic lives in lib/request-ip.ts).
+  const ip = clientIp(await headers());
 
   if (isRateLimited(ip)) {
     return {
