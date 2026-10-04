@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { LEGACY_REDIRECTS } from "./lib/redirects";
+import { MEDIA_CACHE_RULES } from "./lib/cache-headers";
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -16,6 +17,7 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      ...MEDIA_CACHE_RULES,
     ];
   },
 };
