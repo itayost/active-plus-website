@@ -22,9 +22,9 @@ export default function Logo({ className = "" }: { className?: string }) {
         width={51}
         height={88}
         priority
-        className="h-11 w-auto transition-transform duration-[var(--dur)] ease-out-expo group-hover:-translate-y-0.5"
+        className="h-[38px] w-auto min-[421px]:h-11 transition-transform duration-[var(--dur)] ease-out-expo group-hover:-translate-y-0.5"
       />
-      <span className="font-display text-h3 font-black leading-none tracking-tight">
+      <span className="font-display text-[1.375rem] font-black min-[421px]:text-h3 leading-none tracking-tight">
         <span className="text-blue-deep">פעילים</span>
         <span className="text-green-deep">+</span>
       </span>

@@ -82,7 +82,7 @@ export default function Header() {
           lifted ? "border-b border-hairline shadow-lift-1" : "border-b border-transparent"
         }`}
       >
-        <div className="mx-auto flex max-w-shell items-center justify-between gap-6 gutter-x py-3">
+        <div className="mx-auto flex max-w-shell items-center justify-between gap-2 gutter-x min-[421px]:gap-6 py-3">
           <Logo />
 
           <nav aria-label="ניווט ראשי" className="hidden lg:block">

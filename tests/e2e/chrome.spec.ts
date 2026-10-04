@@ -26,3 +26,17 @@ test("sitemap lists the delete-account page", async ({ request }) => {
   expect(xml).toContain("/delete-account");
   expect(xml).toContain("/privacy-policy");
 });
+
+for (const size of [
+  { width: 320, height: 700 },
+  { width: 390, height: 844 },
+]) {
+  test(`header fits at ${size.width}px`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await page.goto("/delete-account");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    const cta = page.getByRole("banner").getByRole("link", { name: "בדיקת התאמה" });
+    await expect(cta).toBeVisible();
+    expect(await cta.evaluate((el) => getComputedStyle(el).whiteSpace)).toBe("nowrap");
+  });
+}
