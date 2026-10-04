@@ -52,7 +52,7 @@ export default function ProgressPage() {
             ))}
             <ul className="mt-8 grid gap-4">
               {C.strengths.ifs.map((line) => (
-                <li key={line} className="rounded-[22px] bg-green-wash px-6 py-5 text-base text-ink">
+                <li key={line} className="rounded-[22px] bg-green-wash px-[min(1.5rem,7.5vw)] py-5 text-base text-ink">
                   {line}
                 </li>
               ))}
@@ -75,7 +75,7 @@ export default function ProgressPage() {
             return (
               <li
                 key={item.label}
-                className={`flex flex-col gap-4 p-[clamp(1.75rem,4vw,3.25rem)] ${
+                className={`flex flex-col gap-4 p-[clamp(min(1.75rem,8.75vw),4vw,3.25rem)] ${
                   i > 0 ? "border-t border-hairline md:border-s md:border-t-0" : ""
                 }`}
               >

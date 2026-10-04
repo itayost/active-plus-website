@@ -46,7 +46,7 @@ export default function PageHero({
         {breadcrumb ? (
           <Link
             href={breadcrumb.href}
-            className={`mb-7 inline-flex min-h-[44px] items-center gap-2 font-display font-bold ${INK[tone]} transition-opacity hover:opacity-70`}
+            className={`mb-7 inline-flex min-h-12 items-center gap-2 font-display font-bold ${INK[tone]} transition-opacity hover:opacity-70`}
           >
             <ArrowBackIcon className="h-5 w-5" />
             {breadcrumb.label}

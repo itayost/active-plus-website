@@ -78,7 +78,7 @@ export default function AboutPage() {
               <p key={p} className="mt-6 max-w-[44ch] text-lead leading-[1.55] text-ink-soft">{p}</p>
             ))}
           </div>
-          <div className="rounded-card bg-green-wash p-[clamp(1.75rem,4vw,3.5rem)] text-green-deep">
+          <div className="rounded-card bg-green-wash p-[clamp(min(1.75rem,8.75vw),4vw,3.5rem)] text-green-deep">
             <p className="text-lead leading-[1.5]">{C.born.visionLead}</p>
             <p className="mt-4 font-display text-[clamp(1.75rem,1.35rem+1.8vw,2.75rem)] font-black leading-[1.2] tracking-tight">
               {C.born.vision}
@@ -121,7 +121,9 @@ export default function AboutPage() {
       <Section labelledBy="team-h">
         <h2 id="team-h" className="text-h2 font-display font-black text-ink">{C.team.heading}</h2>
         <p className="mt-6 max-w-[52ch] text-lead text-ink-soft">{C.team.lede}</p>
-        <ul className="mt-[clamp(2.5rem,5vw,4rem)] grid list-none gap-[clamp(2rem,4vw,2.5rem)] p-0 md:grid-cols-[repeat(3,minmax(0,1fr))]">
+        {/* team-list stacks each member at enlarged text on a phone, where a
+            7.5rem photo column left the bio a few characters wide (globals.css). */}
+        <ul className="team-list mt-[clamp(2.5rem,5vw,4rem)] grid list-none gap-[clamp(2rem,4vw,2.5rem)] p-0 md:grid-cols-[repeat(3,minmax(0,1fr))]">
           {TEAM.map((m) => (
             <li
               key={m.name}

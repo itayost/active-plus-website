@@ -22,7 +22,7 @@ export default function HowItWorksPage() {
     <>
       <DarkHeroCard
         labelledBy="hero-h"
-        className="flex min-h-[clamp(23rem,36vw,34rem)] flex-col items-center justify-center px-[clamp(1.25rem,4vw,4rem)] py-[clamp(3.5rem,6vw,5.5rem)] text-center"
+        className="flex min-h-[clamp(23rem,36vw,34rem)] flex-col items-center justify-center px-[clamp(min(1.25rem,6.25vw),4vw,4rem)] py-[clamp(3.5rem,6vw,5.5rem)] text-center"
         background={
           C.hero.image ? (
             <>
@@ -87,7 +87,7 @@ export default function HowItWorksPage() {
             </ul>
           </div>
           <div>
-            <figure className="m-0 rounded-card bg-purple-wash p-[clamp(1.75rem,4vw,3rem)] text-purple-deep">
+            <figure className="m-0 rounded-card bg-purple-wash p-[clamp(min(1.75rem,8.75vw),4vw,3rem)] text-purple-deep">
               <p className="font-display text-[clamp(1.5rem,1.2rem+1.2vw,2.125rem)] font-bold leading-[1.3] tracking-tight">
                 {C.dual.definition.before}{" "}
                 <span lang="en" dir="ltr" className="inline-block font-black">{C.dual.definition.term}</span>{" "}
@@ -132,7 +132,7 @@ export default function HowItWorksPage() {
           <p className="mx-auto max-w-[40ch] text-base text-ink-soft lg:m-0 lg:self-start lg:pt-24 lg:text-[1.25rem]">
             {C.progress.body[0]}
           </p>
-          <div className="relative isolate flex justify-center px-[clamp(1rem,3vw,2rem)] py-[clamp(1.5rem,4vw,3rem)] before:absolute before:inset-x-0 before:bottom-0 before:top-[18%] before:-z-10 before:rounded-card before:bg-green-wash before:content-['']">
+          <div className="relative isolate flex justify-center px-[clamp(min(1rem,5vw),3vw,2rem)] py-[clamp(1.5rem,4vw,3rem)] before:absolute before:inset-x-0 before:bottom-0 before:top-[18%] before:-z-10 before:rounded-card before:bg-green-wash before:content-['']">
             <figure className="w-full max-w-[380px] overflow-hidden rounded-[22px] bg-surface shadow-lift-3 lg:max-w-none">
               <Image
                 src={C.progress.image.src}

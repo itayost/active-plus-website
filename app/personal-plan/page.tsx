@@ -43,7 +43,7 @@ export default function PersonalPlanPage() {
                 ) : null}
                 <Reveal
                   delayIndex={i}
-                  className="flex flex-col gap-5 rounded-card border border-hairline bg-white p-[clamp(1.5rem,3vw,2.5rem)] shadow-lift-1"
+                  className="flex flex-col gap-5 rounded-card border border-hairline bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-purple-wash text-purple-deep">
                     <Icon className="h-7 w-7" />
@@ -72,7 +72,7 @@ export default function PersonalPlanPage() {
             return (
               <Reveal as="li" key={item.label} delayIndex={i}>
                 <div
-                  className={`flex h-full flex-col gap-5 rounded-card p-[clamp(1.75rem,3.5vw,3rem)] ${
+                  className={`flex h-full flex-col gap-5 rounded-card p-[clamp(min(1.75rem,8.75vw),3.5vw,3rem)] ${
                     isBody ? "bg-blue-wash text-blue-deep" : "bg-purple-wash text-purple-deep"
                   }`}
                 >
@@ -102,7 +102,7 @@ export default function PersonalPlanPage() {
           ].map(({ rule, Icon, chip }, i) => (
             <li
               key={rule.strong}
-              className={`grid grid-cols-[auto_1fr] items-center gap-5 px-[clamp(1.25rem,3vw,2.5rem)] py-[clamp(1.5rem,3vw,2.25rem)] ${
+              className={`grid grid-cols-[auto_1fr] items-center gap-5 px-[clamp(min(1.25rem,6.25vw),3vw,2.5rem)] py-[clamp(1.5rem,3vw,2.25rem)] ${
                 i > 0 ? "border-t border-hairline" : ""
               }`}
             >

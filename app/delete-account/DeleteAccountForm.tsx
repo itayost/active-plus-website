@@ -20,7 +20,7 @@ const CONFIRMATION_HINT_ID = "confirmation-hint";
 const ERROR_ID = "delete-account-error";
 
 const INPUT_CLASS =
-  "w-full rounded-[14px] border-2 bg-white px-4 py-3.5 text-lead text-ink transition-colors duration-[var(--dur-fast)] focus:border-burgundy focus:outline-none";
+  "w-full rounded-[14px] border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink transition-colors duration-[var(--dur-fast)] focus:border-burgundy focus:outline-none";
 const inputClass = (invalid: boolean) =>
   `${INPUT_CLASS} ${invalid ? "border-burgundy" : "border-hairline hover:border-ink/25"}`;
 
@@ -171,7 +171,7 @@ export default function DeleteAccountForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex min-h-[60px] w-full items-center justify-center rounded-pill bg-burgundy px-8 font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-burgundy-deep hover:shadow-lift-2 disabled:pointer-events-none disabled:opacity-55"
+          className="inline-flex min-h-[60px] w-full items-center justify-center rounded-pill bg-burgundy pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-burgundy-deep hover:shadow-lift-2 disabled:pointer-events-none disabled:opacity-55"
         >
           {isPending ? "שולח בקשה..." : "שליחת בקשת מחיקה"}
         </button>

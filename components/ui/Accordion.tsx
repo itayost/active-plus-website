@@ -19,24 +19,24 @@ export default function Accordion({ items }: { items: readonly QA[] }) {
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${index}`}
                 onClick={() => setOpen(isOpen ? null : index)}
-                className="group flex w-full items-start gap-4 py-6 text-start transition-colors duration-[var(--dur-fast)] hover:text-blue-deep"
+                className="group flex w-full items-start gap-[min(1rem,5vw)] py-6 text-start transition-colors duration-[var(--dur-fast)] hover:text-blue-deep"
               >
                 <span
-                  className={`mt-0.5 shrink-0 rounded-full border-2 p-1.5 transition-[transform,border-color,background-color] duration-[var(--dur)] ease-out-expo ${
+                  className={`mt-0.5 shrink-0 rounded-full border-2 p-[6px] transition-[transform,border-color,background-color] duration-[var(--dur)] ease-out-expo ${
                     isOpen
                       ? "rotate-180 border-blue-deep bg-blue-deep text-white"
                       : "border-hairline text-ink-soft group-hover:border-blue-deep"
                   }`}
                 >
-                  <ChevronIcon className="h-5 w-5" />
+                  <ChevronIcon className="h-[20px] w-[20px]" />
                 </span>
-                <span className="text-h3 font-display font-bold">{item.q}</span>
+                <span className="min-w-0 text-h3 font-display font-bold">{item.q}</span>
               </button>
             </h3>
             <div
               id={`faq-panel-${index}`}
               hidden={!isOpen}
-              className="pb-7 ps-[3.25rem] text-ink-soft"
+              className="pb-7 ps-[calc(36px+min(1rem,5vw))] text-ink-soft"
             >
               <p className="max-w-measure">{item.a}</p>
             </div>

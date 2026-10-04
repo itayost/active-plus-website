@@ -121,7 +121,7 @@ export default function FeatureCards() {
                 makes the artwork a deliberate tile floating on the field, and
                 the same treatment keeps all four cards consistent.
               */}
-              <div className="w-full shrink-0 p-[clamp(0.75rem,1.6vw,1.25rem)] lg:w-[44%]">
+              <div className="w-full shrink-0 p-[clamp(min(0.75rem,3.75vw),1.6vw,1.25rem)] lg:w-[44%]">
                 <div className="relative aspect-[16/10] h-full w-full overflow-hidden rounded-[20px] lg:aspect-auto lg:min-h-[clamp(280px,26vw,460px)]">
                   <Image
                     src={card.image}
@@ -133,7 +133,7 @@ export default function FeatureCards() {
                 </div>
               </div>
 
-              <div className="flex flex-1 flex-col p-[clamp(1.5rem,3vw,3rem)] lg:ps-[clamp(1rem,2vw,2rem)]">
+              <div className="flex flex-1 flex-col p-[clamp(min(1.5rem,7.5vw),3vw,3rem)] lg:ps-[clamp(min(1rem,5vw),2vw,2rem)]">
                 <h3 className="text-[clamp(1.5rem,1.2rem+1.4vw,2.5rem)] font-display font-black leading-tight">
                   {card.title}
                 </h3>

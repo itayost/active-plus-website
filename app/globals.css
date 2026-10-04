@@ -56,9 +56,15 @@
      keeps. Used as bold display type on a dark field, never as body text. */
   --yellow: #fdb913;
 
-  /* Rhythm */
-  --gutter: clamp(1.25rem, 4vw, 4.5rem);
-  --section-y: clamp(4rem, 3rem + 6vw, 8.5rem);
+  /* Rhythm.
+     The rem floors are held against the screen: min(Xrem, X*5vw) is exactly
+     Xrem on every screen from 320px up at the default text size, so nothing
+     moves there. With the reader's text enlarged the rem grows and the vw
+     bound takes over, so the words get the width instead of the margins — at
+     200% on a 390px phone the gutter is 24px a side, not 40, and a section's
+     padding stays proportionate to the screen it is on. */
+  --gutter: clamp(min(1.25rem, 6.25vw), 4vw, 4.5rem);
+  --section-y: clamp(min(4rem, 20vw), min(3rem, 15vw) + 6vw, 8.5rem);
   --measure: 68ch;
   --hero-field: #08222f;
 
@@ -72,6 +78,26 @@
   --lift-1: 0 1px 2px rgb(15 34 48 / 0.06), 0 4px 12px -4px rgb(15 34 48 / 0.1);
   --lift-2: 0 2px 4px rgb(15 34 48 / 0.06), 0 16px 32px -12px rgb(15 34 48 / 0.18);
   --lift-3: 0 4px 8px rgb(15 34 48 / 0.08), 0 32px 64px -24px rgb(15 34 48 / 0.28);
+}
+
+/*
+  Pill padding that gives way to enlarged text. At the default size it is
+  exactly the designed 24px (md) and 32px (lg) on every screen from 320px up.
+  As the reader's text grows the padding shrinks instead of growing with it
+  (calc(Npx - rem)), and it never exceeds a share of the screen (vw): a pure
+  2rem was 64px a side at 200%, which pushed lg pills past the edge of a
+  phone. The label gets that room and, when it still does not fit, wraps
+  between words onto a second line (controls opt out of overflow-wrap:
+  anywhere, below).
+*/
+@layer components {
+  .pill-pad-md {
+    padding-inline: max(12px, min(7.5vw, calc(36px - 0.75rem)));
+  }
+
+  .pill-pad-lg {
+    padding-inline: max(16px, min(10vw, calc(48px - 1rem)));
+  }
 }
 
 html {
@@ -419,5 +445,46 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+  Two layouts that nest a padded box inside another, and run out of width only
+  when the reader's text is enlarged on a phone. Both are measured in rem, so
+  they track the text size as well as the screen; neither query can match at
+  the default size on any screen from 320px up.
+
+  The lead panel puts the white form card inside the green card: 104px of
+  padding on a 320px phone, which at 200% left the form narrower than its own
+  checkbox row. Below 13rem (200% on 390px, 175% on 360 or 320) the two cards
+  hand that width back to the form.
+
+  The team list sets each member as a 7.5rem photo beside the name and bio.
+  Below 17rem (130% on 390px) the bio was a few characters wide; the member
+  stacks instead, photo above text.
+*/
+.lead-section,
+.team-list {
+  container-type: inline-size;
+}
+
+@container (width < 13rem) {
+  .lead-panel {
+    padding: 5vw;
+  }
+
+  .lead-form-card {
+    padding: 4vw;
+  }
+}
+
+@container (width < 17rem) {
+  .team-list > li {
+    display: block;
+  }
+
+  .team-list > li > img {
+    width: min(7.5rem, 50%);
+    margin-bottom: 1.25rem;
   }
 }

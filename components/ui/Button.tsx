@@ -16,9 +16,10 @@ const VARIANTS: Record<Variant, string> = {
   ghost: "text-ink-soft hover:text-ink hover:bg-sunken",
 };
 
+// pill-pad-*: inline padding that gives way to enlarged text (globals.css).
 const SIZES: Record<Size, string> = {
-  md: "min-h-[52px] px-6 text-base",  // never below the 18px floor
-  lg: "min-h-[60px] px-8 text-lead",
+  md: "min-h-[52px] pill-pad-md text-base",  // never below the 18px floor
+  lg: "min-h-[60px] pill-pad-lg text-lead",
 };
 
 /*

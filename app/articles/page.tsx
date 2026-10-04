@@ -32,7 +32,7 @@ export default function ArticlesPage() {
         <Shell>
           <Reveal>
             <article className="relative -mt-[clamp(4rem,8vw,7rem)] grid min-w-0 overflow-hidden rounded-card bg-burgundy text-white [--focus-ring:#ffffff] shadow-lift-2 transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-              <div className="p-[clamp(0.75rem,1.6vw,1.25rem)]">
+              <div className="p-[clamp(min(0.75rem,3.75vw),1.6vw,1.25rem)]">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] lg:aspect-auto lg:h-full lg:min-h-[460px]">
                   <Image
                     src={ARTICLE_MEDIA[LEAD.slug].cover}
@@ -44,7 +44,7 @@ export default function ArticlesPage() {
                   />
                 </div>
               </div>
-              <div className="flex min-w-0 flex-col justify-center p-[clamp(1.5rem,3.5vw,3.5rem)] pt-[clamp(0.75rem,3.5vw,3.5rem)]">
+              <div className="flex min-w-0 flex-col justify-center p-[clamp(min(1.5rem,7.5vw),3.5vw,3.5rem)] pt-[clamp(0.75rem,3.5vw,3.5rem)]">
                 <h2 className="font-display text-[clamp(1.75rem,1.3rem+1.8vw,2.75rem)] font-black leading-[1.12]">
                   <Link
                     href={`/articles/${LEAD.slug}`}
@@ -82,7 +82,7 @@ export default function ArticlesPage() {
                       />
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col gap-3 p-[clamp(1.25rem,2.5vw,2rem)]">
+                  <div className="flex flex-1 flex-col gap-3 p-[clamp(min(1.25rem,6.25vw),2.5vw,2rem)]">
                     <h3 className="font-display text-h3 font-bold">
                       <Link
                         href={`/articles/${article.slug}`}

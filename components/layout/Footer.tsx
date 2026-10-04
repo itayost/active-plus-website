@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import Logo from "./Logo";
 import { ClockIcon, MailIcon, PhoneIcon, PinIcon } from "@/components/ui/icons";
 import {
@@ -12,6 +13,9 @@ import {
   STORE_ANDROID,
   STORE_IOS,
 } from "@/lib/constants";
+import PhoneNumber from "@/components/ui/PhoneNumber";
+
+const [EMAIL_LOCAL, EMAIL_DOMAIN] = CONTACT_EMAIL.split("@");
 
 const LEGAL = [
   { href: "/privacy-policy", label: "מדיניות פרטיות" },
@@ -61,7 +65,7 @@ export default function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="inline-flex min-h-[44px] items-center text-ink-soft transition-colors hover:text-blue-deep"
+                    className="inline-flex min-h-12 min-w-12 items-center text-ink-soft transition-colors hover:text-blue-deep"
                   >
                     {item.label}
                   </Link>
@@ -70,7 +74,7 @@ export default function Footer() {
               <li>
                 <Link
                   href={FIT_CHECK.href}
-                  className="inline-flex min-h-[44px] items-center text-ink-soft transition-colors hover:text-blue-deep"
+                  className="inline-flex min-h-12 min-w-12 items-center text-ink-soft transition-colors hover:text-blue-deep"
                 >
                   {FIT_CHECK.label}
                 </Link>
@@ -82,7 +86,7 @@ export default function Footer() {
             <h2 className="font-display text-h3 font-bold">יצירת קשר</h2>
             <ul className="mt-5 space-y-4 text-ink-soft">
               {/* Phone and email are the two rows here that are actually tappable,
-                  so they carry the 44px target and centre their icon against it.
+                  so they carry the 48px target and centre their icon against it.
                   The rows below are plain text and keep the top alignment that a
                   wrapping address needs. */}
               <li className="flex items-center gap-3">
@@ -90,18 +94,33 @@ export default function Footer() {
                 <a
                   href={`tel:${CONTACT_PHONE_TEL}`}
                   dir="ltr"
-                  className="inline-flex min-h-[44px] items-center transition-colors hover:text-blue-deep"
+                  className="inline-flex min-h-12 items-center transition-colors hover:text-blue-deep"
                 >
-                  {CONTACT_PHONE}
+                  <PhoneNumber value={CONTACT_PHONE} />
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <MailIcon className="h-5 w-5 shrink-0 text-blue-deep" />
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="inline-flex min-h-[44px] items-center break-all transition-colors hover:text-blue-deep"
+                  className="inline-flex min-h-12 items-center transition-colors hover:text-blue-deep"
                 >
-                  {CONTACT_EMAIL}
+                  {/* Breaks allowed after the @ and before each dot (as well
+                      as at the hyphen), so a narrow column or enlarged text
+                      wraps the address between its parts, not mid-word. */}
+                  <span>
+                    {EMAIL_LOCAL}@<wbr />
+                    {EMAIL_DOMAIN.split(".").map((part, index) => (
+                      <Fragment key={part}>
+                        {index > 0 ? (
+                          <>
+                            <wbr />.
+                          </>
+                        ) : null}
+                        {part}
+                      </Fragment>
+                    ))}
+                  </span>
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -123,7 +142,7 @@ export default function Footer() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="inline-flex min-h-[44px] items-center transition-colors hover:text-blue-deep"
+                  className="inline-flex min-h-12 items-center transition-colors hover:text-blue-deep"
                 >
                   {item.label}
                 </Link>

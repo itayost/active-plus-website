@@ -52,7 +52,7 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
                 className="peer sr-only"
               />
               <span
-                className={`flex h-full flex-col gap-4 rounded-card border-2 bg-surface p-[clamp(1.5rem,3vw,2.25rem)] shadow-lift-1 transition-[border-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-[3px] peer-focus-visible:outline-blue-deep hover:-translate-y-0.5 hover:border-ink/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
+                className={`flex h-full flex-col gap-4 rounded-card border-2 bg-surface p-[clamp(min(1.5rem,7.5vw),3vw,2.25rem)] shadow-lift-1 transition-[border-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-[3px] peer-focus-visible:outline-blue-deep hover:-translate-y-0.5 hover:border-ink/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
                   isSelected ? "border-blue-deep shadow-lift-2" : "border-hairline"
                 }`}
               >

@@ -68,7 +68,7 @@ export default function Testimonials() {
             aria-label={`${i + 1} מתוך ${TESTIMONIALS.length}`}
             className="w-[min(84vw,600px)] shrink-0 snap-start"
           >
-            <article className="flex h-full flex-col rounded-[24px] bg-white p-[clamp(1.5rem,3vw,2.5rem)] shadow-lift-1">
+            <article className="flex h-full flex-col rounded-[24px] bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1">
               <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <h3 className="font-display text-h3 font-bold">{item.name}</h3>
                 <p className="text-ink-soft">{SOURCE_LABEL[item.source]}</p>

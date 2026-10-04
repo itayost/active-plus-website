@@ -40,7 +40,7 @@ export default function MotionDetectionPage() {
         </h2>
         <p className="mt-7 text-lead text-ink">{C.checks}</p>
 
-        <Reveal className="mt-[clamp(2.5rem,5vw,3.5rem)] grid gap-5 rounded-card bg-blue-wash p-[clamp(1.5rem,3.5vw,2.5rem)] sm:grid-cols-[auto_1fr] sm:items-start">
+        <Reveal className="mt-[clamp(2.5rem,5vw,3.5rem)] grid gap-5 rounded-card bg-blue-wash p-[clamp(min(1.5rem,7.5vw),3.5vw,2.5rem)] sm:grid-cols-[auto_1fr] sm:items-start">
           <span className="flex h-14 w-14 items-center justify-center rounded-pill bg-white text-blue-deep shadow-lift-1">
             <ScanIcon className="h-7 w-7" />
           </span>

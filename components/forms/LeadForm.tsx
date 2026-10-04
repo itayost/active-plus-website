@@ -23,7 +23,7 @@ export const TOPICS = [
 const INITIAL: LeadResult = { status: "idle" };
 
 const FIELD_BASE =
-  "w-full min-w-0 rounded-[14px] border-2 bg-white px-4 py-3.5 text-lead text-ink " +
+  "w-full min-w-0 rounded-[14px] border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink " +
   "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] " +
   "focus:border-blue-deep focus:outline-none";
 
@@ -43,7 +43,7 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
     <button
       type="submit"
       aria-disabled={pending || undefined}
-      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-pill bg-green-deep px-8 font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 sm:w-auto"
+      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-pill bg-green-deep pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 sm:w-auto"
     >
       {pending ? "שולח…" : label}
       {pending ? null : <ArrowIcon className="h-5 w-5" />}
@@ -343,7 +343,7 @@ export default function LeadForm({
       {/* No htmlFor: wrapping the input already associates the two, and a second
           redundant association buys nothing. */}
       <label className="mt-6 flex cursor-pointer items-center gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center">
+        <span className="flex h-[48px] w-[48px] shrink-0 items-center justify-center">
           <input
             id={`${uid}-marketing`}
             name="marketingOptIn"

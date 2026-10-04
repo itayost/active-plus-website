@@ -24,7 +24,7 @@ export default function Hero() {
   return (
     <DarkHeroCard
       labelledBy="hero-heading"
-      className="hero-stack flex min-h-[min(clamp(23rem,40vw,40rem),calc(100dvh-4.5rem))] flex-col items-center justify-center px-[clamp(1.25rem,4vw,4rem)] py-[clamp(3.5rem,6vw,5.5rem)] text-center"
+      className="hero-stack flex min-h-[min(clamp(23rem,40vw,40rem),calc(100dvh-4.5rem))] flex-col items-center justify-center px-[clamp(min(1.25rem,6.25vw),4vw,4rem)] py-[clamp(3.5rem,6vw,5.5rem)] text-center"
       background={
         <>
           <Image

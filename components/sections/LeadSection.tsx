@@ -3,6 +3,7 @@ import Reveal from "@/components/ui/Reveal";
 import { Shell } from "@/components/ui/Section";
 import { ClockIcon, PhoneIcon } from "@/components/ui/icons";
 import { CONTACT_HOURS, CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
+import PhoneNumber from "@/components/ui/PhoneNumber";
 
 export default function LeadSection({
   source,
@@ -19,10 +20,10 @@ export default function LeadSection({
     <section
       id="lead"
       aria-labelledby="lead-heading"
-      className="bg-surface py-[var(--section-y)]"
+      className="lead-section bg-surface py-[var(--section-y)]"
     >
       <Shell>
-        <div className="grid gap-12 rounded-card bg-[var(--green-wash)] p-[clamp(1.75rem,4vw,4rem)] lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="lead-panel grid gap-12 rounded-card bg-[var(--green-wash)] p-[clamp(min(1.75rem,8.75vw),4vw,4rem)] lg:grid-cols-[0.85fr_1.15fr]">
           <Reveal>
             <h2
               id="lead-heading"
@@ -44,9 +45,9 @@ export default function LeadSection({
                   <a
                     href={`tel:${CONTACT_PHONE_TEL}`}
                     dir="ltr"
-                    className="inline-flex min-h-[44px] items-center text-ink-soft underline transition-colors hover:text-green-deep"
+                    className="inline-flex min-h-12 items-center text-ink-soft underline transition-colors hover:text-green-deep"
                   >
-                    {CONTACT_PHONE}
+                    <PhoneNumber value={CONTACT_PHONE} />
                   </a>
                 </span>
               </li>
@@ -58,7 +59,7 @@ export default function LeadSection({
           </Reveal>
 
           <Reveal delayIndex={1}>
-            <div className="rounded-card bg-surface p-[clamp(1.5rem,3vw,2.5rem)] shadow-lift-2">
+            <div className="lead-form-card rounded-card bg-surface p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-2">
               <LeadForm source={source} submitLabel="שליחה" withEmail={withEmail} />
             </div>
           </Reveal>

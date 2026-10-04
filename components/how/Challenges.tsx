@@ -15,7 +15,7 @@ export default function Challenges({ items }: { items: Item[] }) {
       {items.map((c) => (
         <li
           key={c.title}
-          className={`flex min-h-[clamp(220px,22vw,300px)] flex-col justify-end gap-3 rounded-card p-[clamp(1.75rem,3vw,2.5rem)] shadow-lift-2 ${FIELD[c.tone].card}`}
+          className={`flex min-h-[clamp(220px,22vw,300px)] flex-col justify-end gap-3 rounded-card p-[clamp(min(1.75rem,8.75vw),3vw,2.5rem)] shadow-lift-2 ${FIELD[c.tone].card}`}
         >
           <h3 className="font-display text-[clamp(1.625rem,1.3rem+1.1vw,2.25rem)] font-black leading-[1.1]">
             {c.title}

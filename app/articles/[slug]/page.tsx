@@ -103,7 +103,7 @@ export default async function ArticlePage({
 
             <aside
               aria-labelledby="article-fit"
-              className="mt-16 grid gap-7 rounded-card bg-[var(--green-wash)] p-[clamp(1.75rem,4vw,3rem)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+              className="mt-16 grid gap-7 rounded-card bg-[var(--green-wash)] p-[clamp(min(1.75rem,8.75vw),4vw,3rem)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
             >
               <div>
                 <h2
@@ -173,7 +173,7 @@ export default async function ArticlePage({
                     />
                   </div>
                 </div>
-                <div className="flex flex-1 flex-col gap-3 p-[clamp(1.25rem,2.5vw,2rem)]">
+                <div className="flex flex-1 flex-col gap-3 p-[clamp(min(1.25rem,6.25vw),2.5vw,2rem)]">
                   <h3 className="font-display text-h3 font-bold">
                     <Link
                       href={`/articles/${item.slug}`}

@@ -53,7 +53,7 @@ export default function PlansTeaser() {
                   ) : null}
                 </div>
 
-                <div className="mt-auto flex flex-1 flex-col justify-between gap-6 bg-surface p-[clamp(1.5rem,3vw,2.25rem)]">
+                <div className="mt-auto flex flex-1 flex-col justify-between gap-6 bg-surface p-[clamp(min(1.5rem,7.5vw),3vw,2.25rem)]">
                   <div>
                     <p className="font-display text-[clamp(2rem,1.6rem+1.6vw,3rem)] font-black leading-none tracking-tight text-ink">
                       {`${plan.price} ₪`}{" "}

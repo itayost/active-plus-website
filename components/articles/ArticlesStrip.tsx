@@ -36,7 +36,7 @@ export default function ArticlesStrip() {
                   className="object-cover"
                 />
               </div>
-              <span className="flex flex-1 flex-col gap-4 p-6">
+              <span className="flex flex-1 flex-col gap-4 p-[min(1.5rem,7.5vw)]">
                 <h3 className="font-display text-[1.375rem] font-bold leading-[1.3]">{article.title}</h3>
                 <span className="mt-auto inline-flex min-h-[48px] items-center gap-2 font-display font-bold text-blue-deep">
                   לקריאת המאמר

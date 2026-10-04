@@ -5,7 +5,7 @@ export default function Logo({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={`group inline-flex min-h-[48px] shrink-0 items-center gap-2.5 ${className}`}
+      className={`group inline-flex min-h-[48px] min-w-12 shrink-0 items-center gap-2.5 ${className}`}
       aria-label="פעילים פלוס — לעמוד הבית"
     >
       {/*
