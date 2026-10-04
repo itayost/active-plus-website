@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 type Props = {
   children: ReactNode;
@@ -42,7 +43,9 @@ export default function Section({
       id={id}
       aria-labelledby={labelledBy}
       aria-label={label}
-      className={`${bg} py-[var(--section-y)] ${className}`}
+      // cn, so a page can replace the section rhythm (py-*) outright instead
+      // of overriding it with !important.
+      className={cn(bg, "py-[var(--section-y)]", className)}
     >
       <Shell width={width}>{children}</Shell>
     </section>

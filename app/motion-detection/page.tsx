@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import BackLink from "@/components/explainers/BackLink";
+import BackLink from "@/components/ui/BackLink";
 import FitCheckClose from "@/components/explainers/FitCheckClose";
 import PageHero from "@/components/layout/PageHero";
 import Reveal from "@/components/ui/Reveal";

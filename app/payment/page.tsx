@@ -22,7 +22,7 @@ export default async function PaymentPage({
   const { plan } = await searchParams;
   return (
     <>
-      <Section id="plans" labelledBy="payment-heading" className="!pb-0 !pt-[clamp(2.5rem,5vw,4.5rem)]">
+      <Section id="plans" labelledBy="payment-heading" className="pb-0 pt-[clamp(2.5rem,5vw,4.5rem)]">
         <h1
           id="payment-heading"
           className="max-w-[18ch] font-display text-[clamp(1.66rem,1.09rem+2.8vw,4.29rem)] font-black leading-[1.05] tracking-[-0.025em]"

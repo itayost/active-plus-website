@@ -47,7 +47,7 @@ export default function HowItWorksPage() {
         </Button>
       </DarkHeroCard>
 
-      <Section labelledBy="steps-h" className="!pt-[clamp(3rem,6vw,5.5rem)]">
+      <Section labelledBy="steps-h" className="pt-[clamp(3rem,6vw,5.5rem)]">
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-16">
           <h2 id="steps-h" className="max-w-[16ch] text-h2 font-display font-black text-ink">
             {C.intro.heading}

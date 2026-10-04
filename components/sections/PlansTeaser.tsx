@@ -56,7 +56,7 @@ export default function PlansTeaser() {
                 <div className="mt-auto flex flex-1 flex-col justify-between gap-6 bg-surface p-[clamp(min(1.5rem,7.5vw),3vw,2.25rem)]">
                   <div>
                     <p className="font-display text-[clamp(2rem,1.6rem+1.6vw,3rem)] font-black leading-none tracking-tight text-ink">
-                      {`${plan.price} ₪`}{" "}
+                      {formatShekel(plan.price)}{" "}
                       <small className="text-lead font-bold text-ink-soft">{plan.priceSuffix}</small>
                     </p>
                     <p className="mt-2 text-lead text-ink-soft">{plan.terms}</p>

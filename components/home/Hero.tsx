@@ -55,29 +55,29 @@ export default function Hero() {
         </>
       }
     >
-          <h1
-            id="hero-heading"
-            className="max-w-[18ch] text-h1 font-display font-black text-white"
-          >
-            <span className="block">תוכנית אישית לאימון הגוף</span>
-            <span className="block text-emphasis">וחדות המחשבה</span>
-          </h1>
+      <h1
+        id="hero-heading"
+        className="max-w-[18ch] text-h1 font-display font-black text-white"
+      >
+        <span className="block">תוכנית אישית לאימון הגוף</span>
+        <span className="block text-emphasis">וחדות המחשבה</span>
+      </h1>
 
-          <p className="mt-6 max-w-[34ch] text-lead font-medium leading-snug text-white/90">
-            רק 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.
-          </p>
+      <p className="mt-6 max-w-[34ch] text-lead font-medium leading-snug text-white/90">
+        רק 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.
+      </p>
 
-          <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
-            <Button
-              href="/how-it-works"
-              variant="onColor"
-              size="lg"
-              className="w-full sm:w-auto"
-            >
-              <PlayIcon className="h-5 w-5" />
-              בואו לראות איך זה עובד
-            </Button>
-          </div>
+      <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
+        <Button
+          href="/how-it-works"
+          variant="onColor"
+          size="lg"
+          className="w-full sm:w-auto"
+        >
+          <PlayIcon className="h-5 w-5" />
+          בואו לראות איך זה עובד
+        </Button>
+      </div>
     </DarkHeroCard>
   );
 }

@@ -1,3 +1,12 @@
+import { TEAM } from "@/content/pages";
+
+const PROFESSIONAL_NAMES = ["גדי בן שטרית", "דניאל שפיר"];
+const PROFESSIONALS = PROFESSIONAL_NAMES.map((name) => {
+  const member = TEAM.find((m) => m.name === name);
+  if (!member) throw new Error(`how-it-works: no TEAM member named ${name}`);
+  return member;
+});
+
 /** Copy for /how-it-works. Verbatim from the approved mock. */
 export type HowTone = "blue" | "green" | "purple";
 
@@ -92,10 +101,9 @@ export const HOW = {
       "התוכן והתרגילים בפעילים+ נבנים ומלווים בעזרת אנשי מקצוע מתחומי הפיזיותרפיה, קינזיולוגיה, השיקום הנוירולוגי והריפוי בעיסוק.",
       "המטרה היא לקחת ידע מקצועי ולהפוך אותו לחוויית אימון יעילה, ברורה ונגישה שאפשר לשלב בשגרת היום.",
     ],
-    people: [
-      { name: "גדי בן שטרית", role: "פיזיותרפיסט מוסמך", photo: "/img/v2/team-gadi.webp" },
-      { name: "דניאל שפיר", role: "שיקום נוירולוגי", photo: "/img/v2/team-daniel.webp" },
-    ],
+    /** The two clinicians from the /about team, read from TEAM so a name,
+        role or photo is only ever changed in one place. */
+    people: PROFESSIONALS,
   },
   close: {
     heading: "מתחילים מהמקום שמתאים לכם",

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import BackLink from "@/components/explainers/BackLink";
+import BackLink from "@/components/ui/BackLink";
 import FitCheckClose from "@/components/explainers/FitCheckClose";
 import PageHero from "@/components/layout/PageHero";
 import Reveal from "@/components/ui/Reveal";
@@ -28,22 +28,29 @@ export default function PersonalPlanPage() {
       <PageHero tone="purple" title={C.title} lede={C.lede} back={<BackLink />} />
 
       <Section>
-        <ol className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch lg:gap-5">
+        {/*
+          Each step is a real list item. The arrow between them used to be a
+          third grid cell, which needed the items set to display: contents,
+          and WebKit drops the list semantics of an li that has no box. It is
+          now drawn into the gap from the second step: the gap is the old
+          gap + 48px arrow row + gap below lg, gap + 2rem arrow + gap from lg.
+        */}
+        <ol className="grid gap-[calc(1.5rem+48px)] lg:grid-cols-2 lg:gap-[4.5rem]">
           {C.start.map((text, i) => {
             const Icon = STEP_ICONS[i];
             return (
-              <li key={text} className="contents">
+              <li key={text} className="relative">
                 {i === 1 ? (
                   <span
                     aria-hidden="true"
-                    className="flex min-h-[48px] items-center justify-center text-purple"
+                    className="absolute inset-x-0 bottom-full mb-3 flex h-[48px] items-center justify-center text-purple lg:inset-x-auto lg:inset-y-0 lg:end-full lg:mb-0 lg:me-5 lg:h-auto lg:w-8"
                   >
                     <ArrowIcon className="h-8 w-8 -rotate-90 lg:rotate-0" />
                   </span>
                 ) : null}
                 <Reveal
                   delayIndex={i}
-                  className="flex flex-col gap-5 rounded-card border border-hairline bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1"
+                  className="flex h-full flex-col gap-5 rounded-card border border-hairline bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-purple-wash text-purple-deep">
                     <Icon className="h-7 w-7" />
@@ -94,7 +101,7 @@ export default function PersonalPlanPage() {
         </ul>
       </Section>
 
-      <Section tone="sunken" width="narrow" className="!py-[clamp(3.5rem,7vw,6rem)]">
+      <Section tone="sunken" width="narrow" className="py-[clamp(3.5rem,7vw,6rem)]">
         <ul className="rounded-card bg-white shadow-lift-2">
           {[
             { rule: C.rule.up, Icon: ArrowUpIcon, chip: "bg-purple-deep text-white" },

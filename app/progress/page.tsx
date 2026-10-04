@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import BackLink from "@/components/explainers/BackLink";
+import BackLink from "@/components/ui/BackLink";
 import FitCheckClose from "@/components/explainers/FitCheckClose";
 import PageHero from "@/components/layout/PageHero";
 import Reveal from "@/components/ui/Reveal";
@@ -129,7 +129,7 @@ export default function ProgressPage() {
         </h2>
         <p className="mt-6 max-w-measure text-lead text-ink-soft">{C.final.body}</p>
         <div className="mt-[clamp(3rem,6vw,4.5rem)]">
-          <FitCheckClose tone="green" cta={C.cta} heading={C.final.question} />
+          <FitCheckClose tone="green" cta={C.cta} heading={C.final.question} level={3} />
         </div>
       </Section>
     </>

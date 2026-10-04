@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import ArticleCard from "@/components/articles/ArticleCard";
+import BackLink from "@/components/ui/BackLink";
 import PageHero from "@/components/layout/PageHero";
 import Accordion from "@/components/ui/Accordion";
 import Button from "@/components/ui/Button";
@@ -70,7 +72,7 @@ export default async function ArticlePage({
         title={article.title}
         lede={article.metaDescription}
         tone="burgundy"
-        breadcrumb={{ href: "/articles", label: "כל המאמרים" }}
+        back={<BackLink href="/articles" label="כל המאמרים" />}
       />
 
       {media ? (
@@ -162,34 +164,7 @@ export default async function ArticlePage({
         <ul className="mt-10 grid gap-6 md:grid-cols-2">
           {others.map((item, index) => (
             <Reveal as="li" key={item.slug} delayIndex={index} className="min-w-0">
-              <article className="group flex h-full flex-col rounded-card border border-hairline bg-white shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-2">
-                <div className="p-3 pb-0">
-                  <div className="relative aspect-video overflow-hidden rounded-tile">
-                    <Image
-                      src={ARTICLE_MEDIA[item.slug].cover}
-                      alt=""
-                      fill
-                      sizes="(max-width: 768px) 92vw, 46vw"
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col gap-3 p-[clamp(min(1.25rem,6.25vw),2.5vw,2rem)]">
-                  <h3 className="font-display text-h3 font-bold">
-                    <Link
-                      href={`/articles/${item.slug}`}
-                      className="hover:underline hover:decoration-2 hover:underline-offset-[5px]"
-                    >
-                      {item.title}
-                    </Link>
-                  </h3>
-                  <p className="text-ink-soft">{item.metaDescription}</p>
-                  <span className="mt-auto inline-flex min-h-[48px] items-center gap-2 self-start font-display text-base font-bold text-burgundy">
-                    לקריאת המאמר
-                    <ArrowIcon className="h-5 w-5 transition-transform duration-[var(--dur)] ease-out-expo group-hover:-translate-x-1" />
-                  </span>
-                </div>
-              </article>
+              <ArticleCard article={item} />
             </Reveal>
           ))}
         </ul>
