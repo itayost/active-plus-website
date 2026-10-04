@@ -167,6 +167,7 @@ test.describe("home carousels and partners", () => {
     // Focus is parked on the exhausted arrow, so its ring must not be dimmed
     // with it: the dimming lives on the border and icon, never the button.
     expect(await next.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+    expect(await next.locator("svg").evaluate((el) => getComputedStyle(el).opacity)).toBe("0.35");
     // Every "previous" press must move the track until it is back at the
     // start. Presses on the exhausted "next" used to advance the index past
     // what was on screen, so the first "previous" presses did nothing.

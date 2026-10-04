@@ -14,7 +14,7 @@ const ARROW =
   "transition-[border-color,background-color,transform] duration-[var(--dur-fast)] ease-out-expo " +
   "[&_svg]:transition-opacity [&_svg]:duration-[var(--dur-fast)] " +
   "hover:-translate-y-0.5 hover:border-ink/40 active:translate-y-0 active:scale-95 " +
-  "aria-disabled:cursor-default aria-disabled:border-ink/5 aria-disabled:bg-surface/35 aria-disabled:[&_svg]:opacity-35 " +
+  "aria-disabled:cursor-default aria-disabled:border-ink/5 aria-disabled:bg-surface/35 [&_svg]:aria-disabled:opacity-35 " +
   "aria-disabled:hover:translate-y-0 aria-disabled:hover:border-ink/5 aria-disabled:active:scale-100";
 
 type Props = {
