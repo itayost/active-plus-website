@@ -13,13 +13,6 @@ import { submitLead, type LeadField, type LeadResult } from "@/lib/leads";
 import { checkField, submitWithFallback } from "@/lib/lead-form";
 import { ArrowIcon, CheckIcon } from "@/components/ui/icons";
 
-export const TOPICS = [
-  "בירור והצטרפות",
-  "שירות לקוחות",
-  "תמיכה באפליקציה",
-  "אחר",
-] as const;
-
 const INITIAL: LeadResult = { status: "idle" };
 
 const FIELD_BASE =
@@ -71,8 +64,6 @@ const isOnline = () => typeof navigator === "undefined" || navigator.onLine !== 
 type Props = {
   /** Which surface the lead came from, stored alongside the row. */
   source: string;
-  /** Long form adds a topic select and a free-text message. */
-  detailed?: boolean;
   submitLabel?: string;
   /** Show the optional email field. The home page asks for name and phone only. */
   withEmail?: boolean;
@@ -81,7 +72,6 @@ type Props = {
 
 export default function LeadForm({
   source,
-  detailed = false,
   submitLabel = "שליחה",
   withEmail = true,
   className = "",
@@ -258,78 +248,29 @@ export default function LeadForm({
         </div>
 
         {withEmail ? (
-        <div className={detailed ? "" : "sm:col-span-2"}>
-          <label
-            htmlFor={`${uid}-email`}
-            className="mb-2 block font-display font-bold"
-          >
-            אימייל{" "}
-            <span className="font-sans font-normal text-ink-soft">(לא חובה)</span>
-          </label>
-          <input
-            id={`${uid}-email`}
-            name="email"
-            type="email"
-            autoComplete="email"
-            dir="ltr"
-            aria-invalid={invalid("email")}
-            aria-describedby={describedBy("email")}
-            onBlur={handleBlur("email")}
-            defaultValue={values.email}
-            placeholder="israel@gmail.com"
-            className={`${fieldClass(invalid("email"))} text-end`}
-          />
-          <FieldError id={errorId("email")} text={errorFor("email")} />
-        </div>
-        ) : null}
-
-        {detailed ? (
-          <>
-            <div>
-              <label
-                htmlFor={`${uid}-topic`}
-                className="mb-2 block font-display font-bold"
-              >
-                נושא הפנייה
-              </label>
-              <select
-                id={`${uid}-topic`}
-                name="topic"
-                defaultValue={TOPICS[0]}
-                className={fieldClass(false)}
-              >
-                {TOPICS.map((topic) => (
-                  <option key={topic} value={topic}>
-                    {topic}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label
-                htmlFor={`${uid}-message`}
-                className="mb-2 block font-display font-bold"
-              >
-                פירוט הפנייה{" "}
-                <span className="font-sans font-normal text-ink-soft">
-                  (לא חובה)
-                </span>
-              </label>
-              <textarea
-                id={`${uid}-message`}
-                name="message"
-                rows={5}
-                maxLength={2000}
-                aria-invalid={invalid("message")}
-                aria-describedby={describedBy("message")}
-            onBlur={handleBlur("message")}
-                defaultValue={values.message}
-                className={`${fieldClass(invalid("message"))} resize-y`}
-              />
-              <FieldError id={errorId("message")} text={errorFor("message")} />
-            </div>
-          </>
+          <div className="sm:col-span-2">
+            <label
+              htmlFor={`${uid}-email`}
+              className="mb-2 block font-display font-bold"
+            >
+              אימייל{" "}
+              <span className="font-sans font-normal text-ink-soft">(לא חובה)</span>
+            </label>
+            <input
+              id={`${uid}-email`}
+              name="email"
+              type="email"
+              autoComplete="email"
+              dir="ltr"
+              aria-invalid={invalid("email")}
+              aria-describedby={describedBy("email")}
+              onBlur={handleBlur("email")}
+              defaultValue={values.email}
+              placeholder="israel@gmail.com"
+              className={`${fieldClass(invalid("email"))} text-end`}
+            />
+            <FieldError id={errorId("email")} text={errorFor("email")} />
+          </div>
         ) : null}
       </div>
 

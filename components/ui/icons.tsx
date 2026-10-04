@@ -101,17 +101,6 @@ export function MindIcon({ className }: IconProps) {
   );
 }
 
-/** Timer: ten minutes a day. */
-export function TimerIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <circle cx="12" cy="13.5" r="7.5" />
-      <path d="M12 9.8v3.7l2.4 1.6" />
-      <path d="M9.6 3h4.8" />
-    </svg>
-  );
-}
-
 export function PhoneIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>

@@ -2,7 +2,7 @@ import type { QA } from "@/content/pages";
 
 export type { QA };
 
-export type WhatMatter = { title: string; body: string; image?: string };
+export type WhatMatter = { title: string; body: string };
 
 export type Testimonial = {
   name: string;
