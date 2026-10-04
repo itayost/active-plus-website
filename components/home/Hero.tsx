@@ -1,14 +1,16 @@
 import Image from "next/image";
 import DarkHeroCard from "@/components/ui/DarkHeroCard";
 import Button from "@/components/ui/Button";
+import HeroVideo from "@/components/home/HeroVideo";
 import { PlayIcon } from "@/components/ui/icons";
 
 /**
  * First viewport: one full-width rounded card, content centred inside it.
  *
  * The background is the client's hero video, muted and looping. The poster
- * image sits underneath as the LCP element and as the reduced-motion
- * fallback (the video is hidden there). One action only: the walkthrough.
+ * image sits underneath as the LCP element and is all that reduced-motion and
+ * save-data visitors get: HeroVideo mounts the video on the client only when
+ * motion is allowed and data saving is off. One action only: the walkthrough.
  */
 export default function Hero() {
   /*
@@ -33,18 +35,7 @@ export default function Hero() {
             sizes="100vw"
             className="-z-30 object-cover"
           />
-          <video
-            className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="/img/v2/hero-poster.webp"
-            aria-hidden="true"
-          >
-            <source src="/video/hero.mp4" type="video/mp4" />
-          </video>
+          <HeroVideo src="/video/hero.mp4" />
 
           {/*
             Graded across the reading direction rather than flat: the centre

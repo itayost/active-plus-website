@@ -1,0 +1,71 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { shouldLoadHeroVideo } from "@/lib/media";
+
+type NetworkInformationLike = { saveData?: boolean };
+
+/**
+ * The hero's moving background, mounted only after hydration and only when it
+ * will be seen.
+ *
+ * In the server HTML a <video autoPlay> ignores preload="metadata" and
+ * downloads the whole file, which it did for every visitor, including the
+ * reduced-motion ones who never see it (the CSS only hid it). Rendering nothing
+ * until the client has checked the motion preference and the browser's
+ * save-data flag means those visitors fetch zero bytes of video and keep the
+ * poster, which stays the LCP image either way.
+ *
+ * No `poster` attribute: the optimised next/image poster already sits directly
+ * underneath, and a video with no frame yet is transparent, so the attribute
+ * only cost a second, unoptimised download of the same picture.
+ */
+export default function HeroVideo({ src }: { src: string }) {
+  const [enabled, setEnabled] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const connection = (navigator as Navigator & { connection?: NetworkInformationLike })
+      .connection;
+    const update = () =>
+      setEnabled(
+        shouldLoadHeroVideo({
+          prefersReducedMotion: motion.matches,
+          saveData: connection?.saveData,
+        }),
+      );
+    update();
+    motion.addEventListener("change", update);
+    return () => motion.removeEventListener("change", update);
+  }, []);
+
+  // React sets `muted` as a property, not an attribute, on client-rendered
+  // video, and some mobile browsers only honour autoplay for an element that
+  // was muted before play(). Set it explicitly and start playback ourselves;
+  // a refused play() simply leaves the poster showing.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!enabled || !video) return;
+    video.muted = true;
+    video.play().catch(() => undefined);
+  }, [enabled]);
+
+  if (!enabled) return null;
+
+  return (
+    <video
+      ref={videoRef}
+      className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-hidden="true"
+      tabIndex={-1}
+    >
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
