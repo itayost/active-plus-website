@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const ROUTES = ["/", "/about", "/how-it-works", "/payment", "/articles", "/articles/body-after-50", "/personal-plan", "/delete-account"];
+const ROUTES = ["/", "/about", "/how-it-works", "/payment", "/articles", "/articles/body-after-50", "/personal-plan", "/delete-account", "/privacy-policy"];
 
 // Reveal entrances fade content in; axe would measure contrast mid-fade.
 test.use({ reducedMotion: "reduce" });
