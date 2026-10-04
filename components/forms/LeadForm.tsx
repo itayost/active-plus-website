@@ -86,21 +86,42 @@ export default function LeadForm({
   withEmail = true,
   className = "",
 }: Props) {
-  const [state, dispatch, isPending] = useActionState(
-    (previous: LeadResult, formData: FormData) =>
-      submitWithFallback(submitLead, previous, formData, isOnline),
+  // Set synchronously on submit, before React has re-rendered the button, so a
+  // double tap or a rapid second Enter cannot send the same lead twice. It is
+  // released in the action's own finally, the one place that always runs.
+  const inFlight = useRef(false);
+
+  // Two action states, one per way the form can be sent.
+  //
+  // serverState: the server action itself, wired to <form action>. Before
+  // hydration, or with JavaScript off, the browser posts the form natively
+  // and Next runs the action and renders this state into the returned page.
+  // Without it the native post reached "/" with no action at all and the lead
+  // was silently dropped.
+  //
+  // clientState: the hydrated path. onSubmit cancels the native submit and
+  // dispatches here instead, through submitWithFallback (offline and network
+  // failures become an inline error rather than an error boundary). A
+  // prevented submit that schedules a transition is treated by React as a
+  // host transition with no action, so the fields are not reset and
+  // useFormStatus still reports pending.
+  const [serverState, serverAction] = useActionState(submitLead, INITIAL);
+  const [clientState, dispatch, isPending] = useActionState(
+    async (previous: LeadResult, formData: FormData) => {
+      try {
+        return await submitWithFallback(submitLead, previous, formData, isOnline);
+      } finally {
+        inFlight.current = false;
+      }
+    },
     INITIAL,
   );
+  const state = clientState.status === "idle" ? serverState : clientState;
+  const values = state.status === "error" ? (state.values ?? {}) : {};
+
   const [local, setLocal] = useState<Partial<Record<LeadField, string>>>({});
   const formRef = useRef<HTMLFormElement>(null);
-  // Set synchronously on submit, before React has re-rendered the button, so a
-  // double tap or a rapid second Enter cannot send the same lead twice.
-  const inFlight = useRef(false);
   const uid = useId();
-
-  useEffect(() => {
-    if (!isPending) inFlight.current = false;
-  }, [isPending]);
 
   const serverFields = state.status === "error" ? (state.fields ?? {}) : {};
   // A field the reader has re-checked on blur since the last submit speaks for
@@ -126,15 +147,25 @@ export default function LeadForm({
   // inside the state updater deferred the read until React applied the update,
   // by which time currentTarget was null: the second blur threw, the root error
   // boundary replaced the page, and no lead was ever sent.
+  //
+  // Passing through an empty field says nothing new, so it does not override
+  // the server's verdict (a "required" error stays until the field is filled).
   const handleBlur =
     (field: LeadField) => (event: { currentTarget: { value: string } }) => {
-      const message = checkField(field, event.currentTarget.value);
-      setLocal((prev) => ({ ...prev, [field]: message }));
+      const value = event.currentTarget.value;
+      const message = checkField(field, value);
+      setLocal((prev) => {
+        if (value.trim() !== "" || message) return { ...prev, [field]: message };
+        return Object.fromEntries(
+          Object.entries(prev).filter(([key]) => key !== field),
+        ) as Partial<Record<LeadField, string>>;
+      });
     };
 
-  // Submitted through onSubmit rather than <form action>, because a form action
-  // resets every uncontrolled field when it settles, error or not: a reader
-  // who mistyped a digit, or lost signal, would come back to an empty form.
+  // Once hydrated, submit through onSubmit rather than letting <form action>
+  // run, because a form action resets every uncontrolled field when it
+  // settles, error or not: a reader who mistyped a digit, or lost signal,
+  // would come back to an empty form.
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (inFlight.current) return;
@@ -164,7 +195,7 @@ export default function LeadForm({
   return (
     <form
       ref={formRef}
-      method="post"
+      action={serverAction}
       onSubmit={handleSubmit}
       className={className}
       noValidate
@@ -194,6 +225,7 @@ export default function LeadForm({
             aria-invalid={invalid("fullName")}
             aria-describedby={describedBy("fullName")}
             onBlur={handleBlur("fullName")}
+            defaultValue={values.fullName}
             placeholder="ישראל ישראלי"
             className={fieldClass(invalid("fullName"))}
           />
@@ -218,6 +250,7 @@ export default function LeadForm({
             aria-invalid={invalid("phone")}
             aria-describedby={describedBy("phone")}
             onBlur={handleBlur("phone")}
+            defaultValue={values.phone}
             placeholder="050-1234567"
             className={`${fieldClass(invalid("phone"))} text-end`}
           />
@@ -242,6 +275,7 @@ export default function LeadForm({
             aria-invalid={invalid("email")}
             aria-describedby={describedBy("email")}
             onBlur={handleBlur("email")}
+            defaultValue={values.email}
             placeholder="israel@gmail.com"
             className={`${fieldClass(invalid("email"))} text-end`}
           />
@@ -290,6 +324,7 @@ export default function LeadForm({
                 aria-invalid={invalid("message")}
                 aria-describedby={describedBy("message")}
             onBlur={handleBlur("message")}
+                defaultValue={values.message}
                 className={`${fieldClass(invalid("message"))} resize-y`}
               />
               <FieldError id={errorId("message")} text={errorFor("message")} />

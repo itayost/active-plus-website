@@ -8,11 +8,18 @@ export type LeadField = "fullName" | "phone" | "email" | "message";
 
 export type FieldErrors = Partial<Record<LeadField, string>>;
 
+/**
+ * What the reader typed, echoed back on an error so a page rendered without
+ * JavaScript (the form posting natively) can refill the fields. The honeypot
+ * is never echoed.
+ */
+export type LeadValues = Partial<Record<"fullName" | "phone" | "email" | "message", string>>;
+
 export type LeadResult =
   | { status: "idle" }
   | { status: "success"; message: string }
   /** `fields` carries every invalid field, not just the first one found. */
-  | { status: "error"; message?: string; fields?: FieldErrors };
+  | { status: "error"; message?: string; fields?: FieldErrors; values?: LeadValues };
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_MAX = 5;
@@ -68,6 +75,8 @@ export async function submitLead(
   const marketingOptIn = formData.get("marketingOptIn") === "on";
   const source = String(formData.get("source") ?? "website").trim();
 
+  const values: LeadValues = { fullName, phone: phoneRaw, email, message };
+
   // Collect every problem before returning, so one round trip surfaces all
   // of them rather than making the reader discover fields one at a time.
   const fields: FieldErrors = {};
@@ -93,7 +102,7 @@ export async function submitLead(
   }
 
   if (Object.keys(fields).length > 0) {
-    return { status: "error", fields };
+    return { status: "error", fields, values };
   }
 
   const ip = clientIp(await headers());
@@ -105,6 +114,7 @@ export async function submitLead(
       status: "error",
       message:
         "נשלחו כמה פניות מהכתובת הזו בשעה האחרונה. אפשר להתקשר אלינו ל-073-729-66-99.",
+      values,
     };
   }
 
@@ -141,6 +151,7 @@ export async function submitLead(
       return {
         status: "error",
         message: "השליחה נכשלה. אפשר לנסות שוב או להתקשר ל-073-729-66-99.",
+        values,
       };
     }
   } catch (caught) {
@@ -148,6 +159,7 @@ export async function submitLead(
     return {
       status: "error",
       message: "השליחה נכשלה. אפשר לנסות שוב או להתקשר ל-073-729-66-99.",
+      values,
     };
   }
 
