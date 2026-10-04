@@ -49,6 +49,7 @@ async function readBody(request: Request): Promise<unknown> {
 export async function POST(request: Request) {
   const ip = clientIp(request.headers);
   // An unresolvable address shares one "unknown" bucket: skipping the limit would let a caller opt out of it.
+  // Only off Vercel: there x-vercel-forwarded-for is always set, so no request lands in the shared bucket.
   if (isRateLimited(ip)) return done();
 
   const event = parseFunnelEvent(await readBody(request));
