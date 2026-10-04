@@ -1,8 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { submitLead, type LeadField, type LeadResult } from "@/lib/leads";
+import { checkField, submitWithFallback } from "@/lib/lead-form";
 import { ArrowIcon, CheckIcon } from "@/components/ui/icons";
 
 export const TOPICS = [
@@ -15,7 +23,7 @@ export const TOPICS = [
 const INITIAL: LeadResult = { status: "idle" };
 
 const FIELD_BASE =
-  "w-full rounded-[14px] border-2 bg-white px-4 py-3.5 text-lead text-ink " +
+  "w-full min-w-0 rounded-[14px] border-2 bg-white px-4 py-3.5 text-lead text-ink " +
   "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] " +
   "focus:border-blue-deep focus:outline-none";
 
@@ -23,19 +31,42 @@ function fieldClass(invalid: boolean) {
   return `${FIELD_BASE} ${invalid ? "border-burgundy" : "border-hairline hover:border-ink/25"}`;
 }
 
-function SubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
+/*
+  Pending comes from the action state rather than useFormStatus: the form is
+  submitted through onSubmit (see below), which useFormStatus does not observe.
+  aria-disabled keeps the focused button in the tab order while it waits, so
+  focus never drops to <body> mid-submit; the click itself is ignored by the
+  single-flight guard in the form.
+*/
+function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
   return (
     <button
       type="submit"
-      disabled={pending}
-      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-pill bg-green-deep px-8 font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 disabled:pointer-events-none disabled:opacity-60 sm:w-auto"
+      aria-disabled={pending || undefined}
+      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-pill bg-green-deep px-8 font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 sm:w-auto"
     >
       {pending ? "שולח…" : label}
       {pending ? null : <ArrowIcon className="h-5 w-5" />}
     </button>
   );
 }
+
+/**
+ * One message, directly under the field it belongs to. Module scope on
+ * purpose: defined inside the form it became a new component type on every
+ * render, so each blur unmounted and remounted every alert and screen readers
+ * re-announced errors the reader had already heard.
+ */
+function FieldError({ id, text }: { id: string; text: string | undefined }) {
+  if (!text) return null;
+  return (
+    <p id={id} role="alert" className="mt-2 font-semibold text-burgundy">
+      {text}
+    </p>
+  );
+}
+
+const isOnline = () => typeof navigator === "undefined" || navigator.onLine !== false;
 
 type Props = {
   /** Which surface the lead came from, stored alongside the row. */
@@ -48,26 +79,6 @@ type Props = {
   className?: string;
 };
 
-const PHONE_RE = /^0(5\d|7\d|[2-4]|[8-9])\d{7}$/;
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
-/** Mirrors the server's rules so the reader hears about a typo on blur. */
-function checkField(field: LeadField, value: string): string | undefined {
-  const v = value.trim();
-  if (field === "fullName") {
-    if (v.length === 0) return undefined;
-    if (v.length < 2) return "צריך שם מלא כדי שנדע למי לפנות.";
-    if (v.length > 120) return "השם ארוך מדי. אפשר לקצר עד 120 תווים.";
-  }
-  if (field === "phone" && v && !PHONE_RE.test(v.replace(/[\s-]/g, ""))) {
-    return "מספר הטלפון לא נראה תקין. לדוגמה: 050-1234567";
-  }
-  if (field === "email" && v && !EMAIL_RE.test(v)) {
-    return "כתובת המייל לא נראית תקינה. לדוגמה: israel@gmail.com";
-  }
-  return undefined;
-}
-
 export default function LeadForm({
   source,
   detailed = false,
@@ -75,16 +86,31 @@ export default function LeadForm({
   withEmail = true,
   className = "",
 }: Props) {
-  const [state, formAction] = useActionState(submitLead, INITIAL);
+  const [state, dispatch, isPending] = useActionState(
+    (previous: LeadResult, formData: FormData) =>
+      submitWithFallback(submitLead, previous, formData, isOnline),
+    INITIAL,
+  );
   const [local, setLocal] = useState<Partial<Record<LeadField, string>>>({});
   const formRef = useRef<HTMLFormElement>(null);
+  // Set synchronously on submit, before React has re-rendered the button, so a
+  // double tap or a rapid second Enter cannot send the same lead twice.
+  const inFlight = useRef(false);
   const uid = useId();
 
+  useEffect(() => {
+    if (!isPending) inFlight.current = false;
+  }, [isPending]);
+
   const serverFields = state.status === "error" ? (state.fields ?? {}) : {};
-  const errorFor = (field: LeadField) => local[field] ?? serverFields[field];
+  // A field the reader has re-checked on blur since the last submit speaks for
+  // itself; otherwise the server's verdict stands.
+  const errorFor = (field: LeadField) =>
+    field in local ? local[field] : serverFields[field];
   const invalid = (field: LeadField) => Boolean(errorFor(field));
+  const errorId = (field: LeadField) => `${uid}-${field}-error`;
   const describedBy = (field: LeadField) =>
-    invalid(field) ? `${uid}-${field}-error` : undefined;
+    invalid(field) ? errorId(field) : undefined;
 
   // After a rejected submit, move the reader to the first field that needs
   // them instead of leaving them to hunt for the red border.
@@ -96,23 +122,26 @@ export default function LeadForm({
       ?.focus();
   }, [state]);
 
-  const handleBlur = (field: LeadField) => (event: {
-    currentTarget: { value: string };
-  }) => setLocal((prev) => ({ ...prev, [field]: checkField(field, event.currentTarget.value) }));
+  // The value is read here, synchronously, while the event is live. Reading it
+  // inside the state updater deferred the read until React applied the update,
+  // by which time currentTarget was null: the second blur threw, the root error
+  // boundary replaced the page, and no lead was ever sent.
+  const handleBlur =
+    (field: LeadField) => (event: { currentTarget: { value: string } }) => {
+      const message = checkField(field, event.currentTarget.value);
+      setLocal((prev) => ({ ...prev, [field]: message }));
+    };
 
-  /** One message, directly under the field it belongs to. */
-  const FieldError = ({ field }: { field: LeadField }) => {
-    const text = errorFor(field);
-    if (!text) return null;
-    return (
-      <p
-        id={`${uid}-${field}-error`}
-        role="alert"
-        className="mt-2 font-semibold text-burgundy"
-      >
-        {text}
-      </p>
-    );
+  // Submitted through onSubmit rather than <form action>, because a form action
+  // resets every uncontrolled field when it settles, error or not: a reader
+  // who mistyped a digit, or lost signal, would come back to an empty form.
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (inFlight.current) return;
+    inFlight.current = true;
+    const formData = new FormData(event.currentTarget);
+    setLocal({});
+    startTransition(() => dispatch(formData));
   };
 
   if (state.status === "success") {
@@ -133,7 +162,14 @@ export default function LeadForm({
   }
 
   return (
-    <form ref={formRef} action={formAction} className={className} noValidate>
+    <form
+      ref={formRef}
+      method="post"
+      onSubmit={handleSubmit}
+      className={className}
+      noValidate
+      aria-busy={isPending || undefined}
+    >
       <input type="hidden" name="source" value={source} />
 
       {/* Honeypot. Hidden from sight and from assistive technology. */}
@@ -161,7 +197,7 @@ export default function LeadForm({
             placeholder="ישראל ישראלי"
             className={fieldClass(invalid("fullName"))}
           />
-          <FieldError field="fullName" />
+          <FieldError id={errorId("fullName")} text={errorFor("fullName")} />
         </div>
 
         <div>
@@ -185,7 +221,7 @@ export default function LeadForm({
             placeholder="050-1234567"
             className={`${fieldClass(invalid("phone"))} text-end`}
           />
-          <FieldError field="phone" />
+          <FieldError id={errorId("phone")} text={errorFor("phone")} />
         </div>
 
         {withEmail ? (
@@ -209,7 +245,7 @@ export default function LeadForm({
             placeholder="israel@gmail.com"
             className={`${fieldClass(invalid("email"))} text-end`}
           />
-          <FieldError field="email" />
+          <FieldError id={errorId("email")} text={errorFor("email")} />
         </div>
         ) : null}
 
@@ -256,7 +292,7 @@ export default function LeadForm({
             onBlur={handleBlur("message")}
                 className={`${fieldClass(invalid("message"))} resize-y`}
               />
-              <FieldError field="message" />
+              <FieldError id={errorId("message")} text={errorFor("message")} />
             </div>
           </>
         ) : null}
@@ -295,7 +331,7 @@ export default function LeadForm({
       ) : null}
 
       <div className="mt-7">
-        <SubmitButton label={submitLabel} />
+        <SubmitButton label={submitLabel} pending={isPending} />
       </div>
 
       <p className="mt-4 text-ink-faint">
