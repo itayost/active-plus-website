@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מאמרים | מוקאפ פעילים+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mocks.css">
+<style>
+/* Articles index: one lead story on the burgundy field, two quieter cards below. */
+.page-hero.pull { padding-bottom: clamp(6.5rem, 11vw, 10rem); }
+.page-hero .lead { margin-top: 1.25rem; }
+
+.lead-card {
+  position: relative;
+  margin-top: calc(-1 * clamp(4rem, 8vw, 7rem));
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--r-card);
+  background: var(--burgundy);
+  color: #fff;
+  box-shadow: var(--lift-2);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+.lead-card:hover { transform: translateY(-3px); box-shadow: var(--lift-3); }
+@media (min-width: 900px) { .lead-card { grid-template-columns: 1.05fr 1fr; } }
+.lead-card .media { padding: clamp(.75rem, 1.6vw, 1.25rem); }
+.lead-card .media img { width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 30%; border-radius: 20px; }
+@media (min-width: 900px) { .lead-card .media img { aspect-ratio: auto; min-height: 460px; } }
+.lead-card .body { padding: clamp(1.5rem, 3.5vw, 3.5rem); padding-top: clamp(.75rem, 3.5vw, 3.5rem); display: flex; flex-direction: column; justify-content: center; }
+.lead-card h2 { font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem); font-weight: 900; line-height: 1.12; }
+.lead-card h2 a { text-decoration: none; }
+.lead-card h2 a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.lead-card p { margin-top: 1.25rem; font-size: var(--t-lead); line-height: 1.55; color: rgb(255 255 255 / .88); max-width: 44ch; }
+.lead-card .btn { align-self: flex-start; margin-top: 2.25rem; }
+
+.more-grid { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: 1.5rem; }
+@media (min-width: 768px) { .more-grid { grid-template-columns: 1fr 1fr; } }
+.a-card {
+  display: flex; flex-direction: column; height: 100%;
+  background: #fff; border: 1px solid var(--hairline); border-radius: var(--r-card);
+  box-shadow: var(--lift-1);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+.a-card:hover { transform: translateY(-3px); box-shadow: var(--lift-2); }
+.a-card .media { padding: .75rem .75rem 0; }
+.a-card .media img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 20px; }
+.a-card .body { flex: 1; display: flex; flex-direction: column; gap: .75rem; padding: clamp(1.25rem, 2.5vw, 2rem); }
+.a-card h3 a { text-decoration: none; }
+.a-card h3 a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.a-card p { color: var(--ink-soft); }
+.read-link {
+  margin-top: auto; align-self: flex-start;
+  display: inline-flex; align-items: center; gap: .5rem; min-height: 48px;
+  font-family: "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 1.125rem;
+  color: var(--burgundy); text-decoration: none;
+}
+.read-link svg { width: 1.25rem; height: 1.25rem; transition: transform 160ms var(--ease); }
+.read-link:hover { text-decoration: underline; text-underline-offset: 5px; }
+.read-link:hover svg { transform: translateX(-3px); }
+
+.cta-band h2 { max-width: 22ch; margin-inline: auto; }
+</style>
+</head>
+<body>
+
+<!-- MOCKBAR:start -->
+<nav class="mockbar" aria-label="מוקאפים">
+  <b>מוקאפ v2</b>
+  <a href="index.html">כל העמודים</a>
+  <a href="home.html">בית</a>
+  <a href="about.html">אודות</a>
+  <a href="how-it-works.html">איך זה עובד</a>
+  <a href="questionnaire.html">שאלון</a>
+  <a href="payment.html">תשלום</a>
+  <a href="articles.html" aria-current="page">מאמרים</a>
+  <a href="article.html">מאמר</a>
+  <a href="personal-plan.html">הסבר: תוכנית אישית</a>
+  <a href="motion-detection.html">הסבר: זיהוי תנועה</a>
+  <a href="progress.html">הסבר: התקדמות</a>
+</nav>
+<!-- MOCKBAR:end -->
+
+<!-- HEADER:start -->
+<header class="site-header">
+  <div class="shell">
+    <a class="logo" href="home.html" aria-label="פעילים פלוס, לעמוד הבית">
+      <img src="../../../public/img/logo.webp" alt="">
+      <span><span class="p1">פעילים</span><span class="p2">+</span></span>
+    </a>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <ul>
+        <li><a href="about.html">אודות</a></li>
+        <li><a href="how-it-works.html">איך זה עובד</a></li>
+        <li><a href="payment.html">מסלולים ומחירים</a></li>
+        <li><a href="articles.html" aria-current="page">מאמרים</a></li>
+      </ul>
+    </nav>
+    <div class="header-end">
+      <a class="btn btn-primary" href="questionnaire.html">בדיקת התאמה</a>
+      <button class="menu-btn" type="button" aria-label="פתיחת התפריט">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<!-- HEADER:end -->
+
+<main>
+
+  <!-- 1. Page hero -->
+  <section class="page-hero burgundy pull" aria-labelledby="page-h">
+    <div class="shell">
+      <h1 id="page-h" class="h1">מאמרים</h1>
+      <p class="lead">מה שכדאי לדעת על הגוף, המוח והתנועה אחרי גיל 50.</p>
+    </div>
+  </section>
+
+  <!-- 2. Lead article + two smaller -->
+  <section class="section" style="padding-top:0" aria-label="רשימת המאמרים">
+    <div class="shell">
+      <article class="lead-card">
+        <div class="media"><img src="../../../public/img/v2/article-body-cover.webp" alt="" width="1200" height="1200"></div>
+        <div class="body">
+          <h2><a href="article.html">מה קורה לגוף אחרי גיל 50 – ואיך אפשר להמשיך להרגיש חזקים ופעילים?</a></h2>
+          <p>אחרי גיל 50 הגוף משתנה, אבל אפשר להמשיך לעבוד עליו. למה כוח, שיווי משקל, קואורדינציה וסבולת חשובים, ומה הקשר של המוח לכל זה.</p>
+          <a class="btn btn-white lg" href="article.html">
+            לקריאת המאמר
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <ul class="more-grid">
+        <li>
+          <article class="a-card">
+            <div class="media"><img src="../../../public/img/v2/article-memory-cover.webp" alt="" width="1200" height="800" loading="lazy"></div>
+            <div class="body">
+              <h3 class="h3"><a href="article.html">שוכחים שמות ומילים אחרי גיל 50? מה אפשר לעשות כדי לשמור על חדות המחשבה</a></h3>
+              <p>שם שעומד על קצה הלשון? למה החשש מירידה בזיכרון מעסיק רבים אחרי גיל 50, ולמה אימון שמשלב תנועה ומשימות חשיבה דומה יותר לחיים עצמם.</p>
+              <a class="read-link" href="article.html">לקריאת המאמר <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+            </div>
+          </article>
+        </li>
+        <li>
+          <article class="a-card">
+            <div class="media"><img src="../../../public/img/v2/article-brain-cover.webp" alt="" width="1200" height="675" loading="lazy"></div>
+            <div class="body">
+              <h3 class="h3"><a href="article.html">מה קורה למוח כשאנחנו מפסיקים לאתגר אותו – ומה הקשר לתנועה?</a></h3>
+              <p>המוח ממשיך להשתנות גם בגיל מבוגר. מה הקשר בין תנועה לתאי המוח, למהירות התגובה וליכולת לעשות שני דברים ביחד (Dual Task).</p>
+              <a class="read-link" href="article.html">לקריאת המאמר <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. Closing CTA -->
+  <section class="section" style="padding-top:0" aria-labelledby="cta-h">
+    <div class="shell">
+      <div class="cta-band">
+        <h2 id="cta-h" class="h2">רוצים לראות איך פעילים+ יכולה להתאים גם לכם?</h2>
+        <a class="btn btn-white lg mt-l" href="questionnaire.html">
+          לבדיקת התאמה
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER:start -->
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="home.html"><img src="../../../public/img/logo.webp" alt=""><span><span class="p1">פעילים</span><span class="p2">+</span></span></a>
+        <p class="soft mt-s" style="max-width:38ch">מערכת לאימון הגוף ולחדות המחשבה, מבית המרכז לשיפור התנועה. 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.</p>
+        <div class="btn-row mt-m"><a class="btn btn-outline" href="#">App Store</a><a class="btn btn-outline" href="#">Google Play</a></div>
+      </div>
+      <div>
+        <h4>באתר</h4>
+        <ul>
+          <li><a href="about.html">אודות</a></li>
+          <li><a href="how-it-works.html">איך זה עובד</a></li>
+          <li><a href="payment.html">מסלולים ומחירים</a></li>
+          <li><a href="articles.html">מאמרים</a></li>
+          <li><a href="questionnaire.html">בדיקת התאמה</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>יצירת קשר</h4>
+        <ul>
+          <li><span class="ltr">073-729-66-99</span></li>
+          <li>office@improve-movement.co.il</li>
+          <li>ימים א׳–ה׳, 10:00–17:00</li>
+          <li>יצחק שמיר 2, קרית ביאליק</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal"><span>© 2026 פעילים+ · המרכז לשיפור התנועה</span><span><a href="#">מדיניות פרטיות</a> · <a href="#">מחיקת חשבון</a></span></div>
+  </div>
+</footer>
+<!-- FOOTER:end -->
+
+</body>
+</html>

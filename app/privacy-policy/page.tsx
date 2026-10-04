@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 
+import PageHero from "@/components/layout/PageHero";
+import { Shell } from "@/components/ui/Section";
+
 export const metadata: Metadata = {
-  title: "מדיניות פרטיות | פעילים פלוס",
-  description: "מדיניות הפרטיות של אפליקציית פעילים פלוס - כושר למבוגרים",
+  title: "מדיניות פרטיות",
+  description:
+    "כיצד פעילים+ אוספת, משתמשת ומגנה על המידע האישי שלך באפליקציה ובאתר.",
 };
 
 interface PrivacySectionProps {
@@ -12,18 +16,21 @@ interface PrivacySectionProps {
 
 function PrivacySection({ title, children }: PrivacySectionProps) {
   return (
-    <section className="mb-8">
-      <h2 className="text-xl font-semibold text-gray-900 mb-3">{title}</h2>
-      <div className="text-gray-700 privacy-content">{children}</div>
+    <section className="legal-section">
+      <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
+        {title}
+      </h2>
+      <div className="text-ink-soft">{children}</div>
     </section>
   );
 }
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">מדיניות פרטיות</h1>
-      <p className="text-gray-500 mb-10">עדכון אחרון: ינואר 2025</p>
+    <>
+      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: ינואר 2025" tone="blue" />
+      <div className="bg-surface py-[var(--section-y)]">
+        <Shell width="narrow">
 
       <PrivacySection title="1. מבוא">
         <p>
@@ -106,12 +113,14 @@ export default function PrivacyPolicyPage() {
           <br />
           <a
             href="mailto:office@improve-movement.co.il"
-            className="text-primary-600 hover:underline"
+            className="text-blue-deep underline hover:text-blue"
           >
             office@improve-movement.co.il
           </a>
         </p>
       </PrivacySection>
-    </div>
+        </Shell>
+      </div>
+    </>
   );
 }

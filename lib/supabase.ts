@@ -22,6 +22,30 @@ type AccountDeletionRequest = {
   updated_at: string;
 };
 
+/**
+ * Mirrors the columns of public.leads that this website touches.
+ *
+ * public.leads is the CRM's existing production lead table, shared with the
+ * Meta Lead Ads funnel — not a table this site owns. It has no columns for a
+ * subject, a free-text message, a marketing opt-in or an IP, so those are
+ * folded into raw_remark. `source` is a small fixed vocabulary in the CRM
+ * ("meta", "website", "tiktok", "other"); website submissions use "website"
+ * and record which page they came from inside raw_remark.
+ */
+type Lead = {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  email: string | null;
+  city: string | null;
+  customer_status: string | null;
+  process_status: string | null;
+  source: string | null;
+  raw_remark: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -33,6 +57,20 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<AccountDeletionRequest>;
+        Relationships: [];
+      };
+      leads: {
+        Row: Lead;
+        Insert: {
+          full_name: string;
+          phone: string;
+          email?: string | null;
+          customer_status?: string;
+          process_status?: string;
+          source?: string;
+          raw_remark?: string | null;
+        };
+        Update: Partial<Lead>;
         Relationships: [];
       };
     };

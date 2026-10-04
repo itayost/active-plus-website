@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מאמר | מוקאפ פעילים+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mocks.css">
+<style>
+/* Single article: burgundy standfirst, cover overlapping it, narrow reading column. */
+.back-link {
+  display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; margin-bottom: 1.25rem;
+  font-family: "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 1.125rem;
+  color: var(--ink-soft); text-decoration: none;
+}
+.back-link svg { width: 1.25rem; height: 1.25rem; transition: transform 160ms var(--ease); }
+.back-link:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 5px; }
+.back-link:hover svg { transform: translateX(3px); }
+
+.page-hero.article { padding-bottom: clamp(7rem, 13vw, 12rem); }
+.page-hero.article h1 { font-size: clamp(2rem, 1.3rem + 2.6vw, 4.25rem); line-height: 1.08; max-width: 24ch; }
+.page-hero.article .lead { margin-top: 1.5rem; max-width: 60ch; }
+
+.cover { max-width: 1520px; }
+.cover img {
+  margin-top: calc(-1 * clamp(5rem, 10vw, 9rem));
+  width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 18%;
+  border-radius: var(--r-card); box-shadow: var(--lift-2);
+}
+@media (max-width: 640px) { .cover img { aspect-ratio: 4 / 3; } }
+
+.article-body { padding-top: clamp(2.5rem, 5vw, 4rem); }
+/* Wide screens: the reading column keeps its measure and the spare width
+   becomes a sticky rail carrying the fit-check action and further reading. */
+.article-grid { display: grid; gap: 2rem; }
+.article-grid .prose { max-width: 72ch; }
+.rail { display: none; }
+@media (min-width: 1180px) {
+  .article-grid { grid-template-columns: minmax(0, 1fr) 360px; column-gap: clamp(3rem, 7vw, 9rem); align-items: start; }
+  .article-grid .inline-cta { grid-column: 1; }
+  .rail { display: block; grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 9rem; }
+}
+.rail-card { border-radius: var(--r-card); background: var(--burgundy-wash); padding: 2rem; }
+.rail-h { font-family: "Rubik"; font-weight: 700; font-size: var(--t-h3); line-height: 1.3; color: var(--burgundy); margin-bottom: 1.5rem; }
+.rail-meta { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgb(106 37 50 / .18); font-family: "Rubik"; font-weight: 700; color: var(--ink); }
+.rail ul { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .75rem; }
+.rail ul a { color: var(--ink-soft); text-decoration: underline; text-decoration-color: rgb(106 37 50 / .35); text-underline-offset: 5px; }
+.rail ul a:hover { color: var(--burgundy); }
+.prose > p:first-child { margin-top: 0; font-size: var(--t-lead); line-height: 1.55; color: var(--ink); }
+
+.inline-cta {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  border-radius: var(--r-card); background: var(--green-wash);
+  padding: clamp(1.75rem, 4vw, 3rem);
+  display: grid; gap: 1.75rem;
+}
+@media (min-width: 768px) { .inline-cta { grid-template-columns: 1fr auto; align-items: center; } }
+.inline-cta h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem); font-weight: 900; line-height: 1.15; color: var(--green-deep); }
+.inline-cta p { margin-top: .75rem; font-size: var(--t-lead); line-height: 1.5; color: var(--ink-soft); }
+
+.more-grid { list-style: none; margin: 2.5rem 0 0; padding: 0; display: grid; gap: 1.5rem; }
+@media (min-width: 768px) { .more-grid { grid-template-columns: 1fr 1fr; } }
+.a-card {
+  display: flex; flex-direction: column; height: 100%;
+  background: #fff; border: 1px solid var(--hairline); border-radius: var(--r-card);
+  box-shadow: var(--lift-1);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+.a-card:hover { transform: translateY(-3px); box-shadow: var(--lift-2); }
+.a-card .media { padding: .75rem .75rem 0; }
+.a-card .media img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 20px; }
+.a-card .body { flex: 1; display: flex; flex-direction: column; gap: .75rem; padding: clamp(1.25rem, 2.5vw, 2rem); }
+.a-card h3 a { text-decoration: none; }
+.a-card h3 a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.a-card p { color: var(--ink-soft); }
+.read-link {
+  margin-top: auto; align-self: flex-start;
+  display: inline-flex; align-items: center; gap: .5rem; min-height: 48px;
+  font-family: "Rubik", system-ui, sans-serif; font-weight: 700; font-size: 1.125rem;
+  color: var(--burgundy); text-decoration: none;
+}
+.read-link svg { width: 1.25rem; height: 1.25rem; transition: transform 160ms var(--ease); }
+.read-link:hover { text-decoration: underline; text-underline-offset: 5px; }
+.read-link:hover svg { transform: translateX(-3px); }
+</style>
+<style>.inner-fig{margin:3rem 0 0}.inner-fig img{width:100%;height:auto;border-radius:22px;box-shadow:var(--lift-1)}</style>
+</head>
+<body>
+
+<!-- MOCKBAR:start -->
+<nav class="mockbar" aria-label="מוקאפים">
+  <b>מוקאפ v2</b>
+  <a href="index.html">כל העמודים</a>
+  <a href="home.html">בית</a>
+  <a href="about.html">אודות</a>
+  <a href="how-it-works.html">איך זה עובד</a>
+  <a href="questionnaire.html">שאלון</a>
+  <a href="payment.html">תשלום</a>
+  <a href="articles.html">מאמרים</a>
+  <a href="article.html" aria-current="page">מאמר</a>
+  <a href="personal-plan.html">הסבר: תוכנית אישית</a>
+  <a href="motion-detection.html">הסבר: זיהוי תנועה</a>
+  <a href="progress.html">הסבר: התקדמות</a>
+</nav>
+<!-- MOCKBAR:end -->
+
+<!-- HEADER:start -->
+<header class="site-header">
+  <div class="shell">
+    <a class="logo" href="home.html" aria-label="פעילים פלוס, לעמוד הבית">
+      <img src="../../../public/img/logo.webp" alt="">
+      <span><span class="p1">פעילים</span><span class="p2">+</span></span>
+    </a>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <ul>
+        <li><a href="about.html">אודות</a></li>
+        <li><a href="how-it-works.html">איך זה עובד</a></li>
+        <li><a href="payment.html">מסלולים ומחירים</a></li>
+        <li><a href="articles.html" aria-current="page">מאמרים</a></li>
+      </ul>
+    </nav>
+    <div class="header-end">
+      <a class="btn btn-primary" href="questionnaire.html">בדיקת התאמה</a>
+      <button class="menu-btn" type="button" aria-label="פתיחת התפריט">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<!-- HEADER:end -->
+
+<main>
+
+  <!-- 1. Standfirst -->
+  <section class="page-hero burgundy article" aria-labelledby="page-h">
+    <div class="shell">
+      <a class="back-link" href="articles.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        כל המאמרים
+      </a>
+      <h1 id="page-h" class="h1">מה קורה לגוף אחרי גיל 50 – ואיך אפשר להמשיך להרגיש חזקים ופעילים?</h1>
+      <p class="lead">אחרי גיל 50 הגוף משתנה, אבל אפשר להמשיך לעבוד עליו. למה כוח, שיווי משקל, קואורדינציה וסבולת חשובים, ומה הקשר של המוח לכל זה.</p>
+    </div>
+  </section>
+
+  <!-- 2. Cover -->
+  <div class="shell cover">
+    <img src="../../../public/img/v2/article-body-cover.webp" alt="" width="1200" height="1200" fetchpriority="high">
+  </div>
+
+  <!-- 3. Body + in-article CTA -->
+  <article class="section article-body">
+    <div class="shell article-grid">
+      <div class="prose">
+        <p>לפעמים השינוי מתחיל בדברים הקטנים.</p>
+        <p>המדרגות שפעם עלינו בלי לחשוב דורשות קצת יותר מאמץ. אחרי יום ארוך מרגישים פחות אנרגיה. קימה מהספה כבר לא תמיד מרגישה קלילה כמו פעם, ואולי אנחנו אפילו מתחילים לוותר על פעילות מסוימת כי "אין לי כוח לזה עכשיו".</p>
+        <p>זה לא אומר שצריך לקבל את השינוי כמובן מאליו.</p>
+        <h2>אחרי גיל 50 הגוף משתנה אבל אפשר להמשיך לעבוד עליו</h2>
+        <p>עם השנים יכולים להתרחש שינויים בכוח השרירים, בשיווי המשקל, בגמישות, בקואורדינציה ובסבולת. במקביל, כאבים במפרקים ובגב הופכים שכיחים יותר.</p>
+        <p>בסקר של AARP בקרב בני 50–70 דיווחו בין היתר על חשש מדלקת מפרקים, כאבי מפרקים ושינויים נוספים הקשורים לתפקוד הגופני.</p>
+        <p>אבל אולי הדבר החשוב יותר הוא לא המספר שמופיע בתעודת הזהות — אלא מה אנחנו ממשיכים לעשות עם הגוף.</p>
+        <p>פעילות גופנית סדירה קשורה לשורה ארוכה של יתרונות בריאותיים. ארגון הבריאות העולמי מדגיש גם את חשיבות חיזוק השרירים, ולא רק פעילות אירובית.</p>
+        <figure class="inner-fig"><img src="../../../public/img/v2/article-body-inner.webp" alt="אישה עולה במדרגות ברחוב, נעזרת במעקה" width="1536" height="1024" loading="lazy"></figure>
+        <h2>המטרה היא לא רק "לעשות ספורט"</h2>
+        <p>עבור רובנו, כוח הוא לא מטרה בפני עצמה.</p>
+        <p>אנחנו רוצים כוח כדי לעלות מדרגות בקלות. שיווי משקל כדי לנוע בביטחון. קואורדינציה כדי להגיב טוב יותר לסביבה. וסבולת כדי לסיים יום עמוס ועדיין להרגיש שיש לנו אנרגיה.</p>
+        <p>לכן תוכנית אימון טובה צריכה להתייחס לאדם עצמו.</p>
+        <p>מי שמרגיש שקימה מכיסא כבר לא מה שהיה, לא בהכרח צריך את אותו אימון כמו מי שהולך בכל יום ורוצה לשפר קואורדינציה ושיווי משקל.</p>
+        <p>לכן אימון של 10 דקות שמותאם למצב שלך טוב יותר מאימון של שעה שלא מקדם אותך למטרות.</p>
+        <h2>ומה הקשר של המוח לכל זה?</h2>
+        <p>כמעט כל תנועה שאנחנו מבצעים מערבת גם את המוח.</p>
+        <p>אנחנו לא רק הולכים.</p>
+        <p>אנחנו הולכים ומדברים. לא רק עולים מדרגות, אנחנו שמים לב לסביבה תוך כדי. אנחנו משנים כיוון, מגיבים למכשול, זוכרים לאן התכוונו להגיע ומקבלים החלטות תוך כדי תנועה.</p>
+        <p>כלומר, בחיים האמיתיים הגוף והמוח כמעט אף פעם לא פועלים בנפרד.</p>
+        <p>זו הסיבה שבפעילים+ האימון מתחיל קודם כול בתנועה וביכולות הגופניות, וחלק מהתרגילים משלבים גם משימות שמאתגרת את החשיבה כמו למשל לזכור מידע, לענות על שאלה או להגיב לגירוי תוך כדי תנועה.</p>
+        <h2>לא צריך לחכות שיהיה קשה</h2>
+        <p>אחת הטעויות היא להתחיל להתייחס לגוף רק אחרי שכבר קשה לבצע פעולה מסוימת.</p>
+        <p>אפשר להסתכל על גיל 50 ו-60 אחרת: לא כנקודה שבה מתחילים לוותר, אלא כתקופה שבה כדאי להשקיע באופן מודע יותר בכוח, בתנועה וביכולות שאנחנו רוצים לקחת איתנו לשנים הבאות.</p>
+        <p>לא כדי להפוך לספורטאים.</p>
+        <p>כדי להמשיך לטייל, לשחק עם הנכדים, לעלות מדרגות, לעבוד, לצאת מהבית ולהרגיש שהגוף עדיין מאפשר לנו לעשות את הדברים שאנחנו אוהבים.</p>
+      </div>
+
+      <aside class="rail" aria-label="בדיקת התאמה">
+        <div class="rail-card">
+          <p class="rail-h">כ־10 דקות ביום, מהבית ובקצב שמתאים לך.</p>
+          <a class="btn btn-primary lg" href="questionnaire.html" style="width:100%">לבדיקת התאמה</a>
+          <p class="rail-meta">מאמרים נוספים</p>
+          <ul>
+            <li><a href="article.html">שוכחים שמות ומילים אחרי גיל 50?</a></li>
+            <li><a href="article.html">מה קורה למוח כשאנחנו מפסיקים לאתגר אותו?</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <aside class="inline-cta" aria-labelledby="fit-h">
+        <div>
+          <h2 id="fit-h">פעילים+ — תנועה וחשיבה באותו אימון</h2>
+          <p>כ־10 דקות ביום, מהבית ובקצב שמתאים לך.</p>
+        </div>
+        <a class="btn btn-primary lg" href="questionnaire.html">
+          לבדיקת התאמה
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </a>
+      </aside>
+    </div>
+  </article>
+
+  <!-- 4. Further reading -->
+  <section class="section sunken" aria-labelledby="more-h">
+    <div class="shell">
+      <h2 id="more-h" class="h2">להמשך קריאה</h2>
+      <ul class="more-grid">
+        <li>
+          <article class="a-card">
+            <div class="media"><img src="../../../public/img/v2/article-memory-cover.webp" alt="" width="1200" height="800" loading="lazy"></div>
+            <div class="body">
+              <h3 class="h3"><a href="article.html">שוכחים שמות ומילים אחרי גיל 50? מה אפשר לעשות כדי לשמור על חדות המחשבה</a></h3>
+              <p>שם שעומד על קצה הלשון? למה החשש מירידה בזיכרון מעסיק רבים אחרי גיל 50, ולמה אימון שמשלב תנועה ומשימות חשיבה דומה יותר לחיים עצמם.</p>
+              <a class="read-link" href="article.html">לקריאת המאמר <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+            </div>
+          </article>
+        </li>
+        <li>
+          <article class="a-card">
+            <div class="media"><img src="../../../public/img/v2/article-brain-cover.webp" alt="" width="1200" height="675" loading="lazy"></div>
+            <div class="body">
+              <h3 class="h3"><a href="article.html">מה קורה למוח כשאנחנו מפסיקים לאתגר אותו – ומה הקשר לתנועה?</a></h3>
+              <p>המוח ממשיך להשתנות גם בגיל מבוגר. מה הקשר בין תנועה לתאי המוח, למהירות התגובה וליכולת לעשות שני דברים ביחד (Dual Task).</p>
+              <a class="read-link" href="article.html">לקריאת המאמר <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER:start -->
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="home.html"><img src="../../../public/img/logo.webp" alt=""><span><span class="p1">פעילים</span><span class="p2">+</span></span></a>
+        <p class="soft mt-s" style="max-width:38ch">מערכת לאימון הגוף ולחדות המחשבה, מבית המרכז לשיפור התנועה. 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.</p>
+        <div class="btn-row mt-m"><a class="btn btn-outline" href="#">App Store</a><a class="btn btn-outline" href="#">Google Play</a></div>
+      </div>
+      <div>
+        <h4>באתר</h4>
+        <ul>
+          <li><a href="about.html">אודות</a></li>
+          <li><a href="how-it-works.html">איך זה עובד</a></li>
+          <li><a href="payment.html">מסלולים ומחירים</a></li>
+          <li><a href="articles.html">מאמרים</a></li>
+          <li><a href="questionnaire.html">בדיקת התאמה</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>יצירת קשר</h4>
+        <ul>
+          <li><span class="ltr">073-729-66-99</span></li>
+          <li>office@improve-movement.co.il</li>
+          <li>ימים א׳–ה׳, 10:00–17:00</li>
+          <li>יצחק שמיר 2, קרית ביאליק</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal"><span>© 2026 פעילים+ · המרכז לשיפור התנועה</span><span><a href="#">מדיניות פרטיות</a> · <a href="#">מחיקת חשבון</a></span></div>
+  </div>
+</footer>
+<!-- FOOTER:end -->
+
+</body>
+</html>

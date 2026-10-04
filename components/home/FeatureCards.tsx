@@ -1,0 +1,203 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Shell } from "@/components/ui/Section";
+import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
+import { FEATURE_CARDS, type Tone } from "@/lib/constants";
+
+/**
+ * Four fields, and they have to separate by VALUE as well as hue — three
+ * saturated darks at the same luminance read as one dark field wearing three
+ * colours. The purple card is a light lavender ground with deep purple ink,
+ * which is how the client drew it and what gives the set its light beat.
+ */
+const FIELD: Record<Tone, string> = {
+  blue: "bg-[var(--blue)] text-white",
+  green: "bg-[var(--green)] text-white",
+  purple: "bg-[var(--purple-wash)] text-purple-deep",
+  burgundy: "bg-[var(--burgundy)] text-white",
+};
+
+/**
+ * Secondary copy is tinted from the field's own foreground, never gray, at the
+ * lowest opacity that still clears 4.5:1 on that specific field.
+ */
+/**
+ * The action inverts with the field: a white pill disappears on the light
+ * lavender ground, so that card takes a filled purple pill instead.
+ */
+/**
+ * The focus ring travels with the action, not with the section. `.on-dark`
+ * is scoped to whole dark surfaces, but these cards are coloured one by one
+ * inside a light section, so the global navy ring landed on a navy card at
+ * 1.19:1 — invisible, on a keyboard user's path.
+ */
+const ACTION: Record<Tone, string> = {
+  blue: "bg-white text-ink [--focus-ring:#ffffff]",
+  green: "bg-white text-ink [--focus-ring:#ffffff]",
+  purple: "bg-[var(--purple-deep)] text-white [--focus-ring:var(--ink)]",
+  burgundy: "bg-white text-ink [--focus-ring:#ffffff]",
+};
+
+const SOFT: Record<Tone, string> = {
+  blue: "text-white/90",
+  green: "text-white/95",
+  purple: "text-purple-deep/90",
+  burgundy: "text-white/85",
+};
+
+export default function FeatureCards() {
+  const trackRef = useRef<HTMLUListElement>(null);
+  const [index, setIndex] = useState(0);
+
+  const goTo = useCallback((next: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const clamped = Math.max(0, Math.min(next, FEATURE_CARDS.length - 1));
+    const card = track.children[clamped] as HTMLElement | undefined;
+    card?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
+    setIndex(clamped);
+  }, []);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const next = Array.from(track.children).indexOf(visible.target);
+        if (next >= 0) setIndex(next);
+      },
+      { root: track, threshold: 0.6 },
+    );
+
+    Array.from(track.children).forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      aria-labelledby="cards-heading"
+      aria-roledescription="קרוסלה"
+      className="bg-sunken py-[var(--section-y)]"
+    >
+      <Shell>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <h2
+            id="cards-heading"
+            className="max-w-[16ch] text-h2 font-display font-black"
+          >
+            מעטפת שלמה לחיזוק הגוף והמוח
+          </h2>
+
+          {/*
+            RTL travel runs right to left, so each arrow points the way its own
+            button moves the track: back points right and sits on the trailing
+            (right) edge, forward points left on the leading edge. Putting
+            forward first made the two arrows point at each other.
+          */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => goTo(index - 1)}
+              disabled={index === 0}
+              className="inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5 hover:border-ink/40 disabled:pointer-events-none disabled:opacity-35"
+            >
+              <span className="sr-only">הכרטיס הקודם</span>
+              <ArrowBackIcon className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo(index + 1)}
+              disabled={index >= FEATURE_CARDS.length - 1}
+              className="inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5 hover:border-ink/40 disabled:pointer-events-none disabled:opacity-35"
+            >
+              <span className="sr-only">הכרטיס הבא</span>
+              <ArrowIcon className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      </Shell>
+
+      <ul
+        ref={trackRef}
+        className="mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {FEATURE_CARDS.map((card, cardIndex) => (
+          <li
+            key={card.id}
+            aria-label={`${cardIndex + 1} מתוך ${FEATURE_CARDS.length}`}
+            className="w-[min(88vw,560px)] shrink-0 snap-start lg:w-[min(72vw,1000px)]"
+          >
+            <article
+              className={`flex h-full flex-col overflow-hidden rounded-card shadow-lift-2 lg:flex-row-reverse ${FIELD[card.tone]}`}
+            >
+              {/*
+                The illustrations carry their own background colour, so butting
+                them against the field produced two different blues meeting on a
+                straight line — a join that reads as a mistake. Insetting them
+                makes the artwork a deliberate tile floating on the field, and
+                the same treatment keeps all four cards consistent.
+              */}
+              <div className="w-full shrink-0 p-[clamp(0.75rem,1.6vw,1.25rem)] lg:w-[44%]">
+                <div className="relative aspect-[16/10] h-full w-full overflow-hidden rounded-[20px] lg:aspect-auto lg:min-h-[280px]">
+                  <Image
+                    src={card.image}
+                    alt={card.alt}
+                    fill
+                    sizes="(max-width: 1024px) 88vw, 40vw"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-1 flex-col p-[clamp(1.5rem,3vw,3rem)] lg:ps-[clamp(1rem,2vw,2rem)]">
+                <h3 className="text-[clamp(1.5rem,1.2rem+1.4vw,2.5rem)] font-display font-black leading-tight">
+                  {card.title}
+                </h3>
+                <div className={`mt-5 space-y-4 ${SOFT[card.tone]}`}>
+                  {card.body.map((paragraph) => (
+                    <p key={paragraph} className="max-w-[54ch]">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+                <Link
+                  href="#lead"
+                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 ${ACTION[card.tone]}`}
+                >
+                  {card.cta}
+                  <ArrowIcon className="h-5 w-5" />
+                </Link>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ul>
+
+      <Shell>
+        <div
+          className="h-1.5 w-full overflow-hidden rounded-pill bg-ink/10"
+          role="presentation"
+        >
+          <div
+            className="h-full rounded-pill bg-ink transition-[width] duration-[var(--dur-slow)] ease-out-expo"
+            style={{
+              width: `${((index + 1) / FEATURE_CARDS.length) * 100}%`,
+            }}
+          />
+        </div>
+      </Shell>
+    </section>
+  );
+}

@@ -2,32 +2,318 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Design tokens for פעילים+.
+  The palette is the brand's four card colors used as page-scale fields:
+  blue carries movement, purple carries cognition, green carries progress,
+  burgundy carries the daily practice.
+*/
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+  color-scheme: light;
+
+  /* Ground */
+  --surface: #ffffff;
+  --surface-sunken: #f2f6f9;
+  --surface-raised: #ffffff;
+  --hairline: #dfe7ed;
+
+  /* Ink — every step is AAA (≥7:1) against both --surface and
+     --surface-sunken, because the longest reading task on the site is an
+     article set in --ink-soft. */
+  --ink: #0f2230;
+  --ink-soft: #375260;
+  --ink-faint: #576f7d;
+
+  /* Brand */
+  /* Each -deep value is a filled control's resting state and each base value
+     is its hover, a step wide enough to read as a change. The base values
+     double as the page-scale card fields.
+
+     Stated exception: white on a colour field reaches AA (4.5:1) but not the
+     AAA this project holds elsewhere — AAA is unreachable at these hues
+     without losing the brand colours entirely, so the fields carry short
+     card copy while every long-form reading surface stays on --ink-soft.
+     --blue-bright is the logo's turquoise, decorative only; no text on it. */
+  --blue: #0d68a4;
+  --blue-bright: #1aa9e0;
+  --blue-deep: #0a5f81;
+  --blue-wash: #e6f6fd;
+  --green: #3d7d23;
+  --green-deep: #2a5f17;
+  --green-wash: #eaf6e3;
+  --purple: #6b4fd8;
+  --purple-deep: #4b33a8;
+  --purple-wash: #efebfe;
+  --burgundy: #6a2532;
+  --burgundy-deep: #4c1723;
+  --burgundy-wash: #f7ecef;
+  /* The brand's third colour, reserved for one job: the gain the visitor
+     keeps. Used as bold display type on a dark field, never as body text. */
+  --yellow: #fdb913;
+
+  /* Rhythm */
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --section-y: clamp(4rem, 3rem + 6vw, 8.5rem);
+  --measure: 68ch;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 320ms;
+  --dur-slow: 720ms;
+
+  /* Depth — offset plus soft blur, never a flat halo */
+  --lift-1: 0 1px 2px rgb(15 34 48 / 0.06), 0 4px 12px -4px rgb(15 34 48 / 0.1);
+  --lift-2: 0 2px 4px rgb(15 34 48 / 0.06), 0 16px 32px -12px rgb(15 34 48 / 0.18);
+  --lift-3: 0 4px 8px rgb(15 34 48 / 0.08), 0 32px 64px -24px rgb(15 34 48 / 0.28);
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Rotated and overlapping compositions must never widen the document.
+     `clip` keeps position: sticky working, which `hidden` would break. */
+  overflow-x: clip;
+}
+
+/*
+  The shell gutter, widened on whichever physical edge the hardware is eating.
+  Held sideways, a notched phone puts the cutout on one long edge and the home
+  indicator on the other, so the two sides need different padding — a symmetric
+  gutter either clears the notch and wastes a finger's width on the safe side,
+  or fits the safe side and runs the CTA under the camera.
+
+  Physical `left`/`right` rather than logical `start`/`end` is deliberate: the
+  notch is a fact about the device's orientation, not about Hebrew, and it stays
+  on the same physical edge no matter which way the text runs. `max()` means the
+  designed gutter still wins on every screen that reports no inset, which is all
+  of them on desktop.
+*/
+.gutter-x {
+  padding-left: max(var(--gutter), env(safe-area-inset-left));
+  padding-right: max(var(--gutter), env(safe-area-inset-right));
+}
+
+/*
+  The drawer is the one panel that owns a physical screen edge on all four
+  sides, so it takes the insets itself rather than through the shell gutter its
+  contents never pass through. Bottom matters most: the drawer ends with the
+  phone number, which is exactly where the home indicator sits.
+*/
+.drawer-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/*
+  Held sideways, a phone offers about 390px of height and the drawer wants ~750.
+  Scrolling a nine-item menu to reach "צור קשר" is the wrong answer when the rows
+  themselves are the slack: 60px is the drawer's designed rhythm, not its floor.
+  Landscape trades it for 48px — still clear of the 44px target minimum and of
+  this audience's own 48px floor — which brings the whole menu back into one
+  screen. Keyed to viewport height, not to orientation, so a small window on a
+  laptop gets the same treatment.
+*/
+@media (max-height: 560px) and (orientation: landscape) {
+  /* Capping the hero's height is only half of it — the stack inside was spaced
+     for a portrait card and still overflows the cap, which pushes the actions
+     back out of view. Landscape spends its slack the other way: the type keeps
+     its size, the air between the three blocks gives. */
+  .hero-stack {
+    /* Dropping the floor entirely, rather than capping it lower, is what makes
+       this hold: a minimum height the content does not reach still centres the
+       stack inside the leftover space, so the actions drift back down to the
+       fold however tightly the cap is tuned. With no floor the card is exactly
+       its content, and the CTA clears the fold on its own arithmetic instead of
+       a number picked for one handset. */
+    min-height: 0;
+    padding-block: clamp(1.25rem, 4vh, 2.25rem);
+  }
+
+  .hero-stack > p {
+    margin-top: 0.75rem;
+  }
+
+  .hero-stack > div {
+    margin-top: 1.25rem;
+  }
+}
+
+@media (max-height: 560px) {
+  #site-drawer nav a {
+    min-height: 48px;
+  }
+
+  #site-drawer > div {
+    padding-block: 0.75rem;
+  }
+
+  #site-drawer nav {
+    padding-block: 0.5rem;
+  }
+}
+
+/* Touch handling for controls. `manipulation` drops the legacy double-tap-to-
+   zoom wait, so a tap on a 55+ reader's phone registers immediately instead of
+   ~300ms later — but only on the controls, so pinch-zoom and double-tap-zoom
+   still work everywhere else on the page. The tap highlight is a browser
+   surface with no design system behind it: iOS paints an unbranded grey-black
+   flash over the element's own radius. Ours is the movement blue at the low
+   alpha the fields already use. */
+a,
+button,
+input,
+select,
+textarea,
+summary,
+[role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgb(13 104 164 / 0.14);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.125rem; /* 18px floor for 55+ readers */
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
 }
 
-/* RTL Support */
-[dir="rtl"] {
-  text-align: right;
+h1,
+h2,
+h3 {
+  font-family: var(--font-rubik), system-ui, sans-serif;
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
 }
 
-/* Senior-friendly typography */
-.privacy-content {
-  font-size: 1.125rem;
-  line-height: 1.8;
+/* Focus that a 70-year-old can actually see. No border-radius here: the
+   outline already follows each element's own radius, and setting one would
+   square off the pill buttons the moment they take focus. */
+:focus-visible {
+  outline: 3px solid var(--focus-ring, var(--blue-deep));
+  outline-offset: 3px;
 }
 
-.privacy-content ul {
-  list-style-type: disc;
+/* The default ring is tuned for white grounds and falls to ~2.3:1 on the
+   near-black hero and research fields — under the 3:1 WCAG non-text floor,
+   at exactly the spot where the hero's two CTAs live. Dark surfaces set
+   their own light ring rather than lightening the global token, which would
+   cost the contrast win on white. */
+.on-dark {
+  --focus-ring: #ffffff;
+}
+
+::selection {
+  background: var(--blue-wash);
+  color: var(--ink);
+}
+
+/*
+  The surfaces the browser draws for us, brought into the palette. Selection and
+  the focus ring are handled above; these are the three that were still shipping
+  vendor defaults.
+
+  The caret matters more here than the count of rules suggests: the lead form is
+  the site's decided primary action, and a 1px near-black system caret is easy to
+  lose at 18px for the eyes this site is built for. Blue, and thicker by virtue
+  of the field's own text size.
+*/
+input,
+textarea {
+  caret-color: var(--blue-deep);
+}
+
+/*
+  A link underline sat at the browser's default offset collides with Hebrew's
+  low-hanging letters — ן, ך, ק, ף all cross it. Four call sites had already
+  been corrected by hand to `underline-offset-4` and two had not, which is the
+  signature of a value that belongs to the system rather than to the element.
+  Set once, for every underlined link, so the next one inherits it.
+*/
+a {
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: from-font;
+}
+
+/*
+  The page scrollbar is a full-height element in the visitor's peripheral vision
+  on every screen, and the default is a grey no part of this palette chose.
+  Tinted from the ink ramp, and left at the platform's own width — a scrollbar
+  narrowed for looks is a scrollbar that is harder to grab.
+*/
+html {
+  scrollbar-color: var(--ink-faint) var(--surface-sunken);
+}
+
+/* Legal pages carry plain prose written as raw markup rather than through
+   the Prose component; they get the same reading rhythm here. */
+.legal-section p {
+  margin-top: 1rem;
+}
+
+.legal-section p:first-child {
+  margin-top: 0;
+}
+
+.legal-section ul {
+  list-style: disc;
   padding-inline-start: 1.5rem;
+  margin-top: 1rem;
 }
 
-.privacy-content li {
-  margin-bottom: 0.5rem;
+.legal-section li {
+  margin-top: 0.5rem;
+}
+
+.legal-section li::marker {
+  color: var(--blue-deep);
+}
+
+/* One authored entrance, shared by every revealed element. Content is
+   visible by default; the class only runs when JS confirms support. */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(6px);
+  }
+
+  .reveal-in {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition:
+      opacity var(--dur-slow) var(--ease-out-expo),
+      transform var(--dur-slow) var(--ease-out-expo),
+      filter var(--dur-slow) var(--ease-out-expo);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* The arc rings are an exception to the blanket rule above. Collapsing a
+     full revolution lands every child back at its start angle, which is
+     correct — but only while the animation is still running. With
+     iteration-count 1 it finishes instead, the transform reverts, and all
+     fourteen portraits pile onto the ring's twelve o'clock. Keeping the
+     duration and pausing holds each one where its start angle put it. */
+  [class*="animate-arc-"] {
+    animation-duration: inherit;
+    animation-iteration-count: infinite !important;
+    animation-play-state: paused !important;
+  }
 }

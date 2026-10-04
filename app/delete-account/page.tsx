@@ -1,22 +1,30 @@
 import type { Metadata } from "next";
 import DeleteAccountForm from "./DeleteAccountForm";
 
+import PageHero from "@/components/layout/PageHero";
+import { Shell } from "@/components/ui/Section";
+
 export const metadata: Metadata = {
-  title: "מחיקת חשבון | פעילים פלוס",
-  description: "בקשה למחיקת חשבון באפליקציית פעילים פלוס",
+  title: "מחיקת חשבון",
+  description: "בקשה למחיקת חשבון באפליקציית פעילים+ ומה קורה לנתונים שלך.",
 };
 
 export default function DeleteAccountPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">מחיקת חשבון</h1>
-      <p className="text-gray-500 mb-10">עדכון אחרון: פברואר 2026</p>
+    <>
+      <PageHero
+        title="מחיקת חשבון"
+        lede="עדכון אחרון: פברואר 2026"
+        tone="burgundy"
+      />
+      <div className="bg-surface py-[var(--section-y)]">
+        <Shell width="narrow">
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">
+      <section className="legal-section">
+        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
           כיצד למחוק את החשבון שלך
         </h2>
-        <div className="text-gray-700 privacy-content">
+        <div className="text-ink-soft">
           <p className="mb-4">
             ניתן למחוק את החשבון שלך בשתי דרכים:
           </p>
@@ -32,21 +40,21 @@ export default function DeleteAccountPage() {
         </div>
       </section>
 
-      <section className="mb-8 bg-red-50 border border-red-200 rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <section className="my-12 rounded-card border-2 border-burgundy/25 bg-[var(--burgundy-wash)] p-[clamp(1.5rem,3vw,2.5rem)]">
+        <h2 className="mb-6 font-display text-h3 font-bold text-burgundy">
           בקשת מחיקת חשבון
         </h2>
 
-        <div className="bg-white rounded-lg p-6 mb-6">
+        <div className="rounded-[20px] bg-surface p-[clamp(1.25rem,2.5vw,2rem)]">
           <DeleteAccountForm />
         </div>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">
+      <section className="legal-section">
+        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
           אילו נתונים יימחקו
         </h2>
-        <div className="text-gray-700 privacy-content">
+        <div className="text-ink-soft">
           <p className="mb-3">
             עם מחיקת החשבון, כל הנתונים הבאים יימחקו לצמיתות:
           </p>
@@ -60,11 +68,11 @@ export default function DeleteAccountPage() {
         </div>
       </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">
+      <section className="legal-section">
+        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
           מידע חשוב
         </h2>
-        <div className="text-gray-700 privacy-content">
+        <div className="text-ink-soft">
           <ul>
             <li>
               מחיקת החשבון היא בלתי הפיכה — לא ניתן לשחזר את הנתונים לאחר
@@ -80,22 +88,24 @@ export default function DeleteAccountPage() {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">
+        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
           שאלות נוספות
         </h2>
-        <div className="text-gray-700 privacy-content">
+        <div className="text-ink-soft">
           <p>
             לשאלות בנוגע למחיקת חשבון, ניתן לפנות אלינו:
             <br />
             <a
               href="mailto:office@improve-movement.co.il"
-              className="text-primary-600 hover:underline"
+              className="text-blue-deep underline hover:text-blue"
             >
               office@improve-movement.co.il
             </a>
           </p>
         </div>
       </section>
-    </div>
+        </Shell>
+      </div>
+    </>
   );
 }

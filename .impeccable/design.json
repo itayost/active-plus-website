@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-16T00:00:00Z",
+  "title": "Design System: פעילים+ (Active Plus)",
+  "extensions": {
+    "colorMeta": {
+      "blue": {
+        "role": "primary",
+        "displayName": "Movement Blue",
+        "canonical": "#0d68a4",
+        "tonalRamp": [
+          "#083445",
+          "#0e5b79",
+          "#1483ad",
+          "#1aaae1",
+          "#4bbeea",
+          "#80d1f0",
+          "#b4e4f6",
+          "#e8f7fc"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Progress Green",
+        "canonical": "#3d7d23",
+        "tonalRamp": [
+          "#1e3b12",
+          "#356720",
+          "#4c942d",
+          "#63c13b",
+          "#85d065",
+          "#a9de92",
+          "#ccebbf",
+          "#f0f9eb"
+        ]
+      },
+      "purple": {
+        "role": "primary",
+        "displayName": "Cognition Purple",
+        "canonical": "#6b4fd8",
+        "tonalRamp": [
+          "#180e3f",
+          "#2a186e",
+          "#3c239e",
+          "#4e2ece",
+          "#755bdb",
+          "#9d8be5",
+          "#c5baf0",
+          "#edeafa"
+        ]
+      },
+      "burgundy": {
+        "role": "primary",
+        "displayName": "Daily-Practice Burgundy",
+        "canonical": "#6a2532",
+        "tonalRamp": [
+          "#39141b",
+          "#64232f",
+          "#8f3244",
+          "#ba4158",
+          "#cb6a7d",
+          "#da96a3",
+          "#e9c1c9",
+          "#f8ecee"
+        ]
+      },
+      "emphasis-cyan": {
+        "role": "secondary",
+        "displayName": "Emphasis Cyan",
+        "canonical": "#5fd3ff",
+        "tonalRamp": [
+          "#00374c",
+          "#006287",
+          "#008cc1",
+          "#00b6fb",
+          "#37c8ff",
+          "#71d8ff",
+          "#abe8ff",
+          "#e5f8ff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0f2230",
+        "tonalRamp": [
+          "#12293a",
+          "#204967",
+          "#2e6893",
+          "#3c88c0",
+          "#66a3cf",
+          "#93bedd",
+          "#bfd8eb",
+          "#ecf3f9"
+        ]
+      },
+      "sunken": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#f2f6f9"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The h1 — one per page, hero and page-hero headline."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The h2 — every section heading."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The h3 — card titles, FAQ questions, footer headings."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Section ledes and standfirsts, capped to the 68ch measure."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "The 18px reading floor for every paragraph on the site."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift-1",
+        "value": "0 1px 2px rgb(15 34 48 / 0.06), 0 4px 12px -4px rgb(15 34 48 / 0.1)",
+        "purpose": "Resting buttons and outline cards."
+      },
+      {
+        "name": "lift-2",
+        "value": "0 2px 4px rgb(15 34 48 / 0.06), 0 16px 32px -12px rgb(15 34 48 / 0.18)",
+        "purpose": "Feature cards, the carousel article, hovered buttons."
+      },
+      {
+        "name": "lift-3",
+        "value": "0 4px 8px rgb(15 34 48 / 0.08), 0 32px 64px -24px rgb(15 34 48 / 0.28)",
+        "purpose": "The hero's floating app-screen imagery."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Default easing for every transition and the Reveal entrance."
+      },
+      {
+        "name": "dur-fast",
+        "value": "160ms",
+        "purpose": "Hover/active state transitions (colour, border, shadow)."
+      },
+      {
+        "name": "dur",
+        "value": "320ms",
+        "purpose": "Structural transitions (header lift, accordion chevron, nav)."
+      },
+      {
+        "name": "dur-slow",
+        "value": "720ms",
+        "purpose": "The Reveal entrance (rise, de-blur, settle)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default action button — solid green, used for every submit/CTA verb.",
+      "html": "<button class=\"ds-btn-primary\">השארת פרטים</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; background: #33701d; color: #fff; font-family: Rubik, system-ui, sans-serif; font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.01em; border: none; border-radius: 999px; box-shadow: 0 1px 2px rgba(15,34,48,0.06), 0 4px 12px -4px rgba(15,34,48,0.1); transition: background-color 160ms cubic-bezier(0.16,1,0.3,1), box-shadow 160ms cubic-bezier(0.16,1,0.3,1), transform 160ms cubic-bezier(0.16,1,0.3,1); cursor: pointer; } .ds-btn-primary:hover { background: #4f9a2f; box-shadow: 0 2px 4px rgba(15,34,48,0.06), 0 16px 32px -12px rgba(15,34,48,0.18); transform: translateY(-2px); } .ds-btn-primary:focus-visible { outline: 3px solid #0d6f96; outline-offset: 3px; border-radius: 4px; } .ds-btn-primary:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(15,34,48,0.06), 0 4px 12px -4px rgba(15,34,48,0.1); }"
+    },
+    {
+      "name": "On-Color Button",
+      "kind": "button",
+      "refersTo": "button-onColor",
+      "description": "White pill button for use on a saturated colour field — the carousel's signature CTA.",
+      "html": "<button class=\"ds-btn-oncolor\">אני רוצה להתחיל</button>",
+      "css": ".ds-btn-oncolor { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; background: #ffffff; color: #0f2230; font-family: Rubik, system-ui, sans-serif; font-weight: 700; font-size: 1.0625rem; border: none; border-radius: 999px; box-shadow: 0 1px 2px rgba(15,34,48,0.06), 0 4px 12px -4px rgba(15,34,48,0.1); transition: box-shadow 160ms cubic-bezier(0.16,1,0.3,1), transform 160ms cubic-bezier(0.16,1,0.3,1); cursor: pointer; } .ds-btn-oncolor:hover { box-shadow: 0 2px 4px rgba(15,34,48,0.06), 0 16px 32px -12px rgba(15,34,48,0.18); transform: translateY(-2px); } .ds-btn-oncolor:focus-visible { outline: 3px solid #0d6f96; outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary-verb button — white fill, hairline-adjacent border.",
+      "html": "<button class=\"ds-btn-outline\">לפרטים נוספים</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; background: #ffffff; color: #0f2230; font-family: Rubik, system-ui, sans-serif; font-weight: 700; font-size: 1.0625rem; border: 2px solid rgba(15,34,48,0.15); border-radius: 999px; transition: border-color 160ms cubic-bezier(0.16,1,0.3,1), box-shadow 160ms cubic-bezier(0.16,1,0.3,1), transform 160ms cubic-bezier(0.16,1,0.3,1); cursor: pointer; } .ds-btn-outline:hover { border-color: rgba(15,34,48,0.35); box-shadow: 0 1px 2px rgba(15,34,48,0.06), 0 4px 12px -4px rgba(15,34,48,0.1); transform: translateY(-2px); } .ds-btn-outline:focus-visible { outline: 3px solid #0d6f96; outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Field Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Lead-form text input — 14px radius, hairline border, blue-deep focus.",
+      "html": "<label class=\"ds-label\" for=\"ds-name\">שם מלא</label><input id=\"ds-name\" class=\"ds-input\" placeholder=\"ישראל ישראלי\" />",
+      "css": ".ds-label { display: block; margin-bottom: 8px; font-family: Rubik, system-ui, sans-serif; font-weight: 700; color: #0f2230; } .ds-input { width: 100%; border-radius: 14px; border: 2px solid #dfe7ed; background: #ffffff; padding: 14px 16px; font-size: 1.25rem; color: #0f2230; transition: border-color 160ms cubic-bezier(0.16,1,0.3,1); } .ds-input::placeholder { color: #6b8391; } .ds-input:hover { border-color: rgba(15,34,48,0.25); } .ds-input:focus { border-color: #0d6f96; outline: none; }"
+    },
+    {
+      "name": "Card CTA Field",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The carousel's signature card: a full-bleed brand-hue field with a white pill CTA.",
+      "html": "<article class=\"ds-card-field\"><h3 class=\"ds-card-field-title\">התאמה אישית באמצעות AI</h3><p class=\"ds-card-field-body\">תוכנית Dual Tasking מותאמת אישית במיוחד בשבילך.</p><button class=\"ds-btn-oncolor\">אני רוצה להתחיל</button></article>",
+      "css": ".ds-card-field { display: flex; flex-direction: column; gap: 20px; border-radius: 28px; padding: clamp(24px, 3vw, 48px); background: #1aa9e0; color: #ffffff; box-shadow: 0 2px 4px rgba(15,34,48,0.06), 0 16px 32px -12px rgba(15,34,48,0.18); } .ds-card-field-title { font-family: Rubik, system-ui, sans-serif; font-weight: 900; font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem); line-height: 1.15; } .ds-card-field-body { color: rgba(255,255,255,0.9); max-width: 54ch; }"
+    },
+    {
+      "name": "Accordion Row",
+      "kind": "custom",
+      "refersTo": "accordion",
+      "description": "Single-open FAQ row with a circular chevron badge that fills solid on open.",
+      "html": "<div class=\"ds-accordion-row\"><button class=\"ds-accordion-trigger\" aria-expanded=\"true\"><span class=\"ds-accordion-badge ds-accordion-badge-open\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" width=\"20\" height=\"20\"><path d=\"m6 9 6 6 6-6\"/></svg></span><span class=\"ds-accordion-q\">האם זה מתאים לי?</span></button><div class=\"ds-accordion-panel\">תשובה קצרה וברורה מופיעה כאן.</div></div>",
+      "css": ".ds-accordion-row { border-bottom: 1px solid #dfe7ed; } .ds-accordion-trigger { display: flex; width: 100%; align-items: flex-start; gap: 16px; padding: 24px 0; background: none; border: none; text-align: start; cursor: pointer; font-family: Rubik, system-ui, sans-serif; } .ds-accordion-badge { margin-top: 2px; flex-shrink: 0; border-radius: 999px; border: 2px solid #dfe7ed; padding: 6px; color: #40606f; transition: transform 320ms cubic-bezier(0.16,1,0.3,1), background-color 320ms, border-color 320ms; } .ds-accordion-badge-open { transform: rotate(180deg); border-color: #0d6f96; background: #0d6f96; color: #ffffff; } .ds-accordion-q { font-weight: 700; font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem); color: #0f2230; } .ds-accordion-panel { padding: 0 0 28px 52px; color: #40606f; max-width: 68ch; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Two Things At Once",
+    "overview": "The site's thesis is that it never shows body or mind alone — every primary surface stages a moment where movement and thinking happen together, and the composition itself proves the claim rather than just stating it. The hero doesn't cut to a smiling-couple stock photo; it holds a real workout screen overlapping a cognitive prompt (\"ובאותו הזמן: איזה פרי נעלם?\") in one frame. The interactive demo doesn't explain Dual Tasking, it makes the visitor do it. This is a rebuild of a client-pinned reference (effectivate.co.il) in the client's own material: the reference supplied the structure — the page-scale color cards, the two-arrow carousel with a progress bar, the abilities grid, the game-style interactive demo, the lead form, the FAQ accordion — while Active Plus supplied the palette, the type pairing, and the explicit refusal of the reference's orange.\n\nEverything is built to a 55+ reading and motor floor, not just WCAG AA: an 18px body-text minimum, 48px+ touch targets throughout, and a focus ring sized to be seen rather than merely compliant. Hebrew RTL is the only mode; nothing in the system assumes LTR as a base case.",
+    "keyCharacteristics": [
+      "Four brand hues used as full-bleed page fields (never small accent chips)",
+      "Rubik display over Heebo body, both variable-loaded via next/font",
+      "Depth from offset-plus-blur shadows only — no flat coloured halos",
+      "One shared entrance animation for every revealed element, gated by prefers-reduced-motion",
+      "Structure inherited from a pinned reference; palette and type are the project's own"
+    ],
+    "rules": [
+      {
+        "name": "The Page-Scale Field Rule",
+        "body": "A brand hue is a section or card background, not a small UI accent — the palette reads as confident because each colour claims real territory, not a 2px underline.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Orange Rule",
+        "body": "The structural reference (effectivate.co.il) uses orange as its accent; this build deliberately excludes it. No orange appears anywhere in the token set — this is a confirmed brand decision, not an oversight.",
+        "section": "colors"
+      },
+      {
+        "name": "The 18px Floor Rule",
+        "body": "Body text never goes below 1.125rem anywhere on the site. This is the audience's accessibility floor, not a stylistic choice, and it is not to be treated as negotiable for a \"compact\" variant.",
+        "section": "typography"
+      },
+      {
+        "name": "The Balanced Heading Rule",
+        "body": "h1–h3 set text-wrap: balance; body copy sets text-wrap: pretty. Hebrew ragged-line breaks are handled by the browser, never by manual <br> insertion.",
+        "section": "typography"
+      },
+      {
+        "name": "The Offset-Not-Halo Rule",
+        "body": "Depth always comes from an asymmetric, blurred drop shadow keyed to the ink colour — never a symmetric glow, never a shadow tinted to match the element's own hue.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep body text at 1.125rem (18px) minimum everywhere — this is the audience's floor, not a default.",
+      "Do give every interactive target at least 48px in its shortest dimension.",
+      "Do give focus a 3px solid outline (blue-deep) with 3px offset — sized to be seen, not merely to pass an audit.",
+      "Do treat each brand hue as a full-bleed field claim (section or card background), never a small accent.",
+      "Do use the authored stroke-icon set only (1.75 stroke, round caps/joins, 24-unit grid, no fill) — never an emoji, a unicode glyph, or a third-party icon font.",
+      "Do run the shared Reveal entrance (rise, de-blur, settle) for content that enters on scroll, staggered by 90ms per sibling, and respect prefers-reduced-motion by rendering content visible with no animation.",
+      "Do author section headings without an eyebrow/kicker — the SectionHeading primitive has no eyebrow slot by design; the heading carries its own weight."
+    ],
+    "donts": [
+      "Don't use orange anywhere — the structural reference's accent colour is a confirmed exclusion, not an oversight.",
+      "Don't use a flat, colour-matched glow as a shadow — depth is always an offset, ink-tinted blur (--lift-1/2/3).",
+      "Don't drop a touch target below 48px or body text below 18px to fit a \"compact\" layout.",
+      "Don't give an element its own bespoke entrance animation — there is exactly one authored entrance (Reveal), shared by everything that animates on scroll.",
+      "Don't reach for a glyph icon, an emoji, or an icon font — every icon on the site is hand-authored to the same stroke grammar."
+    ]
+  }
+}

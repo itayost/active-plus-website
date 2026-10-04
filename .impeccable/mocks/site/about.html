@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>אודות | מוקאפ פעילים+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mocks.css">
+<style>
+  /* Page-specific components for about.html. Tokens from mocks.css only. */
+  .page-hero .lead { color: var(--ink); max-width: 52ch; }
+
+  /* The story: photo + short beats */
+  .story { display: grid; gap: clamp(2.5rem, 5vw, 5rem); }
+  @media (min-width: 1024px) { .story { grid-template-columns: 1.1fr .9fr; align-items: start; } .story figure { position: sticky; top: 9rem; } }
+  .story figure { margin: 0; }
+  .story figure img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--r-card); box-shadow: var(--lift-2); }
+  .story figcaption { margin-top: 1rem; color: var(--ink-faint); font-size: 1.125rem; }
+  .beats { display: grid; gap: clamp(1.5rem, 3vw, 2.25rem); }
+  .beats p { font-size: clamp(1.25rem, 1.1rem + .6vw, 1.5rem); line-height: 1.55; color: var(--ink-soft); max-width: 36ch; }
+  .beats blockquote { margin: clamp(.5rem, 2vw, 1.5rem) 0 0; padding-top: clamp(1.5rem, 3vw, 2.25rem); border-top: 2px solid var(--hairline); }
+  .beats blockquote p {
+    font-family: "Rubik", system-ui, sans-serif; font-weight: 900; color: var(--blue-deep);
+    font-size: clamp(1.875rem, 1.4rem + 2vw, 3rem); line-height: 1.15; letter-spacing: -0.025em; max-width: 18ch;
+  }
+
+  /* Something missing in the middle */
+  .middle p { color: var(--ink-soft); font-size: var(--t-lead); line-height: 1.55; }
+  .middle p + p { margin-top: 1.5rem; }
+  .middle .beat-end {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem); font-family: "Rubik", system-ui, sans-serif; font-weight: 900;
+    font-size: clamp(2rem, 1.5rem + 2.4vw, 3.5rem); line-height: 1.1; letter-spacing: -0.025em; color: var(--ink);
+  }
+
+  /* Born: copy + vision field */
+  .born { display: grid; gap: clamp(2rem, 4vw, 3.5rem); }
+  @media (min-width: 1024px) { .born { grid-template-columns: .9fr 1.1fr; align-items: center; } }
+  .born .copy p { color: var(--ink-soft); font-size: var(--t-lead); line-height: 1.55; max-width: 44ch; }
+  .vision { border-radius: var(--r-card); background: var(--green-wash); padding: clamp(1.75rem, 4vw, 3.5rem); }
+  .vision .pre { color: var(--green-deep); font-size: var(--t-lead); line-height: 1.5; }
+  .vision .big {
+    margin-top: 1rem; font-family: "Rubik", system-ui, sans-serif; font-weight: 900; color: var(--green-deep);
+    font-size: clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem); line-height: 1.2; letter-spacing: -0.025em;
+  }
+
+  /* Progress & measurement */
+  .measure .copy p { color: var(--ink-soft); max-width: 52ch; }
+  .measure .copy p + p { margin-top: 1.25rem; }
+  .measure .see { margin-top: 2.25rem; font-family: "Rubik", system-ui, sans-serif; font-weight: 700; font-size: var(--t-h3); color: var(--ink); }
+
+  /* Team */
+  .team { list-style: none; margin: clamp(2.5rem, 5vw, 4rem) 0 0; padding: 0; display: grid; gap: clamp(2rem, 4vw, 2.5rem); }
+  @media (min-width: 768px) { .team { grid-template-columns: repeat(3, 1fr); } }
+  .team .photo { aspect-ratio: 4 / 5; min-height: 0; border-radius: var(--r-card); overflow: hidden; }
+  .team img.photo { width: 100%; height: auto; object-fit: cover; object-position: 50% 30%; box-shadow: var(--lift-2); }
+  .team h3 { margin-top: 1.5rem; }
+  .team .role { margin-top: .35rem; font-family: "Rubik", system-ui, sans-serif; font-weight: 700; color: var(--blue-deep); line-height: 1.4; }
+  .team .desc { margin-top: .75rem; color: var(--ink-soft); max-width: 34ch; }
+  @media (min-width: 768px) and (max-width: 1023px) { .team .ph.photo { font-size: .95rem; padding: 1rem; } }
+  @media (max-width: 767px) {
+    .team li { display: grid; grid-template-columns: 7.5rem 1fr; column-gap: 1.25rem; align-items: start; }
+    .team .photo { grid-row: 1 / span 3; border-radius: 20px; }
+    .team .ph.photo { font-size: .85rem; padding: .75rem; }
+    .team .ph.photo::before { display: none; }
+    .team h3 { margin-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOCKBAR:start -->
+<nav class="mockbar" aria-label="מוקאפים">
+  <b>מוקאפ v2</b>
+  <a href="index.html">כל העמודים</a>
+  <a href="home.html">בית</a>
+  <a href="about.html" aria-current="page">אודות</a>
+  <a href="how-it-works.html">איך זה עובד</a>
+  <a href="questionnaire.html">שאלון</a>
+  <a href="payment.html">תשלום</a>
+  <a href="articles.html">מאמרים</a>
+  <a href="article.html">מאמר</a>
+  <a href="personal-plan.html">הסבר: תוכנית אישית</a>
+  <a href="motion-detection.html">הסבר: זיהוי תנועה</a>
+  <a href="progress.html">הסבר: התקדמות</a>
+</nav>
+<!-- MOCKBAR:end -->
+
+<!-- HEADER:start -->
+<header class="site-header">
+  <div class="shell">
+    <a class="logo" href="home.html" aria-label="פעילים פלוס, לעמוד הבית">
+      <img src="../../../public/img/logo.webp" alt="">
+      <span><span class="p1">פעילים</span><span class="p2">+</span></span>
+    </a>
+    <nav class="nav" aria-label="ניווט ראשי">
+      <ul>
+        <li><a href="about.html" aria-current="page">אודות</a></li>
+        <li><a href="how-it-works.html">איך זה עובד</a></li>
+        <li><a href="payment.html">מסלולים ומחירים</a></li>
+        <li><a href="articles.html">מאמרים</a></li>
+      </ul>
+    </nav>
+    <div class="header-end">
+      <a class="btn btn-primary" href="questionnaire.html">בדיקת התאמה</a>
+      <button class="menu-btn" type="button" aria-label="פתיחת התפריט">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<!-- HEADER:end -->
+
+<main>
+
+  <!-- 1. Page hero -->
+  <section class="page-hero blue" aria-labelledby="about-h">
+    <div class="shell">
+      <h1 id="about-h" class="h1">הרעיון התחיל מסיפור אישי</h1>
+      <p class="lead">הרעיון לפעילים+ התחיל כשמידד גולן, מייסד ומנכ״ל המרכז לשיפור התנועה, החל לשים לב לשינויים קטנים אצל אמו.</p>
+    </div>
+  </section>
+
+  <!-- 2. The story, as short beats -->
+  <section class="section" aria-label="הסיפור">
+    <div class="shell story">
+      <figure>
+        <img src="../../../public/img/about.webp" width="1200" height="798" alt="מידד גולן עומד ליד דוכן נואמים">
+        <figcaption>מידד גולן, מייסד ומנכ״ל המרכז לשיפור התנועה</figcaption>
+      </figure>
+      <div class="beats">
+        <p>מדי פעם היא התלוננה על כאבי גב. לפעמים הייתה אומרת משהו, וכעבור זמן קצר שוכחת שכבר אמרה אותו.</p>
+        <p>דברים קטנים, מהסוג שקל לייחס לגיל ולהמשיך בשגרה.</p>
+        <p>אבל אחרי שנים שבהן פגש דרך המרכז אנשים שכבר התמודדו עם ירידה בתפקוד, מידד הסתכל על הדברים האלה אחרת.</p>
+        <blockquote><p>הוא הבין שלשינויים גדולים יש לפעמים התחלות קטנות.</p></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Something was missing in the middle -->
+  <section class="section sunken" aria-labelledby="middle-h">
+    <div class="shell narrow middle">
+      <h2 id="middle-h" class="h2">היה חסר משהו באמצע</h2>
+      <div class="mt-l">
+        <p>אמו של מידד לא הייתה זקוקה לשיקום. היא הייתה עצמאית והמשיכה בחייה כרגיל.</p>
+        <p>אבל דווקא שם הוא זיהה את הצורך: לעבוד על הגוף ועל היכולות הקוגניטיביות עכשיו, כשהיא עדיין פעילה ועצמאית.</p>
+        <p>הוא חיפש עבורה פתרון מקצועי, פשוט ונגיש שאפשר להתמיד בו כחלק מהחיים — ולא מצא את מה שחיפש.</p>
+      </div>
+      <p class="beat-end">אז הוא החליט לבנות אותו.</p>
+    </div>
+  </section>
+
+  <!-- 4. This is how Active Plus was born -->
+  <section class="section" aria-labelledby="born-h">
+    <div class="shell born">
+      <div class="copy">
+        <h2 id="born-h" class="h2">מכאן נולדה פעילים+</h2>
+        <p class="mt-m">יחד עם אנשי מקצוע מתחומי הפיזיותרפיה, הריפוי בעיסוק, השיקום הנוירולוגי והאימון, פותחה פעילים+ — מערכת המשלבת אימון של הגוף והיכולות הקוגניטיביות בשגרה קצרה של כ־10 דקות ביום.</p>
+      </div>
+      <div class="vision">
+        <p class="pre">ומה שהתחיל מתוך רצון לתת מענה לאדם אחד, הפך לחזון רחב יותר:</p>
+        <p class="big">לעזור לכמה שיותר אנשים להשקיע ביכולות שלהם היום — ולא לחכות לרגע שבו יצטרכו להחזיר אותן.</p>
+        <a class="btn btn-primary lg mt-l" href="questionnaire.html">
+          מתחילים עם פעילים+
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Progress and measurement -->
+  <section class="section sunken measure" aria-labelledby="measure-h">
+    <div class="shell grid-2">
+      <img src="../../../public/img/v2/progress-woman.webp" alt="אישה מחייכת מול טאבלט עם מסך ההתקדמות שלה" width="1600" height="900" style="width:100%;height:auto;border-radius:22px;box-shadow:var(--lift-2)">
+      <div class="copy">
+        <h2 id="measure-h" class="h2">התקדמות ומדידה</h2>
+        <p class="lead mt-m" style="color:var(--ink)">כל אימון הוא עוד הזדמנות להבין טוב יותר את היכולות שלכם ולהתאים את האתגר לאימון הבא.</p>
+        <p class="mt-m">פעילים+ מרכזת את נתוני האימון ומציגה לכם תמונה פשוטה וברורה של ההתקדמות לאורך זמן בגוף וביכולות הקוגניטיביות.</p>
+        <p>כך תוכלו לראות מה משתפר, באילו תחומים אתם חזקים ואיפה כדאי להמשיך להתמקד.</p>
+        <p class="see">לראות את ההתקדמות שלכם</p>
+        <a class="btn btn-primary lg mt-s" href="questionnaire.html">
+          מתחילים עכשיו
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. The professional team -->
+  <section class="section" aria-labelledby="team-h">
+    <div class="shell">
+      <h2 id="team-h" class="h2">הצוות המקצועי</h2>
+      <p class="lead mt-m">מאחורי פעילים+ עומד צוות המשלב ניסיון בתנועה, שיקום ויכולות קוגניטיביות.</p>
+      <ul class="team">
+        <li>
+          <img class="photo" src="../../../public/img/v2/team-gadi.webp" width="900" height="900" alt="גדי בן שטרית">
+          <h3 class="h3">גדי בן שטרית</h3>
+          <p class="role">פיזיותרפיסט מוסמך</p>
+          <p class="desc">בעל ניסיון בתחומי הפיזיותרפיה האורתופדית, הגריאטרית והנוירולוגית.</p>
+        </li>
+        <li>
+          <img class="photo" src="../../../public/img/v2/team-daniel.webp" width="900" height="900" alt="דניאל שפיר">
+          <h3 class="h3">דניאל שפיר</h3>
+          <p class="role">שיקום נוירולוגי</p>
+          <p class="desc">עוסק בחיבור שבין תנועה, תפקוד ויכולות קוגניטיביות.</p>
+        </li>
+        <li>
+          <img class="photo" src="../../../public/img/v2/team-meidad.webp" width="900" height="900" alt="מידד גולן">
+          <h3 class="h3">מידד גולן</h3>
+          <p class="role">מייסד ומנכ״ל, המרכז לשיפור התנועה ופעילים+</p>
+          <p class="desc">ניסיון של שנים בתחום התנועה והתפקוד.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 7. FAQ (same as home) -->
+  <section class="section sunken" aria-labelledby="faq-h">
+    <div class="shell narrow">
+      <h2 id="faq-h" class="h2">שאלות ותשובות</h2>
+      <ul class="faq">
+        <li><details open><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>מה זה פעילים+?</summary><p>פעילים+ היא תוכנית אישית לאימון הגוף והמוח. האימונים משלבים תנועה עם משימות של זיכרון, קשב, קואורדינציה ומהירות תגובה – באימון קצר שאפשר לבצע בבית.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>למי פעילים+ מתאימה?</summary><p>התוכנית מיועדת בעיקר למי שרוצה להמשיך להיות פעיל, חד ועצמאי, ולחזק באופן קבוע את היכולות הגופניות והקוגניטיביות.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>כמה זמן צריך להתאמן?</summary><p>האימון היומי אורך כ־10 דקות. המטרה היא ליצור שגרה שקל להתמיד בה לאורך זמן.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>צריך להיות בכושר כדי להתחיל?</summary><p>לא. התוכנית מותאמת ליכולות ולרמה שלכם, ומתקדמת בהדרגה בהתאם לביצועים.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>איך האימון מותאם אליי?</summary><p>בתחילת הדרך אנחנו לומדים על היכולות, המטרות וההעדפות שלכם. בהמשך המערכת נעזרת גם בביצועים שלכם כדי להתאים את רמת האימון.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>מה מיוחד באימונים של פעילים+?</summary><p>במקום לעבוד רק על הגוף או רק על המוח, חלק מהתרגילים משלבים ביניהם. בזמן התנועה תתבקשו גם לחשוב, לזכור, להגיב ולענות על שאלות.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>איך האפליקציה יודעת אם אני מבצע את התרגיל נכון?</summary><p>בתרגילים נתמכים, המערכת משתמשת במצלמה כדי לזהות את התנועה ולנתח מדדים הקשורים לאופן הביצוע. כך ניתן לקבל משוב ולעקוב אחר ההתקדמות לאורך זמן.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>אפשר לראות את ההתקדמות שלי?</summary><p>כן. פעילים+ עוקבת אחר הביצועים ומציגה לכם כיצד אתם מתקדמים בתחומים כמו תנועה, קואורדינציה, קשב, זיכרון ומהירות תגובה.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>צריך ציוד מיוחד?</summary><p>ברוב האימונים לא. בהתאם לתוכנית שלכם ייתכן שימוש בכיסא או בציוד ביתי פשוט.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>אפשר להתאמן מהבית?</summary><p>כן. פעילים+ נבנתה במיוחד כדי לאפשר אימון נוח בבית, בזמן שמתאים לכם.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>האם פעילים+ מחליפה פיזיותרפיה או טיפול רפואי?</summary><p>לא. פעילים+ היא תוכנית אימון ואינה תחליף לאבחון, טיפול רפואי או פיזיותרפיה כאשר הם נדרשים.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>מה קורה אם תרגיל מסוים קשה לי?</summary><p>המטרה היא שהאימון יתאים ליכולת שלכם. אם תרגיל מרגיש קשה מדי, ניתן להתאים את רמת הקושי ולהמשיך בהדרגה.</p></details></li>
+        <li><details><summary><span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>איך מתחילים?</summary><p>עונים על כמה שאלות קצרות, מקבלים תוכנית שמתאימה לכם ומתחילים להתאמן. משם פעילים+ כבר מלווה אתכם לאורך הדרך.</p></details></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER:start -->
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a class="logo" href="home.html"><img src="../../../public/img/logo.webp" alt=""><span><span class="p1">פעילים</span><span class="p2">+</span></span></a>
+        <p class="soft mt-s" style="max-width:38ch">מערכת לאימון הגוף ולחדות המחשבה, מבית המרכז לשיפור התנועה. 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.</p>
+        <div class="btn-row mt-m"><a class="btn btn-outline" href="#">App Store</a><a class="btn btn-outline" href="#">Google Play</a></div>
+      </div>
+      <div>
+        <h4>באתר</h4>
+        <ul>
+          <li><a href="about.html">אודות</a></li>
+          <li><a href="how-it-works.html">איך זה עובד</a></li>
+          <li><a href="payment.html">מסלולים ומחירים</a></li>
+          <li><a href="articles.html">מאמרים</a></li>
+          <li><a href="questionnaire.html">בדיקת התאמה</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>יצירת קשר</h4>
+        <ul>
+          <li><span class="ltr">073-729-66-99</span></li>
+          <li>office@improve-movement.co.il</li>
+          <li>ימים א׳–ה׳, 10:00–17:00</li>
+          <li>יצחק שמיר 2, קרית ביאליק</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal"><span>© 2026 פעילים+ · המרכז לשיפור התנועה</span><span><a href="#">מדיניות פרטיות</a> · <a href="#">מחיקת חשבון</a></span></div>
+  </div>
+</footer>
+<!-- FOOTER:end -->
+</body>
+</html>

@@ -1,0 +1,153 @@
+{
+  "$schema-comment": "Canonical behavior contract for FunnelOrchestrator on both platforms. Each scenario asserts the full forward step sequence given a starting set of answers and an optional register event. Loaded by iOS FunnelOrchestratorTests.swift and Android FunnelOrchestratorTest.kt; both must produce expectedSequence verbatim. v5 redesign: routing branches on chair_rise_capability (with_handles -> standingComfort, else challengeArea). painStats ('אתה לא לבד') was removed from the flow; body-areas now goes straight to plan-building regardless of pain_areas. See ADR-0001.",
+  "scenarios": [
+    {
+      "name": "independent_branch_with_pain_standard",
+      "description": "Chair-rise alone/with_support -> challengeArea branch; body-areas -> plan-building (painStats removed); phone OTP.",
+      "initialAnswers": {
+        "chair_rise_capability": "alone",
+        "pain_areas": ["lower_back"]
+      },
+      "registerEvent": "standard",
+      "expectedSequence": [
+        "welcome2",
+        "gender",
+        "dob",
+        "socialProof",
+        "aspiration",        "activityLevel",
+        "chairRise",
+        "challengeArea",
+        "reinforcement2",
+        "frequency",
+        "bodyAreas",
+        "planBuilding",
+        "time",
+        "register",
+        "otp",        "payment"
+      ]
+    },
+    {
+      "name": "independent_branch_no_pain_standard",
+      "description": "Chair-rise with_support -> challengeArea branch; body-areas -> plan-building (painStats removed).",
+      "initialAnswers": {
+        "chair_rise_capability": "with_support",
+        "pain_areas": ["none"]
+      },
+      "registerEvent": "standard",
+      "expectedSequence": [
+        "welcome2",
+        "gender",
+        "dob",
+        "socialProof",
+        "aspiration",        "activityLevel",
+        "chairRise",
+        "challengeArea",
+        "reinforcement2",
+        "frequency",
+        "bodyAreas",
+        "planBuilding",
+        "time",
+        "register",
+        "otp",        "payment"
+      ]
+    },
+    {
+      "name": "assisted_branch_with_pain_standard",
+      "description": "Chair-rise with_handles -> standingComfort branch (influencing); body-areas -> plan-building (painStats removed); phone OTP.",
+      "initialAnswers": {
+        "chair_rise_capability": "with_handles",
+        "pain_areas": ["knees"]
+      },
+      "registerEvent": "standard",
+      "expectedSequence": [
+        "welcome2",
+        "gender",
+        "dob",
+        "socialProof",
+        "aspiration",        "activityLevel",
+        "chairRise",
+        "standingComfort",
+        "reinforcement2",
+        "frequency",
+        "bodyAreas",
+        "planBuilding",
+        "time",
+        "register",
+        "otp",        "payment"
+      ]
+    },
+    {
+      "name": "assisted_branch_apple",
+      "description": "with_handles -> standingComfort; Apple Sign-In bypasses OTP (register -> payment).",
+      "initialAnswers": {
+        "chair_rise_capability": "with_handles",
+        "pain_areas": ["lower_back"]
+      },
+      "registerEvent": "appleSignInCompleted",
+      "expectedSequence": [
+        "welcome2",
+        "gender",
+        "dob",
+        "socialProof",
+        "aspiration",        "activityLevel",
+        "chairRise",
+        "standingComfort",
+        "reinforcement2",
+        "frequency",
+        "bodyAreas",
+        "planBuilding",
+        "time",
+        "register",        "payment"
+      ]
+    },
+    {
+      "name": "independent_null_pain_standard",
+      "description": "Null pain_areas: body-areas -> plan-building (painStats removed). Pins Swift(nil)/Kotlin(null) parity.",
+      "initialAnswers": {
+        "chair_rise_capability": "alone"
+      },
+      "registerEvent": "standard",
+      "expectedSequence": [
+        "welcome2",
+        "gender",
+        "dob",
+        "socialProof",
+        "aspiration",        "activityLevel",
+        "chairRise",
+        "challengeArea",
+        "reinforcement2",
+        "frequency",
+        "bodyAreas",
+        "planBuilding",
+        "time",
+        "register",
+        "otp",        "payment"
+      ]
+    },
+    {
+      "name": "independent_empty_pain_standard",
+      "description": "Empty pain_areas []: body-areas -> plan-building (painStats removed).",
+      "initialAnswers": {
+        "chair_rise_capability": "alone",
+        "pain_areas": []
+      },
+      "registerEvent": "standard",
+      "expectedSequence": [
+        "welcome2",
+        "gender",
+        "dob",
+        "socialProof",
+        "aspiration",        "activityLevel",
+        "chairRise",
+        "challengeArea",
+        "reinforcement2",
+        "frequency",
+        "bodyAreas",
+        "planBuilding",
+        "time",
+        "register",
+        "otp",        "payment"
+      ]
+    }
+  ]
+}
