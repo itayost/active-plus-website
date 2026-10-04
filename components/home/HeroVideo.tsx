@@ -21,7 +21,10 @@ type NetworkInformationLike = { saveData?: boolean };
  * only cost a second, unoptimised download of the same picture.
  */
 export default function HeroVideo({ src }: { src: string }) {
-  const [enabled, setEnabled] = useState(false);
+  // "pending" until the client has decided, so tests (and anyone debugging)
+  // can wait for the decision instead of guessing at hydration timing.
+  const [mode, setMode] = useState<"pending" | "on" | "off">("pending");
+  const enabled = mode === "on";
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -29,11 +32,13 @@ export default function HeroVideo({ src }: { src: string }) {
     const connection = (navigator as Navigator & { connection?: NetworkInformationLike })
       .connection;
     const update = () =>
-      setEnabled(
+      setMode(
         shouldLoadHeroVideo({
           prefersReducedMotion: motion.matches,
           saveData: connection?.saveData,
-        }),
+        })
+          ? "on"
+          : "off",
       );
     update();
     motion.addEventListener("change", update);
@@ -51,21 +56,25 @@ export default function HeroVideo({ src }: { src: string }) {
     video.play().catch(() => undefined);
   }, [enabled]);
 
-  if (!enabled) return null;
+  const marker = <span hidden data-hero-video={mode} />;
+  if (!enabled) return marker;
 
   return (
-    <video
-      ref={videoRef}
-      className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload="auto"
-      aria-hidden="true"
-      tabIndex={-1}
-    >
-      <source src={src} type="video/mp4" />
-    </video>
+    <>
+      {marker}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        tabIndex={-1}
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+    </>
   );
 }
