@@ -3,7 +3,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers, Step } from "../../lib/funnel/types";
+import { OTP_LENGTH } from "../../lib/funnel/constants";
 import { choose, expectStep, firstLine, next, open, reload, screen, seed, stored, title } from "./funnel-helpers";
+import { GOOD_CODE, stubSupabase } from "./supabase-stub";
 
 /*
   The questionnaire keeps everything in localStorage until sign-in (covered in
@@ -70,7 +72,7 @@ async function walkToReinforcement(
 }
 
 /** reinforcement2 -> register's name screen. */
-async function finishFromReinforcement(page: Page) {
+async function finishFromReinforcement(page: Page, moreAreas: string[] = []) {
   await next(page).click();
   await expectStep(page, "frequency");
   await choose(page, (COPY.frequency.options[0] as { label: string }).label);
@@ -78,6 +80,7 @@ async function finishFromReinforcement(page: Page) {
 
   await expectStep(page, "bodyAreas");
   await screen(page).getByRole("button", { name: "ברך" }).click();
+  for (const area of moreAreas) await screen(page).getByRole("button", { name: area }).click();
   await next(page).click();
 
   await expectStep(page, "planBuilding");
@@ -269,4 +272,161 @@ test("with motion, the plan loader counts up and moves on to time by itself", as
   await expect.poll(async () => Number(await screen(page).getByRole("progressbar").getAttribute("aria-valuenow"))).toBeGreaterThan(0);
   await expectStep(page, "time", PLAN_BUILD_MS + PLAN_BUILD_HOLD_MS + 5_000);
   await expect(title(page)).toBeFocused();
+});
+
+/*
+  Walks that end in a real sign-in against stubbed Supabase (tests/e2e/supabase-stub.ts),
+  asserting what is sent to merge_funnel_session and to /api/funnel-event. The analytics
+  route is answered in the browser (204), so no server insert ever happens here.
+*/
+const noOverflow = (page: Page) =>
+  page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+
+type Beacon = { sessionId: string; step: string; data?: Record<string, unknown> };
+
+async function captureEvents(page: Page) {
+  const events: Beacon[] = [];
+  const raw: string[] = [];
+  await page.route("**/api/funnel-event", async (route) => {
+    const text = route.request().postData() ?? "";
+    raw.push(text);
+    try {
+      events.push(JSON.parse(text) as Beacon);
+    } catch {
+      // A malformed beacon fails the assertions below by being absent.
+    }
+    await route.fulfill({ status: 204 });
+  });
+  return { events, raw };
+}
+
+async function signIn(page: Page, name: string) {
+  await screen(page).getByRole("textbox").fill(name);
+  await screen(page).getByRole("button", { name: COPY.register.nameCta }).click();
+  await screen(page).getByLabel(COPY.register.phoneLabel, { exact: true }).fill("050-123-4567");
+  await screen(page).getByRole("button", { name: COPY.register.phoneCta }).click();
+  await expectStep(page, "otp");
+}
+
+const codeBox = (page: Page) => screen(page).getByLabel(COPY.otp.codeLabel.replace("{n}", String(OTP_LENGTH)));
+
+test.describe("a full walk with a stubbed sign-in", () => {
+  test.use({ reducedMotion: "reduce" });
+  let stub: Awaited<ReturnType<typeof stubSupabase>> | null = null;
+
+  test.afterEach(() => {
+    expect(stub?.foreign ?? []).toEqual([]);
+    stub = null;
+  });
+
+  test("female, chair alone, knees and neck, morning 09:00: merged in the fixed order and on to /payment", async ({ page }) => {
+    stub = await stubSupabase(page);
+    const beacons = await captureEvents(page);
+    await walkToReinforcement(page, "female", "alone");
+    await finishFromReinforcement(page, ["צוואר"]);
+    await signIn(page, "רחל כהן");
+    expect(await noOverflow(page)).toBe(true);
+    await codeBox(page).fill(GOOD_CODE);
+    await expect(page).toHaveURL(/\/payment$/);
+
+    const [merge] = stub.to("/rest/v1/rpc/merge_funnel_session");
+    const answers = (merge.body as { p_answers: Answers }).p_answers;
+    expect(answers.pain_areas).toEqual(["neck", "knees"]);
+    expect(answers.date_of_birth).toMatch(/-01-01$/);
+    expect(answers.training_time_of_day).toBe("09:00");
+    expect(answers).not.toHaveProperty("standing_stability");
+
+    // Events carry the app's names, once per visit, in walk order.
+    await expect.poll(() => beacons.events.at(-1)?.step).toBe("otp_verified");
+    expect(beacons.events.map((e) => e.step)).toEqual([
+      "welcome2_view",
+      "welcome2_continue",
+      "questionnaire_q5_view",
+      "dob_view",
+      "social_proof_view",
+      "social_proof_continue",
+      "questionnaire_aspiration_view",
+      "activity_level_view",
+      "questionnaire_chair_rise_view",
+      "challenge_area_view",
+      "reinforcement2_view",
+      "reinforcement2_continue",
+      "training_frequency_view",
+      "questionnaire_q6_view",
+      "plan_build_view",
+      "plan_build_complete",
+      "questionnaire_q8_view",
+      "register_view",
+      "register_name_submit",
+      "register_submit",
+      "otp_view",
+      "otp_verified",
+    ]);
+    const merged = (merge.body as { p_session_id: string }).p_session_id;
+    for (const event of beacons.events.slice(2)) expect(event.sessionId).toBe(merged);
+
+    // No personal details in anything sent: not the name, the phone, or the code.
+    const sent = beacons.raw.join("\n");
+    for (const secret of ["רחל", "כהן", "0501234567", "501234567", GOOD_CODE]) expect(sent).not.toContain(secret);
+  });
+
+  test("changing the chair answer after standingComfort drops standing_stability and asks challengeArea", async ({ page }) => {
+    stub = await stubSupabase(page);
+    await seed(page, "chairRise", {
+      gender: "male",
+      date_of_birth: "1961-01-01",
+      aspiration_goal: "all",
+      daily_activity_level: "mostly_sitting",
+    });
+    await choose(page, COPY.chairRise.options[2].masc);
+    await next(page).click();
+    await expectStep(page, "standingComfort");
+    await choose(page, COPY.standingComfort.options[2].masc); // seated
+    await page.getByRole("button", { name: COPY.chrome.back }).click();
+    await expectStep(page, "chairRise");
+    await choose(page, COPY.chairRise.options[1].masc);
+    await next(page).click();
+    await expectStep(page, "challengeArea");
+    await choose(page, COPY.challengeArea.options[0].label);
+    await next(page).click();
+    await expectStep(page, "reinforcement2");
+    await finishFromReinforcement(page);
+    await signIn(page, "דוד כהן");
+    await codeBox(page).fill(GOOD_CODE);
+    await expect(page).toHaveURL(/\/payment$/);
+
+    const answers = (stub.to("/rest/v1/rpc/merge_funnel_session")[0].body as { p_answers: Answers }).p_answers;
+    expect(answers).toMatchObject({ chair_rise_capability: "with_support", mobility_challenge: "stairs" });
+    expect(answers).not.toHaveProperty("standing_stability");
+  });
+});
+
+test.describe("resume and layout", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("a reload at bodyAreas resumes there with the earlier answers intact", async ({ page }) => {
+    await seed(page, "bodyAreas", THROUGH_FREQUENCY);
+    await reload(page);
+    await expectStep(page, "bodyAreas");
+    expect((await stored(page)).answers).toEqual(THROUGH_FREQUENCY);
+    await page.getByRole("button", { name: COPY.chrome.back }).click();
+    await expectStep(page, "frequency");
+    await expect(screen(page).getByRole("radio", { name: (COPY.frequency.options[0] as { label: string }).label })).toBeChecked();
+  });
+
+  const LAYOUT_STEPS: Step[] = [
+    "welcome2", "gender", "dob", "socialProof", "aspiration", "activityLevel", "chairRise",
+    "challengeArea", "standingComfort", "reinforcement2", "frequency", "bodyAreas", "time", "register",
+  ];
+  test("no step overflows the viewport horizontally", async ({ page }) => {
+    for (const step of LAYOUT_STEPS) {
+      await seed(page, step, { ...THROUGH_FREQUENCY, pain_areas: ["knees"], training_time_of_day: "09:00", chair_rise_capability: step === "standingComfort" ? "with_handles" : "alone" });
+      expect(await noOverflow(page), `overflow on ${step}`).toBe(true);
+    }
+    await seed(page, "bodyAreas", THROUGH_FREQUENCY);
+    await screen(page).getByRole("button", { name: "ברך" }).click();
+    await next(page).click();
+    await expectStep(page, "planBuilding");
+    expect(await noOverflow(page), "overflow on planBuilding").toBe(true);
+  });
 });
