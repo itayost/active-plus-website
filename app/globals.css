@@ -55,6 +55,7 @@
   --gutter: clamp(1.25rem, 4vw, 4.5rem);
   --section-y: clamp(4rem, 3rem + 6vw, 8.5rem);
   --measure: 68ch;
+  --hero-field: #08222f;
 
   /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

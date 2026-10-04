@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import FitCheckClose from "@/components/explainers/FitCheckClose";
 import Challenges from "@/components/how/Challenges";
 import Steps from "@/components/how/Steps";
+import DarkHeroCard from "@/components/ui/DarkHeroCard";
 import Button from "@/components/ui/Button";
 import Section from "@/components/ui/Section";
 import { ArrowIcon } from "@/components/ui/icons";
@@ -18,36 +20,32 @@ const LEDE_FONT = "font-display font-bold";
 export default function HowItWorksPage() {
   return (
     <>
-      <section
-        aria-labelledby="hero-h"
-        className="on-dark bg-surface pb-[clamp(1.5rem,3vw,2.5rem)] pt-[clamp(1rem,2vw,1.75rem)]"
+      <DarkHeroCard
+        labelledBy="hero-h"
+        className="flex min-h-[clamp(23rem,36vw,34rem)] flex-col items-center justify-center px-[clamp(1.25rem,4vw,4rem)] py-[clamp(3.5rem,6vw,5.5rem)] text-center"
+        background={
+          C.hero.image ? (
+            <>
+              <Image src={C.hero.image} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
+              <div aria-hidden="true" className="absolute inset-0 -z-10 bg-hero opacity-80" />
+            </>
+          ) : null
+        }
       >
-        <div className="mx-auto w-full px-[clamp(0.625rem,1.4vw,1.5rem)]">
-          <div className="relative isolate overflow-hidden rounded-[clamp(20px,2.5vw,36px)] bg-[#08222f]">
-            {C.hero.image ? (
-              <>
-                <Image src={C.hero.image} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
-                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[#08222f]/80" />
-              </>
-            ) : null}
-            <div className="flex min-h-[clamp(23rem,36vw,34rem)] flex-col items-center justify-center px-[clamp(1.25rem,4vw,4rem)] py-[clamp(3.5rem,6vw,5.5rem)] text-center">
-              <h1
-                id="hero-h"
-                className="max-w-[24ch] font-display text-[clamp(2rem,1.4rem+2.6vw,3.75rem)] font-black leading-[1.1] text-white"
-              >
-                {C.hero.title}
-              </h1>
-              <p className="mt-6 max-w-[44ch] text-[clamp(1.2rem,1.05rem+0.8vw,1.5rem)] font-medium leading-snug text-white/90">
-                {C.hero.sub}
-              </p>
-              <Button href={FIT_CHECK.href} variant="onColor" size="lg" className="mt-10">
-                {C.hero.cta}
-                <ArrowIcon className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+        <h1
+          id="hero-h"
+          className="max-w-[24ch] font-display text-[clamp(2rem,1.4rem+2.6vw,3.75rem)] font-black leading-[1.1] text-white"
+        >
+          {C.hero.title}
+        </h1>
+        <p className="mt-6 max-w-[44ch] text-[clamp(1.2rem,1.05rem+0.8vw,1.5rem)] font-medium leading-snug text-white/90">
+          {C.hero.sub}
+        </p>
+        <Button href={FIT_CHECK.href} variant="onColor" size="lg" className="mt-10">
+          {C.hero.cta}
+          <ArrowIcon className="h-5 w-5" />
+        </Button>
+      </DarkHeroCard>
 
       <Section labelledBy="steps-h" className="!pt-[clamp(3rem,6vw,5.5rem)]">
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-16">
@@ -190,19 +188,15 @@ export default function HowItWorksPage() {
       </Section>
 
       <Section labelledBy="cta-h">
-        <div className="rounded-card bg-blue [--focus-ring:#ffffff] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(2.5rem,6vw,4.5rem)] text-center text-white">
-          <h2 id="cta-h" className="mx-auto max-w-[22ch] text-h2 font-display font-black">{C.close.heading}</h2>
-          <div className="mt-6 grid gap-4">
-            {C.close.body.map((p) => (
-              <p key={p} className="mx-auto max-w-[52ch] text-lead leading-normal text-white/90">{p}</p>
-            ))}
-            <p className={`mx-auto max-w-[52ch] text-lead leading-normal text-white ${LEDE_FONT}`}>{C.close.strong}</p>
-          </div>
-          <Button href={FIT_CHECK.href} variant="onColor" size="lg" className="mt-9">
-            {C.close.cta}
-            <ArrowIcon className="h-5 w-5" />
-          </Button>
-        </div>
+        <FitCheckClose
+          tone="blue"
+          centered
+          cta={C.close.cta}
+          heading={C.close.heading}
+          headingId="cta-h"
+          body={C.close.body}
+          strong={C.close.strong}
+        />
       </Section>
     </>
   );

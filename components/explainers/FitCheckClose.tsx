@@ -8,7 +8,11 @@ type Props = {
   cta: string;
   heading: ReactNode;
   headingId?: string;
-  body?: string;
+  body?: string | string[];
+  /** Emphasised last line under the body (centred band only). */
+  strong?: string;
+  /** Blue only: the centred band instead of the left-heavy card. */
+  centered?: boolean;
 };
 
 const CTA_ICON = <ArrowIcon className="h-5 w-5" />;
@@ -19,7 +23,7 @@ const CTA_ICON = <ArrowIcon className="h-5 w-5" />;
  * takes the one filled purple button, DESIGN.md's Inverted Action Exception),
  * a left-heavy blue card, and a centred green band.
  */
-export default function FitCheckClose({ tone, cta, heading, headingId, body }: Props) {
+export default function FitCheckClose({ tone, cta, heading, headingId, body, strong, centered }: Props) {
   if (tone === "purple") {
     return (
       <div className="rounded-card bg-purple-wash px-[clamp(1.5rem,5vw,4.5rem)] py-[clamp(2.25rem,6vw,5rem)] text-center">
@@ -40,7 +44,7 @@ export default function FitCheckClose({ tone, cta, heading, headingId, body }: P
     );
   }
 
-  if (tone === "blue") {
+  if (tone === "blue" && !centered) {
     return (
       <div className="grid gap-8 rounded-card bg-blue [--focus-ring:#ffffff] p-[clamp(2rem,5vw,3.5rem)] text-white shadow-lift-2">
         <h2
@@ -57,14 +61,31 @@ export default function FitCheckClose({ tone, cta, heading, headingId, body }: P
     );
   }
 
+  const lines = body === undefined ? [] : Array.isArray(body) ? body : [body];
+  const field = tone === "blue" ? "bg-blue" : "bg-green";
+
   return (
-    <div className="rounded-card bg-green [--focus-ring:#ffffff] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(2.5rem,6vw,4.5rem)] text-center text-white">
+    <div className={`rounded-card ${field} [--focus-ring:#ffffff] px-[clamp(1.5rem,5vw,4rem)] py-[clamp(2.5rem,6vw,4.5rem)] text-center text-white`}>
       <h2
         id={headingId}
         className="mx-auto max-w-[22ch] text-h2 font-display font-black"
       >
         {heading}
       </h2>
+      {lines.length > 0 || strong ? (
+        <div className="mt-6 grid gap-4">
+          {lines.map((line) => (
+            <p key={line} className="mx-auto max-w-[52ch] text-lead leading-normal text-white/90">
+              {line}
+            </p>
+          ))}
+          {strong ? (
+            <p className="mx-auto max-w-[52ch] font-display text-lead font-bold leading-normal text-white">
+              {strong}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       <Button href={FIT_CHECK.href} variant="onColor" size="lg" className="mt-9">
         {cta}
         {CTA_ICON}

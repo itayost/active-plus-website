@@ -26,6 +26,7 @@ const config: Config = {
         surface: "var(--surface)",
         sunken: "var(--surface-sunken)",
         hairline: "var(--hairline)",
+        hero: "var(--hero-field)",
         ink: {
           DEFAULT: "var(--ink)",
           soft: "var(--ink-soft)",
