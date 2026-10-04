@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { loadSession, resetSession, saveAnswers } from "@/lib/funnel/storage";
+import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 
 const DAY = 86_400_000;
 
@@ -58,5 +58,38 @@ describe("funnel storage", () => {
     expect(s.answers).toEqual({});
     expect(() => saveAnswers({ gender: "male" })).not.toThrow();
     expect(() => resetSession()).not.toThrow();
+  });
+
+  describe("current step", () => {
+    it("round-trips a saved step", () => {
+      saveStep("chairRise");
+      expect(loadStep()).toBe("chairRise");
+    });
+    it("is null when nothing is stored", () => {
+      expect(loadStep()).toBeNull();
+    });
+    it("ignores a value that is not a funnel step", () => {
+      localStorage.setItem("ap.funnel.step", "nonsense");
+      expect(loadStep()).toBeNull();
+    });
+    it("never restores into planBuilding: it lands on time", () => {
+      saveStep("planBuilding");
+      expect(loadStep()).toBe("time");
+    });
+    it("expires with the session after 30 days", () => {
+      saveStep("frequency");
+      expect(loadStep(Date.now() + 31 * DAY)).toBeNull();
+    });
+    it("is cleared by resetSession", () => {
+      saveStep("frequency");
+      resetSession();
+      expect(loadStep()).toBeNull();
+    });
+    it("survives blocked storage", () => {
+      vi.spyOn(localStorage, "getItem").mockImplementation(() => { throw new Error("blocked"); });
+      vi.spyOn(localStorage, "setItem").mockImplementation(() => { throw new Error("blocked"); });
+      expect(() => saveStep("gender")).not.toThrow();
+      expect(loadStep()).toBeNull();
+    });
   });
 });
