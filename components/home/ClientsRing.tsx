@@ -24,7 +24,7 @@ export default function ClientsRing() {
             width={1447}
             height={1087}
             sizes="(max-width: 1100px) 92vw, 1040px"
-            className="h-auto w-full [-webkit-mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_66%,transparent_100%)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_66%,transparent_100%)]"
+            className="h-auto w-full [-webkit-mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_80%,transparent_100%)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_80%,transparent_100%)]"
           />
           <p
             id="clients-heading"

@@ -1,5 +1,16 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Colours are CSS variables, which Tailwind cannot split into channels, so an
+ * opacity modifier (bg-ink/85) would silently generate nothing. This returns
+ * the bare variable when no alpha is asked for and a color-mix otherwise.
+ */
+const cssVar = (name: string): string =>
+  (({ opacityValue }: { opacityValue?: string }) =>
+    opacityValue === undefined
+      ? `var(${name})`
+      : `color-mix(in srgb, var(${name}) calc(${opacityValue} * 100%), transparent)`) as unknown as string;
+
 const config: Config = {
   /*
    * Wraps every `hover:` utility in `@media (hover: hover)`, so the whole set
@@ -23,36 +34,36 @@ const config: Config = {
         display: ["var(--font-rubik)", "system-ui", "sans-serif"],
       },
       colors: {
-        surface: "var(--surface)",
-        sunken: "var(--surface-sunken)",
-        hairline: "var(--hairline)",
-        hero: "var(--hero-field)",
+        surface: cssVar("--surface"),
+        sunken: cssVar("--surface-sunken"),
+        hairline: cssVar("--hairline"),
+        hero: cssVar("--hero-field"),
         ink: {
-          DEFAULT: "var(--ink)",
-          soft: "var(--ink-soft)",
-          faint: "var(--ink-faint)",
+          DEFAULT: cssVar("--ink"),
+          soft: cssVar("--ink-soft"),
+          faint: cssVar("--ink-faint"),
         },
         blue: {
-          DEFAULT: "var(--blue)",
-          bright: "var(--blue-bright)",
-          deep: "var(--blue-deep)",
-          wash: "var(--blue-wash)",
+          DEFAULT: cssVar("--blue"),
+          bright: cssVar("--blue-bright"),
+          deep: cssVar("--blue-deep"),
+          wash: cssVar("--blue-wash"),
         },
         green: {
-          DEFAULT: "var(--green)",
-          deep: "var(--green-deep)",
-          wash: "var(--green-wash)",
+          DEFAULT: cssVar("--green"),
+          deep: cssVar("--green-deep"),
+          wash: cssVar("--green-wash"),
         },
         purple: {
-          DEFAULT: "var(--purple)",
-          deep: "var(--purple-deep)",
-          wash: "var(--purple-wash)",
+          DEFAULT: cssVar("--purple"),
+          deep: cssVar("--purple-deep"),
+          wash: cssVar("--purple-wash"),
         },
-        yellow: "var(--yellow)",
+        yellow: cssVar("--yellow"),
         burgundy: {
-          DEFAULT: "var(--burgundy)",
-          deep: "var(--burgundy-deep)",
-          wash: "var(--burgundy-wash)",
+          DEFAULT: cssVar("--burgundy"),
+          deep: cssVar("--burgundy-deep"),
+          wash: cssVar("--burgundy-wash"),
         },
       },
       fontSize: {

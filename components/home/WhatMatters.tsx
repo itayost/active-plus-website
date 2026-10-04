@@ -29,19 +29,17 @@ export default function WhatMatters() {
 
 function MattersList() {
   return (
-    <ul className="mt-12 grid gap-8 md:grid-cols-3">
+    <ul className="mt-12 border-b border-ink/15">
       {WHAT_MATTERS.map((w) => (
         <li
           key={w.title}
-          className="grid grid-cols-[auto_1fr] gap-4 rounded-[20px] bg-surface p-6 shadow-lift-1"
+          className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-5 gap-y-2 border-t border-ink/15 py-[clamp(1.75rem,3vw,2.75rem)] lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-x-10"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-deep text-white">
-            <CheckIcon className="h-5 w-5" />
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-green-deep text-white">
+            <CheckIcon className="h-6 w-6" />
           </span>
-          <span>
-            <h3 className="text-h3 font-display font-bold">{w.title}</h3>
-            <p className="mt-2 text-ink-soft">{w.body}</p>
-          </span>
+          <h3 className="text-h3 font-display font-bold">{w.title}</h3>
+          <p className="col-start-2 text-ink-soft lg:col-start-3">{w.body}</p>
         </li>
       ))}
     </ul>
