@@ -51,3 +51,6 @@ graphify-out/*
 test-results/
 playwright-report/
 coverage/
+
+# impeccable review scratch (screenshots, reports); design.json, mocks and provenance stay tracked
+.impeccable/review/
