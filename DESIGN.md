@@ -54,9 +54,9 @@ typography:
     fontWeight: 400
     lineHeight: 1.65
 rounded:
-  sm: "14px"
-  md: "20px"
-  lg: "22px"
+  field: "14px"
+  tile: "20px"
+  panel: "22px"
   card: "28px"
   hero: "clamp(20px, 2.5vw, 36px)"
   pill: "999px"
@@ -111,7 +111,7 @@ components:
   input:
     backgroundColor: "#ffffff"
     textColor: "{colors.ink}"
-    rounded: "{rounded.sm}"
+    rounded: "{rounded.field}"
     padding: "14px 16px"
 ---
 
@@ -154,7 +154,7 @@ Every field value is the brightest tone of its hue that still clears 4.5:1 with 
 - **Brand Yellow**: one semantic job, the money the visitor keeps. It appears only as the annual plan's savings figure, bold `lead`-size display type inside an ink pill (on the plan teaser photo and in the plan picker). Never body text, never on a light ground.
 
 ### Neutral
-- **Hero Field** (`--hero-field`, Tailwind `hero`): the near-black teal ground of the Dark Hero Card. Its photo/video scrims are the same colour at partial alpha.
+- **Hero Field** (`--hero-field`, Tailwind `hero`): the near-black teal ground of the Dark Hero Card. Its photo/video scrims are the same colour at partial alpha, written `rgb(var(--hero-field-rgb) / a)` from the channel token rather than through color-mix, so an engine without color-mix never loses the scrim that keeps the headline readable.
 - **Ink**: primary text, AAA on white; also the ground of the savings pill, the carousel progress fill and the skip link.
 - **Ink Soft** (AAA on white and on Cool Paper): secondary text, ledes, body inside neutral cards, nav labels at rest, long-form article body.
 - **Ink Faint** (AA only: 5.28:1 on white, 4.86:1 on Cool Paper): placeholders, image captions and the faded first line of a large display heading. Never instructions, hints, labels or legal links, which use `ink-soft`.
@@ -191,7 +191,7 @@ Every field value is the brightest tone of its hue that still clears 4.5:1 with 
 - **Lead** (400, 20px to 26px fluid, 1.55, Heebo): ledes and standfirsts under a headline, plan figures, testimonial quotes; capped to the 68ch measure.
 - **Body** (400, 18px to 21px fluid via `text-base`, 1.65, Heebo): the reading size. The document root is fixed at the 18px floor; components opt into the fluid step.
 
-Two in-between sizes are sanctioned: the article page hero sets a long editorial h1 smaller and wider (`clamp(2rem, 1.3rem + 2.6vw, 4.25rem)`, 24ch), and article-body `h2`s (`Prose`) use `clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)` bold, between Title and Headline. Field-card titles (feature cards, How-it-works challenges, the blue fit-check card) run a heavier card-title step around `clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem)` at 900.
+Three in-between sizes are sanctioned and named in the Tailwind config: the article page hero sets a long editorial h1 smaller and wider (`text-h1-article`, `clamp(2rem, 1.3rem + 2.6vw, 4.25rem)`, 24ch), article-body `h2`s (`Prose`) use `text-h2-prose` (`clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)`) bold, between Title and Headline, and the feature cards' titles use `text-card-title` (`clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem)`) at 900. The How-it-works challenges and the blue fit-check card run close to that step but not on it (`clamp(1.625rem, 1.3rem + 1.1vw, 2.25rem)` and `clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem)`); folding them in would visibly resize them, so it waits for a typeset pass. Both Dark Hero Card ledes use `text-lead` at snug leading.
 
 ### Named Rules
 **The 18px Floor Rule.** Body text never goes below 1.125rem anywhere on the site, including inside buttons (`md` buttons set `text-base`). This is the audience's accessibility floor and is not negotiable for a "compact" variant.
@@ -222,7 +222,7 @@ Depth is soft, offset drop shadows at three strengths (`--lift-1/2/3`), all keye
 
 ## Shapes
 
-Corners run on a fixed scale: 14px for inputs and inline alerts, 20px for inset image tiles inside field cards and the What Matters rotator rows, 22px for floating image panels, 28px (`rounded-card`) for every card-scale container, a fluid 20px to 36px for the Dark Hero Card, and 999px (`rounded-pill`) for every button, pill and the carousel progress bar. Icon buttons (carousel arrows, check badges, nav toggle) are full circles. Borders are 2px: `hairline` on inputs and plan cards, `ink/15` on outline buttons and carousel arrows; unboxed list rules are 1px `ink/15`.
+Corners run on a fixed scale, each a Tailwind token: 14px (`rounded-field`) for inputs and inline alerts, 20px (`rounded-tile`) for image tiles inset in a card and list rows, 22px (`rounded-panel`) for floating image panels, 28px (`rounded-card`) for every card-scale container (testimonial cards and the framed /progress photo included), a fluid 20px to 36px (`rounded-hero`) for the Dark Hero Card, and 999px (`rounded-pill`) for every pill and the carousel progress bar. Buttons are the one exception: their radius is half their minimum height (26px, 30px), the same pill on one line, a rounded rectangle when a label wraps at enlarged text. Icon buttons (carousel arrows, check badges, nav toggle) are full circles. Borders are 2px: `hairline` on inputs and plan cards, `ink/15` on outline buttons and carousel arrows; unboxed list rules are 1px `ink/15`.
 
 ## Components
 
@@ -233,7 +233,7 @@ Corners run on a fixed scale: 14px for inputs and inline alerts, 20px for inset 
 - **On-Color:** white fill, ink text; the action on blue, green and dark-hero fields.
 - **Outline:** white fill, 2px `ink/15` border darkening to `ink/35` on hover; secondary verbs (the monthly plan teaser).
 - **Ghost:** no fill, `ink-soft` text, Cool Paper on hover; used sparingly.
-- **Pressed:** `active:scale-[0.97]` on every variant, because `hover:` compiles out on touch (`hoverOnlyWhenSupported`).
+- **Pressed:** `active:scale-[0.97]` on every variant and on the custom pills that mirror Button (the feature-card action, the lead and delete-account submits, the footer store pills), because `hover:` compiles out on touch (`hoverOnlyWhenSupported`).
 - **Sizes:** `md` (52px, `text-base`) and `lg` (60px, `text-lead`). Both clear the 48px floor. External links append a screen-reader "(נפתח בחלון חדש)".
 
 ### Cards / Containers
@@ -249,15 +249,15 @@ The rounded dark card that opens the home and how-it-works pages. It runs almost
 The interior-page opener: a full-bleed brand wash with the h1 in that hue's deep ink and an `ink-soft` lede. Variants: `back` (a Back Link above the h1, used by the explainers), `aside` (media beside the copy on wide screens, below on narrow), and `article` (smaller, wider h1 and deep bottom padding so the cover image can overlap the hero's lower edge).
 
 ### Back Link
-A 48px-tall Rubik bold `ink-soft` link with a right-pointing arrow ("חזרה לעמוד הבית"); on hover the text darkens and underlines and the arrow nudges 3px.
+A 48px-tall Rubik bold `ink-soft` link with a right-pointing arrow, rendered in the Page Hero's `back` slot above the h1: "חזרה לעמוד הבית" on the explainers, "כל המאמרים" on an article. On hover the text darkens and underlines and the arrow nudges 3px. It is the only back-link style.
 
 ### The Card Carousel (signature component)
-A scroll-snapped row driven by the shared `useSnapCarousel` hook: position from `IntersectionObserver` (first child at least 60% visible), an `atEnd` flag that disables "next" when several cards are visible and the track can no longer scroll. Controls are 56px circular outline arrows beside the heading, each pointing the way it moves the track in RTL. Two instances:
+A scroll-snapped row driven by the shared `useSnapCarousel` hook: position from `IntersectionObserver` (first child at least 60% visible), an `atEnd` flag that disables "next" when several cards are visible and the track can no longer scroll. Controls are the shared `CarouselArrows`: 56px circular outline arrows beside the heading, each pointing the way it moves the track in RTL, with the pressed scale Button has. `atEnd` is recomputed when the track resizes. Two instances:
 - **Feature Cards:** three field cards (lavender, blue, green), one at a time, with the illustration inset as a 20px-radius tile on the field rather than butted to its edge, a 56px card action pill, and a thin ink progress bar under the shell; a primary fit-check CTA closes the section.
 - **Testimonials:** white quote cards on Cool Paper with `lift-1`, several visible at once, name as the h3 and the source as a text label (no stars, no third-party logos), quote in `lead`.
 
 ### What Matters (signature component)
-Without photos, an unboxed list: rows ruled by 1px `ink/15` hairlines top and bottom, each with a 48px solid `green-deep` check badge, an h3 title and an `ink-soft` body that moves into a third column on `lg`. When photos exist it becomes a rotator: pressable rows (outlined check badge, filled when active) beside a 22px-radius image, advancing every 6s, pausing on hover or focus and not advancing under reduced motion.
+An unboxed list: rows ruled by 1px `ink/15` hairlines top and bottom, each with a 48px solid `green-deep` check badge, an h3 title and an `ink-soft` body that moves into a third column on `lg`. (The photo rotator meant for when each point has an image was removed unused; if photos arrive it returns from git history with a visible pause control.)
 
 ### Clients Ring
 The client's own ring of portraits, edge-faded with a radial mask so the artwork never meets the page in a hard rectangle, with the clients line set bold in the open centre (`sm` and up) or dropped under the picture on phones.
@@ -291,7 +291,7 @@ Single-open FAQ list in the narrow shell, hairline-divided rows, no card chrome.
 - **Do** treat each brand hue as a full-bleed field claim (section or card background), never a small accent.
 - **Do** use the authored stroke-icon set only (1.75 stroke, round caps/joins, 24-unit grid, no fill); never an emoji, a unicode glyph, or a third-party icon font.
 - **Do** run the shared `Reveal` entrance (rise, de-blur, settle) for content that enters on scroll, staggered by 90ms per sibling, and render content visible with no animation under `prefers-reduced-motion`.
-- **Do** author section headings without an eyebrow/kicker; the `SectionHeading` primitive has no eyebrow slot by design.
+- **Do** author section headings without an eyebrow/kicker; a heading carries its own weight.
 - **Do** use `minmax(0, …)` tracks for any grid that holds images or long Hebrew words.
 - **Do** use opacity modifiers on colour tokens (`ink/15`, `white/90`) rather than hand-written rgba copies.
 
