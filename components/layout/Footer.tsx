@@ -12,7 +12,6 @@ import {
   NAV,
   STORE_ANDROID,
   STORE_IOS,
-  prefetchFor,
 } from "@/lib/constants";
 import PhoneNumber from "@/components/ui/PhoneNumber";
 
@@ -81,7 +80,6 @@ export default function Footer() {
               <li>
                 <Link
                   href={FIT_CHECK.href}
-                  prefetch={prefetchFor(FIT_CHECK.href)}
                   className="inline-flex min-h-12 min-w-12 items-center text-ink-soft transition-colors hover:text-blue-deep"
                 >
                   {FIT_CHECK.label}

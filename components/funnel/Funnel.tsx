@@ -1,0 +1,89 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { advance, back, initialState, restore, showHours, type FunnelState } from "@/lib/funnel/machine";
+import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
+import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
+import type { Segment } from "@/lib/funnel/time";
+import type { Answers } from "@/lib/funnel/types";
+import FunnelChrome from "./FunnelChrome";
+import { STEP_TITLE_ID } from "./parts";
+import { renderStep, type StepActions } from "./steps";
+
+/**
+ * The questionnaire's state owner. It holds the step, the back history and
+ * the answers, persists them through lib/funnel/storage, and hands each step
+ * its slice of state and the actions it may take. Steps are presentational.
+ *
+ * The server renders welcome2; on mount the saved session (if any) replaces it.
+ */
+export default function Funnel() {
+  const [state, setState] = useState<FunnelState>(initialState);
+  // Counts navigations, so focus moves to the new heading on every move but not on the first paint.
+  const [moves, setMoves] = useState(0);
+
+  useEffect(() => {
+    const { answers } = loadSession();
+    setState(restore(loadStep(), answers));
+  }, []);
+
+  useEffect(() => {
+    if (moves === 0) return;
+    document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0 });
+  }, [moves]);
+
+  const go = useCallback((next: FunnelState) => {
+    setState(next);
+    saveStep(next.step);
+    setMoves((n) => n + 1);
+  }, []);
+
+  const actions = useMemo<StepActions>(
+    () => ({
+      setDraft: (patch: Answers) => setState((s) => ({ ...s, draft: { ...s.draft, ...patch } })),
+      answer: (patch: Answers) => {
+        const answers = cleanOffBranch({ ...state.answers, ...patch });
+        saveAnswers(answers);
+        go(advance(state, answers));
+      },
+      advance: () => go(advance(state)),
+      start: () => {
+        resetSession();
+        loadSession(); // mints the new session id
+        go(advance({ ...initialState() }));
+      },
+      setSegment: (segment: Segment) => setState((s) => ({ ...s, time: { ...s.time, segment } })),
+      showHours: () => {
+        if (state.time.segment) go(showHours(state, state.time.segment));
+      },
+    }),
+    [state, go],
+  );
+
+  const onBack = useCallback(() => go(back(state)), [state, go]);
+
+  const { step } = state;
+  const canGoBack = state.history.length > 0 || (step === "time" && state.time.sub === "B");
+
+  return (
+    <div className="bg-sunken pb-[clamp(3.5rem,7vw,6rem)] pt-[clamp(1.25rem,3vw,2.5rem)]">
+      <div className="mx-auto max-w-[860px] gutter-x">
+        <FunnelChrome
+          dot={indicator(step, state.answers)}
+          canGoBack={canGoBack}
+          bare={step === "planBuilding"}
+          onBack={onBack}
+        />
+        <section
+          key={`${step}-${state.time.sub}`}
+          aria-labelledby={STEP_TITLE_ID}
+          data-step={step}
+          className="mt-[clamp(1.5rem,3vw,2.25rem)]"
+        >
+          {renderStep(state, actions)}
+        </section>
+      </div>
+    </div>
+  );
+}

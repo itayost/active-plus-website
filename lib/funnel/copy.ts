@@ -36,6 +36,17 @@ export const COPY = {
     next: "המשך",
     trust: "המידע שלך בטוח ומאובטח",
   },
+  /** Web-only chrome around every step (the app draws its own). */
+  chrome: {
+    back: "חזרה",
+    cancel: "ביטול",
+    dots: "שלב {i} מתוך {n}",
+  },
+  /** Temporary register/otp screen until sign-in ships (plan 2, Task 5). */
+  stub: {
+    title: "כמעט סיימנו",
+    body: "התשובות שלך נשמרו. ההרשמה עם מספר טלפון תתווסף כאן בקרוב.",
+  },
   gender: {
     title: "מהו המגדר שלך?",
     subtitle: "המגדר שלך משפיע על מדדים גופניים חשובים.\nאנחנו משתמשים במידע הזה כדי לספק לך תוכן מותאם אישית.",
