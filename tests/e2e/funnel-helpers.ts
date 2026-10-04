@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { OTP_LENGTH } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers, Step } from "../../lib/funnel/types";
 
@@ -49,3 +50,108 @@ export async function seed(page: Page, step: Step, answers: Answers) {
   await reload(page);
   await expectStep(page, step);
 }
+
+/** welcome2 -> reinforcement2, on the chair branch the visitor picks. */
+export async function walkToReinforcement(
+  page: Page,
+  gender: "male" | "female",
+  chair: "alone" | "with_handles",
+  onSocialProof: () => Promise<void> = async () => {},
+) {
+  const fem = gender === "female";
+  await open(page);
+  await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
+
+  await expectStep(page, "gender");
+  await choose(page, fem ? "נקבה" : "זכר");
+  await next(page).click();
+
+  await expectStep(page, "dob");
+  await next(page).click();
+
+  await expectStep(page, "socialProof");
+  await onSocialProof();
+  await next(page).click();
+
+  await expectStep(page, "aspiration");
+  await choose(page, COPY.aspiration.options[3].label);
+  await next(page).click();
+
+  await expectStep(page, "activityLevel");
+  await choose(page, COPY.activityLevel.options[2].masc);
+  await next(page).click();
+
+  await expectStep(page, "chairRise");
+  await expect(page.getByRole("img", { name: "שלב 4 מתוך 8" })).toBeVisible();
+  const chairOption = COPY.chairRise.options.find((o) => o.value === chair)!;
+  await choose(page, fem ? chairOption.fem : chairOption.masc);
+  await next(page).click();
+
+  if (chair === "with_handles") {
+    await expectStep(page, "standingComfort");
+    await expect(title(page)).toHaveText(fem ? COPY.standingComfort.title.fem : COPY.standingComfort.title.masc);
+    await choose(page, fem ? COPY.standingComfort.options[0].fem : COPY.standingComfort.options[0].masc);
+  } else {
+    await expectStep(page, "challengeArea");
+    await choose(page, COPY.challengeArea.options[0].label);
+  }
+  await next(page).click();
+  await expectStep(page, "reinforcement2");
+}
+
+/** reinforcement2 -> register's name screen. */
+export async function finishFromReinforcement(page: Page, moreAreas: string[] = []) {
+  await next(page).click();
+  await expectStep(page, "frequency");
+  await choose(page, (COPY.frequency.options[0] as { label: string }).label);
+  await next(page).click();
+
+  await expectStep(page, "bodyAreas");
+  await screen(page).getByRole("button", { name: "ברך" }).click();
+  for (const area of moreAreas) await screen(page).getByRole("button", { name: area }).click();
+  await next(page).click();
+
+  await expectStep(page, "planBuilding");
+  await next(page).click(); // reduced motion: the loader waits for a tap
+
+  await expectStep(page, "time");
+  await choose(page, "בוקר");
+  await next(page).click();
+  await expect(title(page)).toContainText(firstLine(COPY.time.hourTitle.morning));
+  await choose(page, "09:00");
+  await next(page).click();
+
+  await expectStep(page, "register");
+  await expect(page.getByRole("progressbar", { name: COPY.register.nameHeader })).toBeVisible();
+}
+
+
+export type Beacon = { sessionId: string; step: string; data?: Record<string, unknown> };
+
+/** Answers /api/funnel-event in the browser (204) and keeps every beacon sent. */
+export async function captureEvents(page: Page) {
+  const events: Beacon[] = [];
+  const raw: string[] = [];
+  await page.route("**/api/funnel-event", async (route) => {
+    const text = route.request().postData() ?? "";
+    raw.push(text);
+    try {
+      events.push(JSON.parse(text) as Beacon);
+    } catch {
+      // A malformed beacon fails the assertions below by being absent.
+    }
+    await route.fulfill({ status: 204 });
+  });
+  return { events, raw };
+}
+
+/** register name -> phone -> otp, with the stubbed send. */
+export async function signIn(page: Page, name: string) {
+  await screen(page).getByRole("textbox").fill(name);
+  await screen(page).getByRole("button", { name: COPY.register.nameCta }).click();
+  await screen(page).getByLabel(COPY.register.phoneLabel, { exact: true }).fill("050-123-4567");
+  await screen(page).getByRole("button", { name: COPY.register.phoneCta }).click();
+  await expectStep(page, "otp");
+}
+
+export const codeBox = (page: Page) => screen(page).getByLabel(COPY.otp.codeLabel.replace("{n}", String(OTP_LENGTH)));
