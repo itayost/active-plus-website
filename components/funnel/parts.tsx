@@ -80,9 +80,7 @@ export function AccentTitle({ lead, accent }: { lead: string; accent: string }) 
 
 export function Subtitle({ text, className = "" }: { text: string; className?: string }) {
   return (
-    // Plain concatenation: tailwind-merge reads text-lead (a custom size) and
-    // text-ink-soft as the same group and would drop the size.
-    <p className={`mt-3 max-w-measure text-lead text-ink-soft ${className}`}>
+    <p className={cn("mt-3 max-w-measure text-lead text-ink-soft", className)}>
       <Lines text={text} />
     </p>
   );
