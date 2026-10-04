@@ -7,12 +7,13 @@ import { scrollBehaviorFor } from "@/lib/media";
  * Scroll-snap carousel state: which child is most visible, whether either
  * direction still has somewhere to go, and goTo(index).
  *
- * The arrows are meant to be wired with aria-disabled, not disabled: a
- * disabled button drops keyboard focus to <body> the moment the track reaches
- * its end, and the next Tab restarts from the top of the page. Guard each
- * click with canPrev/canNext: when several cards are visible the track ends
- * (atEnd) before index reaches the last card, and calling goTo there would
- * advance index past what is on screen, leaving later "previous" presses dead.
+ * Wire the arrows through CarouselArrows, which uses aria-disabled rather
+ * than disabled: a disabled button drops keyboard focus to <body> the moment
+ * the track reaches its end, and the next Tab restarts from the top of the
+ * page. It also guards each click with canPrev/canNext: when several cards
+ * are visible the track ends (atEnd) before index reaches the last card, and
+ * calling goTo there would advance index past what is on screen, leaving
+ * later "previous" presses dead.
  */
 export function useSnapCarousel<T extends HTMLElement>(count: number) {
   const trackRef = useRef<T>(null);
@@ -61,8 +62,15 @@ export function useSnapCarousel<T extends HTMLElement>(count: number) {
       setAtEnd(Math.abs(track.scrollLeft) + track.clientWidth >= track.scrollWidth - 2);
     onScroll();
     track.addEventListener("scroll", onScroll, { passive: true });
+    // How many cards fit changes with the width (rotating a phone, resizing a
+    // window), and with it whether the track can still scroll; scroll events
+    // alone would leave "next" lit or dimmed for the old width.
+    const resize =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(onScroll);
+    resize?.observe(track);
     return () => {
       observer.disconnect();
+      resize?.disconnect();
       track.removeEventListener("scroll", onScroll);
     };
   }, []);
@@ -73,12 +81,3 @@ export function useSnapCarousel<T extends HTMLElement>(count: number) {
   return { trackRef, index, atEnd, canPrev, canNext, goTo };
 }
 
-/**
- * Shared arrow styling. Exhausted arrows are aria-disabled: dimmed and inert to
- * hover, but still focusable, so keyboard focus stays where the reader left it.
- */
-export const CAROUSEL_ARROW =
-  "inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink/15 bg-surface text-ink " +
-  "transition-[border-color,background-color,transform,opacity] duration-[var(--dur-fast)] " +
-  "hover:-translate-y-0.5 hover:border-ink/40 " +
-  "aria-disabled:cursor-default aria-disabled:opacity-35 aria-disabled:hover:translate-y-0 aria-disabled:hover:border-ink/15";

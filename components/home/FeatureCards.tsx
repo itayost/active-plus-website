@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import { Shell } from "@/components/ui/Section";
-import { CAROUSEL_ARROW, useSnapCarousel } from "@/components/ui/useSnapCarousel";
-import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
+import CarouselArrows from "@/components/ui/CarouselArrows";
+import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
+import { ArrowIcon } from "@/components/ui/icons";
 import { FEATURE_CARDS, FIT_CHECK, type Tone } from "@/lib/constants";
 
 const CARD_ACTION_LABEL = "תראו לי עוד";
@@ -72,32 +73,14 @@ export default function FeatureCards() {
             מעטפת מקצועית במיוחד בשבילכם
           </h2>
 
-          {/*
-            RTL travel runs right to left, so each arrow points the way its own
-            button moves the track: back points right and sits on the trailing
-            (right) edge, forward points left on the leading edge. Putting
-            forward first made the two arrows point at each other.
-          */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => canPrev && goTo(index - 1)}
-              aria-disabled={!canPrev || undefined}
-              className={CAROUSEL_ARROW}
-            >
-              <span className="sr-only">הכרטיס הקודם</span>
-              <ArrowBackIcon className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              onClick={() => canNext && goTo(index + 1)}
-              aria-disabled={!canNext || undefined}
-              className={CAROUSEL_ARROW}
-            >
-              <span className="sr-only">הכרטיס הבא</span>
-              <ArrowIcon className="h-6 w-6" />
-            </button>
-          </div>
+          <CarouselArrows
+            prevLabel="הכרטיס הקודם"
+            nextLabel="הכרטיס הבא"
+            canPrev={canPrev}
+            canNext={canNext}
+            onPrev={() => goTo(index - 1)}
+            onNext={() => goTo(index + 1)}
+          />
         </div>
       </Shell>
 
@@ -146,7 +129,7 @@ export default function FeatureCards() {
                 </div>
                 <Link
                   href={card.href}
-                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 ${ACTION[card.tone]}`}
+                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] ${ACTION[card.tone]}`}
                 >
                   {CARD_ACTION_LABEL}
                   <ArrowIcon className="h-5 w-5" />

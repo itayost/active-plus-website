@@ -1,8 +1,8 @@
 "use client";
 
 import { Shell } from "@/components/ui/Section";
-import { CAROUSEL_ARROW, useSnapCarousel } from "@/components/ui/useSnapCarousel";
-import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
+import CarouselArrows from "@/components/ui/CarouselArrows";
+import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 import { TESTIMONIALS } from "@/content/home";
 
 const SOURCE_LABEL = {
@@ -33,26 +33,14 @@ export default function Testimonials() {
           <h2 id="reviews-heading" className="max-w-[18ch] text-h2 font-display font-black">
             מה אומרים הלקוחות שלנו
           </h2>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => canPrev && goTo(index - 1)}
-              aria-disabled={!canPrev || undefined}
-              className={CAROUSEL_ARROW}
-            >
-              <span className="sr-only">הביקורת הקודמת</span>
-              <ArrowBackIcon className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              onClick={() => canNext && goTo(index + 1)}
-              aria-disabled={!canNext || undefined}
-              className={CAROUSEL_ARROW}
-            >
-              <span className="sr-only">הביקורת הבאה</span>
-              <ArrowIcon className="h-6 w-6" />
-            </button>
-          </div>
+          <CarouselArrows
+            prevLabel="הביקורת הקודמת"
+            nextLabel="הביקורת הבאה"
+            canPrev={canPrev}
+            canNext={canNext}
+            onPrev={() => goTo(index - 1)}
+            onNext={() => goTo(index + 1)}
+          />
         </div>
       </Shell>
 

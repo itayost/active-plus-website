@@ -17,6 +17,12 @@ import PhoneNumber from "@/components/ui/PhoneNumber";
 
 const [EMAIL_LOCAL, EMAIL_DOMAIN] = CONTACT_EMAIL.split("@");
 
+/* Outline pills, sized as links (48px) rather than as md Buttons (52px);
+   pressed feedback matches Button because hover compiles out on touch. */
+const STORE_PILL =
+  "inline-flex min-h-[48px] items-center rounded-pill border-2 border-ink/15 bg-white px-5 font-display font-bold " +
+  "transition-[border-color,transform] duration-[var(--dur-fast)] ease-out-expo hover:border-ink/35 active:scale-[0.97]";
+
 const LEGAL = [
   { href: "/privacy-policy", label: "מדיניות פרטיות" },
   { href: "/delete-account", label: "מחיקת חשבון" },
@@ -41,7 +47,7 @@ export default function Footer() {
                 href={STORE_IOS}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[48px] items-center rounded-pill border-2 border-ink/15 bg-white px-5 font-display font-bold transition-colors hover:border-ink/35"
+                className={STORE_PILL}
               >
                 App Store
                 <span className="sr-only"> (נפתח בחלון חדש)</span>
@@ -50,7 +56,7 @@ export default function Footer() {
                 href={STORE_ANDROID}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[48px] items-center rounded-pill border-2 border-ink/15 bg-white px-5 font-display font-bold transition-colors hover:border-ink/35"
+                className={STORE_PILL}
               >
                 Google Play
                 <span className="sr-only"> (נפתח בחלון חדש)</span>
