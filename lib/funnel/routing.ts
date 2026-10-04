@@ -20,6 +20,7 @@ export function nextStep(step: Step, answers: Answers): Step | null {
       return null;
     default: {
       const i = ORDER.indexOf(step);
+      if (i < 0) return null;
       return ORDER[i + 1] ?? null;
     }
   }

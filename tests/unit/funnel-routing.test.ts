@@ -50,3 +50,23 @@ describe("branch hygiene", () => {
     expect(clearsHistory("dob")).toBe(false);
   });
 });
+
+describe("edge cases", () => {
+  it("sanity: fixture has exactly 5 standard scenarios", () => {
+    const standard = fixtures.scenarios.filter((x) => x.registerEvent === "standard");
+    expect(standard.length).toBe(5);
+  });
+
+  it("nextStep returns null at payment (terminal step)", () => {
+    expect(nextStep("payment", {})).toBeNull();
+  });
+
+  it("nextStep returns null for unknown steps instead of wrapping", () => {
+    expect(nextStep("bogus" as Step, {})).toBeNull();
+  });
+
+  it("cleanOffBranch without chair_rise_capability drops standing_stability, keeps mobility_challenge", () => {
+    expect(cleanOffBranch({ standing_stability: "seated", mobility_challenge: "stairs" }))
+      .toEqual({ mobility_challenge: "stairs" });
+  });
+});
