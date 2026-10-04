@@ -59,7 +59,7 @@ export default function FeatureCards() {
     <section
       aria-labelledby="cards-heading"
       aria-roledescription="קרוסלה"
-      className="bg-sunken py-[var(--section-y)]"
+      className="bg-surface py-[var(--section-y)]"
     >
       <Shell>
         <div className="flex flex-wrap items-end justify-between gap-6">

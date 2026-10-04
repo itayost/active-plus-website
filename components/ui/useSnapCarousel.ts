@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export function useSnapCarousel<T extends HTMLElement>(count: number) {
   const trackRef = useRef<T>(null);
   const [index, setIndex] = useState(0);
+  const [atEnd, setAtEnd] = useState(false);
 
   const goTo = useCallback(
     (next: number) => {
@@ -25,20 +26,33 @@ export function useSnapCarousel<T extends HTMLElement>(count: number) {
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
+    // Entries only report children whose ratio CHANGED, so keep the latest
+    // ratio of every child and derive the index from the full set: the first
+    // child that is at least 60% visible.
+    const ratios = new Map<Element, number>();
     const observer = new IntersectionObserver(
       (entries) => {
-        const best = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!best) return;
-        const i = Array.from(track.children).indexOf(best.target);
-        if (i >= 0) setIndex(i);
+        entries.forEach((e) => ratios.set(e.target, e.intersectionRatio));
+        const first = Array.from(track.children).findIndex(
+          (child) => (ratios.get(child) ?? 0) >= 0.6,
+        );
+        if (first >= 0) setIndex(first);
       },
-      { root: track, threshold: 0.6 },
+      { root: track, threshold: [0, 0.6, 1] },
     );
     Array.from(track.children).forEach((c) => observer.observe(c));
-    return () => observer.disconnect();
+    // With several cards visible the track stops scrolling before the last card
+    // reaches the start edge, so "next" would be a dead click: expose that.
+    // abs() because scrollLeft is negative in RTL.
+    const onScroll = () =>
+      setAtEnd(Math.abs(track.scrollLeft) + track.clientWidth >= track.scrollWidth - 2);
+    onScroll();
+    track.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      observer.disconnect();
+      track.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
-  return { trackRef, index, goTo };
+  return { trackRef, index, atEnd, goTo };
 }

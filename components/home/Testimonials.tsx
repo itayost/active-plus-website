@@ -21,7 +21,7 @@ const ARROW =
  * arrive they enter above this track as a row of circles with a play button.
  */
 export default function Testimonials() {
-  const { trackRef, index, goTo } = useSnapCarousel<HTMLUListElement>(TESTIMONIALS.length);
+  const { trackRef, index, atEnd, goTo } = useSnapCarousel<HTMLUListElement>(TESTIMONIALS.length);
 
   return (
     <section
@@ -42,7 +42,7 @@ export default function Testimonials() {
             <button
               type="button"
               onClick={() => goTo(index + 1)}
-              disabled={index >= TESTIMONIALS.length - 1}
+              disabled={atEnd || index >= TESTIMONIALS.length - 1}
               className={ARROW}
             >
               <span className="sr-only">הביקורת הבאה</span>

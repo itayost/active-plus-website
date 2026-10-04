@@ -16,7 +16,7 @@ describe("clientIp", () => {
     expect(clientIp(h({ "x-forwarded-for": "9.9.9.9, 8.8.8.8, 4.4.4.4" }))).toBe("4.4.4.4");
   });
   it("ignores a spoofed leftmost x-forwarded-for value", () => {
-    expect(clientIp(h({ "x-forwarded-for": "6.6.6.6, 5.5.5.5" }))).not.toBe("6.6.6.6");
+    expect(clientIp(h({ "x-forwarded-for": "6.6.6.6, 5.5.5.5" }))).toBe("5.5.5.5");
   });
   it("returns unknown when no header is present", () => {
     expect(clientIp(h({}))).toBe("unknown");
