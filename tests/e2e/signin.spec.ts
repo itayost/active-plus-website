@@ -4,7 +4,7 @@ import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "../../lib/constants";
 import { OTP_LENGTH, RESEND_SECONDS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers } from "../../lib/funnel/types";
-import { expectStep, screen, seed, stored, title } from "./funnel-helpers";
+import { expectStep, hasAuthCookie, screen, seed, settle, stored, title } from "./funnel-helpers";
 import { ACCESS_TOKEN, GOOD_CODE, stubSupabase, type StubOptions } from "./supabase-stub";
 
 /*
@@ -300,7 +300,9 @@ test("a verify that answers after the visitor has left does not merge or move th
   const answered = page.waitForResponse((r) => r.url().endsWith("/auth/v1/verify"));
   release();
   await answered;
-  await page.waitForLoadState("networkidle");
+  // The client has read the reply once it stores the session; whatever the funnel would do next starts there.
+  await expect.poll(() => hasAuthCookie(page)).toBe(true);
+  await settle(page);
   await expect(page).toHaveURL(/\/$/);
   expect(stub.calls.filter((c) => c.path.startsWith("/rest/") || c.path === "/auth/v1/user")).toEqual([]);
 });

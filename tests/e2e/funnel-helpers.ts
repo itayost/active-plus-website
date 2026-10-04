@@ -155,3 +155,20 @@ export async function signIn(page: Page, name: string) {
 }
 
 export const codeBox = (page: Page) => screen(page).getByLabel(COPY.otp.codeLabel.replace("{n}", String(OTP_LENGTH)));
+
+/**
+ * For asserting that something did NOT happen after a reply the test released:
+ * runs two macrotasks in the page, by which time the reply's continuation (a few
+ * promise hops) has run. Pair it with a positive anchor wherever one exists.
+ */
+export const settle = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(() => setTimeout(resolve, 0), 0);
+      }),
+  );
+
+/** The Supabase browser client keeps its session in a cookie, written once it has read a verify reply. */
+export const hasAuthCookie = (page: Page) =>
+  page.evaluate(() => document.cookie.split("; ").some((c) => /^sb-[^=]+-auth-token(\.\d+)?=/.test(c)));
