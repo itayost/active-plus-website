@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { prefetchFor } from "@/lib/constants";
 
 type Variant = "primary" | "purple" | "onColor" | "outline" | "ghost";
 type Size = "md" | "lg";
@@ -88,7 +89,7 @@ export default function Button({
       );
     }
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} prefetch={prefetchFor(href)} className={classes}>
         {children}
       </Link>
     );

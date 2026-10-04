@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FEATURE_CARDS, FIT_CHECK, NAV } from "@/lib/constants";
+import { FEATURE_CARDS, FIT_CHECK, NAV, prefetchFor } from "@/lib/constants";
 import { SITE_ROUTES } from "@/lib/routes";
 import { ARTICLES } from "@/content/articles";
 
@@ -21,5 +21,9 @@ describe("routes", () => {
   });
   it("every card image is a v2 client photo", () => {
     for (const card of FEATURE_CARDS) expect(card.image).toMatch(/^\/img\/v2\//);
+  });
+  it("does not prefetch the unbuilt questionnaire, and leaves every other link to Next", () => {
+    expect(prefetchFor(FIT_CHECK.href)).toBe(false);
+    for (const item of NAV) expect(prefetchFor(item.href)).toBeUndefined();
   });
 });

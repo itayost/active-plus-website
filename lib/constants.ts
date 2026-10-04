@@ -29,6 +29,17 @@ export const NAV = [
 export const FIT_CHECK = { href: "/questionnaire", label: "בדיקת התאמה" } as const;
 
 /**
+ * Routes the site already links to but does not serve yet. Next prefetches
+ * every <Link> that scrolls into view, so each page logged a 404 for the
+ * questionnaire in the console. Drop an entry when its page ships.
+ */
+const UNBUILT_ROUTES: ReadonlySet<string> = new Set([FIT_CHECK.href]);
+
+/** The `prefetch` prop for a <Link>: off for unbuilt routes, Next's default otherwise. */
+export const prefetchFor = (href: string): false | undefined =>
+  UNBUILT_ROUTES.has(href) ? false : undefined;
+
+/**
  * Two plans. The annual is one charge of 708 ₪ that the buyer may split into
  * up to 12 installments; the monthly recurs at 99 ₪ with no commitment.
  *
