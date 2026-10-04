@@ -147,3 +147,51 @@ export function ClockIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+/** Questionnaire: a clipboard with answer lines. */
+export function ClipboardIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="5" y="4" width="14" height="17" rx="2.5" />
+      <path d="M9 3h6v3H9zM9 11h6M9 15h4" />
+    </svg>
+  );
+}
+
+/** Personal plan: two adjustable sliders. */
+export function SlidersIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2" />
+      <circle cx="9" cy="17" r="2" />
+    </svg>
+  );
+}
+
+export function ArrowUpIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 19V5M6 11l6-6 6 6" />
+    </svg>
+  );
+}
+
+export function ArrowDownIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 5v14M6 13l6 6 6-6" />
+    </svg>
+  );
+}
+
+/** Motion detection: a scan frame around a figure. */
+export function ScanIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" />
+      <circle cx="12" cy="9" r="1.75" />
+      <path d="M8.5 12.5l3.5 1 3.5-1M12 13.5v3" />
+    </svg>
+  );
+}

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Variant = "primary" | "onColor" | "outline" | "ghost";
+type Variant = "primary" | "purple" | "onColor" | "outline" | "ghost";
 type Size = "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
     "bg-green-deep text-white shadow-lift-1 hover:bg-green hover:shadow-lift-2 active:shadow-lift-1",
+  purple:
+    "bg-purple-deep text-white shadow-lift-1 hover:bg-purple hover:shadow-lift-2 active:shadow-lift-1",
   onColor:
     "bg-white text-ink shadow-lift-1 hover:shadow-lift-2 active:shadow-lift-1",
   outline:

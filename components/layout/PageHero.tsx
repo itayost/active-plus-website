@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Shell } from "@/components/ui/Section";
 import { ArrowBackIcon } from "@/components/ui/icons";
 import type { Tone } from "@/lib/constants";
@@ -22,15 +23,23 @@ export default function PageHero({
   lede,
   tone = "blue",
   breadcrumb,
+  back,
+  aside,
 }: {
   title: string;
   lede?: string;
   tone?: Tone;
   breadcrumb?: { href: string; label: string };
+  /** Rendered above the h1 (explainer pages use it for the back link). */
+  back?: ReactNode;
+  /** Optional media beside the copy on wide screens, below it on narrow ones. */
+  aside?: ReactNode;
 }) {
   return (
     <section className={`${FIELD[tone]} pb-[clamp(3rem,6vw,5rem)] pt-[clamp(3rem,6vw,5.5rem)]`}>
-      <Shell>
+      <Shell className={aside ? "grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16" : ""}>
+        <div>
+        {back}
         {breadcrumb ? (
           <Link
             href={breadcrumb.href}
@@ -48,6 +57,8 @@ export default function PageHero({
         {lede ? (
           <p className="mt-7 max-w-measure text-lead text-ink-soft">{lede}</p>
         ) : null}
+        </div>
+        {aside}
       </Shell>
     </section>
   );
