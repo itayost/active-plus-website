@@ -12,6 +12,8 @@ import type { Answers } from "./types";
 export type FinishResult =
   | { kind: "new" }
   | { kind: "existing"; name: string }
+  /** Signed in with a name but no trainee profile (staff, trainers): a retry cannot help. */
+  | { kind: "noProfile" }
   | { kind: "error"; path?: "new" | "existing" };
 
 const ERROR: FinishResult = { kind: "error" };
@@ -20,6 +22,18 @@ const ERROR: FinishResult = { kind: "error" };
 function failed(data: unknown, error: unknown): boolean {
   if (error) return true;
   return typeof data === "object" && data !== null && (data as { success?: unknown }).success === false;
+}
+
+/**
+ * fill_missing_funnel_answers raises 'no trainee profile for the authenticated user'
+ * (ERRCODE no_data_found, P0002) for a user row without a trainee profile. Matched on the
+ * message, which is specific to that raise; P0002 alone could come from elsewhere.
+ */
+const NO_PROFILE_MESSAGE = "no trainee profile";
+
+function isNoProfile(error: unknown): boolean {
+  const message = typeof error === "object" && error !== null ? (error as { message?: unknown }).message : undefined;
+  return typeof message === "string" && message.startsWith(NO_PROFILE_MESSAGE);
 }
 
 async function run(supabase: SupabaseClient, sessionId: string, answers: Answers): Promise<FinishResult> {
@@ -52,7 +66,7 @@ async function run(supabase: SupabaseClient, sessionId: string, answers: Answers
     const { data, error } = await supabase.rpc("fill_missing_funnel_answers", { p_answers: rest });
     if (failed(data, error)) {
       logAuthFailure("finish:fill", error);
-      return { kind: "error", path: "existing" };
+      return isNoProfile(error) ? { kind: "noProfile" } : { kind: "error", path: "existing" };
     }
     return { kind: "existing", name: existingName };
   }

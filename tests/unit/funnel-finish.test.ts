@@ -68,6 +68,36 @@ describe("finishSignup", () => {
     expect(r).toEqual({ kind: "error", path: "existing" });
   });
 
+  // fill_missing_funnel_answers raises this for a signed-in user with a name but no trainee
+  // profile (staff and trainers): RAISE EXCEPTION ... USING ERRCODE = 'no_data_found' (P0002).
+  const NO_PROFILE = { code: "P0002", message: "no trainee profile for the authenticated user" };
+
+  it("says when an existing user has no trainee profile, so the visitor is not offered a retry that cannot work", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const r = await finishSignup(fakeSupabase({ profileName: "מאמנת", rpcError: NO_PROFILE }) as never, "s1", { gender: "female" });
+    expect(r).toEqual({ kind: "noProfile" });
+  });
+
+  it("recognises the missing trainee profile by its message when the code is absent", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const r = await finishSignup(
+      fakeSupabase({ profileName: "מאמנת", rpcError: { message: NO_PROFILE.message } }) as never,
+      "s1",
+      {},
+    );
+    expect(r).toEqual({ kind: "noProfile" });
+  });
+
+  it("keeps other P0002 failures retryable", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const r = await finishSignup(
+      fakeSupabase({ profileName: "דוד", rpcError: { code: "P0002", message: "something else" } }) as never,
+      "s1",
+      {},
+    );
+    expect(r).toEqual({ kind: "error", path: "existing" });
+  });
+
   it("reads the signed-in user's own row by id", async () => {
     const sb = fakeSupabase();
     await finishSignup(sb as never, "s1", {});

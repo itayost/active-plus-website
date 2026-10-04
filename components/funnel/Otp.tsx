@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ChangeEvent, type Ref } from "react";
 import Button from "@/components/ui/Button";
-import { ArrowIcon, CheckIcon, LockIcon } from "@/components/ui/icons";
+import { ArrowIcon, CheckIcon, LockIcon, PhoneIcon } from "@/components/ui/icons";
+import PhoneNumber from "@/components/ui/PhoneNumber";
+import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
 import { OTP_LENGTH, RESEND_SECONDS } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
 import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
@@ -24,7 +26,7 @@ const PAYMENT = "/payment";
 
 const C = COPY.otp;
 
-type Phase = "enter" | "verifying" | "finishing" | "failed" | "existing";
+type Phase = "enter" | "verifying" | "finishing" | "failed" | "noProfile" | "existing";
 
 const VERIFY_MESSAGE: Record<Exclude<VerifyResult, "ok">, string> = {
   invalid: C.wrongCode,
@@ -147,7 +149,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
 
   // The failure and welcome-back screens bring their own heading: move focus to it.
   useEffect(() => {
-    if (phase === "failed" || phase === "existing") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
+    if (phase === "failed" || phase === "noProfile" || phase === "existing") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
   }, [phase]);
 
   const finish = async () => {
@@ -157,6 +159,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
     if (!alive.current) return;
     if (raw.kind === "error" && raw.path === "new") firstWasNew.current = true;
     const result: FinishResult = raw.kind === "existing" && firstWasNew.current ? { kind: "new" } : raw;
+    if (result.kind === "noProfile") return setPhase("noProfile");
     if (result.kind === "error") return setPhase("failed");
     handOffToPayment(answers.gender);
     onComplete();
@@ -213,6 +216,23 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
         <div className="mx-auto max-w-[28rem]">
           <ContinueButton label={C.retry} onClick={() => void finish()} />
         </div>
+      </div>
+    );
+  }
+
+  if (phase === "noProfile") {
+    return (
+      <div className="rounded-card bg-surface p-[clamp(1rem,3.5vw,2.5rem)] text-center shadow-lift-2">
+        <StepTitle>{C.noProfile}</StepTitle>
+        <p className="mt-4 text-lead text-ink-soft">{C.noProfileContact}</p>
+        <a
+          href={`tel:${CONTACT_PHONE_TEL}`}
+          dir="ltr"
+          className="mt-2 inline-flex min-h-12 items-center gap-2 font-display text-h3 font-bold text-green-deep underline underline-offset-4"
+        >
+          <PhoneIcon className="h-6 w-6 shrink-0" />
+          <PhoneNumber value={CONTACT_PHONE} />
+        </a>
       </div>
     );
   }

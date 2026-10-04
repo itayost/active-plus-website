@@ -234,6 +234,12 @@ export const COPY = {
     finishing: "מסיימים את ההרשמה...",
     mergeFailed: "לא הצלחנו לסיים את ההרשמה",
     retry: "נסו שוב",
+    /**
+     * Signed in, but the account has no trainee profile (staff, trainers): a retry cannot help.
+     * Not in the spec or the app: written for the web, needs the client's OK.
+     */
+    noProfile: "לא הצלחנו להשלים את ההרשמה בחשבון הזה",
+    noProfileContact: "התקשרו אלינו ונסדר את זה:",
     /** An existing user after fill_missing_funnel_answers (Task 5 brief). */
     welcomeBack: "ברוכים השבים, {name}",
     /** The hand-off action to /payment (approved mockup). */

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "../../lib/constants";
 import { OTP_LENGTH, RESEND_SECONDS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers } from "../../lib/funnel/types";
@@ -213,6 +214,23 @@ test("a failed merge offers 'נסו שוב', which retries the merge only", asyn
   await expect(page).toHaveURL(/\/payment$/);
   expect(stub.to("/auth/v1/verify")).toHaveLength(1);
   expect(stub.to("/rest/v1/rpc/merge_funnel_session")).toHaveLength(2);
+});
+
+test("a signed-in user with a name but no trainee profile is pointed to the phone, not to a retry", async ({ page }) => {
+  const stub = await start(page, {
+    profileName: "מאמנת בדיקה",
+    fillError: { code: "P0002", message: "no trainee profile for the authenticated user" },
+  });
+  await toOtp(page);
+  await codeInput(page).fill(GOOD_CODE);
+
+  await expect(title(page)).toHaveText(O.noProfile);
+  await expect(title(page)).toBeFocused();
+  await expect(screen(page).getByRole("link", { name: CONTACT_PHONE })).toHaveAttribute("href", `tel:${CONTACT_PHONE_TEL}`);
+  await expect(screen(page).getByRole("button", { name: O.retry })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/questionnaire$/);
+  expect(stub.to("/rest/v1/rpc/fill_missing_funnel_answers")).toHaveLength(1);
+  expect(stub.to("/rest/v1/rpc/merge_funnel_session")).toHaveLength(0);
 });
 
 test("the phone screen with an error and the code screen have no serious axe violations", async ({ page }) => {

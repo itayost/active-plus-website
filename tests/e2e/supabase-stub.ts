@@ -58,6 +58,8 @@ export type StubOptions = {
    * response never reached the browser.
    */
   profileAfterMerge?: string;
+  /** A PostgREST error body for fill_missing_funnel_answers (e.g. the no-trainee-profile raise). */
+  fillError?: { code: string; message: string };
 };
 
 export type Call = { path: string; body: unknown; authorization: string | null };
@@ -92,7 +94,7 @@ const nth = (list: number[], n: number) => list[Math.min(n, list.length - 1)];
  * and recorded in `foreign`.
  */
 export async function stubSupabase(page: Page, options: StubOptions = {}) {
-  const { profileName = null, otpStatuses = [200], mergeStatuses = [200], profileAfterMerge } = options;
+  const { profileName = null, otpStatuses = [200], mergeStatuses = [200], profileAfterMerge, fillError } = options;
   const calls: Call[] = [];
   const foreign: string[] = [];
   const held = new Map<string, Promise<void>>();
@@ -142,7 +144,9 @@ export async function stubSupabase(page: Page, options: StubOptions = {}) {
         ? json(route, 200, { success: true, user_id: USER_ID, linked_events: 0 })
         : json(route, status, { code: "XX000", message: "stub failure" });
     }
-    if (path === "/rest/v1/rpc/fill_missing_funnel_answers") return json(route, 200, { success: true, filled: [] });
+    if (path === "/rest/v1/rpc/fill_missing_funnel_answers") {
+      return fillError ? json(route, 400, { ...fillError, details: null, hint: null }) : json(route, 200, { success: true, filled: [] });
+    }
     return json(route, 404, { message: "not stubbed" });
   });
 
