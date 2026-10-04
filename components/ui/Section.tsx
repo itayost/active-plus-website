@@ -6,6 +6,7 @@ type Props = {
   className?: string;
   tone?: "surface" | "sunken";
   labelledBy?: string;
+  label?: string;
   width?: "shell" | "narrow";
 };
 
@@ -32,6 +33,7 @@ export default function Section({
   className = "",
   tone = "surface",
   labelledBy,
+  label,
   width = "shell",
 }: Props) {
   const bg = tone === "sunken" ? "bg-sunken" : "bg-surface";
@@ -39,6 +41,7 @@ export default function Section({
     <section
       id={id}
       aria-labelledby={labelledBy}
+      aria-label={label}
       className={`${bg} py-[var(--section-y)] ${className}`}
     >
       <Shell width={width}>{children}</Shell>

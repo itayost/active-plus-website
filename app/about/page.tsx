@@ -26,8 +26,8 @@ export default function AboutPage() {
     <>
       <PageHero title={C.title} lede={C.lede} tone="blue" />
 
-      <Section>
-        <div className="grid gap-[clamp(2.5rem,5vw,5rem)] lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+      <Section label="הסיפור">
+        <div className="grid gap-[clamp(2.5rem,5vw,5rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
           <Reveal className="lg:sticky lg:top-36">
             <figure className="m-0">
               <Image
@@ -71,7 +71,7 @@ export default function AboutPage() {
       </Section>
 
       <Section labelledBy="born-h">
-        <div className="grid gap-[clamp(2rem,4vw,3.5rem)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div className="grid gap-[clamp(2rem,4vw,3.5rem)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <div>
             <h2 id="born-h" className="text-h2 font-display font-black text-ink">{C.born.heading}</h2>
             {C.born.body.map((p) => (
@@ -92,7 +92,7 @@ export default function AboutPage() {
       </Section>
 
       <Section tone="sunken" labelledBy="measure-h">
-        <div className="grid items-center gap-[clamp(2rem,5vw,4.5rem)] lg:grid-cols-2">
+        <div className="grid items-center gap-[clamp(2rem,5vw,4.5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Image
             src="/img/v2/progress-woman.webp"
             width={1600}
@@ -121,11 +121,11 @@ export default function AboutPage() {
       <Section labelledBy="team-h">
         <h2 id="team-h" className="text-h2 font-display font-black text-ink">{C.team.heading}</h2>
         <p className="mt-6 max-w-[52ch] text-lead text-ink-soft">{C.team.lede}</p>
-        <ul className="mt-[clamp(2.5rem,5vw,4rem)] grid list-none gap-[clamp(2rem,4vw,2.5rem)] p-0 md:grid-cols-3">
+        <ul className="mt-[clamp(2.5rem,5vw,4rem)] grid list-none gap-[clamp(2rem,4vw,2.5rem)] p-0 md:grid-cols-[repeat(3,minmax(0,1fr))]">
           {TEAM.map((m) => (
             <li
               key={m.name}
-              className="grid grid-cols-[7.5rem_1fr] items-start gap-x-5 md:block"
+              className="grid grid-cols-[7.5rem_minmax(0,1fr)] items-start gap-x-5 md:block"
             >
               <Image
                 src={m.photo}
