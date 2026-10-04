@@ -283,6 +283,34 @@ test.describe("a full walk with a stubbed sign-in", () => {
     for (const secret of ["רחל", "כהן", "0501234567", "501234567", GOOD_CODE]) expect(sent).not.toContain(secret);
   });
 
+  test("with storage blocked, every event after the start and the merge share one session id", async ({ page }) => {
+    // As in a browser that refuses site storage: touching localStorage throws.
+    await page.addInitScript(() => {
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        get() {
+          throw new DOMException("The operation is insecure.", "SecurityError");
+        },
+      });
+    });
+    stub = await stubSupabase(page);
+    const beacons = await captureEvents(page);
+    await walkToReinforcement(page, "male", "alone");
+    await finishFromReinforcement(page);
+    await signIn(page, "דוד כהן");
+    await codeBox(page).fill(GOOD_CODE);
+    await expect(page).toHaveURL(/\/payment$/);
+    await expect.poll(() => beacons.events.at(-1)?.step).toBe("otp_verified");
+
+    const merged = (stub.to("/rest/v1/rpc/merge_funnel_session")[0].body as { p_session_id: string }).p_session_id;
+    const [view, start, ...rest] = beacons.events;
+    expect([view.step, start.step]).toEqual(["welcome2_view", "welcome2_continue"]);
+    expect(start.sessionId).toBe(view.sessionId);
+    expect(rest.length).toBeGreaterThan(10);
+    for (const event of rest) expect(event.sessionId, event.step).toBe(merged);
+    expect(merged).not.toBe(view.sessionId);
+  });
+
   test("changing the chair answer after standingComfort drops standing_stability and asks challengeArea", async ({ page }) => {
     stub = await stubSupabase(page);
     await seed(page, "chairRise", {

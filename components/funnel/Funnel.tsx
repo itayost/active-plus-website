@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advance, back, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
-import { VIEW_EVENT, type ActionEvent } from "@/lib/funnel/events";
+import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import type { Segment } from "@/lib/funnel/time";
@@ -19,8 +19,6 @@ const CONTINUE_EVENT: Partial<Record<Step, ActionEvent>> = {
   planBuilding: "plan_build_complete",
 };
 
-const track = (event: Parameters<typeof trackFunnelEvent>[1]) => trackFunnelEvent(loadSession().id, event);
-
 /**
  * The questionnaire's state owner. It holds the step, the back history and
  * the answers, persists them through lib/funnel/storage, and hands each step
@@ -36,14 +34,18 @@ export default function Funnel() {
   const [moves, setMoves] = useState(0);
   // The step the saved session restored to; null until the restore has run.
   const [restored, setRestored] = useState<Step | null>(null);
+  // The id every event and the merge carry. Read from storage once (on restore and on welcome2's
+  // start): with storage blocked each read mints a new id, and another tab may replace the stored one.
+  const [sessionId, setSessionId] = useState("");
   // Signed in and merged: nothing to go back to, and cancelling no longer applies.
   const [complete, setComplete] = useState(false);
   // A code is being checked or the answers merged: back would strand that work.
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const { answers } = loadSession();
+    const { id, answers } = loadSession();
     const next = restore(loadStep(), answers);
+    setSessionId(id);
     setState(next);
     setRestored(next.step);
   }, []);
@@ -57,6 +59,13 @@ export default function Funnel() {
     if (restored !== "welcome2") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
   }, [restored]);
 
+  const track = useCallback(
+    (event: FunnelEventName) => {
+      if (sessionId) trackFunnelEvent(sessionId, event);
+    },
+    [sessionId],
+  );
+
   // One view event per visit to a step. The ref survives React's dev double-run of effects, and
   // sub-screens of one step (time, register) change `state.step` not at all, so they do not repeat.
   const viewed = useRef<Step | null>(null);
@@ -64,7 +73,7 @@ export default function Funnel() {
     if (restored === null || viewed.current === state.step) return;
     viewed.current = state.step;
     track(VIEW_EVENT[state.step]);
-  }, [restored, state.step]);
+  }, [restored, state.step, track]);
 
   useEffect(() => {
     if (moves === 0) return;
@@ -94,7 +103,7 @@ export default function Funnel() {
       start: () => {
         track("welcome2_continue"); // under the session that is about to be replaced
         resetSession();
-        loadSession(); // mints the new session id
+        setSessionId(loadSession().id); // mints the new session id, read once
         go(advance({ ...initialState() }));
       },
       setSegment: (segment: Segment) => setState((s) => ({ ...s, time: { ...s.time, segment } })),
@@ -118,7 +127,7 @@ export default function Funnel() {
       complete: () => setComplete(true),
       setBusy,
     }),
-    [state, go],
+    [state, go, track],
   );
 
   const onBack = useCallback(() => go(back(state)), [state, go]);
@@ -151,7 +160,7 @@ export default function Funnel() {
           data-step={step}
           className="mt-[clamp(1.5rem,3vw,2.25rem)]"
         >
-          {renderStep(state, actions)}
+          {renderStep(state, actions, sessionId)}
         </section>
       </div>
     </div>

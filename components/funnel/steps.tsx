@@ -119,8 +119,8 @@ function BodyAreasStep({ state, actions }: { state: FunnelState; actions: StepAc
   );
 }
 
-/** The element for the current step. */
-export function renderStep(state: FunnelState, actions: StepActions): ReactElement {
+/** The element for the current step. `sessionId` is the funnel's, read once (Funnel). */
+export function renderStep(state: FunnelState, actions: StepActions, sessionId: string): ReactElement {
   const { step, answers } = state;
   const gender = answers.gender;
   const question = QUESTIONS[step];
@@ -161,6 +161,7 @@ export function renderStep(state: FunnelState, actions: StepActions): ReactEleme
         <Otp
           phone={state.register.phone}
           answers={answers}
+          sessionId={sessionId}
           onEditPhone={actions.editPhone}
           onComplete={actions.complete}
           onBusy={actions.setBusy}

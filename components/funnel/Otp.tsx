@@ -10,7 +10,7 @@ import { OTP_LENGTH, RESEND_SECONDS } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
 import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
 import { sendCode, verifyCode, type VerifyResult } from "@/lib/funnel/signin";
-import { handOffToPayment, loadSession } from "@/lib/funnel/storage";
+import { handOffToPayment } from "@/lib/funnel/storage";
 import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers } from "@/lib/funnel/types";
 import { formatLocal, toE164 } from "@/lib/phone";
@@ -100,6 +100,8 @@ type Props = {
   /** The number as the visitor typed it (validated before the code was sent). */
   phone: string;
   answers: Answers;
+  /** The funnel's session id (read once there): the merge and the events carry it. */
+  sessionId: string;
   onEditPhone: () => void;
   /** Signed in and merged: the funnel hides back and cancel. */
   onComplete: () => void;
@@ -108,7 +110,7 @@ type Props = {
 };
 
 /** otp: verify the SMS code, then merge the answers and hand off to /payment. */
-export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }: Props) {
+export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete, onBusy }: Props) {
   const router = useRouter();
   const e164 = toE164(phone);
   const [code, setCode] = useState("");
@@ -155,7 +157,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
   const finish = async () => {
     setPhase("finishing");
     const supabase = await loadBrowserSupabase();
-    const raw: FinishResult = supabase ? await finishSignup(supabase, loadSession().id, answers) : { kind: "error" };
+    const raw: FinishResult = supabase ? await finishSignup(supabase, sessionId, answers) : { kind: "error" };
     if (!alive.current) return;
     if (raw.kind === "error" && raw.path === "new") firstWasNew.current = true;
     const result: FinishResult = raw.kind === "existing" && firstWasNew.current ? { kind: "new" } : raw;
@@ -177,7 +179,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
     const result = supabase ? await verifyCode(supabase, e164, token) : "error";
     if (!alive.current) return;
     if (result === "ok") {
-      trackFunnelEvent(loadSession().id, "otp_verified"); // before the hand-off clears the session
+      trackFunnelEvent(sessionId, "otp_verified");
       return finish();
     }
     setCode("");
@@ -195,7 +197,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
 
   const resend = async () => {
     if (resending || locked) return;
-    trackFunnelEvent(loadSession().id, "otp_resend_tap");
+    trackFunnelEvent(sessionId, "otp_resend_tap");
     setResending(true);
     const supabase = await loadBrowserSupabase();
     const result = supabase ? await sendCode(supabase, e164) : "error";
