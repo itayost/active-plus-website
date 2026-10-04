@@ -28,21 +28,29 @@ export default function DeleteAccountForm() {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<DeleteAccountResult | null>(null);
   // Bumped on every response, so a second identical rejection still moves
-  // focus and is announced again.
+  // focus and is announced again (the message node is re-keyed by it).
   const [attempt, setAttempt] = useState(0);
-  const errorRef = useRef<HTMLDivElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const confirmationRef = useRef<HTMLInputElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
 
   const error = result && !result.success ? result.message : null;
   const emailInvalid = error === EMAIL_ERROR;
   const confirmationInvalid = error === CONFIRMATION_ERROR;
+  // The field a rejection sends the reader back to: the one it is about, or
+  // the first field when the message is not about either (rate limit, server
+  // error), since the form starts over from there.
+  const errorOnConfirmation = confirmationInvalid;
+  const describe = (hint: string, isTarget: boolean) =>
+    error && isTarget ? `${ERROR_ID} ${hint}` : hint;
 
-  // A rejection used to leave focus on <body> with nothing announced. Move the
-  // reader to the message itself: it names the problem, and the field it is
-  // about is the next Tab stop after it.
+  // A rejection used to leave focus on <body> with nothing announced. Focus
+  // goes to the field to fix, whose description now includes the message,
+  // and the polite live region above the form announces it once.
   useEffect(() => {
-    if (error) errorRef.current?.focus();
-  }, [error, attempt]);
+    if (!error) return;
+    (errorOnConfirmation ? confirmationRef : emailRef).current?.focus();
+  }, [error, errorOnConfirmation, attempt]);
 
   // The confirmation replaces the form the reader was focused in, so focus
   // follows it rather than falling to <body>.
@@ -88,77 +96,86 @@ export default function DeleteAccountForm() {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-6" aria-busy={isPending || undefined}>
+    <>
       {/* The live region is always in the document and only its content
-          changes, which is what screen readers reliably announce. */}
+          changes, which is what screen readers reliably announce. It sits
+          outside the form's space-y flow, so while empty it adds no gap. */}
       <div
-        ref={errorRef}
         id={ERROR_ID}
-        role="alert"
-        tabIndex={-1}
-        className={error ? "rounded-[14px] border-2 border-burgundy bg-[var(--burgundy-wash)] px-4 py-3" : undefined}
+        aria-live="polite"
+        className={
+          error
+            ? "mb-6 rounded-[14px] border-2 border-burgundy bg-[var(--burgundy-wash)] px-4 py-3"
+            : undefined
+        }
       >
-        {error ? <p className="font-semibold text-burgundy">{error}</p> : null}
+        {error ? (
+          <p key={attempt} className="font-semibold text-burgundy">
+            {error}
+          </p>
+        ) : null}
       </div>
 
-      <div>
-        <label
-          htmlFor="email"
-          className="mb-2 block font-display font-bold text-ink"
+      <form action={handleSubmit} className="space-y-6" aria-busy={isPending || undefined}>
+        <div>
+          <label
+            htmlFor="email"
+            className="mb-2 block font-display font-bold text-ink"
+          >
+            כתובת אימייל
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            dir="ltr"
+            ref={emailRef}
+            autoComplete="email"
+            inputMode="email"
+            aria-invalid={emailInvalid || undefined}
+            aria-describedby={describe(EMAIL_HINT_ID, !errorOnConfirmation)}
+            placeholder="your@email.com"
+            className={inputClass(emailInvalid)}
+          />
+          <p id={EMAIL_HINT_ID} className="mt-2 text-ink-soft">
+            הכניסו את כתובת האימייל שאיתה נרשמתם לאפליקציה
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor="confirmation"
+            className="mb-2 block font-display font-bold text-ink"
+          >
+            אישור מחיקה
+          </label>
+          <input
+            type="text"
+            id="confirmation"
+            name="confirmation"
+            required
+            dir="rtl"
+            ref={confirmationRef}
+            autoComplete="off"
+            aria-invalid={confirmationInvalid || undefined}
+            aria-describedby={describe(CONFIRMATION_HINT_ID, errorOnConfirmation)}
+            placeholder='הקלידו "מחיקת חשבון"'
+            className={inputClass(confirmationInvalid)}
+          />
+          <p id={CONFIRMATION_HINT_ID} className="mt-2 text-ink-soft">
+            הקלידו &quot;מחיקת חשבון&quot; לאישור
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isPending}
+          className="inline-flex min-h-[60px] w-full items-center justify-center rounded-pill bg-burgundy px-8 font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-burgundy-deep hover:shadow-lift-2 disabled:pointer-events-none disabled:opacity-55"
         >
-          כתובת אימייל
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          dir="ltr"
-          autoComplete="email"
-          inputMode="email"
-          aria-invalid={emailInvalid || undefined}
-          aria-describedby={emailInvalid ? `${ERROR_ID} ${EMAIL_HINT_ID}` : EMAIL_HINT_ID}
-          placeholder="your@email.com"
-          className={inputClass(emailInvalid)}
-        />
-        <p id={EMAIL_HINT_ID} className="mt-2 text-ink-soft">
-          הכניסו את כתובת האימייל שאיתה נרשמתם לאפליקציה
-        </p>
-      </div>
-
-      <div>
-        <label
-          htmlFor="confirmation"
-          className="mb-2 block font-display font-bold text-ink"
-        >
-          אישור מחיקה
-        </label>
-        <input
-          type="text"
-          id="confirmation"
-          name="confirmation"
-          required
-          dir="rtl"
-          autoComplete="off"
-          aria-invalid={confirmationInvalid || undefined}
-          aria-describedby={
-            confirmationInvalid ? `${ERROR_ID} ${CONFIRMATION_HINT_ID}` : CONFIRMATION_HINT_ID
-          }
-          placeholder='הקלידו "מחיקת חשבון"'
-          className={inputClass(confirmationInvalid)}
-        />
-        <p id={CONFIRMATION_HINT_ID} className="mt-2 text-ink-soft">
-          הקלידו &quot;מחיקת חשבון&quot; לאישור
-        </p>
-      </div>
-
-      <button
-        type="submit"
-        disabled={isPending}
-        className="inline-flex min-h-[60px] w-full items-center justify-center rounded-pill bg-burgundy px-8 font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-burgundy-deep hover:shadow-lift-2 disabled:pointer-events-none disabled:opacity-55"
-      >
-        {isPending ? "שולח בקשה..." : "שליחת בקשת מחיקה"}
-      </button>
-    </form>
+          {isPending ? "שולח בקשה..." : "שליחת בקשת מחיקה"}
+        </button>
+      </form>
+    </>
   );
 }
