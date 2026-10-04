@@ -56,7 +56,15 @@ function Logo({
         // visible strip, so the lazy observer never fires for the logos that
         // start there and they render as permanent holes. All seven are 84KB
         // together, which is less than one of the app screenshots.
+        //
+        // Low fetch priority on purpose too: React 19 server-renders a
+        // <link rel="preload"> for every non-lazy <img> unless it is marked
+        // low, which put all seven logos in the <head> next to the hero
+        // poster and the fonts, competing with them on slow connections. The
+        // band sits several screens down; eager plus low still fetches the
+        // logos during the load, just after what the first screen needs.
         loading="eager"
+        fetchPriority="low"
         className="h-full w-full object-contain opacity-80 [filter:grayscale(45%)]"
       />
     </li>

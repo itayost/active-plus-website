@@ -35,6 +35,10 @@ export default function AboutPage() {
                 width={STORY_PHOTO.width}
                 height={STORY_PHOTO.height}
                 alt={STORY_PHOTO.alt}
+                // In the first viewport at every width (390 to 1920) and the
+                // page's LCP element, so it must not wait for lazy loading.
+                priority
+                fetchPriority="high"
                 sizes="(min-width: 1024px) 55vw, 92vw"
                 className="aspect-[3/2] h-auto w-full rounded-card object-cover shadow-lift-2"
               />

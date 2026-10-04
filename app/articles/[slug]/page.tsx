@@ -81,6 +81,7 @@ export default async function ArticlePage({
             width={1536}
             height={1024}
             priority
+            fetchPriority="high"
             sizes="(max-width: 1520px) 92vw, 1440px"
             className="-mt-[clamp(5rem,10vw,9rem)] aspect-[4/3] w-full rounded-card object-cover object-[50%_18%] shadow-lift-2 sm:aspect-video"
           />

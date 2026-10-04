@@ -9,8 +9,13 @@ import { PlayIcon } from "@/components/ui/icons";
  *
  * The background is the client's hero video, muted and looping. The poster
  * image sits underneath as the LCP element and is all that reduced-motion and
- * save-data visitors get: HeroVideo mounts the video on the client only when
- * motion is allowed and data saving is off. One action only: the walkthrough.
+ * save-data visitors get: HeroVideo mounts the video on the client, after the
+ * page has loaded, only when motion is allowed, data saving is off and the
+ * connection is not known to be slow. One action only: the walkthrough.
+ *
+ * `priority` alone (Next 15) preloads the poster at the browser's default Low
+ * image priority, where it queued behind the fonts and partner logos on slow
+ * connections. `fetchPriority="high"` goes on both the preload and the <img>.
  */
 export default function Hero() {
   /*
@@ -32,6 +37,7 @@ export default function Hero() {
             alt=""
             fill
             priority
+            fetchPriority="high"
             sizes="100vw"
             className="-z-30 object-cover"
           />
