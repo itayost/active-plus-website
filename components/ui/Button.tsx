@@ -45,7 +45,10 @@ const SHARED =
   // of leaving a full first line over a two-word orphan.
   "[&_svg]:shrink-0 text-balance " +
   "transition-[background-color,box-shadow,border-color,transform] duration-[var(--dur-fast)] ease-out-expo " +
-  "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55";
+  "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55 " +
+  // Forced colours strip the fill, which left every pill as bare text; a
+  // border there is drawn in the system colour and gives it back its edge.
+  "forced-colors:border-2";
 
 type Props = {
   children: ReactNode;

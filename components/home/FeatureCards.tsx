@@ -129,7 +129,7 @@ export default function FeatureCards() {
                 </div>
                 <Link
                   href={card.href}
-                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] ${ACTION[card.tone]}`}
+                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] forced-colors:border-2 ${ACTION[card.tone]}`}
                 >
                   {CARD_ACTION_LABEL}
                   <ArrowIcon className="h-5 w-5" />

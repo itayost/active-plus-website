@@ -171,7 +171,7 @@ export default function DeleteAccountForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex min-h-[60px] w-full items-center justify-center rounded-[30px] bg-burgundy pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-burgundy-deep hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55"
+          className="inline-flex min-h-[60px] w-full items-center justify-center rounded-[30px] bg-burgundy pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-burgundy-deep hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] forced-colors:border-2 disabled:pointer-events-none disabled:opacity-55"
         >
           {isPending ? "שולח בקשה..." : "שליחת בקשת מחיקה"}
         </button>
