@@ -161,9 +161,9 @@ export default function FeatureCards() {
           role="presentation"
         >
           <div
-            className="h-full rounded-pill bg-ink transition-[width] duration-[var(--dur-slow)] ease-out-expo"
+            className="h-full w-full origin-right rounded-pill bg-ink transition-transform duration-[var(--dur-slow)] ease-out-expo"
             style={{
-              width: `${((index + 1) / FEATURE_CARDS.length) * 100}%`,
+              transform: `scaleX(${(index + 1) / FEATURE_CARDS.length})`,
             }}
           />
         </div>

@@ -7,7 +7,7 @@ import { CONTACT_HOURS, CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants
 export default function LeadSection({
   source,
   heading = "השאירו פרטים ונחזור אליכם לתיאום",
-  lede = "שיחה קצרה, בלי התחייבות — נבין מה מתאים לכם ונסביר איך מתחילים.",
+  lede,
   withEmail = true,
 }: {
   source: string;
@@ -30,7 +30,9 @@ export default function LeadSection({
             >
               {heading}
             </h2>
-            <p className="mt-6 max-w-measure text-lead text-ink-soft">{lede}</p>
+            {lede ? (
+              <p className="mt-6 max-w-measure text-lead text-ink-soft">{lede}</p>
+            ) : null}
 
             <ul className="mt-9 space-y-4">
               <li className="flex items-start gap-3">

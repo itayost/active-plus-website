@@ -63,7 +63,7 @@ export default function Hero() {
             className="max-w-[18ch] text-h1 font-display font-black text-white"
           >
             <span className="block">תוכנית אישית לאימון הגוף</span>
-            <span className="block text-[#5fd3ff]">וחדות המחשבה</span>
+            <span className="block text-emphasis">וחדות המחשבה</span>
           </h1>
 
           <p className="mt-6 max-w-[34ch] text-[clamp(1.2rem,1.05rem+0.8vw,1.625rem)] font-medium leading-snug text-white/90">

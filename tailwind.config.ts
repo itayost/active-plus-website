@@ -1,13 +1,16 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Colours are CSS variables, which Tailwind cannot split into channels, so an
- * opacity modifier (bg-ink/85) would silently generate nothing. This returns
- * the bare variable when no alpha is asked for and a color-mix otherwise.
+ * Colours are CSS variables, which Tailwind cannot split into channels. For an
+ * unmodified utility Tailwind passes either no opacityValue or its own
+ * `var(--tw-*-opacity, 1)` placeholder; both mean "fully opaque", so the bare
+ * variable is returned. That keeps plain bg-*, text-* and border-* working on
+ * engines without color-mix (iOS Safari < 16.2, Chrome < 111, Firefox < 113).
+ * Only a real modifier (bg-ink/85) needs color-mix.
  */
 const cssVar = (name: string): string =>
   (({ opacityValue }: { opacityValue?: string }) =>
-    opacityValue === undefined
+    opacityValue === undefined || opacityValue.startsWith("var(--tw-")
       ? `var(${name})`
       : `color-mix(in srgb, var(${name}) calc(${opacityValue} * 100%), transparent)`) as unknown as string;
 
@@ -60,6 +63,7 @@ const config: Config = {
           wash: cssVar("--purple-wash"),
         },
         yellow: cssVar("--yellow"),
+        emphasis: cssVar("--emphasis-cyan"),
         burgundy: {
           DEFAULT: cssVar("--burgundy"),
           deep: cssVar("--burgundy-deep"),
@@ -92,41 +96,9 @@ const config: Config = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(-50%)" },
         },
-        /*
-         * Travel along the arc, not up and down. One layer rotates about the
-         * ring centre so the child slides along the curve; an inner layer runs
-         * the exact inverse so the portrait stays upright instead of tumbling.
-         * Both must share a duration and delay or they stop cancelling.
-         */
-        /*
-         * A full revolution from each child's own start angle. The cancel
-         * pair turns the opposite way at the same rate, which keeps the face
-         * upright while its position still travels the ring. Duration must
-         * match between a spin and its cancel or the two stop agreeing.
-         */
-        "arc-cw": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) + 360deg))" },
-        },
-        "arc-ccw": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) - 360deg))" },
-        },
-        "arc-cw-cancel": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) - 360deg))" },
-        },
-        "arc-ccw-cancel": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) + 360deg))" },
-        },
       },
       animation: {
         marquee: "marquee 38s linear infinite",
-        "arc-cw": "arc-cw 30s linear infinite",
-        "arc-ccw": "arc-ccw 30s linear infinite",
-        "arc-cw-cancel": "arc-cw-cancel 30s linear infinite",
-        "arc-ccw-cancel": "arc-ccw-cancel 30s linear infinite",
       },
       borderRadius: {
         card: "28px",

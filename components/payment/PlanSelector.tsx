@@ -91,9 +91,11 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
                     <span className="text-lead font-medium text-ink">
                       {`סה״כ ${formatShekel(plan.price)} × 12 חודשים = ${formatShekel(plan.total)} לשנה`}
                     </span>
-                    <span className="text-base text-ink-soft">
-                      {`חיוב אחד של ${formatShekel(plan.total)}, אפשר לחלק עד ${plan.maxInstallments} תשלומים`}
-                    </span>
+                    {showMethods ? (
+                      <span className="text-base text-ink-soft">
+                        {`חיוב אחד של ${formatShekel(plan.total)}, אפשר לחלק עד ${plan.maxInstallments} תשלומים`}
+                      </span>
+                    ) : null}
                   </>
                 ) : (
                   <span className="text-base text-ink-soft">{plan.terms}</span>

@@ -38,6 +38,7 @@
   --blue-bright: #1aa9e0;
   --blue-deep: #0a5f81;
   --blue-wash: #e6f6fd;
+  --emphasis-cyan: #5fd3ff;
   --green: #3d7d23;
   --green-deep: #2a5f17;
   --green-wash: #eaf6e3;
@@ -304,17 +305,5 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  /* The arc rings are an exception to the blanket rule above. Collapsing a
-     full revolution lands every child back at its start angle, which is
-     correct — but only while the animation is still running. With
-     iteration-count 1 it finishes instead, the transform reverts, and all
-     fourteen portraits pile onto the ring's twelve o'clock. Keeping the
-     duration and pausing holds each one where its start angle put it. */
-  [class*="animate-arc-"] {
-    animation-duration: inherit;
-    animation-iteration-count: infinite !important;
-    animation-play-state: paused !important;
   }
 }

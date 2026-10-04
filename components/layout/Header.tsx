@@ -73,7 +73,7 @@ export default function Header() {
     };
   }, [open, close]);
 
-  const isCurrent = (href: string) => pathname === href;
+  const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <>
