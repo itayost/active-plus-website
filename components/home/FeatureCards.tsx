@@ -3,9 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Button from "@/components/ui/Button";
 import { Shell } from "@/components/ui/Section";
 import { ArrowBackIcon, ArrowIcon } from "@/components/ui/icons";
-import { FEATURE_CARDS, type Tone } from "@/lib/constants";
+import { FEATURE_CARDS, FIT_CHECK, type Tone } from "@/lib/constants";
+
+const CARD_ACTION_LABEL = "תראו לי עוד";
+const FIT_CHECK_LABEL = "לבדיקת התאמה";
 
 /**
  * Four fields, and they have to separate by VALUE as well as hue — three
@@ -95,9 +99,9 @@ export default function FeatureCards() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <h2
             id="cards-heading"
-            className="max-w-[16ch] text-h2 font-display font-black"
+            className="max-w-[18ch] text-h2 font-display font-black"
           >
-            מעטפת שלמה לחיזוק הגוף והמוח
+            מעטפת מקצועית במיוחד בשבילכם
           </h2>
 
           {/*
@@ -137,7 +141,7 @@ export default function FeatureCards() {
           <li
             key={card.id}
             aria-label={`${cardIndex + 1} מתוך ${FEATURE_CARDS.length}`}
-            className="w-[min(88vw,560px)] shrink-0 snap-start lg:w-[min(72vw,1000px)]"
+            className="w-[min(88vw,620px)] shrink-0 snap-start lg:w-[min(76vw,1280px)]"
           >
             <article
               className={`flex h-full flex-col overflow-hidden rounded-card shadow-lift-2 lg:flex-row-reverse ${FIELD[card.tone]}`}
@@ -150,7 +154,7 @@ export default function FeatureCards() {
                 the same treatment keeps all four cards consistent.
               */}
               <div className="w-full shrink-0 p-[clamp(0.75rem,1.6vw,1.25rem)] lg:w-[44%]">
-                <div className="relative aspect-[16/10] h-full w-full overflow-hidden rounded-[20px] lg:aspect-auto lg:min-h-[280px]">
+                <div className="relative aspect-[16/10] h-full w-full overflow-hidden rounded-[20px] lg:aspect-auto lg:min-h-[clamp(280px,26vw,460px)]">
                   <Image
                     src={card.image}
                     alt={card.alt}
@@ -173,10 +177,10 @@ export default function FeatureCards() {
                   ))}
                 </div>
                 <Link
-                  href="#lead"
+                  href={card.href}
                   className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 ${ACTION[card.tone]}`}
                 >
-                  {card.cta}
+                  {CARD_ACTION_LABEL}
                   <ArrowIcon className="h-5 w-5" />
                 </Link>
               </div>
@@ -196,6 +200,11 @@ export default function FeatureCards() {
               width: `${((index + 1) / FEATURE_CARDS.length) * 100}%`,
             }}
           />
+        </div>
+        <div className="mt-12 flex justify-center">
+          <Button href={FIT_CHECK.href} size="lg">
+            {FIT_CHECK_LABEL}
+          </Button>
         </div>
       </Shell>
     </section>
