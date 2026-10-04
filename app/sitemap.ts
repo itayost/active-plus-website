@@ -1,28 +1,33 @@
 import type { MetadataRoute } from "next";
-import { ARTICLES } from "@/content/articles";
-import { NAV, SITE_URL } from "@/lib/constants";
+import { SITE_ROUTES } from "@/lib/routes";
+import { SITE_URL } from "@/lib/constants";
+
+/** Marked noindex on the page itself, so it must not appear here. */
+const EXCLUDED = new Set(["/questionnaire"]);
+
+const MAIN_PAGES = new Set([
+  "/about",
+  "/how-it-works",
+  "/payment",
+  "/personal-plan",
+  "/motion-detection",
+  "/progress",
+]);
+
+const LEGAL_PAGES = new Set(["/privacy-policy", "/delete-account"]);
+
+function priorityFor(path: string): number {
+  if (path === "/") return 1;
+  if (MAIN_PAGES.has(path)) return 0.8;
+  if (LEGAL_PAGES.has(path)) return 0.3;
+  return 0.6; // the articles index and each article
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-
-  const staticRoutes = [
-    { path: "/", priority: 1 },
-    ...NAV.map((item) => ({ path: item.href, priority: 0.8 })),
-    { path: "/articles", priority: 0.7 },
-    { path: "/privacy-policy", priority: 0.3 },
-    { path: "/delete-account", priority: 0.3 },
-  ];
-
-  return [
-    ...staticRoutes.map(({ path, priority }) => ({
-      url: `${SITE_URL}${path}`,
-      lastModified: now,
-      priority,
-    })),
-    ...ARTICLES.map((article) => ({
-      url: `${SITE_URL}/articles/${article.slug}`,
-      lastModified: now,
-      priority: 0.6,
-    })),
-  ];
+  return SITE_ROUTES.filter((path) => !EXCLUDED.has(path)).map((path) => ({
+    url: `${SITE_URL}${path === "/" ? "" : path}`,
+    lastModified: now,
+    priority: priorityFor(path),
+  }));
 }

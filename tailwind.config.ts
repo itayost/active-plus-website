@@ -55,15 +55,16 @@ const config: Config = {
         },
       },
       fontSize: {
-        base: ["1.125rem", { lineHeight: "1.65" }],
-        lead: ["clamp(1.25rem, 1.1rem + 0.7vw, 1.5rem)", { lineHeight: "1.55" }],
-        h3: ["clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem)", { lineHeight: "1.25" }],
-        h2: ["clamp(1.875rem, 1.4rem + 2.1vw, 3.25rem)", { lineHeight: "1.1" }],
-        h1: ["clamp(2.125rem, 1.5rem + 4vw, 5rem)", { lineHeight: "1.02" }],
+        base: ["clamp(1.125rem, 1rem + 0.25vw, 1.3125rem)", { lineHeight: "1.65" }],
+        lead: ["clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem)", { lineHeight: "1.55" }],
+        h3: ["clamp(1.375rem, 1.15rem + 0.7vw, 1.875rem)", { lineHeight: "1.25" }],
+        h2: ["clamp(1.875rem, 1.3rem + 2vw, 3.75rem)", { lineHeight: "1.1" }],
+        h1: ["clamp(2.125rem, 1.4rem + 3.6vw, 5.5rem)", { lineHeight: "1.02" }],
       },
       maxWidth: {
         measure: "var(--measure)",
-        shell: "1240px",
+        shell: "1520px",
+        narrow: "1080px",
       },
       boxShadow: {
         "lift-1": "var(--lift-1)",

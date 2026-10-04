@@ -7,6 +7,7 @@ import {
   CONTACT_HOURS,
   CONTACT_PHONE,
   CONTACT_PHONE_TEL,
+  FIT_CHECK,
   NAV,
   STORE_ANDROID,
   STORE_IOS,
@@ -68,10 +69,10 @@ export default function Footer() {
               ))}
               <li>
                 <Link
-                  href="/articles"
+                  href={FIT_CHECK.href}
                   className="inline-flex min-h-[44px] items-center text-ink-soft transition-colors hover:text-blue-deep"
                 >
-                  מאמרים
+                  {FIT_CHECK.label}
                 </Link>
               </li>
             </ul>

@@ -18,7 +18,7 @@ export function Shell({
   className?: string;
   width?: "shell" | "narrow";
 }) {
-  const max = width === "narrow" ? "max-w-[820px]" : "max-w-shell";
+  const max = width === "narrow" ? "max-w-narrow" : "max-w-shell";
   return (
     <div className={`mx-auto w-full ${max} gutter-x ${className}`}>
       {children}

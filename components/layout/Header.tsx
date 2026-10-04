@@ -6,9 +6,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Logo from "./Logo";
 import Button from "@/components/ui/Button";
 import { CloseIcon, MenuIcon, PhoneIcon } from "@/components/ui/icons";
-import { CONTACT_HOURS, CONTACT_PHONE, CONTACT_PHONE_TEL, NAV } from "@/lib/constants";
-
-const PRIMARY = NAV.filter((item) => item.primary);
+import {
+  CONTACT_HOURS,
+  CONTACT_PHONE,
+  CONTACT_PHONE_TEL,
+  FIT_CHECK,
+  NAV,
+} from "@/lib/constants";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -83,7 +87,7 @@ export default function Header() {
 
           <nav aria-label="ניווט ראשי" className="hidden lg:block">
             <ul className="flex items-center gap-1">
-              {PRIMARY.map((item) => (
+              {NAV.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -102,8 +106,11 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button href="/contact" className="hidden sm:inline-flex">
-              דברו איתנו
+            <Button
+              href={FIT_CHECK.href}
+              className="whitespace-nowrap max-[420px]:px-4 max-[420px]:text-[1.0625rem]"
+            >
+              {FIT_CHECK.label}
             </Button>
             <button
               ref={toggleRef}
@@ -171,23 +178,14 @@ export default function Header() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                href="/articles"
-                aria-current={isCurrent("/articles") ? "page" : undefined}
-                className="flex min-h-[60px] items-center text-lead text-ink transition-colors hover:text-blue-deep"
-              >
-                מאמרים
-              </Link>
-            </li>
           </ul>
         </nav>
 
         {/* A phone number is the fastest route for this audience, so the
             drawer ends with it rather than with another link. */}
         <div className="border-t border-hairline px-5 py-5">
-          <Button href="/contact" size="lg" className="w-full">
-            דברו איתנו
+          <Button href={FIT_CHECK.href} size="lg" className="w-full">
+            {FIT_CHECK.label}
           </Button>
           <a
             href={`tel:${CONTACT_PHONE_TEL}`}
