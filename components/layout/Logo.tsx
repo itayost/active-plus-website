@@ -5,7 +5,7 @@ export default function Logo({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={`group inline-flex items-center gap-2.5 ${className}`}
+      className={`group inline-flex min-h-[48px] shrink-0 items-center gap-2.5 ${className}`}
       aria-label="פעילים פלוס — לעמוד הבית"
     >
       {/*
@@ -24,7 +24,9 @@ export default function Logo({ className = "" }: { className?: string }) {
         priority
         className="h-[38px] w-auto min-[421px]:h-11 transition-transform duration-[var(--dur)] ease-out-expo group-hover:-translate-y-0.5"
       />
-      <span className="font-display text-[1.375rem] font-black min-[421px]:text-h3 leading-none tracking-tight">
+      {/* logo-wordmark collapses inside the header at enlarged text; the
+          link keeps its name through aria-label either way. */}
+      <span className="logo-wordmark font-display text-[1.375rem] font-black min-[421px]:text-h3 leading-none tracking-tight">
         <span className="text-blue-deep">פעילים</span>
         <span className="text-green-deep">+</span>
       </span>

@@ -69,7 +69,7 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
                     {plan.longName}
                   </span>
                   {isAnnual ? (
-                    <span className="ms-auto whitespace-nowrap rounded-pill bg-ink px-4 py-1.5 font-display text-lead font-bold text-yellow">
+                    <span className="ms-auto rounded-pill bg-ink px-4 py-1.5 text-center font-display text-lead font-bold text-yellow">
                       {`חיסכון של ${formatShekel(annualSavings())}`}
                     </span>
                   ) : null}

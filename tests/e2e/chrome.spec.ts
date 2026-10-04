@@ -37,6 +37,9 @@ for (const size of [
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
     const cta = page.getByRole("banner").getByRole("link", { name: "בדיקת התאמה" });
     await expect(cta).toBeVisible();
-    expect(await cta.evaluate((el) => getComputedStyle(el).textWrap)).toBe("nowrap");
+    // One line at the default text size, and fully on screen with the toggle.
+    expect((await cta.boundingBox())!.height).toBeLessThan(64);
+    const toggle = (await page.getByRole("button", { name: "פתיחת התפריט" }).boundingBox())!;
+    expect(toggle.x).toBeGreaterThanOrEqual(0);
   });
 }

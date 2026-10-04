@@ -77,12 +77,23 @@ export default function Header() {
 
   return (
     <>
+      {/* site-header is a size container: at enlarged text the row measures
+          itself in rem and drops the wordmark before anything is pushed off
+          the screen (see globals.css). */}
       <header
-        className={`sticky top-0 z-40 bg-surface pt-[env(safe-area-inset-top)] transition-[box-shadow,border-color] duration-[var(--dur)] ${
+        className={`site-header sticky top-0 z-40 bg-surface pt-[env(safe-area-inset-top)] transition-[box-shadow,border-color] duration-[var(--dur)] ${
           lifted ? "border-b border-hairline shadow-lift-1" : "border-b border-transparent"
         }`}
       >
-        <div className="mx-auto flex max-w-shell items-center justify-between gap-2 gutter-x min-[421px]:gap-6 py-3">
+        {/*
+          The row wraps instead of overflowing. At the default size everything
+          fits on one line at 320px; with the browser's text enlarged, the
+          wordmark folds, the pill wraps its label and, past that, the actions
+          drop to a second line.
+          Nothing is ever pushed past the inline end, where html's
+          overflow-x: clip would silently hide the menu toggle.
+        */}
+        <div className="mx-auto flex max-w-shell flex-wrap items-center justify-between gap-2 gutter-x min-[421px]:gap-x-6 py-3">
           <Logo />
 
           <nav aria-label="ניווט ראשי" className="hidden lg:block">
@@ -105,10 +116,14 @@ export default function Header() {
             </ul>
           </nav>
 
-          <div className="flex items-center gap-2">
+          {/* Below lg the actions take the rest of the row from a zero basis,
+              so at enlarged text the pill wraps its own label before the row
+              has to wrap. Their minimum is still their content, which keeps
+              the row-wrap fallback for browsers without container queries. */}
+          <div className="header-actions ms-auto flex items-center justify-end gap-2 max-lg:flex-[1_1_0%]">
             <Button
               href={FIT_CHECK.href}
-              className="!whitespace-nowrap [text-wrap:nowrap] max-[420px]:px-4 max-[420px]:text-base"
+              className="fit-pill text-center leading-tight max-[420px]:px-4 max-[420px]:text-base"
             >
               {FIT_CHECK.label}
             </Button>
@@ -118,7 +133,7 @@ export default function Header() {
               onClick={() => (open ? close() : setOpen(true))}
               aria-expanded={open}
               aria-controls="site-drawer"
-              className="inline-flex h-12 w-12 items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken lg:hidden"
+              className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken lg:hidden"
             >
               <span className="sr-only">{open ? "סגירת התפריט" : "פתיחת התפריט"}</span>
               <MenuIcon className="h-7 w-7" />
@@ -139,14 +154,28 @@ export default function Header() {
         }`}
       />
 
+      {/*
+        Closed means gone, not just slid away: inert takes it out of the tab
+        order and the accessibility tree (it was eight invisible Tab stops and
+        a second "dialog" on every page), and visibility: hidden does the same
+        for browsers without inert. Each state carries its own transition:
+        opening flips visibility at once (a transitioned visibility is still
+        hidden on the first frame, which made the focus move into the drawer
+        fail at random), closing delays it until the slide-out has finished.
+        The shadow goes with it: left on, it bled a grey strip along the right
+        edge of every phone page.
+      */}
       <div
         id="site-drawer"
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label="תפריט האתר"
-        className={`drawer-safe fixed inset-y-0 start-0 z-50 flex w-[min(88vw,380px)] flex-col overflow-y-auto overscroll-contain bg-surface shadow-lift-3 transition-transform duration-[var(--dur)] ease-out-expo motion-reduce:transition-none lg:hidden ${
-          open ? "translate-x-0" : "translate-x-full rtl:translate-x-full"
+        inert={!open}
+        className={`drawer-safe fixed inset-y-0 start-0 z-50 flex w-[min(88vw,380px)] flex-col overflow-y-auto overscroll-contain bg-surface motion-reduce:transition-none lg:hidden ${
+          open
+            ? "visible translate-x-0 shadow-lift-3 [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s]"
+            : "invisible translate-x-full shadow-none rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
         }`}
       >
         <div className="flex items-center justify-between border-b border-hairline px-5 py-3">

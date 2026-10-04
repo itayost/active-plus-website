@@ -108,6 +108,59 @@ html {
 }
 
 /*
+  The header bar at enlarged text. This audience raises the browser's text
+  size, and every rem in the bar grows with it while the screen does not: at
+  130% on a 360px phone the row no longer fit and the menu toggle slid past
+  the left edge, where html's overflow-x: clip hid it. The header is a size
+  container and the queries below are in rem, so they track the text size as
+  well as the pixel width.
+
+  Below 21.5rem the wordmark folds away and the walking-figure mark carries
+  the link on its own (its name is the link's aria-label). That includes a
+  320px phone at the default size, where logo, pill and toggle need 315px of
+  the 280px between the gutters: the old bar only fitted by squeezing the
+  pill narrower than its own label. Below 20rem, which only enlarged text
+  reaches, the pill may wrap its label onto two lines with tighter padding,
+  and in the last resort (200% on 320px) the toggle drops under the pill
+  rather than off the screen. Browsers without container queries keep the
+  full bar and fall back on the row wrapping.
+
+  The pill's wrapping is set here rather than with utilities because the
+  Button's text-balance is a text-wrap shorthand that silently undoes
+  whitespace-nowrap.
+*/
+.site-header {
+  container-type: inline-size;
+}
+
+.site-header .fit-pill {
+  white-space: nowrap;
+  text-wrap: nowrap;
+}
+
+@container (width < 21.5rem) {
+  .site-header .logo-wordmark {
+    display: none;
+  }
+}
+
+@container (width < 20rem) {
+  .site-header .fit-pill {
+    white-space: normal;
+    text-wrap: balance;
+    padding-inline: 0.75rem;
+    /* text-base brings body leading (1.65); two lines of a pill need less. */
+    line-height: 1.2;
+  }
+}
+
+@container (width < 11rem) {
+  .site-header .header-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/*
   Held sideways, a phone offers about 390px of height and the drawer wants ~750.
   Scrolling a nine-item menu to reach "צור קשר" is the wrong answer when the rows
   themselves are the slack: 60px is the drawer's designed rhythm, not its floor.
@@ -180,6 +233,26 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-wrap: pretty;
+  /* With the browser's text enlarged, a single Hebrew word in a display
+     heading (פעילים+, ההתקדמות) or a button label can be wider than a phone,
+     and grid and flex items will not shrink below their longest word. At 200%
+     on a 390px phone that pushed headings, plan cards and the lead form past
+     the edge on most pages. `anywhere` lets a word break only when it cannot
+     fit on a line by itself, and, unlike break-word, also lowers the
+     min-content size, so the containers shrink with it. Measured: at the
+     default text size no visible element moves on any route at 320, 390, 768
+     or 1440. */
+  overflow-wrap: anywhere;
+}
+
+/* Controls keep whole words: a pill that breaks "בדיקת" into "בדיק / ת" reads
+   as broken. They opt back out of `anywhere` to the default, so a label a
+   few pixels wider than its box runs into its own padding instead, and the
+   row around the control wraps before any word is split. */
+a,
+button,
+label {
+  overflow-wrap: normal;
 }
 
 h1,
