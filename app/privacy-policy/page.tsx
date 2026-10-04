@@ -17,7 +17,7 @@ interface PrivacySectionProps {
 function PrivacySection({ title, children }: PrivacySectionProps) {
   return (
     <section className="legal-section">
-      <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
+      <h2 className="mb-4 font-display text-h3 font-bold text-ink">
         {title}
       </h2>
       <div className="text-ink-soft">{children}</div>

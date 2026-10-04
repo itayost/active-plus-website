@@ -483,7 +483,14 @@ html {
 }
 
 /* Legal pages carry plain prose written as raw markup rather than through
-   the Prose component; they get the same reading rhythm here. */
+   the Prose component; they get the same reading rhythm here. The space
+   between sections belongs to the section, not its heading: each heading is
+   its section's first child, so a heading margin cancelled by first:mt-0
+   never applied and every heading sat tight under the previous list. */
+.legal-section + .legal-section {
+  margin-top: 3rem;
+}
+
 .legal-section p {
   margin-top: 1rem;
 }

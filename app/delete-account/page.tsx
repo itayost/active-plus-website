@@ -21,7 +21,7 @@ export default function DeleteAccountPage() {
         <Shell width="narrow">
 
       <section className="legal-section">
-        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
+        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
           כיצד למחוק את החשבון שלך
         </h2>
         <div className="text-ink-soft">
@@ -51,7 +51,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
+        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
           אילו נתונים יימחקו
         </h2>
         <div className="text-ink-soft">
@@ -69,7 +69,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
+        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
           מידע חשוב
         </h2>
         <div className="text-ink-soft">
@@ -87,8 +87,8 @@ export default function DeleteAccountPage() {
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-4 mt-12 font-display text-h3 font-bold text-ink first:mt-0">
+      <section className="legal-section">
+        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
           שאלות נוספות
         </h2>
         <div className="text-ink-soft">
