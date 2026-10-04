@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { createServiceClient } from "@/lib/supabase";
+import { createRateLimiter } from "@/lib/rate-limit";
 import { clientIp } from "@/lib/request-ip";
 
 export type LeadField = "fullName" | "phone" | "email" | "message";
@@ -21,29 +22,7 @@ export type LeadResult =
   /** `fields` carries every invalid field, not just the first one found. */
   | { status: "error"; message?: string; fields?: FieldErrors; values?: LeadValues };
 
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-const RATE_LIMIT_MAX = 5;
-const rateLimit = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-
-  if (rateLimit.size > 200) {
-    for (const [key, entry] of rateLimit) {
-      if (now > entry.resetAt) rateLimit.delete(key);
-    }
-  }
-
-  const entry = rateLimit.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return true;
-
-  entry.count += 1;
-  return false;
-}
+const isRateLimited = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 5 });
 
 /** Israeli mobile and landline numbers, with or without separators. */
 const PHONE_PATTERN = /^0(5\d|7\d|[2-4]|[8-9])\d{7}$/;

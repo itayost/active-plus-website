@@ -46,6 +46,18 @@ type Lead = {
   updated_at: string;
 };
 
+/**
+ * Mirrors the columns of public.funnel_events that the website inserts into.
+ * The table belongs to the app (FunnelEventTracker); `step` holds the event name.
+ */
+type FunnelEventInsert = {
+  session_id: string;
+  step: string;
+  data: Record<string, unknown>;
+  client_platform: string;
+  client_version: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -57,6 +69,12 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<AccountDeletionRequest>;
+        Relationships: [];
+      };
+      funnel_events: {
+        Row: FunnelEventInsert & { id: string; created_at: string };
+        Insert: FunnelEventInsert;
+        Update: Partial<FunnelEventInsert>;
         Relationships: [];
       };
       leads: {

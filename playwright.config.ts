@@ -18,6 +18,10 @@ export default defineConfig({
       // Set here, these win over .env.local (Next never overrides a set variable).
       NEXT_PUBLIC_SUPABASE_URL: E2E_SUPABASE.url,
       NEXT_PUBLIC_SUPABASE_ANON_KEY: E2E_SUPABASE.anonKey,
+      // The funnel-event route inserts with the service client: point it at the same dead host
+      // so an e2e run can never write analytics rows to a real project (the insert just fails).
+      SUPABASE_URL: E2E_SUPABASE.url,
+      SUPABASE_SERVICE_ROLE_KEY: "e2e-service-key",
       // Build and serve from .next-e2e (next.config distDir), leaving .next alone.
       NEXT_DIST_DIR: ".next-e2e",
     },

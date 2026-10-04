@@ -9,6 +9,7 @@ import { COPY } from "@/lib/funnel/copy";
 import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
 import { sendCode, verifyCode, type VerifyResult } from "@/lib/funnel/signin";
 import { handOffToPayment, loadSession } from "@/lib/funnel/storage";
+import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers } from "@/lib/funnel/types";
 import { formatLocal, toE164 } from "@/lib/phone";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
@@ -172,7 +173,10 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
     const supabase = await loadBrowserSupabase();
     const result = supabase ? await verifyCode(supabase, e164, token) : "error";
     if (!alive.current) return;
-    if (result === "ok") return finish();
+    if (result === "ok") {
+      trackFunnelEvent(loadSession().id, "otp_verified"); // before the hand-off clears the session
+      return finish();
+    }
     setCode("");
     setError(VERIFY_MESSAGE[result]);
     setPhase("enter");
@@ -188,6 +192,7 @@ export default function Otp({ phone, answers, onEditPhone, onComplete, onBusy }:
 
   const resend = async () => {
     if (resending || locked) return;
+    trackFunnelEvent(loadSession().id, "otp_resend_tap");
     setResending(true);
     const supabase = await loadBrowserSupabase();
     const result = supabase ? await sendCode(supabase, e164) : "error";

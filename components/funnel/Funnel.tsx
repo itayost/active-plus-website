@@ -1,14 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advance, back, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
+import { VIEW_EVENT, type ActionEvent } from "@/lib/funnel/events";
 import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import type { Segment } from "@/lib/funnel/time";
+import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers, Step } from "@/lib/funnel/types";
 import FunnelChrome from "./FunnelChrome";
 import { STEP_TITLE_ID } from "./parts";
 import { renderStep, type StepActions } from "./steps";
+
+/** The continue taps the app reports as their own events, by the step they leave. */
+const CONTINUE_EVENT: Partial<Record<Step, ActionEvent>> = {
+  socialProof: "social_proof_continue",
+  reinforcement2: "reinforcement2_continue",
+  planBuilding: "plan_build_complete",
+};
+
+const track = (event: Parameters<typeof trackFunnelEvent>[1]) => trackFunnelEvent(loadSession().id, event);
 
 /**
  * The questionnaire's state owner. It holds the step, the back history and
@@ -46,6 +57,15 @@ export default function Funnel() {
     if (restored !== "welcome2") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
   }, [restored]);
 
+  // One view event per visit to a step. The ref survives React's dev double-run of effects, and
+  // sub-screens of one step (time, register) change `state.step` not at all, so they do not repeat.
+  const viewed = useRef<Step | null>(null);
+  useEffect(() => {
+    if (restored === null || viewed.current === state.step) return;
+    viewed.current = state.step;
+    track(VIEW_EVENT[state.step]);
+  }, [restored, state.step]);
+
   useEffect(() => {
     if (moves === 0) return;
     document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
@@ -66,8 +86,13 @@ export default function Funnel() {
         saveAnswers(answers);
         go(advance(state, answers));
       },
-      advance: () => go(advance(state)),
+      advance: () => {
+        const event = CONTINUE_EVENT[state.step];
+        if (event) track(event);
+        go(advance(state));
+      },
       start: () => {
+        track("welcome2_continue"); // under the session that is about to be replaced
         resetSession();
         loadSession(); // mints the new session id
         go(advance({ ...initialState() }));
@@ -79,10 +104,17 @@ export default function Funnel() {
       saveName: (name: string) => {
         const answers = cleanOffBranch({ ...state.answers, full_name: name });
         saveAnswers(answers);
+        track("register_name_submit");
         go(showPhone({ ...state, answers }));
       },
-      codeSent: (phone: string) => go(codeSent(state, phone)),
-      editPhone: () => go(back(state)),
+      codeSent: (phone: string) => {
+        track("register_submit");
+        go(codeSent(state, phone));
+      },
+      editPhone: () => {
+        track("otp_edit_phone_tap");
+        go(back(state));
+      },
       complete: () => setComplete(true),
       setBusy,
     }),
