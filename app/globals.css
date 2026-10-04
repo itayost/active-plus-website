@@ -347,6 +347,15 @@ html {
   color: var(--blue-deep);
 }
 
+/* The partner strip's soft edges, only while it moves: the reduced-motion
+   layout is a static wrapped row, and a fade would eat its outer logos. */
+@media (prefers-reduced-motion: no-preference) {
+  .partners-strip {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+}
+
 /* One authored entrance, shared by every revealed element. Content is
    visible by default; the class only runs when JS confirms support. */
 @media (prefers-reduced-motion: no-preference) {

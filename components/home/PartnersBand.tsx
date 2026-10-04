@@ -5,10 +5,19 @@ import Image from "next/image";
  * own. Ported from the Improvement Center site, which already carries these
  * logos.
  *
- * The list is rendered twice and the track travels exactly half its width, so
- * the second copy lands where the first began and the loop has no seam. The
- * duplicate is aria-hidden, so the names are announced once rather than
- * fourteen times.
+ * The list is rendered three times and the track travels exactly one copy's
+ * width, so the second copy lands where the first began and the loop has no
+ * seam. Three rather than two so that what is left of the track after one
+ * copy has slid away (two copies, about 3,800px) still covers the widest
+ * screens. The copies are aria-hidden, so the names are announced once.
+ *
+ * The clipping strip is LTR, not only the track. In an RTL parent an
+ * over-wide LTR track is anchored flush right, so sliding it left emptied the
+ * strip from the right: the band was blank for half of every loop on desktop
+ * and for most of it on phones.
+ *
+ * Under reduced motion there is no strip at all: the seven marks sit wrapped
+ * and centred, in reading order, all of them visible at once.
  */
 const PARTNERS = [
   { src: "/img/partners/histadrut.webp", name: "ההסתדרות" },
@@ -20,10 +29,22 @@ const PARTNERS = [
   { src: "/img/partners/tirat-carmel.webp", name: "עיריית טירת הכרמל" },
 ];
 
-function Logo({ src, name, hidden }: { src: string; name: string; hidden?: boolean }) {
+const COPIES = 3;
+
+function Logo({
+  src,
+  name,
+  hidden,
+  className = "",
+}: {
+  src: string;
+  name: string;
+  hidden?: boolean;
+  className?: string;
+}) {
   return (
     <li
-      className="flex h-[clamp(72px,8vw,104px)] w-[clamp(140px,15vw,210px)] shrink-0 items-center justify-center"
+      className={`flex h-[clamp(72px,8vw,104px)] w-[clamp(140px,15vw,210px)] shrink-0 items-center justify-center ${className}`}
       aria-hidden={hidden || undefined}
     >
       <Image
@@ -52,26 +73,25 @@ export default function PartnersBand() {
         שיתופי פעולה
       </h2>
 
-      {/* The mask keeps logos from appearing and vanishing at hard edges. */}
-      <div
-        className="mt-7 overflow-hidden"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent, var(--ink) 6%, var(--ink) 94%, transparent)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent, var(--ink) 6%, var(--ink) 94%, transparent)",
-        }}
-      >
-        <ul
-          dir="ltr"
-          className="flex w-max animate-marquee items-center gap-[clamp(2rem,4vw,4rem)] motion-reduce:animate-none"
-        >
-          {PARTNERS.map((partner) => (
-            <Logo key={partner.src} {...partner} />
-          ))}
-          {PARTNERS.map((partner) => (
-            <Logo key={`${partner.src}-loop`} {...partner} hidden />
-          ))}
+      {/*
+        The mask keeps logos from appearing and vanishing at hard edges. The
+        trailing padding equals the gap, so every copy is exactly one logo plus
+        one gap per partner and a shift of one third lands on the seam.
+        Reduced motion: the copies hide, the track unwinds into a wrapped,
+        centred row in reading order, and the mask comes off.
+      */}
+      <div dir="ltr" className="partners-strip mt-7 overflow-hidden">
+        <ul className="flex w-max animate-marquee items-center gap-[clamp(2rem,4vw,4rem)] pe-[clamp(2rem,4vw,4rem)] motion-reduce:mx-auto motion-reduce:w-full motion-reduce:max-w-shell motion-reduce:animate-none motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:gap-y-4 motion-reduce:px-[var(--gutter)] motion-reduce:[direction:rtl]">
+          {Array.from({ length: COPIES }, (_, copy) =>
+            PARTNERS.map((partner) => (
+              <Logo
+                key={`${partner.src}-${copy}`}
+                {...partner}
+                hidden={copy > 0}
+                className={copy > 0 ? "motion-reduce:hidden" : ""}
+              />
+            )),
+          )}
         </ul>
       </div>
     </section>

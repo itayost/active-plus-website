@@ -91,10 +91,11 @@ const config: Config = {
         "out-expo": "var(--ease-out-expo)",
       },
       keyframes: {
-        /* Half the track's width, because the track holds the list twice. */
+        /* One copy's width, because the track holds the list three times
+           (see PartnersBand). */
         marquee: {
           from: { transform: "translateX(0)" },
-          to: { transform: "translateX(-50%)" },
+          to: { transform: "translateX(calc(-100% / 3))" },
         },
       },
       animation: {
