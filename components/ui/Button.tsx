@@ -17,9 +17,13 @@ const VARIANTS: Record<Variant, string> = {
 };
 
 // pill-pad-*: inline padding that gives way to enlarged text (globals.css).
+// The radius is half the minimum height rather than 999px: a one-line button
+// is exactly the same pill, but a label that wraps to three or four lines at
+// enlarged text becomes a rounded rectangle instead of a lens whose curve
+// runs into the words.
 const SIZES: Record<Size, string> = {
-  md: "min-h-[52px] pill-pad-md text-base",  // never below the 18px floor
-  lg: "min-h-[60px] pill-pad-lg text-lead",
+  md: "min-h-[52px] rounded-[26px] pill-pad-md text-base",  // never below the 18px floor
+  lg: "min-h-[60px] rounded-[30px] pill-pad-lg text-lead",
 };
 
 /*
@@ -32,7 +36,7 @@ const SIZES: Record<Size, string> = {
  * state itself.
  */
 const SHARED =
-  "inline-flex items-center justify-center gap-2.5 rounded-pill font-display font-bold tracking-tight " +
+  "inline-flex items-center justify-center gap-2.5 font-display font-bold tracking-tight " +
   // A flex row will squash an SVG before it wraps the label. On a 320px screen
   // that is where the longest CTAs live, so the icon is pinned at its authored
   // size here rather than at each of the sixteen call sites. `text-balance`

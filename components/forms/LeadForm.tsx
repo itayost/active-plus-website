@@ -43,7 +43,7 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
     <button
       type="submit"
       aria-disabled={pending || undefined}
-      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-pill bg-green-deep pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 sm:w-auto"
+      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-[30px] bg-green-deep pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 sm:w-auto"
     >
       {pending ? "שולח…" : label}
       {pending ? null : <ArrowIcon className="h-5 w-5" />}
