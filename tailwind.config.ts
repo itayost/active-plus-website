@@ -103,9 +103,35 @@ const config: Config = {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(calc(-100% / 3))" },
         },
+        /*
+         * A full revolution from each child's own start angle. The cancel
+         * pair turns the opposite way at the same rate, which keeps the face
+         * upright while its position still travels the ring. Duration must
+         * match between a spin and its cancel or the two stop agreeing.
+         */
+        "arc-cw": {
+          from: { transform: "rotate(var(--arc-start))" },
+          to: { transform: "rotate(calc(var(--arc-start) + 360deg))" },
+        },
+        "arc-ccw": {
+          from: { transform: "rotate(var(--arc-start))" },
+          to: { transform: "rotate(calc(var(--arc-start) - 360deg))" },
+        },
+        "arc-cw-cancel": {
+          from: { transform: "rotate(var(--arc-start))" },
+          to: { transform: "rotate(calc(var(--arc-start) - 360deg))" },
+        },
+        "arc-ccw-cancel": {
+          from: { transform: "rotate(var(--arc-start))" },
+          to: { transform: "rotate(calc(var(--arc-start) + 360deg))" },
+        },
       },
       animation: {
         marquee: "marquee 38s linear infinite",
+        "arc-cw": "arc-cw 30s linear infinite",
+        "arc-ccw": "arc-ccw 30s linear infinite",
+        "arc-cw-cancel": "arc-cw-cancel 30s linear infinite",
+        "arc-ccw-cancel": "arc-ccw-cancel 30s linear infinite",
       },
       /* The corner scale from DESIGN.md. Named for their jobs rather than
          sm/md/lg, which Tailwind already defines at 2-8px. */
