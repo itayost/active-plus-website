@@ -8,7 +8,7 @@ import type { Answers } from "@/lib/funnel/types";
 import { clearCheckoutDraft, clearCheckoutEmail, readCheckoutEmail, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
-import { loadBrowserSupabase } from "@/lib/supabase/lazy";
+import { loadSupabaseSession } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import StoreButtons from "./StoreButtons";
 
@@ -33,9 +33,8 @@ export default function PaymentSuccess() {
     setGender(readPaymentGender());
     clearCheckoutDraft();
     void (async () => {
-      const supabase = await loadBrowserSupabase();
-      const session = supabase ? (await supabase.auth.getSession()).data.session : null;
-      if (!supabase || !session) {
+      const supabase = await loadSupabaseSession();
+      if (!supabase) {
         if (alive) setState("pending");
         return;
       }

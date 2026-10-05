@@ -17,3 +17,10 @@ export async function loadBrowserSupabase(): Promise<SupabaseClient | null> {
     return null;
   }
 }
+
+/** The browser client when it holds a session; null without the client or when signed out. */
+export async function loadSupabaseSession(): Promise<SupabaseClient | null> {
+  const supabase = await loadBrowserSupabase();
+  const session = supabase ? (await supabase.auth.getSession()).data.session : null;
+  return session ? supabase : null;
+}

@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import PhoneNumber from "@/components/ui/PhoneNumber";
+import { useAlive } from "@/components/ui/useAlive";
 import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
 import {
   APPLE_MANAGE_URL, cancelWebSubscription, chargeLine, formatIsraelDate, GOOGLE_MANAGE_URL, loadSubscription, type ChargeLine,
   type SubscriptionInfo,
 } from "@/lib/payment/account";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
-import { loadBrowserSupabase } from "@/lib/supabase/lazy";
+import { loadBrowserSupabase, loadSupabaseSession } from "@/lib/supabase/lazy";
 import PhoneSignIn from "./PhoneSignIn";
 
 type Notice = "cancelled" | "failed" | null;
@@ -48,13 +49,13 @@ export default function SubscriptionManager() {
   const [view, setView] = useState<View>({ kind: "loading" });
   const focusNext = useRef<string | null>(null);
   // False once unmounted: a load or cancel that resolves later must not act.
-  const alive = useRef(true);
+  const alive = useAlive();
 
   const show = useCallback((next: View, focusId: string | null = null) => {
     if (!alive.current) return;
     focusNext.current = focusId;
     setView(next);
-  }, []);
+  }, [alive]);
 
   useEffect(() => {
     const id = focusNext.current;
@@ -66,9 +67,8 @@ export default function SubscriptionManager() {
   /** `moveFocus`: the visitor asked for this (sign-in, retry), so focus follows the result. The first load leaves focus alone. */
   const load = useCallback(async (moveFocus: boolean) => {
     show({ kind: "loading" });
-    const supabase = await loadBrowserSupabase();
-    const session = supabase ? (await supabase.auth.getSession()).data.session : null;
-    if (!supabase || !session) return show({ kind: "signedOut" });
+    const supabase = await loadSupabaseSession();
+    if (!supabase) return show({ kind: "signedOut" });
     const sub = await loadSubscription(supabase);
     const focusIf = (id: string) => (moveFocus ? id : null);
     if (sub === "error") return show({ kind: "error" }, focusIf(FOCUS.error));
@@ -77,11 +77,7 @@ export default function SubscriptionManager() {
   }, [show]);
 
   useEffect(() => {
-    alive.current = true;
     void load(false);
-    return () => {
-      alive.current = false;
-    };
   }, [load]);
 
   const cancel = async (sub: SubscriptionInfo) => {

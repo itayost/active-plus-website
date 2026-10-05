@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import Register from "@/components/funnel/Register";
+import { PhoneStep } from "@/components/funnel/Register";
 import { ContinueButton, FieldError, fieldClass, LINKISH, LINKISH_DISABLED } from "@/components/funnel/parts";
+import { useAlive } from "@/components/ui/useAlive";
 import { OTP_LENGTH } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
-import { verifyCode, type VerifyResult } from "@/lib/funnel/signin";
+import { codeDigits, VERIFY_MESSAGE, verifyCode } from "@/lib/funnel/signin";
 import { readPaymentGender } from "@/lib/payment/checkout";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
 import { toE164 } from "@/lib/phone";
@@ -15,14 +16,12 @@ import { cn } from "@/lib/utils";
 const CODE_ID = "account-code";
 const CODE_HINT_ID = "account-code-hint";
 const CODE_ERROR_ID = "account-code-error";
-const VERIFY_ERROR: Record<Exclude<VerifyResult, "ok">, string> = {
-  invalid: COPY.otp.wrongCode,
-  rateLimited: COPY.otp.rateLimited,
-  error: COPY.otp.verifyFailed,
-};
+
+/** Typing the number, or entering the code sent to it. The number stays, so "ערוך מספר" finds it filled in. */
+type Step = { kind: "phone" | "sent"; phone: string };
 
 /**
- * Sign-in for the subscription page: Register's phone step sends the code
+ * Sign-in for the subscription page: the funnel's phone step sends the code
  * (existing accounts only: shouldCreateUser is off, so an unknown number gets
  * no auth user and no SMS), this form verifies it. Known or unknown, the
  * visitor sees the same code screen and hint, and a wrong code reads the
@@ -30,9 +29,7 @@ const VERIFY_ERROR: Record<Exclude<VerifyResult, "ok">, string> = {
  * questionnaire merge: an account page must never create or change a profile.
  */
 export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) {
-  // The number the code went to; null while it is being typed. `lastPhone` refills "ערוך מספר".
-  const [phone, setPhone] = useState<string | null>(null);
-  const [lastPhone, setLastPhone] = useState("");
+  const [step, setStep] = useState<Step>({ kind: "phone", phone: "" });
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -40,53 +37,40 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
   const [gender] = useState(() => readPaymentGender());
   const input = useRef<HTMLInputElement>(null);
   // False once unmounted: a verify that resolves later must not act.
-  const alive = useRef(true);
-
-  useEffect(() => {
-    alive.current = true;
-    return () => {
-      alive.current = false;
-    };
-  }, []);
+  const alive = useAlive();
 
   // The code field takes focus as soon as the code is sent: the phone form it replaces is gone.
   useEffect(() => {
-    if (phone !== null) input.current?.focus();
-  }, [phone]);
+    if (step.kind === "sent") input.current?.focus();
+  }, [step.kind]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (busy || !phone) return;
+    if (busy || step.kind !== "sent") return;
     setBusy(true);
     const supabase = await loadBrowserSupabase();
-    const result = supabase ? await verifyCode(supabase, toE164(phone), code) : "error";
+    const result = supabase ? await verifyCode(supabase, toE164(step.phone), code) : "error";
     if (!alive.current) return;
     setBusy(false);
     if (result === "ok") return onSignedIn();
-    setError(VERIFY_ERROR[result]);
+    setError(VERIFY_MESSAGE[result]);
     input.current?.focus();
   };
 
   const editPhone = () => {
-    setPhone(null);
+    setStep({ kind: "phone", phone: step.phone });
     setCode("");
     setError("");
   };
 
-  if (phone === null) {
+  if (step.kind === "phone") {
     return (
-      <Register
-        view={{ sub: "phone", phone: lastPhone }}
+      <PhoneStep
         gender={gender}
-        name=""
-        onNameChange={() => {}}
-        onName={() => {}}
-        onCodeSent={(sent) => {
-          setLastPhone(sent);
-          setPhone(sent);
-        }}
+        initialPhone={step.phone}
+        onSent={(sent) => setStep({ kind: "sent", phone: sent })}
         onBusy={setBusy}
-        accountOnly
+        existingOnly
       />
     );
   }
@@ -108,7 +92,7 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
         aria-describedby={error ? `${CODE_HINT_ID} ${CODE_ERROR_ID}` : CODE_HINT_ID}
         aria-invalid={error ? true : undefined}
         onChange={(event) => {
-          setCode(event.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH));
+          setCode(codeDigits(event.target.value));
           if (error) setError("");
         }}
         className={fieldClass(Boolean(error))}

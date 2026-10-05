@@ -45,12 +45,12 @@ describe("sendCode for existing accounts only", () => {
     expect(call).toHaveBeenCalledWith({ phone: "+972501234567", options: { shouldCreateUser: false } });
   });
 
-  it("tells 'no account with this number' apart from a failed send", async () => {
+  it("reads 'no account with this number' as sent (the page never tells), and any other refusal as a failed send", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const refused = { error: { status: 422, code: "otp_disabled", message: "Signups not allowed for otp" } };
-    expect(await sendCode(fakeAuth(refused).client as never, "+972501234567", { existingOnly: true })).toBe("noAccount");
+    expect(await sendCode(fakeAuth(refused).client as never, "+972501234567", { existingOnly: true })).toBe("ok");
     const older = { error: { status: 422, message: "Signups not allowed for otp" } };
-    expect(await sendCode(fakeAuth(older).client as never, "+972501234567", { existingOnly: true })).toBe("noAccount");
+    expect(await sendCode(fakeAuth(older).client as never, "+972501234567", { existingOnly: true })).toBe("ok");
     const other = { error: { status: 422, code: "sms_send_failed" } };
     expect(await sendCode(fakeAuth(other).client as never, "+972501234567", { existingOnly: true })).toBe("error");
   });
