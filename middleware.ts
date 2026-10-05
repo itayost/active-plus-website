@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-/** Refreshes the visitor's Supabase session cookies on the funnel and checkout routes only. */
+/** Refreshes the visitor's Supabase session cookies on the funnel, checkout and account routes only. */
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -24,4 +24,4 @@ export async function middleware(request: NextRequest) {
 }
 
 // Scoped matcher: never runs on static assets or other pages.
-export const config = { matcher: ["/questionnaire", "/payment/:path*", "/api/checkout/:path*"] };
+export const config = { matcher: ["/questionnaire", "/payment/:path*", "/account/:path*", "/api/checkout/:path*"] };

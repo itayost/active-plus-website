@@ -62,5 +62,30 @@ export const CHECKOUT_COPY = {
   },
 } as const;
 
-/** Task 6 adds the subscription page's strings here. */
-export const ACCOUNT_COPY = {} as const;
+/** The subscription page (/account/subscription). Gender-neutral: every verb here is spelled the same for both. */
+export const ACCOUNT_COPY = {
+  title: "ניהול מנוי",
+  loading: "טוענים את המנוי",
+  signedOut: "כדי לנהל את המנוי צריך לאמת את מספר הטלפון שאיתו נרשמת.",
+  codeLabel: "הקוד שקיבלת ב־SMS",
+  verify: "אימות",
+  none: "לא מצאנו מנוי פעיל למספר הזה.",
+  error: "לא הצלחנו לטעון את המנוי. אפשר לנסות שוב.",
+  retry: "לנסות שוב",
+  plans: { ANNUAL: "מנוי שנתי", MONTHLY: "מנוי חודשי" } as Record<string, string>,
+  nextCharge: "החיוב הבא: {date}",
+  activeUntil: "המנוי פעיל עד {date}",
+  annualNote: "המנוי השנתי לא מתחדש אוטומטית, ולא יהיה חיוב נוסף.",
+  cancel: "ביטול המנוי",
+  confirmTitle: "לבטל את המנוי החודשי?",
+  confirmBody: "לא יהיו חיובים נוספים. אפשר להמשיך להתאמן עד {date}.",
+  confirmYes: "כן, לבטל",
+  confirmNo: "לא, להשאיר",
+  cancelled: "המנוי בוטל. לא יהיו חיובים נוספים, והגישה נשארת עד {date}.",
+  cancelFailed: "הביטול לא הושלם. אפשר לנסות שוב, או להתקשר אלינו.",
+  apple: "המנוי נרכש ב־App Store, ולכן מבטלים אותו שם.",
+  appleLink: "לניהול מנויים ב־App Store",
+  google: "המנוי נרכש ב־Google Play, ולכן מבטלים אותו שם.",
+  googleLink: "לניהול מנויים ב־Google Play",
+  manual: "את המנוי הזה מנהל המשרד. לביטול אפשר להתקשר אלינו:",
+} as const;

@@ -3,8 +3,7 @@ import { SITE_ROUTES } from "../../lib/routes";
 import { watchCsp } from "./csp-helpers";
 import { stubSupabase } from "./supabase-stub";
 
-// Task 6 adds "/account/subscription".
-const ROUTES = [...SITE_ROUTES, "/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b"];
+const ROUTES = [...SITE_ROUTES, "/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b", "/account/subscription"];
 
 for (const route of ROUTES) {
   test(`${route} loads under the enforced CSP with no violation`, async ({ page }) => {

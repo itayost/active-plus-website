@@ -14,6 +14,7 @@ import {
   STORE_IOS,
 } from "@/lib/constants";
 import PhoneNumber from "@/components/ui/PhoneNumber";
+import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 
 const [EMAIL_LOCAL, EMAIL_DOMAIN] = CONTACT_EMAIL.split("@");
 
@@ -24,6 +25,8 @@ const STORE_PILL =
   "transition-[border-color,transform] duration-[var(--dur-fast)] ease-out-expo hover:border-ink/35 active:scale-[0.97]";
 
 const LEGAL = [
+  // Web buyers cancel here; shown only once the site sells subscriptions.
+  ...(WEB_CHECKOUT_ENABLED ? [{ href: "/account/subscription", label: "ניהול מנוי" }] : []),
   { href: "/privacy-policy", label: "מדיניות פרטיות" },
   { href: "/delete-account", label: "מחיקת חשבון" },
 ];

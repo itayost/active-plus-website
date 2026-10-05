@@ -1,0 +1,120 @@
+"use client";
+
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import Register from "@/components/funnel/Register";
+import { ContinueButton, FieldError, fieldClass } from "@/components/funnel/parts";
+import { OTP_LENGTH } from "@/lib/funnel/constants";
+import { COPY } from "@/lib/funnel/copy";
+import { verifyCode, type VerifyResult } from "@/lib/funnel/signin";
+import { readPaymentGender } from "@/lib/payment/checkout";
+import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
+import { toE164 } from "@/lib/phone";
+import { loadBrowserSupabase } from "@/lib/supabase/lazy";
+
+const CODE_ID = "account-code";
+const CODE_ERROR_ID = "account-code-error";
+const VERIFY_ERROR: Record<Exclude<VerifyResult, "ok">, string> = {
+  invalid: COPY.otp.wrongCode,
+  rateLimited: COPY.otp.rateLimited,
+  error: COPY.otp.verifyFailed,
+};
+const LINKISH =
+  "mt-4 inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
+  "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
+
+/**
+ * Sign-in for the subscription page: Register's phone step sends the code,
+ * this form verifies it. No questionnaire merge: an account page must never
+ * create or change a profile.
+ */
+export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) {
+  // The number the code went to; null while it is being typed. `lastPhone` refills "ערוך מספר".
+  const [phone, setPhone] = useState<string | null>(null);
+  const [lastPhone, setLastPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  // Only the placeholder is gendered; the questionnaire saved the visitor's choice in this tab.
+  const [gender] = useState(() => readPaymentGender());
+  const input = useRef<HTMLInputElement>(null);
+  // False once unmounted: a verify that resolves later must not act.
+  const alive = useRef(true);
+
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+
+  // The code field takes focus as soon as the code is sent: the phone form it replaces is gone.
+  useEffect(() => {
+    if (phone !== null) input.current?.focus();
+  }, [phone]);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (busy || !phone) return;
+    setBusy(true);
+    const supabase = await loadBrowserSupabase();
+    const result = supabase ? await verifyCode(supabase, toE164(phone), code) : "error";
+    if (!alive.current) return;
+    setBusy(false);
+    if (result === "ok") return onSignedIn();
+    setError(VERIFY_ERROR[result]);
+    input.current?.focus();
+  };
+
+  const editPhone = () => {
+    setPhone(null);
+    setCode("");
+    setError("");
+  };
+
+  if (phone === null) {
+    return (
+      <Register
+        view={{ sub: "phone", phone: lastPhone }}
+        gender={gender}
+        name=""
+        onNameChange={() => {}}
+        onName={() => {}}
+        onCodeSent={(sent) => {
+          setLastPhone(sent);
+          setPhone(sent);
+        }}
+        onBusy={setBusy}
+      />
+    );
+  }
+  return (
+    <form noValidate onSubmit={submit} aria-busy={busy || undefined}>
+      <label htmlFor={CODE_ID} className="mb-2 block font-display font-bold">{A.codeLabel}</label>
+      <input
+        ref={input}
+        id={CODE_ID}
+        name="otp"
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        pattern="[0-9]*"
+        maxLength={OTP_LENGTH}
+        dir="ltr"
+        value={code}
+        readOnly={busy}
+        aria-describedby={error ? CODE_ERROR_ID : undefined}
+        aria-invalid={error ? true : undefined}
+        onChange={(event) => {
+          setCode(event.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH));
+          if (error) setError("");
+        }}
+        className={fieldClass(Boolean(error))}
+      />
+      <FieldError id={CODE_ERROR_ID} text={error} />
+      {/* Disabled while checking, label kept: the press visibly took, and a second tap cannot verify twice. */}
+      <ContinueButton type="submit" label={A.verify} disabled={busy} />
+      <button type="button" className={LINKISH} disabled={busy} onClick={editPhone}>
+        {COPY.otp.editPhone}
+      </button>
+    </form>
+  );
+}
