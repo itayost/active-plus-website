@@ -2,22 +2,24 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Invoker = Pick<SupabaseClient, "functions">;
 
+export type ManageAction = "cancel" | "cancelled" | "annual" | "apple" | "google" | "manual";
 export type SubscriptionInfo = {
   planType: string;
   expiresAt: string;
-  autoRenew: boolean;
-  platform: string | null;
   /** A renewing web monthly's next charge day (YYYY-MM-DD, from checkUserSubscription's webMonthly); null otherwise. */
   nextChargeAt: string | null;
+  /** What the page offers for it, decided when it is loaded. */
+  manage: ManageAction;
 };
-export type ManageAction = "cancel" | "cancelled" | "annual" | "apple" | "google" | "manual";
+/** checkUserSubscription's subscription row, as far as the page reads it. */
+export type SubscriptionRow = { planType: string; autoRenew: boolean; platform: string | null };
 export type CancelResult = "cancelled" | "already_cancelled" | "not_found" | "not_cancelable" | "error";
 
 export const APPLE_MANAGE_URL = "https://apps.apple.com/account/subscriptions";
 export const GOOGLE_MANAGE_URL = "https://play.google.com/store/account/subscriptions";
 
-/** What the subscription page offers: a web cancel only for a renewing monthly bought on the site. */
-export function manageAction(sub: SubscriptionInfo): ManageAction {
+/** What the subscription page offers for a row: a web cancel only for a renewing monthly bought on the site. */
+export function manageAction(sub: SubscriptionRow): ManageAction {
   if (sub.platform === "apple") return "apple";
   if (sub.platform === "google") return "google";
   if (sub.platform !== "grow") return "manual";
@@ -33,23 +35,25 @@ export type ChargeLine = { text: "nextCharge" | "activeUntil" | "cancelled"; dat
  * renewing monthly without a readable charge day, shows how long access lasts.
  */
 export function chargeLine(sub: SubscriptionInfo): ChargeLine {
-  const action = manageAction(sub);
-  if (action === "cancelled") return { text: "cancelled", date: sub.expiresAt };
-  if (action === "cancel" && sub.nextChargeAt) return { text: "nextCharge", date: sub.nextChargeAt };
+  if (sub.manage === "cancelled") return { text: "cancelled", date: sub.expiresAt };
+  if (sub.manage === "cancel" && sub.nextChargeAt) return { text: "nextCharge", date: sub.nextChargeAt };
   return { text: "activeUntil", date: sub.expiresAt };
 }
 
-/** checkUserSubscription's webMonthly: the user's renewing web monthly, whatever row `subscription` shows. */
+/**
+ * checkUserSubscription's webMonthly: the user's renewing web monthly, whatever
+ * row `subscription` shows. The function sends it only while it renews (null
+ * otherwise), so a readable one is always offered the cancel.
+ */
 function readWebMonthly(value: unknown): SubscriptionInfo | null {
   if (!value || typeof value !== "object") return null;
   const w = value as Record<string, unknown>;
-  if (w.renewing !== true || typeof w.expiresAt !== "string") return null;
+  if (typeof w.expiresAt !== "string") return null;
   return {
     planType: "MONTHLY",
     expiresAt: w.expiresAt,
-    autoRenew: true,
-    platform: "grow",
     nextChargeAt: typeof w.nextChargeAt === "string" ? w.nextChargeAt : null,
+    manage: "cancel",
   };
 }
 
@@ -68,13 +72,8 @@ export async function loadSubscription(supabase: Invoker): Promise<SubscriptionI
     if (webMonthly) return webMonthly;
     const s = body?.subscription;
     if (!body?.hasAccess || !s || typeof s.planType !== "string" || typeof s.expiresAt !== "string") return null;
-    return {
-      planType: s.planType,
-      expiresAt: s.expiresAt,
-      autoRenew: s.autoRenew === true,
-      platform: typeof s.platform === "string" ? s.platform : null,
-      nextChargeAt: null,
-    };
+    const row = { planType: s.planType, autoRenew: s.autoRenew === true, platform: typeof s.platform === "string" ? s.platform : null };
+    return { planType: s.planType, expiresAt: s.expiresAt, nextChargeAt: null, manage: manageAction(row) };
   } catch {
     return "error";
   }

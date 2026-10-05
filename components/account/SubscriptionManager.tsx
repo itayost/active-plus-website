@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import PhoneNumber from "@/components/ui/PhoneNumber";
 import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
 import {
-  APPLE_MANAGE_URL, cancelWebSubscription, chargeLine, formatIsraelDate, GOOGLE_MANAGE_URL, loadSubscription, manageAction,
+  APPLE_MANAGE_URL, cancelWebSubscription, chargeLine, formatIsraelDate, GOOGLE_MANAGE_URL, loadSubscription, type ChargeLine,
   type SubscriptionInfo,
 } from "@/lib/payment/account";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
@@ -27,6 +27,14 @@ const FOCUS = {
 } as const;
 
 const TEXT_LINK = "inline-flex min-h-12 items-center font-bold underline underline-offset-4";
+
+/** A store subscription is cancelled in its store: what to say, and where to link. */
+const STORE = {
+  apple: { text: A.apple, link: A.appleLink, href: APPLE_MANAGE_URL },
+  google: { text: A.google, link: A.googleLink, href: GOOGLE_MANAGE_URL },
+} as const;
+
+const LINE_TEXT: Record<ChargeLine["text"], string> = { nextCharge: A.nextCharge, activeUntil: A.activeUntil, cancelled: A.cancelled };
 
 function OfficePhone() {
   return (
@@ -85,7 +93,7 @@ export default function SubscriptionManager() {
     const done = result === "cancelled" || result === "already_cancelled";
     show(
       done
-        ? { kind: "ready", sub: { ...sub, autoRenew: false }, confirming: false, cancelling: false, notice: "cancelled" }
+        ? { kind: "ready", sub: { ...sub, manage: "cancelled" }, confirming: false, cancelling: false, notice: "cancelled" }
         : { kind: "ready", sub, confirming: false, cancelling: false, notice: "failed" },
       FOCUS.notice,
     );
@@ -113,18 +121,17 @@ export default function SubscriptionManager() {
   }
 
   const { sub, confirming, cancelling, notice } = view;
-  const action = manageAction(sub);
+  const action = sub.manage;
   // Access ends on expiresAt; a renewing monthly's line shows the charge day instead.
   const date = formatIsraelDate(sub.expiresAt);
   const line = chargeLine(sub);
+  // Under a cancel notice the line says how long access lasts; the notice already says it was cancelled.
+  const lineText = line.text === "cancelled" && notice ? "activeUntil" : line.text;
+  const store = action === "apple" || action === "google" ? STORE[action] : null;
   return (
     <div className="grid gap-5">
       <h2 id={FOCUS.plan} tabIndex={-1} className="font-display text-h3 font-bold outline-none">{A.plans[sub.planType] ?? sub.planType}</h2>
-      {line.text === "cancelled" && !notice ? (
-        <p className="text-lead">{A.cancelled.replace("{date}", date)}</p>
-      ) : (
-        <p className="text-lead">{(line.text === "nextCharge" ? A.nextCharge : A.activeUntil).replace("{date}", formatIsraelDate(line.date))}</p>
-      )}
+      <p className="text-lead">{LINE_TEXT[lineText].replace("{date}", formatIsraelDate(line.date))}</p>
       {notice === "cancelled" ? (
         <p id={FOCUS.notice} tabIndex={-1} role="status" className="rounded-field bg-green-wash px-4 py-3 text-lead font-medium outline-none">
           {A.cancelled.replace("{date}", date)}
@@ -137,16 +144,10 @@ export default function SubscriptionManager() {
         </div>
       ) : null}
       {action === "annual" ? <p className="text-lead">{A.annualNote}</p> : null}
-      {action === "apple" ? (
+      {store ? (
         <p className="text-lead">
-          {A.apple}{" "}
-          <a className={`${TEXT_LINK} text-blue-deep`} href={APPLE_MANAGE_URL}>{A.appleLink}</a>
-        </p>
-      ) : null}
-      {action === "google" ? (
-        <p className="text-lead">
-          {A.google}{" "}
-          <a className={`${TEXT_LINK} text-blue-deep`} href={GOOGLE_MANAGE_URL}>{A.googleLink}</a>
+          {store.text}{" "}
+          <a className={`${TEXT_LINK} text-blue-deep`} href={store.href}>{store.link}</a>
         </p>
       ) : null}
       {action === "manual" ? (

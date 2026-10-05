@@ -1,29 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
-import { cancelWebSubscription, chargeLine, formatIsraelDate, loadSubscription, manageAction } from "@/lib/payment/account";
+import { cancelWebSubscription, chargeLine, formatIsraelDate, loadSubscription, manageAction, type SubscriptionInfo } from "@/lib/payment/account";
 import { ACCOUNT_COPY, CHECKOUT_COPY } from "@/lib/payment/copy";
 
-const SUB = {
-  planType: "MONTHLY", expiresAt: "2026-11-07T10:00:00.000Z", autoRenew: true, platform: "grow", nextChargeAt: "2026-11-05",
-};
-/** checkUserSubscription's subscription (no next charge day there) and its top-level webMonthly. */
-const RESPONSE_SUB = { planType: SUB.planType, expiresAt: SUB.expiresAt, autoRenew: SUB.autoRenew, platform: SUB.platform };
+/** A renewing web monthly as the page holds it. */
+const SUB: SubscriptionInfo = { planType: "MONTHLY", expiresAt: "2026-11-07T10:00:00.000Z", nextChargeAt: "2026-11-05", manage: "cancel" };
+/** checkUserSubscription's subscription row (no next charge day there) and its top-level webMonthly. */
+const ROW = { planType: SUB.planType, autoRenew: true, platform: "grow" as string | null };
+const RESPONSE_SUB = { ...ROW, expiresAt: SUB.expiresAt };
 const WEB_MONTHLY = { renewing: true, nextChargeAt: "2026-11-05", expiresAt: SUB.expiresAt };
 const invoker = (result: unknown) => ({ functions: { invoke: vi.fn().mockResolvedValue(result) } });
 const httpError = (status: number) => ({ data: null, error: { context: { status } } });
 
 describe("manageAction", () => {
   it("offers cancel only for an active monthly web subscription", () => {
-    expect(manageAction(SUB)).toBe("cancel");
-    expect(manageAction({ ...SUB, autoRenew: false })).toBe("cancelled");
-    expect(manageAction({ ...SUB, planType: "ANNUAL" })).toBe("annual");
+    expect(manageAction(ROW)).toBe("cancel");
+    expect(manageAction({ ...ROW, autoRenew: false })).toBe("cancelled");
+    expect(manageAction({ ...ROW, planType: "ANNUAL" })).toBe("annual");
   });
   it("sends store buyers to their store, and manual ones to the office", () => {
-    expect(manageAction({ ...SUB, platform: "apple" })).toBe("apple");
-    expect(manageAction({ ...SUB, platform: "google" })).toBe("google");
-    expect(manageAction({ ...SUB, platform: null })).toBe("manual");
+    expect(manageAction({ ...ROW, platform: "apple" })).toBe("apple");
+    expect(manageAction({ ...ROW, platform: "google" })).toBe("google");
+    expect(manageAction({ ...ROW, platform: null })).toBe("manual");
   });
   it("an annual web plan is never offered a cancel, renewing or not", () => {
-    expect(manageAction({ ...SUB, planType: "ANNUAL", autoRenew: false })).toBe("annual");
+    expect(manageAction({ ...ROW, planType: "ANNUAL", autoRenew: false })).toBe("annual");
   });
 });
 
@@ -37,11 +37,17 @@ describe("loadSubscription", () => {
     expect(await loadSubscription(invoker(httpError(500)) as never)).toBe("error");
   });
   it("an older function without platform, or a non-string one, reads as no platform", async () => {
-    const withoutPlatform = { planType: SUB.planType, expiresAt: SUB.expiresAt, autoRenew: SUB.autoRenew };
+    const withoutPlatform = { planType: SUB.planType, expiresAt: SUB.expiresAt, autoRenew: true };
     expect(await loadSubscription(invoker({ data: { hasAccess: true, subscription: withoutPlatform }, error: null }) as never))
-      .toEqual({ ...SUB, platform: null, nextChargeAt: null });
+      .toEqual({ ...SUB, nextChargeAt: null, manage: "manual" });
     expect(await loadSubscription(invoker({ data: { hasAccess: true, subscription: { ...RESPONSE_SUB, platform: 7 } }, error: null }) as never))
-      .toEqual({ ...SUB, platform: null, nextChargeAt: null });
+      .toEqual({ ...SUB, nextChargeAt: null, manage: "manual" });
+    // Without webMonthly the row decides what is offered.
+    const row = async (fields: Record<string, unknown>) =>
+      await loadSubscription(invoker({ data: { hasAccess: true, subscription: { ...RESPONSE_SUB, ...fields } }, error: null }) as never);
+    expect(await row({})).toEqual({ ...SUB, nextChargeAt: null, manage: "cancel" });
+    expect(await row({ autoRenew: false })).toEqual({ ...SUB, nextChargeAt: null, manage: "cancelled" });
+    expect(await row({ platform: "apple" })).toMatchObject({ manage: "apple" });
   });
   it("a throwing client is an error, never an exception", async () => {
     const supabase = { functions: { invoke: vi.fn().mockRejectedValue(new Error("offline")) } };
@@ -103,18 +109,19 @@ describe("webMonthly", () => {
   it("a renewing web monthly behind a longer manual or store row is what the page shows, with its cancel", async () => {
     for (const platform of [null, "apple"]) {
       const longer = { planType: "ANNUAL", expiresAt: "2027-06-01T10:00:00.000Z", autoRenew: false, platform };
-      const sub = await load({ hasAccess: true, subscription: longer, webMonthly: WEB_MONTHLY });
-      expect(sub).toEqual(SUB);
-      expect(manageAction(sub as never)).toBe("cancel");
+      expect(await load({ hasAccess: true, subscription: longer, webMonthly: WEB_MONTHLY })).toEqual(SUB);
     }
   });
 
   it("a web monthly whose access lapsed while Grow still retries can still be cancelled", async () => {
     expect(await load({ hasAccess: false, requiresPayment: true, webMonthly: WEB_MONTHLY })).toEqual(SUB);
+    // A non-null webMonthly means renewing: the function sends null otherwise, with or without its `renewing` field.
+    const withoutRenewing = { nextChargeAt: WEB_MONTHLY.nextChargeAt, expiresAt: WEB_MONTHLY.expiresAt };
+    expect(await load({ hasAccess: false, requiresPayment: true, webMonthly: withoutRenewing })).toEqual(SUB);
   });
 
-  it("a webMonthly that is not renewing or not readable is ignored", async () => {
-    for (const webMonthly of [null, { ...WEB_MONTHLY, renewing: false }, { ...WEB_MONTHLY, expiresAt: 7 }, "x"]) {
+  it("a webMonthly that is missing or not readable is ignored", async () => {
+    for (const webMonthly of [null, { ...WEB_MONTHLY, expiresAt: 7 }, "x"]) {
       expect(await load({ hasAccess: false, webMonthly })).toBeNull();
     }
   });
@@ -126,11 +133,11 @@ describe("chargeLine", () => {
   });
   it("without a charge day (an older function, or nothing renewing) it shows how long access lasts", () => {
     expect(chargeLine({ ...SUB, nextChargeAt: null })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
-    expect(chargeLine({ ...SUB, platform: "apple" })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
-    expect(chargeLine({ ...SUB, planType: "ANNUAL", nextChargeAt: null })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
+    expect(chargeLine({ ...SUB, manage: "apple" })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
+    expect(chargeLine({ ...SUB, planType: "ANNUAL", nextChargeAt: null, manage: "annual" })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
   });
   it("a cancelled monthly says it was cancelled, with the day access ends", () => {
-    expect(chargeLine({ ...SUB, autoRenew: false, nextChargeAt: null })).toEqual({ text: "cancelled", date: SUB.expiresAt });
+    expect(chargeLine({ ...SUB, manage: "cancelled", nextChargeAt: null })).toEqual({ text: "cancelled", date: SUB.expiresAt });
   });
 });
 
