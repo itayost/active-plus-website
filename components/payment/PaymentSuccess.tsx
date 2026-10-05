@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LINKISH } from "@/components/funnel/parts";
+import { LINKISH } from "@/components/ui/linkish";
 import { CheckIcon } from "@/components/ui/icons";
 import type { Answers } from "@/lib/funnel/types";
 import { clearCheckoutDraft, readCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
-import { cn } from "@/lib/utils";
 import StoreButtons from "./StoreButtons";
 
 const S = CHECKOUT_COPY.success;
@@ -77,7 +76,7 @@ export default function PaymentSuccess() {
       </ol>
       {WEB_CHECKOUT_ENABLED ? (
         // Not prefetched: the account page is per-session, so a prefetch only costs a request.
-        <Link href="/account/subscription" prefetch={false} className={cn("mt-6", LINKISH)}>
+        <Link href="/account/subscription" prefetch={false} className={`mt-6 ${LINKISH}`}>
           {S.manage}
         </Link>
       ) : null}

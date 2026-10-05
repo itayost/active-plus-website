@@ -4,6 +4,8 @@ import { CheckIcon, LockIcon } from "@/components/ui/icons";
 import { COPY } from "@/lib/funnel/copy";
 import { cn } from "@/lib/utils";
 
+export { LINKISH, LINKISH_DISABLED } from "@/components/ui/linkish";
+
 /** Every step's h1 carries this id: the section is labelled by it and navigation focuses it. */
 export const STEP_TITLE_ID = "funnel-step-title";
 
@@ -115,13 +117,6 @@ export const fieldClass = (invalid: boolean) =>
     // An invalid field stays burgundy while focused, so the error is never hidden by the focus colour.
     invalid ? "border-burgundy" : "border-hairline hover:border-ink/25 focus:border-blue-deep",
   );
-
-/** A text button or link set as an underlined blue link, at least 48px tall. */
-export const LINKISH =
-  "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash";
-
-/** Added to LINKISH on a button that is disabled while a request runs. */
-export const LINKISH_DISABLED = "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
 
 /** The message under a field: mounted only with text, so role="alert" announces it once. */
 export function FieldError({ id, text }: { id: string; text: string }) {
