@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Button from "@/components/ui/Button";
+import { LINKISH } from "@/components/funnel/parts";
 import { CheckIcon } from "@/components/ui/icons";
-import { STORE_ANDROID, STORE_IOS } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
 import { clearCheckoutDraft, clearCheckoutEmail, readCheckoutEmail, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
+import { cn } from "@/lib/utils";
+import StoreButtons from "./StoreButtons";
 
 const S = CHECKOUT_COPY.success;
 
@@ -71,10 +72,7 @@ export default function PaymentSuccess() {
               <strong className="block font-display text-[1.25rem] font-bold">{step.title}</strong>
               <p className="mt-1 text-ink-soft">{step.body}</p>
               {i === 0 ? (
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <Button href={STORE_IOS} variant="outline">App Store</Button>
-                  <Button href={STORE_ANDROID} variant="outline">Google Play</Button>
-                </div>
+                <StoreButtons />
               ) : null}
             </div>
           </li>
@@ -82,7 +80,7 @@ export default function PaymentSuccess() {
       </ol>
       {WEB_CHECKOUT_ENABLED ? (
         // Not prefetched: the account page is per-session, so a prefetch only costs a request.
-        <Link href="/account/subscription" prefetch={false} className="mt-6 inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash">
+        <Link href="/account/subscription" prefetch={false} className={cn("mt-6", LINKISH)}>
           {S.manage}
         </Link>
       ) : null}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Register from "@/components/funnel/Register";
-import { ContinueButton, FieldError, fieldClass } from "@/components/funnel/parts";
+import { ContinueButton, FieldError, fieldClass, LINKISH, LINKISH_DISABLED } from "@/components/funnel/parts";
 import { OTP_LENGTH } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
 import { verifyCode, type VerifyResult } from "@/lib/funnel/signin";
@@ -10,6 +10,7 @@ import { readPaymentGender } from "@/lib/payment/checkout";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
 import { toE164 } from "@/lib/phone";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
+import { cn } from "@/lib/utils";
 
 const CODE_ID = "account-code";
 const CODE_HINT_ID = "account-code-hint";
@@ -19,9 +20,6 @@ const VERIFY_ERROR: Record<Exclude<VerifyResult, "ok">, string> = {
   rateLimited: COPY.otp.rateLimited,
   error: COPY.otp.verifyFailed,
 };
-const LINKISH =
-  "mt-4 inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
-  "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
 
 /**
  * Sign-in for the subscription page: Register's phone step sends the code
@@ -118,7 +116,7 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
       <FieldError id={CODE_ERROR_ID} text={error} />
       {/* Disabled while checking, label kept: the press visibly took, and a second tap cannot verify twice. */}
       <ContinueButton type="submit" label={A.verify} disabled={busy} />
-      <button type="button" className={LINKISH} disabled={busy} onClick={editPhone}>
+      <button type="button" className={cn("mt-4", LINKISH, LINKISH_DISABLED)} disabled={busy} onClick={editPhone}>
         {COPY.otp.editPhone}
       </button>
     </form>

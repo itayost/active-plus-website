@@ -116,6 +116,13 @@ export const fieldClass = (invalid: boolean) =>
     invalid ? "border-burgundy" : "border-hairline hover:border-ink/25 focus:border-blue-deep",
   );
 
+/** A text button or link set as an underlined blue link, at least 48px tall. */
+export const LINKISH =
+  "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash";
+
+/** Added to LINKISH on a button that is disabled while a request runs. */
+export const LINKISH_DISABLED = "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
+
 /** The message under a field: mounted only with text, so role="alert" announces it once. */
 export function FieldError({ id, text }: { id: string; text: string }) {
   if (!text) return null;

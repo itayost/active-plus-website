@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-import { fieldClass } from "@/components/funnel/parts";
+import { fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
-import { PLANS, STORE_ANDROID, STORE_IOS, type PlanId } from "@/lib/constants";
+import { PLANS, type PlanId } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
 import { onRestoredFromCache, rememberCheckoutEmail, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C, gendered } from "@/lib/payment/copy";
@@ -13,12 +13,12 @@ import { formatShekel, installmentAmount } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { STEP_QUESTION } from "./CheckoutFields";
+import StoreButtons from "./StoreButtons";
 
 const INSTALLMENTS_ID = "checkout-installments";
 const CONSENT_ID = "checkout-consent";
 const CONSENT_LABEL_ID = "checkout-consent-label";
 const CONSENT_HELP_ID = "checkout-consent-help";
-const LINKISH = "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash";
 
 type Props = {
   plan: PlanId;
@@ -153,10 +153,7 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
         <div role="alert" className="mt-6 rounded-field bg-burgundy-wash px-4 py-3 font-medium text-burgundy">
           <p>{errorText(status.error, gender)}</p>
           {status.error === "already_subscribed" || status.error === "not_configured" ? (
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Button href={STORE_IOS} variant="outline">App Store</Button>
-              <Button href={STORE_ANDROID} variant="outline">Google Play</Button>
-            </div>
+            <StoreButtons />
           ) : null}
         </div>
       ) : null}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Otp from "@/components/funnel/Otp";
+import { LINKISH } from "@/components/funnel/parts";
 import Register from "@/components/funnel/Register";
 import Button from "@/components/ui/Button";
 import { CheckIcon } from "@/components/ui/icons";
@@ -22,7 +23,6 @@ type Identity = { signedIn: boolean; name: string; phone: string | null };
 type PhoneView = { sub: "phone" | "otp"; phone: string };
 
 const SIGNED_OUT: Identity = { signedIn: false, name: "", phone: null };
-const LINKISH = "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash";
 
 async function loadIdentity(): Promise<Identity> {
   const supabase = await loadBrowserSupabase();

@@ -16,7 +16,7 @@ import type { Answers } from "@/lib/funnel/types";
 import { formatLocal, toE164 } from "@/lib/phone";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
-import { ContinueButton, FieldError, StepIcon, StepTitle, STEP_TITLE_ID, Subtitle } from "./parts";
+import { ContinueButton, FieldError, LINKISH, LINKISH_DISABLED, StepIcon, StepTitle, STEP_TITLE_ID, Subtitle } from "./parts";
 
 const CODE_ID = "funnel-otp";
 const CODE_ERROR_ID = "funnel-otp-error";
@@ -91,10 +91,6 @@ function CodeBoxes({ code, invalid, busy, onChange, inputRef }: {
     </div>
   );
 }
-
-const LINKISH =
-  "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
-  "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
 
 type Props = {
   /** The number as the visitor typed it (validated before the code was sent). */
@@ -273,11 +269,11 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
         {waiting > 0 ? (
           <span className="text-ink-soft">{C.resendIn.replace("{n}", String(waiting))}</span>
         ) : (
-          <button type="button" className={LINKISH} disabled={locked || resending} onClick={() => void resend()}>
+          <button type="button" className={cn(LINKISH, LINKISH_DISABLED)} disabled={locked || resending} onClick={() => void resend()}>
             {C.resend}
           </button>
         )}
-        <button type="button" className={LINKISH} disabled={locked} onClick={onEditPhone}>
+        <button type="button" className={cn(LINKISH, LINKISH_DISABLED)} disabled={locked} onClick={onEditPhone}>
           {C.editPhone}
         </button>
       </div>

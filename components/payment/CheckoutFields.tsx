@@ -24,14 +24,14 @@ type FieldProps = {
 
 /** One labelled field and its continue button; the label is the step's question. */
 function Field({ id, label, placeholder, error, type, autoComplete, value, valid, submitLabel, onChange, onSubmit }: FieldProps) {
-  const [shown, setShown] = useState("");
+  const [invalid, setInvalid] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const errorId = `${id}-error`;
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = value.trim().replace(/\s+/g, " ");
     if (!valid(trimmed)) {
-      setShown(error);
+      setInvalid(true);
       input.current?.focus();
       return;
     }
@@ -50,17 +50,17 @@ function Field({ id, label, placeholder, error, type, autoComplete, value, valid
         inputMode={type === "email" ? "email" : undefined}
         autoComplete={autoComplete}
         placeholder={placeholder}
-        aria-describedby={shown ? errorId : undefined}
-        aria-invalid={shown ? true : undefined}
+        aria-describedby={invalid ? errorId : undefined}
+        aria-invalid={invalid ? true : undefined}
         value={value}
         onChange={(event) => {
           onChange(event.target.value);
-          if (shown && valid(event.target.value.trim())) setShown("");
+          if (invalid && valid(event.target.value.trim())) setInvalid(false);
         }}
         // An address reads left to right but sits on the right edge, under the Hebrew question.
-        className={`mt-6 ${fieldClass(Boolean(shown))} ${type === "email" ? "text-right" : ""}`}
+        className={`mt-6 ${fieldClass(invalid)} ${type === "email" ? "text-right" : ""}`}
       />
-      <FieldError id={errorId} text={shown} />
+      <FieldError id={errorId} text={invalid ? error : ""} />
       <ContinueButton type="submit" label={submitLabel} />
     </form>
   );
