@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
@@ -68,7 +69,7 @@ export default function FeatureCards() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <h2
             id="cards-heading"
-            className="max-w-[18ch] text-h2 font-display font-black"
+            className="text-h2 font-display font-black"
           >
             מעטפת מקצועית במיוחד בשבילכם
           </h2>
@@ -111,7 +112,12 @@ export default function FeatureCards() {
                     alt={card.alt}
                     fill
                     sizes="(max-width: 1024px) 88vw, 40vw"
-                    className="object-cover"
+                    className="object-cover [object-position:var(--focus,50%_50%)] lg:[object-position:var(--focus-lg,var(--focus,50%_50%))]"
+                    style={
+                      "focus" in card
+                        ? ({ "--focus": card.focus.base, "--focus-lg": card.focus.lg } as CSSProperties)
+                        : undefined
+                    }
                   />
                 </div>
               </div>
