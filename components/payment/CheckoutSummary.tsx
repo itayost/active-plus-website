@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import { fieldClass } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
 import { PLANS, STORE_ANDROID, STORE_IOS, type PlanId } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
-import { rememberCheckoutEmail, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
+import { onRestoredFromCache, rememberCheckoutEmail, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C, gendered } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
 import { formatShekel, installmentAmount } from "@/lib/pricing";
@@ -16,6 +16,7 @@ import { STEP_QUESTION } from "./CheckoutFields";
 
 const INSTALLMENTS_ID = "checkout-installments";
 const CONSENT_ID = "checkout-consent";
+const CONSENT_LABEL_ID = "checkout-consent-label";
 const CONSENT_HELP_ID = "checkout-consent-help";
 const LINKISH = "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash";
 
@@ -43,6 +44,8 @@ function errorText(error: StartError, gender: Answers["gender"]): string {
 export default function CheckoutSummary({ plan, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut }: Props) {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  // Back from Grow through the back/forward cache: the page returns as it left, mid-redirect. Make the button usable again.
+  useEffect(() => onRestoredFromCache(() => setStatus({ kind: "idle" })), []);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
   const annual = plan === "annual";
 
@@ -121,24 +124,26 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
           </div>
           <p className="mt-2 text-ink-soft" aria-live="polite">{C.perInstallment.replace("{amount}", formatShekel(installmentAmount(info.total, installments)))}</p>
 
-          <div className="mt-6 flex items-start gap-3">
+          {/* One label for the box and its text: the whole row is the target (at least 48px tall). */}
+          <label htmlFor={CONSENT_ID} className="mt-6 flex min-h-12 cursor-pointer items-start gap-3">
             <input
               id={CONSENT_ID}
               type="checkbox"
               checked={consent}
               onChange={(event) => setConsent(event.target.checked)}
+              aria-labelledby={CONSENT_LABEL_ID}
               aria-describedby={CONSENT_HELP_ID}
-              className="mt-1 h-6 w-6 shrink-0 accent-blue-deep"
+              className="mt-0.5 h-7 w-7 shrink-0 cursor-pointer accent-blue-deep"
             />
-            <div>
-              <label htmlFor={CONSENT_ID} className="font-display font-bold">
+            <span>
+              <span id={CONSENT_LABEL_ID} className="block font-display font-bold">
                 {C.consentLabel}
-              </label>
-              <p id={CONSENT_HELP_ID} className="mt-1 text-ink-soft">
+              </span>
+              <span id={CONSENT_HELP_ID} className="mt-1 block text-ink-soft">
                 {gendered(gender, C.consentHelp)}
-              </p>
-            </div>
-          </div>
+              </span>
+            </span>
+          </label>
         </div>
       ) : (
         <p className="mt-6 text-lead">{C.monthlyTerms.replace("{amount}", formatShekel(info.price))}</p>

@@ -50,6 +50,8 @@ const STATUS_ERROR: Record<number, StartError> = {
   401: "signed_out",
   409: "already_subscribed",
   429: "rate_limited",
+  // internal_error: the function failed after reaching it, so it is not the buyer's connection.
+  500: "processor_error",
   502: "processor_error",
   503: "not_configured",
 };
@@ -183,4 +185,24 @@ export function rememberCheckoutEmail(email: string, storage: Store | undefined 
 
 export function readCheckoutEmail(storage: Store | undefined = browserSession()): string | null {
   return safeRead(storage, EMAIL_KEY);
+}
+
+/** The success page reads the address once, then removes it: nothing personal stays in the tab. */
+export function clearCheckoutEmail(storage: Store | undefined = browserSession()): void {
+  safeWrite(storage, EMAIL_KEY, null);
+}
+
+type Listenable = Pick<EventTarget, "addEventListener" | "removeEventListener">;
+
+/**
+ * Back from Grow, the browser may restore this page from its back/forward
+ * cache with the old state (a disabled "redirecting" button). Calls back on
+ * that restore only; returns the unsubscribe.
+ */
+export function onRestoredFromCache(callback: () => void, target: Listenable = window): () => void {
+  const listener = (event: Event) => {
+    if ((event as PageTransitionEvent).persisted) callback();
+  };
+  target.addEventListener("pageshow", listener);
+  return () => target.removeEventListener("pageshow", listener);
 }

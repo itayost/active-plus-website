@@ -191,6 +191,71 @@ test("a session without a usable phone is sent back to verify it (400 on the pho
   await expect(page).toHaveURL(/\/payment/);
 });
 
+test("opening the checkout and every step move focus to its heading, in view under the sticky header", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page);
+  const heading = page.getByRole("heading", { name: C.heading });
+  await expect(heading).toBeFocused();
+  await expect(heading).toBeInViewport();
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await page.getByRole("button", { name: C.next }).click();
+  await expect(page.getByLabel(C.emailTitle)).toBeVisible();
+  await expect(heading).toBeFocused();
+  await expect(heading).toBeInViewport();
+  await expect(page.getByLabel(C.emailTitle)).toBeInViewport();
+});
+
+test("opening the checkout stores nothing; typing starts the draft", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page);
+  await expect(page.getByLabel(C.nameTitle)).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toBeNull();
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toContain("רחל כהן");
+});
+
+test("the phone number step goes back to the email; the code step does not offer back", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page);
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await page.getByRole("button", { name: C.next }).click();
+  await page.getByLabel(C.emailTitle).fill("r@example.com");
+  await page.getByRole("button", { name: C.next }).click();
+  await page.getByRole("button", { name: C.back }).click();
+  await expect(page.getByLabel(C.emailTitle)).toHaveValue("r@example.com");
+  await page.getByRole("button", { name: C.next }).click();
+  await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
+  await page.getByRole("button", { name: COPY.register.phoneCta }).click();
+  await expect(page.getByLabel(COPY.otp.codeLabel.replace("{n}", String(OTP_LENGTH)))).toBeVisible();
+  await expect(page.getByRole("button", { name: C.back })).toHaveCount(0);
+});
+
+test("the consent row is one label at least 48px tall, and its text toggles the box", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page);
+  await signUp(page);
+  const box = page.getByRole("checkbox", { name: C.consentLabel });
+  const row = page.locator("label", { has: box });
+  expect((await row.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(48);
+  await row.getByText(C.consentLabel).click();
+  await expect(box).toBeChecked();
+});
+
+test("the success page reads the invoice email once and removes it", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page);
+  await signUp(page);
+  await page.evaluate(() => sessionStorage.setItem("ap.checkout.email", "r@example.com"));
+  await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");
+  await expect(page.getByText("r@example.com")).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem("ap.checkout.email"))).toBeNull();
+});
+
 test.describe("accessibility", () => {
   // Reveal entrances fade content in; axe would measure contrast mid-fade.
   test.use({ reducedMotion: "reduce" });

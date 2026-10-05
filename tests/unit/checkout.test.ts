@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clearCheckoutDraft, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft, readCheckoutEmail,
+  checkoutSteps, clearCheckoutDraft, clearCheckoutEmail, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft, readCheckoutEmail,
   readPaymentGender, rememberCheckoutEmail, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
@@ -58,7 +58,7 @@ describe("startPayment", () => {
   });
   it.each([
     [400, "invalid_input"], [401, "signed_out"], [409, "already_subscribed"], [429, "rate_limited"],
-    [502, "processor_error"], [503, "not_configured"], [500, "network"],
+    [500, "processor_error"], [502, "processor_error"], [503, "not_configured"], [504, "network"],
   ])("maps HTTP %i to %s", async (status, error) => {
     expect(await startPayment(invoker(httpError(status)) as never, INPUT)).toEqual({ error });
   });
@@ -129,5 +129,23 @@ describe("session storage", () => {
     const storage = memoryStorage();
     rememberCheckoutEmail("r@example.com", storage);
     expect(readCheckoutEmail(storage)).toBe("r@example.com");
+    clearCheckoutEmail(storage);
+    expect(readCheckoutEmail(storage)).toBeNull();
+  });
+});
+
+describe("back/forward cache", () => {
+  const pageshow = (persisted: boolean) => Object.assign(new Event("pageshow"), { persisted });
+  it("calls back only when the page is restored from the cache, until stopped", () => {
+    const target = new EventTarget();
+    const restored = vi.fn();
+    const stop = onRestoredFromCache(restored, target);
+    target.dispatchEvent(pageshow(false));
+    expect(restored).not.toHaveBeenCalled();
+    target.dispatchEvent(pageshow(true));
+    expect(restored).toHaveBeenCalledTimes(1);
+    stop();
+    target.dispatchEvent(pageshow(true));
+    expect(restored).toHaveBeenCalledTimes(1);
   });
 });

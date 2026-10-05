@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import { CheckIcon } from "@/components/ui/icons";
 import { STORE_ANDROID, STORE_IOS } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
-import { clearCheckoutDraft, readCheckoutEmail, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
+import { clearCheckoutDraft, clearCheckoutEmail, readCheckoutEmail, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
@@ -23,7 +23,12 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     let alive = true;
-    setEmail(readCheckoutEmail());
+    // Read once, then removed (a second effect run finds nothing and keeps the first read).
+    const saved = readCheckoutEmail();
+    if (saved) {
+      setEmail(saved);
+      clearCheckoutEmail();
+    }
     setGender(readPaymentGender());
     clearCheckoutDraft();
     void (async () => {

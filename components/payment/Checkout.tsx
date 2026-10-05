@@ -51,6 +51,8 @@ export default function Checkout({ plan, onChangePlan }: Props) {
   const [editingName, setEditingName] = useState(false);
   const [phoneView, setPhoneView] = useState<PhoneView>({ sub: "phone", phone: "" });
   const [busy, setBusy] = useState(false);
+  // True once the buyer has typed a name or email (or a draft was resumed): opening the checkout alone stores nothing.
+  const [entered, setEntered] = useState(false);
   const [session] = useState(() => loadSession());
   const [gender] = useState(() => readPaymentGender());
   const heading = useRef<HTMLHeadingElement>(null);
@@ -72,7 +74,7 @@ export default function Checkout({ plan, onChangePlan }: Props) {
       setInstallments(draft?.installments ?? 1);
       setSteps(nextSteps);
       setIndex(resume ? nextSteps.indexOf("summary") : 0);
-      heading.current?.focus();
+      setEntered(draft !== null);
     });
     return () => {
       alive = false;
@@ -80,8 +82,23 @@ export default function Checkout({ plan, onChangePlan }: Props) {
   }, []);
 
   useEffect(() => {
-    if (identity) saveCheckoutDraft({ plan, name, email, installments });
-  }, [identity, plan, name, email, installments]);
+    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments });
+  }, [identity, entered, plan, name, email, installments]);
+
+  // After the checkout opens and after every step change, the heading takes focus (and scrolls into view, under
+  // the sticky header via scroll-mt): the submit button that had focus is gone with the step it belonged to.
+  useEffect(() => {
+    if (identity) heading.current?.focus({ preventScroll: false });
+  }, [identity, index, editingName]);
+
+  const typeName = (value: string) => {
+    setEntered(true);
+    setName(value);
+  };
+  const typeEmail = (value: string) => {
+    setEntered(true);
+    setEmail(value);
+  };
 
   const step = steps[index];
   // Once verified, the phone step is done: editing the name or email from the summary never asks for a new code.
@@ -122,11 +139,11 @@ export default function Checkout({ plan, onChangePlan }: Props) {
   }
 
   const body = editingName ? (
-    <NameStep value={name} onChange={setName} submitLabel={C.save} onSubmit={(value) => { setName(value); setEditingName(false); }} />
+    <NameStep value={name} onChange={typeName} submitLabel={C.save} onSubmit={(value) => { setName(value); setEditingName(false); }} />
   ) : step === "name" ? (
-    <NameStep value={name} onChange={setName} onSubmit={(value) => { setName(value); next(); }} />
+    <NameStep value={name} onChange={typeName} onSubmit={(value) => { setName(value); next(); }} />
   ) : step === "email" ? (
-    <EmailStep value={email} onChange={setEmail} onSubmit={(value) => { setEmail(value); next(); }} />
+    <EmailStep value={email} onChange={typeEmail} onSubmit={(value) => { setEmail(value); next(); }} />
   ) : step === "phone" ? (
     phoneView.sub === "phone" ? (
       <Register
@@ -163,6 +180,8 @@ export default function Checkout({ plan, onChangePlan }: Props) {
   );
 
   const showSteps = !editingName;
+  // Back is offered on the phone number, never while a code is being verified.
+  const canGoBack = index > 0 && !busy && showSteps && (step !== "phone" || phoneView.sub === "phone");
   const showIdentity = identity.signedIn && !editingName && step !== "summary";
 
   return (
@@ -187,7 +206,7 @@ export default function Checkout({ plan, onChangePlan }: Props) {
 
       {showSteps ? <StepProgress at={index} count={steps.length} /> : null}
       <div className="mt-8">{body}</div>
-      {index > 0 && !busy && showSteps && step !== "phone" ? (
+      {canGoBack ? (
         <div className="mt-3 grid">
           <Button variant="outline" size="lg" className="w-full" onClick={back}>
             {C.back}
