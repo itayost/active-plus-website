@@ -229,14 +229,14 @@ export const COPY = {
     wrongCode: "קוד האימות שגוי",
     /** 429 from verify (the app's ErrorMapper wording). */
     rateLimited: "יותר מדי ניסיונות, נסה מאוחר יותר",
-    /** Network or server failure on verify. Not in the spec or the app: written for the web. */
+    /** Network or server failure on verify. Written for the web; client approved 2026-10-05. */
     verifyFailed: "לא הצלחנו לאמת את הקוד. נסו שוב.",
     finishing: "מסיימים את ההרשמה...",
     mergeFailed: "לא הצלחנו לסיים את ההרשמה",
     retry: "נסו שוב",
     /**
      * Signed in, but the account has no trainee profile (staff, trainers): a retry cannot help.
-     * Not in the spec or the app: written for the web, needs the client's OK.
+     * Written for the web; client approved 2026-10-05.
      */
     noProfile: "לא הצלחנו להשלים את ההרשמה בחשבון הזה",
     noProfileContact: "התקשרו אלינו ונסדר את זה:",

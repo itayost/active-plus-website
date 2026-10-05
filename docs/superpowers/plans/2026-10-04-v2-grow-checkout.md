@@ -34,7 +34,8 @@
 
 - [ ] Ask the client for their Grow account: `userId`, a one-time card page code, a recurring (הוראת קבע) page code, a Growin wallet enabled for the site domain, Bit / Apple Pay / Google Pay enabled on the account, sandbox credentials, and the webhook signing secret (or confirm Grow's process-token verification method for their account).
 - [ ] Confirm with Grow support: (a) how the recurring page reports each monthly charge (notify payload fields, and whether `transactionTypeId`/`paymentType` distinguish first vs renewal); (b) the API to stop a recurring payment (needed for cancellation, Task 6); (c) that `saveCardToken=1` returns `cardToken` in the notify payload.
-- [ ] Decide invoices: Grow can issue the invoice/receipt to `pageField[email]` automatically. Confirm with the client that Grow's invoice is enough (the brief's step 2 "לאן לשלוח את החשבונית"); otherwise Morning must be integrated (out of this plan's scope).
+- [x] Decide invoices (decided 2026-10-05): **Grow processes payments, Morning issues the invoices.** Turn off Grow's own invoice/receipt so a customer never gets two documents. On each approved charge (first charge and every monthly renewal), the app's Grow webhook issues a Morning חשבונית מס/קבלה (type 320) with a credit-card payment row (last 4 digits, number of installments) and emails it to the customer (the brief's "לאן לשלוח את החשבונית" is the checkout email). Idempotent per Grow transaction id. Build on FitnessForSeniorsApp `shared/supabase/functions/_shared/morning.ts` (token auth, error classification, `MORNING_DRY_RUN`, existing `MORNING_API_KEY`/`MORNING_API_SECRET` secrets; today it only does expenses via `syncSupplierInvoiceToMorning`), adding an income-document builder there; Garden of Eden's `src/lib/morning/payment-mapping.ts` + `documents.ts` show the POST /documents payment mapping. A task for this must be added to this plan before execution.
+- [ ] Confirm with the client: the existing Morning API key is the business account the invoices should come from; the business is עוסק מורשה (type 320; an עוסק פטור would issue a receipt, type 400); the income item name on the invoice.
 - [ ] Privacy policy update text (Grow as payment processor; email and phone collected at checkout; questionnaire answers stored in the profile) approved by the client. Task 7 publishes it.
 
 ---
@@ -75,6 +76,11 @@ create table public.web_payments (
   card_token text,
   card_suffix text,
   subscription_id uuid references public.subscriptions(id),
+  -- Morning invoice for this charge (Task 3b). One charge, one document.
+  invoice_status text not null default 'pending' check (invoice_status in ('pending', 'issued', 'failed', 'dry_run')),
+  morning_document_id text,
+  morning_document_url text,
+  invoice_error text,
   raw jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -93,7 +99,9 @@ alter table public.subscriptions add constraint subscriptions_store_platform_che
   check (store_platform is null or store_platform in ('apple', 'google', 'grow'));
 ```
 
-Adjust the constraint name to what Step 1 found. If `/delete-account` processing deletes users, `on delete cascade` removes their payment rows: confirm that matches the office's retention needs for invoices (invoices themselves live in Grow).
+Adjust the constraint name to what Step 1 found. If `/delete-account` processing deletes users, `on delete cascade` removes their payment rows: confirm that matches the office's retention needs for invoices (the invoices themselves live in Morning and are not deleted with the user).
+
+Monthly renewals are separate charges with their own transaction id, so each one is its own `web_payments` row (Task 3 inserts a row per new transaction on the same subscription), and each gets its own invoice.
 
 - [ ] **Step 3: Apply to a branch database** (`supabase db push` against a Supabase branch or local stack), run Step 1's queries again, and confirm the new constraint and table.
 
@@ -298,6 +306,126 @@ export const annualAutoRenew = (env: Record<string, string | undefined>) => env.
 - [ ] **Step 5: Capture a real sandbox notify:** run one sandbox payment by hand (Task 4 must exist; do this step after Task 4 if needed), copy the raw notify body from the function logs, redact names and phone numbers, and update `grow.test.ts`'s `parseNotify` fixture to that exact shape. Re-run the tests.
 
 - [ ] **Step 6: Commit** `feat(functions): growWebhook records web purchases idempotently`
+
+---
+
+### Task 3b: Morning invoice for every approved charge
+
+Grow takes the money; Morning issues the document (decided 2026-10-05, Task 0). Grow's own invoice must be turned off in the Grow dashboard so a buyer never gets two.
+
+**Files:**
+- Modify: `shared/supabase/functions/_shared/morning.ts` (add `buildIncomeDocument` and `createIncomeDocument` next to the existing expense operations), `shared/supabase/functions/_shared/morning.test.ts`
+- Modify: `shared/supabase/functions/growWebhook/handle.ts`, `handle.test.ts`, `index.ts`
+
+**Interfaces:**
+- Consumes: `GrowNotify`, `PLAN_CONFIG`, `WebPlan` (Task 2); `handleNotify` and its `Db` (Task 3); `morningCredentials()`, `isMorningDryRun()`, `authedRequest`, `MorningResult` (existing `_shared/morning.ts`)
+- Produces:
+  - `MORNING_INCOME_DOC_TYPE = 320` (חשבונית מס/קבלה; 400 if the client turns out to be עוסק פטור, one constant)
+  - `buildIncomeDocument(input: { plan: WebPlan; amount: number; installments: number; cardSuffix: string | null; paidOn: string; client: { name: string; phone: string; email: string } }): Record<string, unknown>` (pure)
+  - `createIncomeDocument(creds: MorningCredentials, doc: Record<string, unknown>): Promise<MorningResult<{ id: string; url: string | null }>>`
+  - `handleNotify` deps gain `invoice: (n: GrowNotify, row: { fullName: string; phone: string; email: string }) => Promise<{ status: "issued" | "failed" | "dry_run"; id?: string; url?: string | null; error?: string }>` and `Db.setInvoice(webPaymentId, result)`
+
+- [ ] **Step 1: Failing tests** in `_shared/morning.test.ts`:
+
+```ts
+import { assertEquals } from "std/assert/mod.ts";
+import { buildIncomeDocument, MORNING_INCOME_DOC_TYPE } from "./morning.ts";
+
+const client = { name: "רחל כהן", phone: "0501234567", email: "r@example.com" };
+
+Deno.test("annual in 6 installments: one 708 line, VAT included, card payment in installments", () => {
+  const d = buildIncomeDocument({ plan: "ANNUAL", amount: 708, installments: 6, cardSuffix: "4242", paidOn: "2026-10-05", client });
+  assertEquals(d.type, MORNING_INCOME_DOC_TYPE);
+  assertEquals(d.lang, "he");
+  assertEquals(d.currency, "ILS");
+  assertEquals((d.client as { emails: string[] }).emails, ["r@example.com"]);
+  assertEquals(d.income, [{ description: "פעילים+ מנוי שנתי", quantity: 1, price: 708, currency: "ILS", vatType: 1 }]);
+  assertEquals(d.payment, [{ type: 3, price: 708, currency: "ILS", date: "2026-10-05", cardType: 0, cardNum: "4242", dealType: 2, numPayments: 6 }]);
+});
+
+Deno.test("monthly: one 99 line, a regular card deal", () => {
+  const d = buildIncomeDocument({ plan: "MONTHLY", amount: 99, installments: 1, cardSuffix: null, paidOn: "2026-11-05", client });
+  assertEquals((d.income as { description: string; price: number }[])[0].description, "פעילים+ מנוי חודשי");
+  assertEquals((d.payment as { dealType: number; numPayments: number; cardNum?: string }[])[0].dealType, 1);
+  assertEquals("cardNum" in (d.payment as Record<string, unknown>[])[0], false);
+});
+
+Deno.test("the amount on the document is what Grow charged, not the price list", () => {
+  const d = buildIncomeDocument({ plan: "ANNUAL", amount: 700, installments: 1, cardSuffix: "1111", paidOn: "2026-10-05", client });
+  assertEquals((d.income as { price: number }[])[0].price, 700);
+});
+```
+
+The `vatType: 1` per line means "the price already includes VAT": without it Morning adds VAT on top, the total exceeds the payment and Morning rejects the document (errorCode 2422, learned in Garden of Eden). Card type 0 ("unknown") is used until Task 3 Step 5's real notify shows whether Grow reports the card brand; if it does, map it like Garden of Eden's `MORNING_CARD_TYPE` (isracard 1, visa 2, mastercard 3, amex 4, diners 5) and add a test.
+
+`handle.test.ts` additions:
+- a recorded notify calls `invoice` once and stores its result with `setInvoice` (`issued` + id + url)
+- a duplicate notify never calls `invoice` (no second document; Review Focus 1)
+- a failed or ignored notify never calls `invoice`
+- `invoice` returning `failed` still yields `"recorded"`: the subscription is already written and Grow must get its 200; the row keeps `invoice_status = 'failed'` and `invoice_error`
+- `invoice` throwing is caught and stored as `failed` (never a 500 to Grow)
+
+- [ ] **Step 2: Run, expect FAIL:** `cd shared/supabase/functions && deno test _shared/morning.test.ts growWebhook/handle.test.ts`
+
+- [ ] **Step 3: Implement** in `_shared/morning.ts`:
+
+```ts
+/** Customer documents (income). Expenses above use MORNING_DOC_TYPE; income uses POST /documents. */
+export const MORNING_INCOME_DOC_TYPE = 320; // חשבונית מס/קבלה
+const MORNING_PAYMENT_CARD = 3;
+const MORNING_ITEM_VAT_INCLUDED = 1;
+const INCOME_DESCRIPTION: Record<"ANNUAL" | "MONTHLY", string> = {
+  ANNUAL: "פעילים+ מנוי שנתי",
+  MONTHLY: "פעילים+ מנוי חודשי",
+};
+
+export function buildIncomeDocument(input: {
+  plan: "ANNUAL" | "MONTHLY"; amount: number; installments: number; cardSuffix: string | null;
+  paidOn: string; client: { name: string; phone: string; email: string };
+}): Record<string, unknown> {
+  const description = INCOME_DESCRIPTION[input.plan];
+  return {
+    type: MORNING_INCOME_DOC_TYPE,
+    lang: "he",
+    currency: "ILS",
+    vatType: 0,
+    description,
+    client: { name: input.client.name, phone: input.client.phone, emails: [input.client.email], add: true },
+    income: [{ description, quantity: 1, price: input.amount, currency: "ILS", vatType: MORNING_ITEM_VAT_INCLUDED }],
+    payment: [{
+      type: MORNING_PAYMENT_CARD,
+      price: input.amount,
+      currency: "ILS",
+      date: input.paidOn,
+      cardType: 0,
+      ...(input.cardSuffix ? { cardNum: input.cardSuffix } : {}),
+      dealType: input.installments > 1 ? 2 : 1,
+      numPayments: input.installments,
+    }],
+  };
+}
+
+export async function createIncomeDocument(
+  creds: MorningCredentials,
+  doc: Record<string, unknown>,
+): Promise<MorningResult<{ id: string; url: string | null }>> {
+  const res = await authedRequest(creds, "/documents", "POST", doc);
+  if (!res.ok) return res;
+  const body = res.value as { id?: string; url?: { he?: string; origin?: string } } | null;
+  if (!body?.id) return { ok: false, fault: "permanent", status: 200, error: "Morning document response had no id" };
+  return { ok: true, value: { id: body.id, url: body.url?.he ?? body.url?.origin ?? null } };
+}
+```
+
+The client name, phone and email on the document come from the `web_payments` row's user (`users.full_name`, `users.phone`) and the checkout email Task 4 stores; add `email text not null` to `web_payments` in Task 1 if Task 4 does not already persist it. `paidOn` is the charge date in Israel time (`Asia/Jerusalem`, `YYYY-MM-DD`).
+
+In `growWebhook/index.ts`, `invoice` = if `isMorningDryRun()` return `{ status: "dry_run" }` and log the built document's shape (no personal fields); else `morningCredentials()` (null -> `failed`, "Morning not configured") then `createIncomeDocument`. Morning emails the document itself when the client has an email.
+
+- [ ] **Step 4: PASS**, plus `deno test _shared/` for the expense code that shares the module.
+
+- [ ] **Step 5: Sandbox check:** with `MORNING_DRY_RUN=true` on the branch project, run one sandbox purchase (Task 8 Step 1) and confirm `invoice_status = 'dry_run'` and the logged document shape. Issuing a real Morning document is part of Task 8 Step 2's live purchase only: set `MORNING_DRY_RUN=false` for that run, confirm the חשבונית מס/קבלה arrives at the buyer's email and appears in Morning, then cancel it in Morning (תעודת זיכוי) together with the Grow refund.
+
+- [ ] **Step 6: Commit** `feat(functions): Morning invoice for every approved web charge`
 
 ---
 
