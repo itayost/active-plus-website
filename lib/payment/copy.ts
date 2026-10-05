@@ -69,8 +69,9 @@ export const ACCOUNT_COPY = {
   title: "ניהול מנוי",
   loading: "טוענים את המנוי",
   signedOut: "כדי לנהל את המנוי צריך לאמת את מספר הטלפון שאיתו נרשמת.",
-  noAccount: `לא מצאנו חשבון עם המספר הזה. כדאי לבדוק את המספר, או להתקשר אלינו ל־${CONTACT_PHONE}.`,
   codeLabel: "הקוד שקיבלת ב־SMS",
+  /** The same words whether or not the number has an account: the page never says which. */
+  codeHint: `אם המספר רשום אצלנו, שלחנו אליו קוד ב־SMS. אם הקוד לא מגיע תוך כמה דקות, כדאי לבדוק את המספר או להתקשר אלינו ל־${CONTACT_PHONE}.`,
   verify: "אימות",
   none: "לא מצאנו מנוי פעיל למספר הזה.",
   error: "לא הצלחנו לטעון את המנוי. אפשר לנסות שוב.",

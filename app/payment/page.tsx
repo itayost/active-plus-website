@@ -8,9 +8,10 @@ export const metadata: Metadata = {
   description: "מנוי שנתי ב־59 ₪ לחודש או מנוי חודשי ב־99 ₪, ללא התחייבות. שני המסלולים כוללים תוכנית אימון מותאמת אישית.",
 };
 
-function parsePlan(value: string | string[] | undefined): PlanId {
+/** The plan an explicit link names; undefined without one (or with an unknown one). */
+function parsePlan(value: string | string[] | undefined): PlanId | undefined {
   const candidate = Array.isArray(value) ? value[0] : value;
-  return PLANS.find((plan) => plan.id === candidate)?.id ?? "annual";
+  return PLANS.find((plan) => plan.id === candidate)?.id;
 }
 
 export default async function PaymentPage({
@@ -21,7 +22,7 @@ export default async function PaymentPage({
   const { plan, cancelled } = await searchParams;
   return (
     <>
-      <PaymentFlow initialPlan={parsePlan(plan)} cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}>
+      <PaymentFlow linkPlan={parsePlan(plan)} cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}>
         <h1
           id="payment-heading"
           className="max-w-[18ch] font-display text-[clamp(1.66rem,1.09rem+2.8vw,4.29rem)] font-black leading-[1.05] tracking-[-0.025em]"

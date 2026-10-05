@@ -7,7 +7,7 @@ export type SubscriptionInfo = {
   expiresAt: string;
   autoRenew: boolean;
   platform: string | null;
-  /** A renewing web monthly's next charge day (checkUserSubscription); null from older functions and for everything else. */
+  /** A renewing web monthly's next charge day (YYYY-MM-DD, from checkUserSubscription's webMonthly); null otherwise. */
   nextChargeAt: string | null;
 };
 export type ManageAction = "cancel" | "cancelled" | "annual" | "apple" | "google" | "manual";
@@ -28,10 +28,9 @@ export function manageAction(sub: SubscriptionInfo): ManageAction {
 export type ChargeLine = { text: "nextCharge" | "activeUntil" | "cancelled"; date: string };
 
 /**
- * The line under the plan: a renewing web monthly shows its next charge day
- * (access runs two grace days past it); a cancelled one says so with the day
- * access ends; everything else, and a renewing monthly without a charge day
- * from an older function, shows how long access lasts.
+ * The line under the plan: a renewing web monthly shows its next charge day;
+ * a cancelled one says so with the day access ends; everything else, and a
+ * renewing monthly without a readable charge day, shows how long access lasts.
  */
 export function chargeLine(sub: SubscriptionInfo): ChargeLine {
   const action = manageAction(sub);
@@ -40,12 +39,33 @@ export function chargeLine(sub: SubscriptionInfo): ChargeLine {
   return { text: "activeUntil", date: sub.expiresAt };
 }
 
-/** The signed-in user's active subscription (checkUserSubscription reads the user from the session). */
+/** checkUserSubscription's webMonthly: the user's renewing web monthly, whatever row `subscription` shows. */
+function readWebMonthly(value: unknown): SubscriptionInfo | null {
+  if (!value || typeof value !== "object") return null;
+  const w = value as Record<string, unknown>;
+  if (w.renewing !== true || typeof w.expiresAt !== "string") return null;
+  return {
+    planType: "MONTHLY",
+    expiresAt: w.expiresAt,
+    autoRenew: true,
+    platform: "grow",
+    nextChargeAt: typeof w.nextChargeAt === "string" ? w.nextChargeAt : null,
+  };
+}
+
+/**
+ * The signed-in user's subscription (checkUserSubscription reads the user
+ * from the session). A renewing web monthly comes first: it is the one thing
+ * the page can act on, even behind a longer manual or store row, or after
+ * access lapsed while Grow still retries the charge.
+ */
 export async function loadSubscription(supabase: Invoker): Promise<SubscriptionInfo | null | "error"> {
   try {
     const { data, error } = await supabase.functions.invoke("checkUserSubscription", { body: {} });
     if (error) return "error";
-    const body = data as { hasAccess?: boolean; subscription?: Record<string, unknown> } | null;
+    const body = data as { hasAccess?: boolean; subscription?: Record<string, unknown>; webMonthly?: unknown } | null;
+    const webMonthly = readWebMonthly(body?.webMonthly);
+    if (webMonthly) return webMonthly;
     const s = body?.subscription;
     if (!body?.hasAccess || !s || typeof s.planType !== "string" || typeof s.expiresAt !== "string") return null;
     return {
@@ -53,7 +73,7 @@ export async function loadSubscription(supabase: Invoker): Promise<SubscriptionI
       expiresAt: s.expiresAt,
       autoRenew: s.autoRenew === true,
       platform: typeof s.platform === "string" ? s.platform : null,
-      nextChargeAt: typeof s.nextChargeAt === "string" ? s.nextChargeAt : null,
+      nextChargeAt: null,
     };
   } catch {
     return "error";
@@ -76,5 +96,5 @@ export async function cancelWebSubscription(supabase: Invoker): Promise<CancelRe
 
 const dateFormatter = new Intl.DateTimeFormat("he-IL", { timeZone: "Asia/Jerusalem", day: "numeric", month: "long", year: "numeric" });
 
-/** The day access ends, as an Israeli reads it (the server stores UTC). */
+/** A date as an Israeli reads it: a UTC timestamp, or a YYYY-MM-DD day (read at midnight UTC, which is that same day in Israel). */
 export const formatIsraelDate = (iso: string): string => dateFormatter.format(new Date(iso));

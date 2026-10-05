@@ -12,14 +12,13 @@ import { toE164 } from "@/lib/phone";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 
 const CODE_ID = "account-code";
+const CODE_HINT_ID = "account-code-hint";
 const CODE_ERROR_ID = "account-code-error";
 const VERIFY_ERROR: Record<Exclude<VerifyResult, "ok">, string> = {
   invalid: COPY.otp.wrongCode,
   rateLimited: COPY.otp.rateLimited,
   error: COPY.otp.verifyFailed,
 };
-// Signing in here must never create an account for a number that has none.
-const ACCOUNT_ONLY = { notFound: A.noAccount };
 const LINKISH =
   "mt-4 inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
   "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
@@ -27,8 +26,10 @@ const LINKISH =
 /**
  * Sign-in for the subscription page: Register's phone step sends the code
  * (existing accounts only: shouldCreateUser is off, so an unknown number gets
- * "no account" and no auth user), this form verifies it. No questionnaire
- * merge: an account page must never create or change a profile.
+ * no auth user and no SMS), this form verifies it. Known or unknown, the
+ * visitor sees the same code screen and hint, and a wrong code reads the
+ * same, so the page never tells whether a number has an account. No
+ * questionnaire merge: an account page must never create or change a profile.
  */
 export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) {
   // The number the code went to; null while it is being typed. `lastPhone` refills "ערוך מספר".
@@ -87,13 +88,14 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
           setPhone(sent);
         }}
         onBusy={setBusy}
-        accountOnly={ACCOUNT_ONLY}
+        accountOnly
       />
     );
   }
   return (
     <form noValidate onSubmit={submit} aria-busy={busy || undefined}>
       <label htmlFor={CODE_ID} className="mb-2 block font-display font-bold">{A.codeLabel}</label>
+      <p id={CODE_HINT_ID} className="mb-3 text-ink-soft">{A.codeHint}</p>
       <input
         ref={input}
         id={CODE_ID}
@@ -105,7 +107,7 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
         dir="ltr"
         value={code}
         readOnly={busy}
-        aria-describedby={error ? CODE_ERROR_ID : undefined}
+        aria-describedby={error ? `${CODE_HINT_ID} ${CODE_ERROR_ID}` : CODE_HINT_ID}
         aria-invalid={error ? true : undefined}
         onChange={(event) => {
           setCode(event.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH));

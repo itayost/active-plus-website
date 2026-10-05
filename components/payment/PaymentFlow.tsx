@@ -6,14 +6,14 @@ import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
 import Section from "@/components/ui/Section";
 import type { PlanId } from "@/lib/constants";
-import { readCheckoutDraft } from "@/lib/payment/checkout";
+import { clearCheckoutDraft, readCheckoutDraft, resumableDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  /** Plan preselected from `/payment?plan=`; validated by the page. */
-  initialPlan?: PlanId;
+  /** The plan an explicit `/payment?plan=` link asks for (validated by the page); undefined without one. */
+  linkPlan?: PlanId;
   /** Back from Grow's cancel URL (`/payment?cancelled=1`). */
   cancelled?: boolean;
   /** The page's headings, at the top of the plans section. */
@@ -24,20 +24,38 @@ type Props = {
  * Owns the buyer's plan choice and what comes after the plans. Flag off
  * (production until Task 9): the store fallback ends the path. Flag on:
  * "המשך לרכישה" opens the checkout under the plans; a checkout draft in
- * sessionStorage (Otp's remount, Grow's cancel URL) reopens it directly.
+ * sessionStorage (Otp's remount, Grow's cancel URL) reopens it directly,
+ * unless an explicit ?plan= link asks for another plan: the link wins and
+ * that draft is discarded. Choosing a plan keeps ?plan= in step, so a reload
+ * resumes the checkout the buyer was in.
  * The checkout is its own sunken section under the plans, as in the mockup.
  */
-export default function PaymentFlow({ initialPlan = "annual", cancelled = false, children }: Props) {
-  const [selectedPlan, setSelectedPlan] = useState<PlanId>(initialPlan);
+export default function PaymentFlow({ linkPlan, cancelled = false, children }: Props) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
   const [stage, setStage] = useState<"plans" | "checkout">("plans");
 
   useEffect(() => {
     if (!WEB_CHECKOUT_ENABLED) return;
-    const draft = readCheckoutDraft();
-    if (!draft) return;
+    const stored = readCheckoutDraft();
+    const draft = resumableDraft(stored, linkPlan);
+    if (!draft) {
+      if (stored) clearCheckoutDraft();
+      return;
+    }
     setSelectedPlan(draft.plan);
     setStage("checkout");
-  }, []);
+  }, [linkPlan]);
+
+  const selectPlan = (plan: PlanId) => {
+    setSelectedPlan(plan);
+    // A link that named a plan now names this one: a reload must not discard the checkout for the old link.
+    // Flag off there is no checkout or draft, so the live page keeps its URL exactly as before.
+    if (!WEB_CHECKOUT_ENABLED) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("plan")) return;
+    url.searchParams.set("plan", plan);
+    window.history.replaceState(null, "", url);
+  };
 
   const changePlan = () => {
     const checked = document.querySelector<HTMLInputElement>('input[name="plan"]:checked');
@@ -62,7 +80,7 @@ export default function PaymentFlow({ initialPlan = "annual", cancelled = false,
         ) : null}
         <PlanSelector
           selected={selectedPlan}
-          onSelect={setSelectedPlan}
+          onSelect={selectPlan}
           onContinue={WEB_CHECKOUT_ENABLED && stage === "plans" ? () => setStage("checkout") : undefined}
         />
         {WEB_CHECKOUT_ENABLED ? null : <StoreFallback />}

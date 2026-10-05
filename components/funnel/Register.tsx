@@ -76,11 +76,8 @@ type PhoneProps = {
   onSent: (phone: string) => void;
   /** True while the code is being sent: the funnel's back is hidden, as on otp. */
   onBusy: (busy: boolean) => void;
-  accountOnly?: AccountOnly;
+  accountOnly?: boolean;
 };
-
-/** Sign-in for existing accounts only (the account page): no user is ever created; `notFound` is shown for an unknown number. */
-export type AccountOnly = { notFound: string };
 
 function PhoneStep({ gender, initialPhone, onSent, onBusy, accountOnly }: PhoneProps) {
   const [phone, setPhone] = useState(initialPhone);
@@ -116,8 +113,9 @@ function PhoneStep({ gender, initialPhone, onSent, onBusy, accountOnly }: PhoneP
     const result = supabase ? await sendCode(supabase, toE164(phone), { existingOnly: Boolean(accountOnly) }) : "error";
     if (!alive.current) return;
     setSending(false);
-    if (result === "ok") return onSent(phone.trim());
-    if (result === "noAccount" && accountOnly) return fail(accountOnly.notFound);
+    // Account page: an unknown number gets the same code screen as a known one (no SMS goes out),
+    // so the page never says whether a number has an account.
+    if (result === "ok" || (result === "noAccount" && accountOnly)) return onSent(phone.trim());
     fail(result === "rateLimited" ? COPY.otp.rateLimited : C.sendFailed);
   };
 
@@ -182,8 +180,12 @@ type Props = {
   onName: (name: string) => void;
   onCodeSent: (phone: string) => void;
   onBusy: (busy: boolean) => void;
-  /** Omitted in the funnel and the checkout, which create the account. */
-  accountOnly?: AccountOnly;
+  /**
+   * The account page: sign-in for existing accounts only. No user is ever
+   * created, and an unknown number moves on to the code screen like a known
+   * one. Omitted in the funnel and the checkout, which create the account.
+   */
+  accountOnly?: boolean;
 };
 
 /** register: the name, then the phone the code is sent to. */

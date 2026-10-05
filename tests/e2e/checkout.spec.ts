@@ -208,6 +208,51 @@ test("opening the checkout and every step move focus to its heading, in view und
   await expect(page.getByLabel(C.emailTitle)).toBeInViewport();
 });
 
+/* ---- /code-review: an explicit ?plan= link and a stored draft ---- */
+
+const draft = (page: Page) => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"));
+const planRadio = (page: Page, plan: "annual" | "monthly") => page.locator(`input[name="plan"][value="${plan}"]`);
+
+test("a ?plan= link for another plan wins over a stored draft, and the draft is discarded", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page, "annual");
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await expect.poll(() => draft(page)).toContain('"plan":"annual"');
+  await page.goto("/payment?plan=monthly");
+  await expect(planRadio(page, "monthly")).toBeChecked();
+  await expect(page.getByRole("button", { name: "המשך לרכישה" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: C.heading })).toHaveCount(0);
+  await expect.poll(() => draft(page)).toBeNull();
+});
+
+test("a ?plan= link for the draft's own plan, or no plan in the link, resumes the checkout", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page, "monthly");
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
+  for (const url of ["/payment?plan=monthly", "/payment"]) {
+    await page.goto(url);
+    await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
+    await expect(planRadio(page, "monthly")).toBeChecked();
+  }
+});
+
+test("choosing another plan keeps the link in step, so a reload resumes the checkout", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await page.goto("/payment?plan=annual");
+  await page.locator('label:has(input[value="monthly"])').click();
+  await expect(page).toHaveURL(/plan=monthly/);
+  await page.getByRole("button", { name: "המשך לרכישה" }).click();
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
+  await page.reload();
+  await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
+  await expect(planRadio(page, "monthly")).toBeChecked();
+});
+
 test("opening the checkout stores nothing; typing starts the draft", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
@@ -321,16 +366,23 @@ test("subscription page: a monthly web subscriber signs in and cancels after con
 
 const EXPIRES = "2026-11-07T10:00:00.000Z";
 const EXPIRES_HE = "7 בנובמבר 2026";
-/** checkUserSubscription's nextChargeAt: two grace days before access ends. */
-const NEXT_CHARGE = "2026-11-05T10:00:00.000Z";
+/** webMonthly.nextChargeAt: the standing order's next charge day, an Israeli date. */
+const NEXT_CHARGE = "2026-11-05";
 const NEXT_CHARGE_HE = "5 בנובמבר 2026";
-const subscription = (overrides: Record<string, unknown> = {}): Reply => ({
-  status: 200,
-  body: {
-    hasAccess: true,
-    subscription: { id: "s1", planType: "MONTHLY", expiresAt: EXPIRES, autoRenew: true, platform: "grow", nextChargeAt: NEXT_CHARGE, ...overrides },
-  },
-});
+/**
+ * checkUserSubscription's answer: the subscription row, and webMonthly when
+ * that row is a renewing web monthly. `nextChargeAt` overrides webMonthly's day.
+ */
+const subscription = (overrides: Record<string, unknown> = {}): Reply => {
+  const { nextChargeAt, ...rest } = overrides;
+  const sub = { id: "s1", planType: "MONTHLY", expiresAt: EXPIRES, autoRenew: true, platform: "grow", ...rest };
+  const renewing = sub.platform === "grow" && sub.planType === "MONTHLY" && sub.autoRenew === true;
+  const day = "nextChargeAt" in overrides ? nextChargeAt ?? null : NEXT_CHARGE;
+  return {
+    status: 200,
+    body: { hasAccess: true, subscription: sub, webMonthly: renewing ? { renewing: true, nextChargeAt: day, expiresAt: EXPIRES } : null },
+  };
+};
 
 /** Answers cancelGrowSubscription; returns the number of POSTs it saw. */
 async function stubCancel(page: Page, reply: Reply = { status: 200, body: { status: "cancelled", expiresAt: EXPIRES } }) {
@@ -455,7 +507,7 @@ test.describe("subscription page", () => {
     await expect(page.getByText(NEXT_CHARGE_HE)).toHaveCount(0);
   });
 
-  test("an older function without nextChargeAt shows how long access lasts, and still offers the cancel", async ({ page }) => {
+  test("a renewing web monthly without a readable charge day shows how long access lasts, and still offers the cancel", async ({ page }) => {
     await stubSupabase(page, { profileName: "רחל כהן" });
     await stubFunctions(page, OK, subscription({ nextChargeAt: undefined }));
     await signInToAccount(page);
@@ -463,17 +515,48 @@ test.describe("subscription page", () => {
     await expect(page.getByRole("button", { name: A.cancel })).toBeVisible();
   });
 
-  test("a number with no account is told so, and no account is created", async ({ page }) => {
-    const supabase = await stubSupabase(page, { otpStatuses: [422], otpErrorCode: "otp_disabled" });
-    await stubFunctions(page, OK, subscription());
-    await page.goto("/account/subscription");
-    await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-    await page.getByRole("button", { name: COPY.register.phoneCta }).click();
-    await expect(page.getByRole("alert").filter({ hasText: A.noAccount })).toBeVisible();
-    await expect(page.getByLabel(COPY.register.phoneLabel, { exact: true })).toBeFocused();
-    await expect(page.getByLabel(A.codeLabel)).toHaveCount(0);
-    expect(supabase.to("/auth/v1/otp").map((c) => (c.body as { create_user?: unknown }).create_user)).toEqual([false]);
-    expect(supabase.to("/auth/v1/verify")).toHaveLength(0);
+  // /code-review: the page must not reveal whether a number has an account.
+  test("a number with no account gets the same code screen as one with an account, and no account is created", async ({ page }) => {
+    const screens: string[] = [];
+    for (const known of [true, false]) {
+      const supabase = await stubSupabase(page, known ? { profileName: "רחל כהן" } : { otpStatuses: [422], otpErrorCode: "otp_disabled" });
+      await stubFunctions(page, OK, subscription());
+      await page.goto("/account/subscription");
+      await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
+      await page.getByRole("button", { name: COPY.register.phoneCta }).click();
+      const code = page.getByLabel(A.codeLabel);
+      await expect(code).toBeFocused();
+      await expect(code).toHaveAccessibleDescription(A.codeHint);
+      await code.fill("000000");
+      await page.getByRole("button", { name: A.verify }).click();
+      await expect(page.getByRole("alert").filter({ hasText: COPY.otp.wrongCode })).toBeVisible();
+      screens.push((await page.locator("#subscription").innerText()).replace(/\s+/g, " "));
+      expect(supabase.to("/auth/v1/otp").map((c) => (c.body as { create_user?: unknown }).create_user)).toEqual([false]);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    expect(screens[1]).toBe(screens[0]);
+  });
+
+  // /code-review: the response's subscription is the latest-expiring row; a longer one hid the web monthly's cancel.
+  test("a renewing web monthly behind a longer office subscription is shown with its next charge and cancel", async ({ page }) => {
+    await stubSupabase(page, { profileName: "רחל כהן" });
+    const longer = { id: "m1", planType: "ANNUAL", expiresAt: "2027-06-01T10:00:00.000Z", autoRenew: false, platform: null };
+    await stubFunctions(page, OK, {
+      status: 200, body: { hasAccess: true, subscription: longer, webMonthly: { renewing: true, nextChargeAt: NEXT_CHARGE, expiresAt: EXPIRES } },
+    });
+    await signInToAccount(page);
+    await expect(page.getByRole("heading", { name: A.plans.MONTHLY })).toBeVisible();
+    await expect(page.getByText(A.nextCharge.replace("{date}", NEXT_CHARGE_HE))).toBeVisible();
+    await expect(page.getByRole("button", { name: A.cancel })).toBeVisible();
+  });
+
+  test("a web monthly whose access lapsed while Grow still retries can be cancelled", async ({ page }) => {
+    await stubSupabase(page, { profileName: "רחל כהן" });
+    await stubFunctions(page, OK, {
+      status: 200, body: { hasAccess: false, requiresPayment: true, webMonthly: { renewing: true, nextChargeAt: NEXT_CHARGE, expiresAt: EXPIRES } },
+    });
+    await signInToAccount(page);
+    await expect(page.getByRole("button", { name: A.cancel })).toBeVisible();
   });
 
   test("an annual web subscription explains it does not renew", async ({ page }) => {

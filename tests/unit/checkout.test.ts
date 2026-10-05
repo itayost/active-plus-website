@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   checkoutSteps, clearCheckoutDraft, clearCheckoutEmail, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft, readCheckoutEmail,
-  readPaymentGender, rememberCheckoutEmail, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
+  readPaymentGender, rememberCheckoutEmail, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
 function memoryStorage(seed: Record<string, string> = {}) {
@@ -147,5 +147,21 @@ describe("back/forward cache", () => {
     stop();
     target.dispatchEvent(pageshow(true));
     expect(restored).toHaveBeenCalledTimes(1);
+  });
+});
+
+// /code-review: a stored draft overrode an explicit ?plan= link.
+describe("resumableDraft", () => {
+  const draft = { plan: "monthly" as const, name: "רחל כהן", email: "r@example.com", installments: 1 };
+  it("a link without a plan (Otp's remount, Grow's cancel URL) resumes the draft", () => {
+    expect(resumableDraft(draft, undefined)).toEqual(draft);
+  });
+  it("a link to the draft's own plan resumes it; a link to another plan wins", () => {
+    expect(resumableDraft(draft, "monthly")).toEqual(draft);
+    expect(resumableDraft(draft, "annual")).toBeNull();
+  });
+  it("no draft, nothing to resume", () => {
+    expect(resumableDraft(null, "annual")).toBeNull();
+    expect(resumableDraft(null, undefined)).toBeNull();
   });
 });

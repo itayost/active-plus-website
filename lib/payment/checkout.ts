@@ -175,6 +175,15 @@ export function readCheckoutDraft(storage: Store | undefined = browserSession())
   }
 }
 
+/**
+ * The draft to reopen the checkout with. An explicit ?plan= link wins: a
+ * draft for another plan is not resumed (the caller discards it). Without a
+ * plan in the link (Otp's remount, Grow's cancel URL) the draft resumes.
+ */
+export function resumableDraft(draft: CheckoutDraft | null, linkPlan: PlanId | undefined): CheckoutDraft | null {
+  return draft && (!linkPlan || draft.plan === linkPlan) ? draft : null;
+}
+
 export function clearCheckoutDraft(storage: Store | undefined = browserSession()): void {
   safeWrite(storage, DRAFT_KEY, null);
 }
