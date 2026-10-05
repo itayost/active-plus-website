@@ -1,53 +1,117 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
+import Section from "@/components/ui/Section";
 import type { PlanId } from "@/lib/constants";
+import { clearCheckoutDraft, readCheckoutDraft, resumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
+import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
+import { CheckoutLoading } from "./CheckoutShell";
 
-/** Flip when the plan-3 checkout component exists and is rendered by this flow. */
-const HAS_CHECKOUT_COMPONENT = false;
+type CheckoutForm = (typeof import("./Checkout"))["default"];
 
 type Props = {
-  /** Plan preselected from `/payment?plan=`; validated by the page. */
-  initialPlan?: PlanId;
+  /** The plan an explicit `/payment?plan=` link asks for (validated by the page); undefined without one. */
+  linkPlan?: PlanId;
+  /** Back from Grow's cancel URL (`/payment?cancelled=1`). */
+  cancelled?: boolean;
+  /** The page's headings, at the top of the plans section. */
+  children?: ReactNode;
 };
 
+const PLANS_TOP = "pt-[clamp(2.5rem,5vw,4.5rem)]";
+
+/** Owns the buyer's plan choice and what comes after the plans; the flag decides which path, once. */
+export default function PaymentFlow(props: Props) {
+  return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} /> : <StoreFlow {...props} />;
+}
+
+/** Flag off (production until Task 9): the plans, then the store fallback ends the path. */
+function StoreFlow({ linkPlan, children }: Props) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
+  return (
+    <Section id="plans" labelledBy="payment-heading" className={`${PLANS_TOP} pb-0`}>
+      {children}
+      <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
+      <StoreFallback />
+    </Section>
+  );
+}
+
 /**
- * Owns the buyer's plan choice and what comes after the plans.
- *
- * Phase 1 (WEB_CHECKOUT_ENABLED false): no continue button. StoreFallback is
- * the single end of the path, directly under the plan selector, because the
- * purchase happens in the app stores.
- *
- * Plan 3: when the flag is on, render the checkout steps in place of the
- * fallback and pass `onContinue` to PlanSelector so "המשך לרכישה" returns
- * (PlanSelector already renders it whenever `onContinue` is provided). Keep
- * the state here, not in PlanSelector, so the checkout can read `selectedPlan`.
+ * Flag on: "המשך לרכישה" opens the checkout under the plans; a checkout draft
+ * in sessionStorage (Otp's remount, Grow's cancel URL) reopens it directly,
+ * unless an explicit ?plan= link asks for another plan: the link wins and
+ * that draft is discarded. Choosing a plan keeps ?plan= in step, so a reload
+ * resumes the checkout the buyer was in.
+ * The checkout is its own sunken section under the plans, as in the mockup.
  */
-export default function PaymentFlow({ initialPlan = "annual" }: Props) {
-  const [selectedPlan, setSelectedPlan] = useState<PlanId>(initialPlan);
+function WebCheckoutFlow({ linkPlan, cancelled = false, children }: Props) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
+  const [stage, setStage] = useState<"plans" | "checkout">("plans");
+  // The stored draft, read once here and handed to the checkout it reopens.
+  const [draft, setDraft] = useState<CheckoutDraft | null>(null);
+  // The checkout's code is not in the page's bundle: it is fetched once the page has loaded, and until it is here the
+  // checkout shows its own loading shell. A plain import, not next/dynamic: a Suspense fallback holds for at least
+  // 300ms, which would delay the checkout's identity load behind it.
+  const [CheckoutView, setCheckoutView] = useState<CheckoutForm | null>(null);
 
-  /*
-   * Extension point (plan 3): set to true only once a checkout component is
-   * rendered below. Until then the store fallback always shows, even if
-   * NEXT_PUBLIC_WEB_CHECKOUT is on, so a buyer never reaches a dead end.
-   */
-  const checkoutReady = WEB_CHECKOUT_ENABLED && HAS_CHECKOUT_COMPONENT;
+  useEffect(() => {
+    let alive = true;
+    void import("./Checkout").then(
+      (m) => alive && setCheckoutView(() => m.default),
+      () => undefined,
+    );
+    return () => {
+      alive = false;
+    };
+  }, []);
 
-  function handleContinue() {
-    // Plan 3: advance to the checkout steps for `selectedPlan`.
-  }
+  useEffect(() => {
+    const stored = readCheckoutDraft();
+    const resumable = resumableDraft(stored, linkPlan);
+    if (!resumable) {
+      if (stored) clearCheckoutDraft();
+      return;
+    }
+    setDraft(resumable);
+    setSelectedPlan(resumable.plan);
+    setStage("checkout");
+  }, [linkPlan]);
+
+  const selectPlan = (plan: PlanId) => {
+    setSelectedPlan(plan);
+    // A link that named a plan now names this one: a reload must not discard the checkout for the old link.
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("plan")) return;
+    url.searchParams.set("plan", plan);
+    window.history.replaceState(null, "", url);
+  };
+
+  const changePlan = () => {
+    const checked = document.querySelector<HTMLInputElement>('input[name="plan"]:checked');
+    checked?.scrollIntoView({ block: "center" });
+    checked?.focus();
+  };
+
+  const checkoutOpen = stage === "checkout";
 
   return (
     <>
-      <PlanSelector
-        selected={selectedPlan}
-        onSelect={setSelectedPlan}
-        onContinue={checkoutReady ? handleContinue : undefined}
-      />
-      {checkoutReady ? null : <StoreFallback />}
+      <Section id="plans" labelledBy="payment-heading" className={checkoutOpen ? PLANS_TOP : `${PLANS_TOP} pb-0`}>
+        {children}
+        {cancelled ? (
+          <p role="status" className="mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium">
+            {C.cancelled}
+          </p>
+        ) : null}
+        <PlanSelector selected={selectedPlan} onSelect={selectPlan} onContinue={checkoutOpen ? undefined : () => setStage("checkout")} />
+      </Section>
+      {checkoutOpen ? (
+        CheckoutView ? <CheckoutView plan={selectedPlan} initialDraft={draft} onChangePlan={changePlan} /> : <CheckoutLoading />
+      ) : null}
     </>
   );
 }

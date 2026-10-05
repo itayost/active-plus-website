@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:checkout": "playwright test -c playwright.checkout.config.ts",
     "typecheck": "tsc --noEmit",
     "sync:funnel": "node scripts/sync-funnel-contract.mjs",
     "check:funnel": "node scripts/sync-funnel-contract.mjs --check"

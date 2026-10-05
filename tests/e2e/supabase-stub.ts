@@ -50,6 +50,8 @@ export type StubOptions = {
   profileName?: string | null;
   /** Statuses for successive /otp calls (the last repeats); 200 sends the code. */
   otpStatuses?: number[];
+  /** error_code of a refused /otp call: "otp_disabled" is Supabase's "no user with this number" when create_user is false. */
+  otpErrorCode?: string;
   /** Replies for successive merge_funnel_session calls (the last repeats). */
   mergeStatuses?: number[];
   /**
@@ -94,7 +96,7 @@ const nth = (list: number[], n: number) => list[Math.min(n, list.length - 1)];
  * and recorded in `foreign`.
  */
 export async function stubSupabase(page: Page, options: StubOptions = {}) {
-  const { profileName = null, otpStatuses = [200], mergeStatuses = [200], profileAfterMerge, fillError } = options;
+  const { profileName = null, otpStatuses = [200], otpErrorCode = "sms_send_failed", mergeStatuses = [200], profileAfterMerge, fillError } = options;
   const calls: Call[] = [];
   const foreign: string[] = [];
   const held = new Map<string, Promise<void>>();
@@ -124,7 +126,7 @@ export async function stubSupabase(page: Page, options: StubOptions = {}) {
     if (path === "/auth/v1/otp") {
       const status = nth(otpStatuses, otps);
       otps += 1;
-      return status === 200 ? json(route, 200, {}) : json(route, status, { code: status, error_code: "sms_send_failed", msg: "stub" });
+      return status === 200 ? json(route, 200, {}) : json(route, status, { code: status, error_code: otpErrorCode, msg: "stub" });
     }
     if (path === "/auth/v1/verify") {
       const token = (bodyOf(request) as { token?: string } | null)?.token;

@@ -1,5 +1,4 @@
-import Button from "@/components/ui/Button";
-import { STORE_ANDROID, STORE_IOS } from "@/lib/constants";
+import StoreButtons from "./StoreButtons";
 
 /**
  * Phase 1 end of the purchase path: sign-up and payment happen in the app.
@@ -19,14 +18,7 @@ export default function StoreFallback() {
       <p className="mt-3 max-w-measure text-lead">
         מורידים את פעילים+, בוחרים את המסלול ומשלמים בחנות האפליקציות.
       </p>
-      <div className="mt-7 flex flex-wrap gap-4">
-        <Button href={STORE_IOS} variant="onColor" size="lg">
-          App Store
-        </Button>
-        <Button href={STORE_ANDROID} variant="onColor" size="lg">
-          Google Play
-        </Button>
-      </div>
+      <StoreButtons className="mt-7 flex flex-wrap gap-4" variant="onColor" size="lg" />
     </section>
   );
 }

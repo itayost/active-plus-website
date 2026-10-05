@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useAlive } from "@/components/ui/useAlive";
 import { LockIcon, PhoneIcon } from "@/components/ui/icons";
 import { COPY, g } from "@/lib/funnel/copy";
 import type { RegisterView } from "@/lib/funnel/machine";
@@ -76,22 +77,22 @@ type PhoneProps = {
   onSent: (phone: string) => void;
   /** True while the code is being sent: the funnel's back is hidden, as on otp. */
   onBusy: (busy: boolean) => void;
+  /**
+   * The account page: sign-in for existing accounts only. No user is ever
+   * created, and an unknown number moves on to the code screen like a known
+   * one. Omitted in the funnel and the checkout, which create the account.
+   */
+  existingOnly?: boolean;
 };
 
-function PhoneStep({ gender, initialPhone, onSent, onBusy }: PhoneProps) {
+/** The phone the code is sent to: register's second screen, and the account page's sign-in. */
+export function PhoneStep({ gender, initialPhone, onSent, onBusy, existingOnly = false }: PhoneProps) {
   const [phone, setPhone] = useState(initialPhone);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   // False once the phone screen has unmounted (back, cancel): a send that resolves later must not act.
-  const alive = useRef(true);
-
-  useEffect(() => {
-    alive.current = true;
-    return () => {
-      alive.current = false;
-    };
-  }, []);
+  const alive = useAlive();
 
   useEffect(() => {
     onBusy(sending);
@@ -109,7 +110,7 @@ function PhoneStep({ gender, initialPhone, onSent, onBusy }: PhoneProps) {
     if (!isIsraeliMobile(phone)) return fail(C.phoneError);
     setSending(true);
     const supabase = await loadBrowserSupabase();
-    const result = supabase ? await sendCode(supabase, toE164(phone)) : "error";
+    const result = supabase ? await sendCode(supabase, toE164(phone), { existingOnly }) : "error";
     if (!alive.current) return;
     setSending(false);
     if (result === "ok") return onSent(phone.trim());

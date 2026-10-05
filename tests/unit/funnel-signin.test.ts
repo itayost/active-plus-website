@@ -37,6 +37,31 @@ describe("sendCode", () => {
   });
 });
 
+// Final review: the subscription page signs in existing accounts only, so an unknown number never creates one.
+describe("sendCode for existing accounts only", () => {
+  it("asks Supabase not to create a user", async () => {
+    const { client, call } = fakeAuth({ error: null });
+    expect(await sendCode(client as never, "+972501234567", { existingOnly: true })).toBe("ok");
+    expect(call).toHaveBeenCalledWith({ phone: "+972501234567", options: { shouldCreateUser: false } });
+  });
+
+  it("reads 'no account with this number' as sent (the page never tells), and any other refusal as a failed send", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const refused = { error: { status: 422, code: "otp_disabled", message: "Signups not allowed for otp" } };
+    expect(await sendCode(fakeAuth(refused).client as never, "+972501234567", { existingOnly: true })).toBe("ok");
+    const older = { error: { status: 422, message: "Signups not allowed for otp" } };
+    expect(await sendCode(fakeAuth(older).client as never, "+972501234567", { existingOnly: true })).toBe("ok");
+    const other = { error: { status: 422, code: "sms_send_failed" } };
+    expect(await sendCode(fakeAuth(other).client as never, "+972501234567", { existingOnly: true })).toBe("error");
+  });
+
+  it("the funnel's sign-up still creates the account and never reads a refusal as 'no account'", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const refused = { error: { status: 422, code: "otp_disabled" } };
+    expect(await sendCode(fakeAuth(refused).client as never, "+972501234567")).toBe("error");
+  });
+});
+
 describe("verifyCode", () => {
   it("verifies an SMS code for the number", async () => {
     const { client, call } = fakeAuth({ error: null });

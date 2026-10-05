@@ -4,6 +4,8 @@ import { CheckIcon, LockIcon } from "@/components/ui/icons";
 import { COPY } from "@/lib/funnel/copy";
 import { cn } from "@/lib/utils";
 
+export { LINKISH, LINKISH_DISABLED } from "@/components/ui/linkish";
+
 /** Every step's h1 carries this id: the section is labelled by it and navigation focuses it. */
 export const STEP_TITLE_ID = "funnel-step-title";
 

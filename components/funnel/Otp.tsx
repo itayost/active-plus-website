@@ -5,18 +5,19 @@ import { useEffect, useRef, useState, type ChangeEvent, type Ref } from "react";
 import Button from "@/components/ui/Button";
 import { ArrowIcon, CheckIcon, LockIcon, PhoneIcon } from "@/components/ui/icons";
 import PhoneNumber from "@/components/ui/PhoneNumber";
+import { useAlive } from "@/components/ui/useAlive";
 import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
 import { OTP_LENGTH, RESEND_SECONDS } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
 import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
-import { sendCode, verifyCode, type VerifyResult } from "@/lib/funnel/signin";
+import { codeDigits, sendCode, VERIFY_MESSAGE, verifyCode } from "@/lib/funnel/signin";
 import { handOffToPayment } from "@/lib/funnel/storage";
 import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers } from "@/lib/funnel/types";
 import { formatLocal, toE164 } from "@/lib/phone";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
-import { ContinueButton, FieldError, StepIcon, StepTitle, STEP_TITLE_ID, Subtitle } from "./parts";
+import { ContinueButton, FieldError, LINKISH, LINKISH_DISABLED, StepIcon, StepTitle, STEP_TITLE_ID, Subtitle } from "./parts";
 
 const CODE_ID = "funnel-otp";
 const CODE_ERROR_ID = "funnel-otp-error";
@@ -27,12 +28,6 @@ const PAYMENT = "/payment";
 const C = COPY.otp;
 
 type Phase = "enter" | "verifying" | "finishing" | "failed" | "noProfile" | "existing";
-
-const VERIFY_MESSAGE: Record<Exclude<VerifyResult, "ok">, string> = {
-  invalid: C.wrongCode,
-  rateLimited: C.rateLimited,
-  error: C.verifyFailed,
-};
 
 function secondsLeft(until: number, now: number) {
   return Math.max(0, Math.ceil((until - now) / 1000));
@@ -92,10 +87,6 @@ function CodeBoxes({ code, invalid, busy, onChange, inputRef }: {
   );
 }
 
-const LINKISH =
-  "inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
-  "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
-
 type Props = {
   /** The number as the visitor typed it (validated before the code was sent). */
   phone: string;
@@ -124,18 +115,11 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
   const [now, setNow] = useState(() => Date.now());
   const input = useRef<HTMLInputElement>(null);
   // False once Otp has unmounted: a verify or merge that resolves later must not act.
-  const alive = useRef(true);
+  const alive = useAlive();
   // The first attempt failed on the new-user merge. If that merge committed on the
   // server, the retry finds a name and looks like a returning user; it is not one.
   const firstWasNew = useRef(false);
   const locked = phase === "verifying" || phase === "finishing";
-
-  useEffect(() => {
-    alive.current = true;
-    return () => {
-      alive.current = false;
-    };
-  }, []);
 
   useEffect(() => {
     onBusy(locked);
@@ -189,7 +173,7 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
   };
 
   const onCode = (event: ChangeEvent<HTMLInputElement>) => {
-    const digits = event.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH);
+    const digits = codeDigits(event.target.value);
     setCode(digits);
     if (digits) setError("");
     if (digits.length === OTP_LENGTH && phase === "enter") void verify(digits);
@@ -273,11 +257,11 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
         {waiting > 0 ? (
           <span className="text-ink-soft">{C.resendIn.replace("{n}", String(waiting))}</span>
         ) : (
-          <button type="button" className={LINKISH} disabled={locked || resending} onClick={() => void resend()}>
+          <button type="button" className={cn(LINKISH, LINKISH_DISABLED)} disabled={locked || resending} onClick={() => void resend()}>
             {C.resend}
           </button>
         )}
-        <button type="button" className={LINKISH} disabled={locked} onClick={onEditPhone}>
+        <button type="button" className={cn(LINKISH, LINKISH_DISABLED)} disabled={locked} onClick={onEditPhone}>
           {C.editPhone}
         </button>
       </div>
