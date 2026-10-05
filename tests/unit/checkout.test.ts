@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clearCheckoutDraft, clearCheckoutEmail, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft, readCheckoutEmail,
-  readPaymentGender, rememberCheckoutEmail, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
+  checkoutSteps, clearCheckoutDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
+  readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
 function memoryStorage(seed: Record<string, string> = {}) {
@@ -124,13 +124,6 @@ describe("session storage", () => {
     expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"weekly","name":"","email":"","installments":1}' }))).toBeNull();
     expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"annual","name":"","email":"","installments":13}' }))).toBeNull();
     expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"annual","name":"","email":"","installments":0}' }))).toBeNull();
-  });
-  it("remembers the invoice email for the success page", () => {
-    const storage = memoryStorage();
-    rememberCheckoutEmail("r@example.com", storage);
-    expect(readCheckoutEmail(storage)).toBe("r@example.com");
-    clearCheckoutEmail(storage);
-    expect(readCheckoutEmail(storage)).toBeNull();
   });
 });
 

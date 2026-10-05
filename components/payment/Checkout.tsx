@@ -9,7 +9,7 @@ import { CheckIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadSession } from "@/lib/funnel/storage";
 import {
-  checkoutSteps, isEmail, isFullName, readCheckoutDraft, readPaymentGender, saveCheckoutDraft, type CheckoutStep,
+  checkoutSteps, isEmail, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
 } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
@@ -36,12 +36,14 @@ async function loadIdentity(): Promise<Identity> {
 
 type Props = {
   plan: PlanId;
+  /** The draft PaymentFlow resumed the checkout from (read once there); null for a fresh checkout. */
+  initialDraft: CheckoutDraft | null;
   /** Returns the buyer to the plan cards above (the choice stays live). */
   onChangePlan: () => void;
 };
 
 /** The checkout steps under the plan selector: identity, invoice email, then the summary that hands off to Grow. */
-export default function Checkout({ plan, onChangePlan }: Props) {
+export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [steps, setSteps] = useState<CheckoutStep[]>([]);
   const [index, setIndex] = useState(0);
@@ -56,6 +58,8 @@ export default function Checkout({ plan, onChangePlan }: Props) {
   const [session] = useState(() => loadSession());
   const [gender] = useState(() => readPaymentGender());
   const heading = useRef<HTMLHeadingElement>(null);
+  // Only the draft the checkout opened with: later renders never restart the identity load below.
+  const resumed = useRef(initialDraft);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
 
   // First load, and again after Otp's router.push("/payment") remounts the page: resume from the draft.
@@ -63,7 +67,7 @@ export default function Checkout({ plan, onChangePlan }: Props) {
     let alive = true;
     void loadIdentity().then((loaded) => {
       if (!alive) return;
-      const draft = readCheckoutDraft();
+      const draft = resumed.current;
       const fullName = draft && isFullName(draft.name) ? draft.name : loaded.name;
       const draftEmail = draft?.email ?? "";
       const nextSteps = checkoutSteps(loaded.signedIn, isFullName(fullName));

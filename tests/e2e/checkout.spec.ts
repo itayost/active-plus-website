@@ -158,10 +158,7 @@ test("success page: gendered welcome, the invoice email, and the next steps once
   await stubFunctions(page);
   await openCheckout(page);
   await signUp(page);
-  await page.evaluate(() => {
-    sessionStorage.setItem("ap.funnel.gender", "female");
-    sessionStorage.setItem("ap.checkout.email", "r@example.com");
-  });
+  await page.evaluate(() => sessionStorage.setItem("ap.funnel.gender", "female"));
   await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(C.success.title.fem);
   await expect(page.getByText("r@example.com")).toBeVisible();
@@ -292,15 +289,17 @@ test("the consent row is one label at least 48px tall, and its text toggles the 
   await expect(box).toBeChecked();
 });
 
-test("the success page reads the invoice email once and removes it", async ({ page }) => {
+test("the success page reads the invoice email once from the draft stored before Grow, and removes it", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
-  await signUp(page);
-  await page.evaluate(() => sessionStorage.setItem("ap.checkout.email", "r@example.com"));
+  await signUp(page, "רחל כהן", "rachel@example.com");
+  await page.getByRole("button", { name: C.pay }).click();
+  await page.waitForURL(GROW_URL);
+  // Only the draft carries the address now: seeing it on the success page shows it was stored before the redirect.
   await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");
-  await expect(page.getByText("r@example.com")).toBeVisible();
-  expect(await page.evaluate(() => sessionStorage.getItem("ap.checkout.email"))).toBeNull();
+  await expect(page.getByText("rachel@example.com")).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toBeNull();
 });
 
 test.describe("accessibility", () => {
@@ -331,7 +330,8 @@ test.describe("accessibility", () => {
     await page.getByRole("button", { name: "המשך לרכישה" }).click();
     await expect(page.getByLabel(C.emailTitle)).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);
-    await page.evaluate(() => sessionStorage.setItem("ap.checkout.email", "r@example.com"));
+    await page.getByLabel(C.emailTitle).fill("r@example.com");
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toContain("r@example.com");
     await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");
     await expect(page.getByText(C.success.steps[1].title)).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);

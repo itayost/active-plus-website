@@ -152,8 +152,12 @@ export function readPaymentGender(storage: Store | undefined = browserSession())
 
 const DRAFT_KEY = "ap.checkout.draft";
 const MAX_INSTALLMENTS = Math.max(...PLANS.map((p) => p.maxInstallments));
-const EMAIL_KEY = "ap.checkout.email";
 
+/**
+ * What the buyer typed, kept in this tab until the success page: it reopens
+ * the checkout (Otp's remount, Grow's cancel URL), and the success page reads
+ * the invoice email from it, then removes it.
+ */
 export type CheckoutDraft = { plan: PlanId; name: string; email: string; installments: number };
 
 export function saveCheckoutDraft(draft: CheckoutDraft, storage: Store | undefined = browserSession()): void {
@@ -186,19 +190,6 @@ export function resumableDraft(draft: CheckoutDraft | null, linkPlan: PlanId | u
 
 export function clearCheckoutDraft(storage: Store | undefined = browserSession()): void {
   safeWrite(storage, DRAFT_KEY, null);
-}
-
-export function rememberCheckoutEmail(email: string, storage: Store | undefined = browserSession()): void {
-  safeWrite(storage, EMAIL_KEY, email);
-}
-
-export function readCheckoutEmail(storage: Store | undefined = browserSession()): string | null {
-  return safeRead(storage, EMAIL_KEY);
-}
-
-/** The success page reads the address once, then removes it: nothing personal stays in the tab. */
-export function clearCheckoutEmail(storage: Store | undefined = browserSession()): void {
-  safeWrite(storage, EMAIL_KEY, null);
 }
 
 type Listenable = Pick<EventTarget, "addEventListener" | "removeEventListener">;

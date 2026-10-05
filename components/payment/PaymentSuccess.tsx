@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { LINKISH } from "@/components/funnel/parts";
 import { CheckIcon } from "@/components/ui/icons";
 import type { Answers } from "@/lib/funnel/types";
-import { clearCheckoutDraft, clearCheckoutEmail, readCheckoutEmail, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
+import { clearCheckoutDraft, readCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
@@ -24,12 +24,10 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     let alive = true;
-    // Read once, then removed (a second effect run finds nothing and keeps the first read).
-    const saved = readCheckoutEmail();
-    if (saved) {
-      setEmail(saved);
-      clearCheckoutEmail();
-    }
+    // The invoice email comes from the checkout draft, read once and then removed: nothing personal stays
+    // in the tab (a second effect run finds nothing and keeps the first read).
+    const saved = readCheckoutDraft()?.email;
+    if (saved) setEmail(saved);
     setGender(readPaymentGender());
     clearCheckoutDraft();
     void (async () => {

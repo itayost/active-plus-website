@@ -6,7 +6,7 @@ import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
 import Section from "@/components/ui/Section";
 import type { PlanId } from "@/lib/constants";
-import { clearCheckoutDraft, readCheckoutDraft, resumableDraft } from "@/lib/payment/checkout";
+import { clearCheckoutDraft, readCheckoutDraft, resumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { cn } from "@/lib/utils";
@@ -33,16 +33,19 @@ type Props = {
 export default function PaymentFlow({ linkPlan, cancelled = false, children }: Props) {
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
   const [stage, setStage] = useState<"plans" | "checkout">("plans");
+  // The stored draft, read once here and handed to the checkout it reopens.
+  const [draft, setDraft] = useState<CheckoutDraft | null>(null);
 
   useEffect(() => {
     if (!WEB_CHECKOUT_ENABLED) return;
     const stored = readCheckoutDraft();
-    const draft = resumableDraft(stored, linkPlan);
-    if (!draft) {
+    const resumable = resumableDraft(stored, linkPlan);
+    if (!resumable) {
       if (stored) clearCheckoutDraft();
       return;
     }
-    setSelectedPlan(draft.plan);
+    setDraft(resumable);
+    setSelectedPlan(resumable.plan);
     setStage("checkout");
   }, [linkPlan]);
 
@@ -85,7 +88,7 @@ export default function PaymentFlow({ linkPlan, cancelled = false, children }: P
         />
         {WEB_CHECKOUT_ENABLED ? null : <StoreFallback />}
       </Section>
-      {checkoutOpen ? <Checkout plan={selectedPlan} onChangePlan={changePlan} /> : null}
+      {checkoutOpen ? <Checkout plan={selectedPlan} initialDraft={draft} onChangePlan={changePlan} /> : null}
     </>
   );
 }

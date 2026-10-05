@@ -6,7 +6,7 @@ import { fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
-import { onRestoredFromCache, rememberCheckoutEmail, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
+import { onRestoredFromCache, saveCheckoutDraft, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C, gendered } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
 import { formatShekel, installmentAmount } from "@/lib/pricing";
@@ -57,7 +57,8 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
       ? await startPayment(supabase, { plan: toWebPlan(plan), installments: annual ? installments : 1, fullName: name, email, tokenConsent: annual && consent })
       : ({ error: "network" } as const);
     if ("url" in result) {
-      rememberCheckoutEmail(email);
+      // Stored before leaving for Grow: the success page reads the invoice email from the draft.
+      saveCheckoutDraft({ plan, name, email, installments });
       window.location.assign(result.url);
       return;
     }
