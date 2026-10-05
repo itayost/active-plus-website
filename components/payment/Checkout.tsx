@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import Otp from "@/components/funnel/Otp";
 import { LINKISH } from "@/components/funnel/parts";
 import Register from "@/components/funnel/Register";
@@ -17,6 +17,7 @@ import { formatShekel } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { EmailStep, NameStep } from "./CheckoutFields";
+import { CheckoutLoading, CheckoutShell } from "./CheckoutShell";
 import CheckoutSummary from "./CheckoutSummary";
 
 type Identity = { signedIn: boolean; name: string; phone: string | null };
@@ -134,13 +135,7 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
     setIndex(signedOutSteps.indexOf("phone"));
   };
 
-  if (!identity) {
-    return (
-      <CheckoutShell busy>
-        <p className="text-lead">{C.loading}</p>
-      </CheckoutShell>
-    );
-  }
+  if (!identity) return <CheckoutLoading />;
 
   const body = editingName ? (
     <NameStep value={name} onChange={typeName} submitLabel={C.save} onSubmit={(value) => { setName(value); setEditingName(false); }} />
@@ -218,18 +213,6 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
         </div>
       ) : null}
     </CheckoutShell>
-  );
-}
-
-/** The checkout's own sunken section under the plans: heading, then the white step card (mockup: 900px column). */
-function CheckoutShell({ header, busy = false, children }: { header?: ReactNode; busy?: boolean; children: ReactNode }) {
-  return (
-    <section id="checkout" aria-labelledby={header ? "checkout-heading" : undefined} aria-busy={busy || undefined} className="bg-sunken py-[var(--section-y)]">
-      <div className="mx-auto w-full max-w-[56.25rem] gutter-x">
-        {header}
-        <div className={cn("rounded-card bg-surface p-[clamp(1.25rem,3.5vw,2.5rem)] shadow-lift-2", header ? "mt-7" : "")}>{children}</div>
-      </div>
-    </section>
   );
 }
 

@@ -11,11 +11,11 @@ import {
 } from "@/lib/payment/account";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
 import { loadBrowserSupabase, loadSupabaseSession } from "@/lib/supabase/lazy";
-import PhoneSignIn from "./PhoneSignIn";
 
 type Notice = "cancelled" | "failed" | null;
+type SignInForm = (typeof import("./PhoneSignIn"))["default"];
 type View =
-  | { kind: "loading" } | { kind: "signedOut" } | { kind: "none" } | { kind: "error" }
+  | { kind: "loading" } | { kind: "signedOut"; SignIn: SignInForm } | { kind: "none" } | { kind: "error" }
   | { kind: "ready"; sub: SubscriptionInfo; confirming: boolean; cancelling: boolean; notice: Notice };
 
 /** Where focus goes after a change the visitor caused: the element that now says what happened. */
@@ -28,6 +28,14 @@ const FOCUS = {
 } as const;
 
 const TEXT_LINK = "inline-flex min-h-12 items-center font-bold underline underline-offset-4";
+
+/**
+ * Only a signed-out visitor needs the sign-in form, so its code is not in the
+ * page's bundle: it is fetched beside the session check, under the loading
+ * line (null when the fetch fails). A plain import, not next/dynamic: a
+ * Suspense fallback would show a second loading line for at least 300ms.
+ */
+const loadSignInForm = (): Promise<SignInForm | null> => import("./PhoneSignIn").then((m) => m.default, () => null);
 
 /** A store subscription is cancelled in its store: what to say, and where to link. */
 const STORE = {
@@ -67,10 +75,14 @@ export default function SubscriptionManager() {
   /** `moveFocus`: the visitor asked for this (sign-in, retry), so focus follows the result. The first load leaves focus alone. */
   const load = useCallback(async (moveFocus: boolean) => {
     show({ kind: "loading" });
+    const signInForm = loadSignInForm();
     const supabase = await loadSupabaseSession();
-    if (!supabase) return show({ kind: "signedOut" });
-    const sub = await loadSubscription(supabase);
     const focusIf = (id: string) => (moveFocus ? id : null);
+    if (!supabase) {
+      const SignIn = await signInForm;
+      return show(SignIn ? { kind: "signedOut", SignIn } : { kind: "error" }, SignIn ? null : focusIf(FOCUS.error));
+    }
+    const sub = await loadSubscription(supabase);
     if (sub === "error") return show({ kind: "error" }, focusIf(FOCUS.error));
     if (!sub) return show({ kind: "none" }, focusIf(FOCUS.none));
     show({ kind: "ready", sub, confirming: false, cancelling: false, notice: null }, focusIf(FOCUS.plan));
@@ -100,7 +112,7 @@ export default function SubscriptionManager() {
     return (
       <div>
         <p className="mb-6 text-lead">{A.signedOut}</p>
-        <PhoneSignIn onSignedIn={() => void load(true)} />
+        <view.SignIn onSignedIn={() => void load(true)} />
       </div>
     );
   }
