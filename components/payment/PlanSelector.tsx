@@ -6,7 +6,8 @@ import { PLAN_INCLUDES, PLANS, type PlanId } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { annualSavings, formatShekel } from "@/lib/pricing";
 
-const PAYMENT_METHODS = ["Bit", "Apple Pay", "Google Pay", "Visa", "Mastercard"] as const;
+// Grow's hosted pages: card for both plans. Task 9 adds Bit / Apple Pay / Google Pay if the one-time page shows them.
+const PAYMENT_METHODS = ["Visa", "Mastercard"] as const;
 const GROUP_LABEL_ID = "plan-group-label";
 
 type Props = {

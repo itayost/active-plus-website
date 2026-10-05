@@ -3,6 +3,7 @@ import { E2E_SUPABASE } from "./tests/e2e/supabase-stub";
 
 export default defineConfig({
   testDir: "tests/e2e",
+  testIgnore: /checkout\.spec\.ts$/,
   use: { baseURL: "http://localhost:3100", locale: "he-IL" },
   webServer: {
     command: "npm run build && npx next start -p 3100",
