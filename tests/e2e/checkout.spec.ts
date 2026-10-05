@@ -179,6 +179,8 @@ test("editing the email from the summary after verifying returns to the summary 
   await expect(page.getByRole("heading", { name: C.summaryTitle })).toBeVisible();
   await expect(page.getByText("rachel@example.com")).toBeVisible();
   expect(supabase.to("/auth/v1/otp")).toHaveLength(1);
+  // The checkout creates the account for a new number (only the account page signs in existing ones).
+  expect(supabase.to("/auth/v1/otp")[0].body).toMatchObject({ create_user: true });
 });
 
 test("a session without a usable phone is sent back to verify it (400 on the phone field)", async ({ page }) => {
@@ -317,9 +319,15 @@ test("subscription page: a monthly web subscriber signs in and cancels after con
 
 const EXPIRES = "2026-11-07T10:00:00.000Z";
 const EXPIRES_HE = "7 בנובמבר 2026";
+/** checkUserSubscription's nextChargeAt: two grace days before access ends. */
+const NEXT_CHARGE = "2026-11-05T10:00:00.000Z";
+const NEXT_CHARGE_HE = "5 בנובמבר 2026";
 const subscription = (overrides: Record<string, unknown> = {}): Reply => ({
   status: 200,
-  body: { hasAccess: true, subscription: { id: "s1", planType: "MONTHLY", expiresAt: EXPIRES, autoRenew: true, platform: "grow", ...overrides } },
+  body: {
+    hasAccess: true,
+    subscription: { id: "s1", planType: "MONTHLY", expiresAt: EXPIRES, autoRenew: true, platform: "grow", nextChargeAt: NEXT_CHARGE, ...overrides },
+  },
 });
 
 /** Answers cancelGrowSubscription; returns the number of POSTs it saw. */
@@ -362,7 +370,7 @@ test.describe("subscription page", () => {
     await page.getByLabel(A.codeLabel).fill(GOOD_CODE);
     await page.getByRole("button", { name: A.verify }).click();
     await expect(page.getByRole("heading", { name: A.plans.MONTHLY })).toBeFocused();
-    await expect(page.getByText(A.nextCharge.replace("{date}", EXPIRES_HE))).toBeVisible();
+    await expect(page.getByText(A.nextCharge.replace("{date}", NEXT_CHARGE_HE))).toBeVisible();
     await page.getByRole("button", { name: A.cancel }).click();
     await expect(page.getByRole("heading", { name: A.confirmTitle })).toBeFocused();
     await expect(page.getByText(A.confirmBody.replace("{date}", EXPIRES_HE))).toBeVisible();
@@ -396,7 +404,7 @@ test.describe("subscription page", () => {
     const alert = page.getByRole("alert").filter({ hasText: A.cancelFailed });
     await expect(alert).toBeFocused();
     await expect(alert.getByRole("link")).toHaveAttribute("href", "tel:+972737296699");
-    await expect(page.getByText(A.nextCharge.replace("{date}", EXPIRES_HE))).toBeVisible();
+    await expect(page.getByText(A.nextCharge.replace("{date}", NEXT_CHARGE_HE))).toBeVisible();
     await expect(page.getByRole("button", { name: A.cancel })).toBeVisible();
     expect(cancel.posts).toBe(1);
   });
@@ -429,6 +437,41 @@ test.describe("subscription page", () => {
     await page.reload();
     await expect(page.getByText(A.manual)).toBeVisible();
     await expect(page.locator("#subscription").getByRole("link", { name: "073-729-66-99" })).toHaveAttribute("href", "tel:+972737296699");
+  });
+
+  test("the next charge is the standing order's day; access, the confirmation and the cancel notice keep the end date", async ({ page }) => {
+    await stubSupabase(page, { profileName: "רחל כהן" });
+    await stubFunctions(page, OK, subscription());
+    await stubCancel(page);
+    await signInToAccount(page);
+    await expect(page.getByText(A.nextCharge.replace("{date}", NEXT_CHARGE_HE))).toBeVisible();
+    await expect(page.getByText(EXPIRES_HE)).toHaveCount(0);
+    await page.getByRole("button", { name: A.cancel }).click();
+    await expect(page.getByText(A.confirmBody.replace("{date}", EXPIRES_HE))).toBeVisible();
+    await page.getByRole("button", { name: A.confirmYes }).click();
+    await expect(page.getByRole("status").filter({ hasText: A.cancelled.replace("{date}", EXPIRES_HE) })).toBeVisible();
+    await expect(page.getByText(NEXT_CHARGE_HE)).toHaveCount(0);
+  });
+
+  test("an older function without nextChargeAt shows how long access lasts, and still offers the cancel", async ({ page }) => {
+    await stubSupabase(page, { profileName: "רחל כהן" });
+    await stubFunctions(page, OK, subscription({ nextChargeAt: undefined }));
+    await signInToAccount(page);
+    await expect(page.getByText(A.activeUntil.replace("{date}", EXPIRES_HE))).toBeVisible();
+    await expect(page.getByRole("button", { name: A.cancel })).toBeVisible();
+  });
+
+  test("a number with no account is told so, and no account is created", async ({ page }) => {
+    const supabase = await stubSupabase(page, { otpStatuses: [422], otpErrorCode: "otp_disabled" });
+    await stubFunctions(page, OK, subscription());
+    await page.goto("/account/subscription");
+    await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
+    await page.getByRole("button", { name: COPY.register.phoneCta }).click();
+    await expect(page.getByRole("alert").filter({ hasText: A.noAccount })).toBeVisible();
+    await expect(page.getByLabel(COPY.register.phoneLabel, { exact: true })).toBeFocused();
+    await expect(page.getByLabel(A.codeLabel)).toHaveCount(0);
+    expect(supabase.to("/auth/v1/otp").map((c) => (c.body as { create_user?: unknown }).create_user)).toEqual([false]);
+    expect(supabase.to("/auth/v1/verify")).toHaveLength(0);
   });
 
   test("an annual web subscription explains it does not renew", async ({ page }) => {

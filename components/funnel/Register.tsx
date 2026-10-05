@@ -76,9 +76,13 @@ type PhoneProps = {
   onSent: (phone: string) => void;
   /** True while the code is being sent: the funnel's back is hidden, as on otp. */
   onBusy: (busy: boolean) => void;
+  accountOnly?: AccountOnly;
 };
 
-function PhoneStep({ gender, initialPhone, onSent, onBusy }: PhoneProps) {
+/** Sign-in for existing accounts only (the account page): no user is ever created; `notFound` is shown for an unknown number. */
+export type AccountOnly = { notFound: string };
+
+function PhoneStep({ gender, initialPhone, onSent, onBusy, accountOnly }: PhoneProps) {
   const [phone, setPhone] = useState(initialPhone);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -109,10 +113,11 @@ function PhoneStep({ gender, initialPhone, onSent, onBusy }: PhoneProps) {
     if (!isIsraeliMobile(phone)) return fail(C.phoneError);
     setSending(true);
     const supabase = await loadBrowserSupabase();
-    const result = supabase ? await sendCode(supabase, toE164(phone)) : "error";
+    const result = supabase ? await sendCode(supabase, toE164(phone), { existingOnly: Boolean(accountOnly) }) : "error";
     if (!alive.current) return;
     setSending(false);
     if (result === "ok") return onSent(phone.trim());
+    if (result === "noAccount" && accountOnly) return fail(accountOnly.notFound);
     fail(result === "rateLimited" ? COPY.otp.rateLimited : C.sendFailed);
   };
 
@@ -177,16 +182,18 @@ type Props = {
   onName: (name: string) => void;
   onCodeSent: (phone: string) => void;
   onBusy: (busy: boolean) => void;
+  /** Omitted in the funnel and the checkout, which create the account. */
+  accountOnly?: AccountOnly;
 };
 
 /** register: the name, then the phone the code is sent to. */
-export default function Register({ view, gender, name, onNameChange, onName, onCodeSent, onBusy }: Props) {
+export default function Register({ view, gender, name, onNameChange, onName, onCodeSent, onBusy, accountOnly }: Props) {
   // Start fetching the Supabase client while the visitor types, so the send does not wait for it.
   useEffect(() => {
     void loadBrowserSupabase();
   }, []);
   if (view.sub === "phone") {
-    return <PhoneStep gender={gender} initialPhone={view.phone} onSent={onCodeSent} onBusy={onBusy} />;
+    return <PhoneStep gender={gender} initialPhone={view.phone} onSent={onCodeSent} onBusy={onBusy} accountOnly={accountOnly} />;
   }
   return <NameStep gender={gender} name={name} onChange={onNameChange} onSubmit={onName} />;
 }

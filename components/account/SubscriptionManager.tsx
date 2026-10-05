@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import PhoneNumber from "@/components/ui/PhoneNumber";
 import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
 import {
-  APPLE_MANAGE_URL, cancelWebSubscription, formatIsraelDate, GOOGLE_MANAGE_URL, loadSubscription, manageAction,
+  APPLE_MANAGE_URL, cancelWebSubscription, chargeLine, formatIsraelDate, GOOGLE_MANAGE_URL, loadSubscription, manageAction,
   type SubscriptionInfo,
 } from "@/lib/payment/account";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
@@ -114,14 +114,16 @@ export default function SubscriptionManager() {
 
   const { sub, confirming, cancelling, notice } = view;
   const action = manageAction(sub);
+  // Access ends on expiresAt; a renewing monthly's line shows the charge day instead.
   const date = formatIsraelDate(sub.expiresAt);
+  const line = chargeLine(sub);
   return (
     <div className="grid gap-5">
       <h2 id={FOCUS.plan} tabIndex={-1} className="font-display text-h3 font-bold outline-none">{A.plans[sub.planType] ?? sub.planType}</h2>
-      {action === "cancelled" && !notice ? (
+      {line.text === "cancelled" && !notice ? (
         <p className="text-lead">{A.cancelled.replace("{date}", date)}</p>
       ) : (
-        <p className="text-lead">{(action === "cancel" ? A.nextCharge : A.activeUntil).replace("{date}", date)}</p>
+        <p className="text-lead">{(line.text === "nextCharge" ? A.nextCharge : A.activeUntil).replace("{date}", formatIsraelDate(line.date))}</p>
       )}
       {notice === "cancelled" ? (
         <p id={FOCUS.notice} tabIndex={-1} role="status" className="rounded-field bg-green-wash px-4 py-3 text-lead font-medium outline-none">

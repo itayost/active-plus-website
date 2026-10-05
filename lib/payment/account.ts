@@ -2,7 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Invoker = Pick<SupabaseClient, "functions">;
 
-export type SubscriptionInfo = { planType: string; expiresAt: string; autoRenew: boolean; platform: string | null };
+export type SubscriptionInfo = {
+  planType: string;
+  expiresAt: string;
+  autoRenew: boolean;
+  platform: string | null;
+  /** A renewing web monthly's next charge day (checkUserSubscription); null from older functions and for everything else. */
+  nextChargeAt: string | null;
+};
 export type ManageAction = "cancel" | "cancelled" | "annual" | "apple" | "google" | "manual";
 export type CancelResult = "cancelled" | "already_cancelled" | "not_found" | "not_cancelable" | "error";
 
@@ -18,6 +25,21 @@ export function manageAction(sub: SubscriptionInfo): ManageAction {
   return sub.autoRenew ? "cancel" : "cancelled";
 }
 
+export type ChargeLine = { text: "nextCharge" | "activeUntil" | "cancelled"; date: string };
+
+/**
+ * The line under the plan: a renewing web monthly shows its next charge day
+ * (access runs two grace days past it); a cancelled one says so with the day
+ * access ends; everything else, and a renewing monthly without a charge day
+ * from an older function, shows how long access lasts.
+ */
+export function chargeLine(sub: SubscriptionInfo): ChargeLine {
+  const action = manageAction(sub);
+  if (action === "cancelled") return { text: "cancelled", date: sub.expiresAt };
+  if (action === "cancel" && sub.nextChargeAt) return { text: "nextCharge", date: sub.nextChargeAt };
+  return { text: "activeUntil", date: sub.expiresAt };
+}
+
 /** The signed-in user's active subscription (checkUserSubscription reads the user from the session). */
 export async function loadSubscription(supabase: Invoker): Promise<SubscriptionInfo | null | "error"> {
   try {
@@ -31,6 +53,7 @@ export async function loadSubscription(supabase: Invoker): Promise<SubscriptionI
       expiresAt: s.expiresAt,
       autoRenew: s.autoRenew === true,
       platform: typeof s.platform === "string" ? s.platform : null,
+      nextChargeAt: typeof s.nextChargeAt === "string" ? s.nextChargeAt : null,
     };
   } catch {
     return "error";

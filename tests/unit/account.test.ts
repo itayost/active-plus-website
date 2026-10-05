@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { cancelWebSubscription, formatIsraelDate, loadSubscription, manageAction } from "@/lib/payment/account";
+import { cancelWebSubscription, chargeLine, formatIsraelDate, loadSubscription, manageAction } from "@/lib/payment/account";
+import { ACCOUNT_COPY, CHECKOUT_COPY } from "@/lib/payment/copy";
 
-const SUB = { planType: "MONTHLY", expiresAt: "2026-11-07T10:00:00.000Z", autoRenew: true, platform: "grow" };
+const SUB = {
+  planType: "MONTHLY", expiresAt: "2026-11-07T10:00:00.000Z", autoRenew: true, platform: "grow", nextChargeAt: "2026-11-05T10:00:00.000Z",
+};
 const invoker = (result: unknown) => ({ functions: { invoke: vi.fn().mockResolvedValue(result) } });
 const httpError = (status: number) => ({ data: null, error: { context: { status } } });
 
@@ -33,7 +36,7 @@ describe("loadSubscription", () => {
   it("an older function without platform, or a non-string one, reads as no platform", async () => {
     const withoutPlatform = { planType: SUB.planType, expiresAt: SUB.expiresAt, autoRenew: SUB.autoRenew };
     expect(await loadSubscription(invoker({ data: { hasAccess: true, subscription: withoutPlatform }, error: null }) as never))
-      .toEqual({ ...SUB, platform: null });
+      .toEqual({ ...SUB, platform: null, nextChargeAt: null });
     expect(await loadSubscription(invoker({ data: { hasAccess: true, subscription: { ...SUB, platform: 7 } }, error: null }) as never))
       .toEqual({ ...SUB, platform: null });
   });
@@ -74,4 +77,52 @@ it("formats dates on the Israel calendar (23:30 UTC is already the next day ther
 
 it("formats summer dates on Israel daylight time too", () => {
   expect(formatIsraelDate("2026-07-31T21:30:00.000Z")).toBe("1 באוגוסט 2026");
+});
+
+// ---- final review --------------------------------------------------------------
+
+describe("nextChargeAt", () => {
+  it("is read when the function sends it, null otherwise", async () => {
+    expect((await loadSubscription(invoker({ data: { hasAccess: true, subscription: SUB }, error: null }) as never) as { nextChargeAt: unknown }).nextChargeAt)
+      .toBe("2026-11-05T10:00:00.000Z");
+    const odd = { ...SUB, nextChargeAt: 5 };
+    expect((await loadSubscription(invoker({ data: { hasAccess: true, subscription: odd }, error: null }) as never) as { nextChargeAt: unknown }).nextChargeAt)
+      .toBeNull();
+  });
+});
+
+describe("chargeLine", () => {
+  it("a renewing web monthly shows the real charge day, two days before access ends", () => {
+    expect(chargeLine(SUB)).toEqual({ text: "nextCharge", date: "2026-11-05T10:00:00.000Z" });
+  });
+  it("without a charge day (an older function, or nothing renewing) it shows how long access lasts", () => {
+    expect(chargeLine({ ...SUB, nextChargeAt: null })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
+    expect(chargeLine({ ...SUB, platform: "apple" })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
+    expect(chargeLine({ ...SUB, planType: "ANNUAL", nextChargeAt: null })).toEqual({ text: "activeUntil", date: SUB.expiresAt });
+  });
+  it("a cancelled monthly says it was cancelled, with the day access ends", () => {
+    expect(chargeLine({ ...SUB, autoRenew: false, nextChargeAt: null })).toEqual({ text: "cancelled", date: SUB.expiresAt });
+  });
+});
+
+describe("copy the client approves", () => {
+  it("the annual note covers installment buyers: monthly charges until the last installment, then none", () => {
+    expect(ACCOUNT_COPY.annualNote).toContain("בתשלומים");
+    expect(ACCOUNT_COPY.annualNote).toContain("עד התשלום האחרון");
+    expect(ACCOUNT_COPY.annualNote).toContain("לא יהיה חיוב נוסף");
+  });
+  it("the success page never claims the invoice was already sent", () => {
+    for (const text of [CHECKOUT_COPY.success.received, CHECKOUT_COPY.success.receivedNoEmail]) {
+      expect(text).toContain("תישלח");
+      expect(text).not.toMatch(/נשלחה|נשלחת/);
+    }
+    expect(CHECKOUT_COPY.success.received).toContain("{email}");
+  });
+  it("no account for the number is said plainly, with the office phone", () => {
+    expect(ACCOUNT_COPY.noAccount).toContain("073-729-66-99");
+  });
+  it("no em or en dashes in the new strings", () => {
+    const texts = [ACCOUNT_COPY.annualNote, ACCOUNT_COPY.noAccount, CHECKOUT_COPY.success.received, CHECKOUT_COPY.success.receivedNoEmail];
+    expect(texts.filter((t) => /[\u2013\u2014]/.test(t))).toEqual([]);
+  });
 });

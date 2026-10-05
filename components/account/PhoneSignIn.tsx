@@ -18,14 +18,17 @@ const VERIFY_ERROR: Record<Exclude<VerifyResult, "ok">, string> = {
   rateLimited: COPY.otp.rateLimited,
   error: COPY.otp.verifyFailed,
 };
+// Signing in here must never create an account for a number that has none.
+const ACCOUNT_ONLY = { notFound: A.noAccount };
 const LINKISH =
   "mt-4 inline-flex min-h-12 items-center rounded-[10px] px-2 font-bold text-blue-deep underline underline-offset-4 hover:bg-blue-wash " +
   "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-transparent";
 
 /**
- * Sign-in for the subscription page: Register's phone step sends the code,
- * this form verifies it. No questionnaire merge: an account page must never
- * create or change a profile.
+ * Sign-in for the subscription page: Register's phone step sends the code
+ * (existing accounts only: shouldCreateUser is off, so an unknown number gets
+ * "no account" and no auth user), this form verifies it. No questionnaire
+ * merge: an account page must never create or change a profile.
  */
 export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) {
   // The number the code went to; null while it is being typed. `lastPhone` refills "ערוך מספר".
@@ -84,6 +87,7 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
           setPhone(sent);
         }}
         onBusy={setBusy}
+        accountOnly={ACCOUNT_ONLY}
       />
     );
   }

@@ -1,3 +1,4 @@
+import { CONTACT_PHONE } from "@/lib/constants";
 import { g } from "@/lib/funnel/copy";
 import type { Answers } from "@/lib/funnel/types";
 
@@ -50,8 +51,9 @@ export const CHECKOUT_COPY = {
     title: { fem: "ברוכה הבאה לפעילים+", masc: "ברוך הבא לפעילים+" },
     titleNeutral: "ברוכים הבאים לפעילים+",
     checking: "בודקים את המנוי",
-    received: "התשלום התקבל, והחשבונית נשלחה ל־{email}.",
-    receivedNoEmail: "התשלום התקבל, והחשבונית נשלחת לאימייל שמסרת.",
+    // The invoice is issued by the webhook, which may still be running when this page shows.
+    received: "התשלום התקבל, והחשבונית תישלח ל־{email}.",
+    receivedNoEmail: "התשלום התקבל, והחשבונית תישלח לכתובת האימייל שמסרת.",
     pending: "התשלום התקבל ואנחנו מסיימים להפעיל את המנוי. זה יכול לקחת כמה דקות.",
     steps: [
       { title: "מורידים את האפליקציה", body: "פעילים+ זמינה לאייפון ולאנדרואיד." },
@@ -67,6 +69,7 @@ export const ACCOUNT_COPY = {
   title: "ניהול מנוי",
   loading: "טוענים את המנוי",
   signedOut: "כדי לנהל את המנוי צריך לאמת את מספר הטלפון שאיתו נרשמת.",
+  noAccount: `לא מצאנו חשבון עם המספר הזה. כדאי לבדוק את המספר, או להתקשר אלינו ל־${CONTACT_PHONE}.`,
   codeLabel: "הקוד שקיבלת ב־SMS",
   verify: "אימות",
   none: "לא מצאנו מנוי פעיל למספר הזה.",
@@ -75,7 +78,7 @@ export const ACCOUNT_COPY = {
   plans: { ANNUAL: "מנוי שנתי", MONTHLY: "מנוי חודשי" } as Record<string, string>,
   nextCharge: "החיוב הבא: {date}",
   activeUntil: "המנוי פעיל עד {date}",
-  annualNote: "המנוי השנתי לא מתחדש אוטומטית, ולא יהיה חיוב נוסף.",
+  annualNote: "המנוי השנתי לא מתחדש אוטומטית. אם בחרת לשלם בתשלומים, הכרטיס יחויב פעם בחודש עד התשלום האחרון, ואחרי זה לא יהיה חיוב נוסף.",
   cancel: "ביטול המנוי",
   confirmTitle: "לבטל את המנוי החודשי?",
   confirmBody: "לא יהיו חיובים נוספים. אפשר להמשיך להתאמן עד {date}.",
