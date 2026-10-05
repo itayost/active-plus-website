@@ -268,26 +268,28 @@ test.describe("accessibility", () => {
   };
 
   test("every checkout step, the error and the success page have no serious axe violations", async ({ page }) => {
+    // Polled: after Otp's router.push("/payment") Next drops and re-adds <title> while the navigation commits,
+    // and a single axe run can land in that gap (document-title). A lasting violation still fails at the timeout.
     await stubSupabase(page, SIGN_UP_STUB);
     await stubFunctions(page, { status: 409, body: { code: "already_subscribed" } });
     await openCheckout(page);
-    expect(await serious(page)).toEqual([]);
+    await expect.poll(() => serious(page)).toEqual([]);
     await page.getByRole("button", { name: C.next }).click();
-    expect(await serious(page)).toEqual([]);
+    await expect.poll(() => serious(page)).toEqual([]);
     await signUp(page);
-    expect(await serious(page)).toEqual([]);
+    await expect.poll(() => serious(page)).toEqual([]);
     await page.getByRole("button", { name: C.pay }).click();
     await expect(page.getByRole("alert").filter({ hasText: C.errors.already_subscribed })).toBeVisible();
-    expect(await serious(page)).toEqual([]);
+    await expect.poll(() => serious(page)).toEqual([]);
     await page.evaluate(() => sessionStorage.removeItem("ap.checkout.draft"));
     await page.goto("/payment");
     await page.getByRole("button", { name: "המשך לרכישה" }).click();
     await expect(page.getByLabel(C.emailTitle)).toBeVisible();
-    expect(await serious(page)).toEqual([]);
+    await expect.poll(() => serious(page)).toEqual([]);
     await page.evaluate(() => sessionStorage.setItem("ap.checkout.email", "r@example.com"));
     await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");
     await expect(page.getByText(C.success.steps[1].title)).toBeVisible();
-    expect(await serious(page)).toEqual([]);
+    await expect.poll(() => serious(page)).toEqual([]);
   });
 });
 
