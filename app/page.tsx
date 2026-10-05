@@ -1,5 +1,5 @@
 import Hero from "@/components/home/Hero";
-import ClientsRing from "@/components/home/ClientsRing";
+import ChoosingDaily from "@/components/home/ChoosingDaily";
 import Intro from "@/components/home/Intro";
 import WhatMatters from "@/components/home/WhatMatters";
 import FeatureCards from "@/components/home/FeatureCards";
@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <ClientsRing />
+      <ChoosingDaily />
       <Intro />
       <WhatMatters />
       <FeatureCards />

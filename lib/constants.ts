@@ -89,6 +89,10 @@ export const FEATURE_CARDS = [
     ],
     href: "/personal-plan",
     image: "/img/v2/card-personal-plan.webp",
+    // A tall portrait in a wider frame: centred, the crop cut his head off.
+    // Phones show about half the height, so aim high (head + exercise list);
+    // the desktop frame shows about two thirds, enough for head to shoes.
+    focus: { base: "50% 15%", lg: "50% 26%" },
     alt: "מבוגר בתרגיל מכרע צידי בסלון, לצד רשימת התרגילים שלו",
   },
   {
