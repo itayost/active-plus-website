@@ -3,16 +3,12 @@
 import { Shell } from "@/components/ui/Section";
 import CarouselArrows from "@/components/ui/CarouselArrows";
 import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
+import ReviewSourceLogo from "@/components/ui/ReviewSourceLogo";
 import { TESTIMONIALS } from "@/content/home";
 
-const SOURCE_LABEL = {
-  google: "ביקורת בגוגל",
-  facebook: "ביקורת בפייסבוק",
-} as const;
-
 /**
- * Written reviews only, no star ratings (none were supplied) and no
- * third-party logos: the source is a text label.
+ * Written reviews only, no star ratings (none were supplied). The source
+ * shows as the Google or Facebook mark, with its name for screen readers.
  *
  * TODO(brief): 3-4 testimonial videos are pending from the client. When they
  * arrive they enter above this track as a row of circles with a play button.
@@ -57,9 +53,9 @@ export default function Testimonials() {
             className="w-[min(84vw,600px)] shrink-0 snap-start"
           >
             <article className="flex h-full flex-col rounded-card bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1">
-              <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <header className="flex items-center justify-between gap-4">
                 <h3 className="font-display text-h3 font-bold">{item.name}</h3>
-                <p className="text-ink-soft">{SOURCE_LABEL[item.source]}</p>
+                <ReviewSourceLogo source={item.source} />
               </header>
               <blockquote className="mt-5 text-lead text-ink-soft">{item.quote}</blockquote>
             </article>
