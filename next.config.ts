@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { LEGACY_REDIRECTS } from "./lib/redirects";
+import { HOST_REDIRECTS, buildRewrites } from "./lib/domains";
 import { MEDIA_CACHE_RULES } from "./lib/cache-headers";
 import { buildCsp } from "./lib/security/csp";
 
@@ -15,7 +16,12 @@ const nextConfig: NextConfig = {
   // else, including Vercel, so production builds keep the default.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   async redirects() {
-    return LEGACY_REDIRECTS.map((r) => ({ ...r, permanent: true }));
+    // Host redirects first: on the old domain, a legacy path goes straight to
+    // the new apex and is then mapped there, never resolved on the old host.
+    return [...HOST_REDIRECTS, ...LEGACY_REDIRECTS.map((r) => ({ ...r, permanent: true }))];
+  },
+  async rewrites() {
+    return buildRewrites(process.env.NEXT_PUBLIC_SUPABASE_URL);
   },
   async headers() {
     return [

@@ -1,6 +1,8 @@
+import { CANONICAL_HOST } from "./domains";
+
 export const SITE_NAME = "פעילים+";
 export const SITE_NAME_FULL = "פעילים פלוס";
-export const SITE_URL = "https://activeplus.co.il";
+export const SITE_URL = `https://${CANONICAL_HOST}`;
 
 export const CONTACT_EMAIL = "office@improve-movement.co.il";
 export const CONTACT_PHONE = "073-729-66-99";
