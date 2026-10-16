@@ -445,28 +445,6 @@ html {
   }
 }
 
-/*
-  The team list sets each member as a 7.5rem photo beside the name and bio.
-  Below 17rem (130% on 390px) the bio was a few characters wide; the member
-  stacks instead, photo above text. Measured in rem, so it tracks the text
-  size as well as the screen; it cannot match at the default size on any
-  screen from 320px up.
-*/
-.team-list {
-  container-type: inline-size;
-}
-
-@container (width < 17rem) {
-  .team-list > li {
-    display: block;
-  }
-
-  .team-list > li > img {
-    width: min(7.5rem, 50%);
-    margin-bottom: 1.25rem;
-  }
-}
-
 /* A returning visitor's saved step replaces the server-rendered welcome2 on
    mount. Until then (flag set by lib/funnel/resume-script, cleared by Funnel)
    welcome2 keeps its height but is not shown, announced or clickable. */

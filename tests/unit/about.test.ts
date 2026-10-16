@@ -1,15 +1,44 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { ABOUT, TEAM } from "@/content/pages";
+import { ABOUT, CONTACT, RESEARCH, TEAM } from "@/content/pages";
 
 describe("about", () => {
-  it("opens with the personal story", () => {
-    expect(ABOUT.title).toBe("הרעיון התחיל מסיפור אישי");
+  it("is Midad's letter", () => {
+    expect(ABOUT.title).toBe("הגוף והמוח שלך עובדים יחד");
+    expect(ABOUT.heading).toBe("למה הקמתי את פעילים+");
+    expect(ABOUT.closer).toBe("פעילים+ נולדה כדי להיות שם קודם.");
+    expect(ABOUT.photo).toBe("/img/about.webp");
+    expect(ABOUT.paragraphs).toHaveLength(16);
+    expect(ABOUT.paragraphs[0]).toMatch(/^קוראים לי מידד גולן/);
+    expect(ABOUT.paragraphs).not.toContain(ABOUT.closer);
   });
-  it("has the three team members with v2 portraits", () => {
-    expect(TEAM.map((m) => [m.name, m.photo])).toEqual([
-      ["גדי בן שטרית", "/img/v2/team-gadi.webp"],
-      ["דניאל שפיר", "/img/v2/team-daniel.webp"],
-      ["מידד גולן", "/img/v2/team-meidad.webp"],
+});
+
+describe("research", () => {
+  it("has two sections and a closer", () => {
+    expect(RESEARCH.title).toBe("המחקר והגישה המקצועית");
+    expect(RESEARCH.sections[0].heading).toBe("הגוף והמוח עובדים יחד — וכך גם נכון לאמן אותם");
+    expect(RESEARCH.sections.map((s) => s.paragraphs.length)).toEqual([3, 4]);
+    expect(RESEARCH.closer).toBe("פעילים+ נבנתה כדי לאמן בדיוק את החיבור הזה.");
+  });
+});
+
+describe("team", () => {
+  it("lists the four members in order with portraits that exist", () => {
+    expect(TEAM.map((m) => m.name)).toEqual(["מידד גולן", "גדי בן שטרית", "ד״ר ענת קרן", "דניאל שפיר"]);
+    expect(TEAM.map((m) => m.role)).toEqual([
+      "מייסד ומנכ״ל פעילים +",
+      "פיזיותרפיסט מוסמך – כוח ושיווי משקל",
+      "ריפוי בעיסוק | תפקוד וקוגניציה",
+      "שיקום נוירולוגי | מאמן כושר ובריאות מוסמך",
     ]);
+    for (const m of TEAM) expect(existsSync(join(process.cwd(), "public", m.photo))).toBe(true);
+  });
+});
+
+describe("contact", () => {
+  it("has the prototype title and lede", () => {
+    expect(CONTACT).toEqual({ title: "רוצה לדבר איתנו?", lede: "נשמח לשמוע ממך." });
   });
 });
