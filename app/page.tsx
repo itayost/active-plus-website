@@ -22,7 +22,7 @@ export default function Home() {
       <TestimonialVideos />
       <CtaBar label={CTAS.plan} />
       <Partners />
-      <LeadSection source="home" withEmail={false} />
+      <LeadSection source="home" />
       <Articles />
       <FaqSection />
     </>

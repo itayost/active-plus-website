@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { LeadResult } from "@/lib/leads";
 import {
+  buildLeadRemark,
   checkField,
   NETWORK_MESSAGE,
   OFFLINE_MESSAGE,
@@ -72,5 +73,50 @@ describe("submitWithFallback", () => {
       expect(message).toMatch(/073-729-66-99/);
       expect(message).toMatch(/נשמרו/);
     }
+  });
+});
+
+describe("buildLeadRemark", () => {
+  it("starts with the site label and the originating surface", () => {
+    const remark = buildLeadRemark({ source: "home", topic: "", message: "", marketingOptIn: false });
+    expect(remark.split("\n")[0]).toBe("פעילים אתר · home");
+  });
+  it("keeps topic and message lines when given", () => {
+    const remark = buildLeadRemark({
+      source: "contact",
+      topic: "שירות לקוחות",
+      message: "שלום",
+      marketingOptIn: true,
+    });
+    expect(remark).toContain("נושא: שירות לקוחות");
+    expect(remark).toContain("פירוט: שלום");
+    expect(remark).toContain("דיוור: אישר/ה");
+  });
+  it("omits topic and message lines when empty", () => {
+    const remark = buildLeadRemark({ source: "home", topic: "", message: "", marketingOptIn: false });
+    expect(remark).not.toContain("נושא:");
+    expect(remark).not.toContain("פירוט:");
+    expect(remark).toContain("דיוור: לא אישר/ה");
+  });
+});
+
+describe("submitLead row shape", () => {
+  it("writes source website whatever surface the lead came from", async () => {
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    vi.resetModules();
+    vi.doMock("@/lib/supabase", () => ({ createServiceClient: () => ({ from: () => ({ insert }) }) }));
+    vi.doMock("next/headers", () => ({ headers: async () => new Headers() }));
+    const { submitLead } = await import("@/lib/leads");
+    const fd = new FormData();
+    fd.set("fullName", "ישראל ישראלי");
+    fd.set("phone", "0501234567");
+    fd.set("source", "home");
+    const result = await submitLead({ status: "idle" }, fd);
+    expect(result.status).toBe("success");
+    const row = insert.mock.calls[0][0];
+    expect(row.source).toBe("website");
+    expect(row.raw_remark.split("\n")[0]).toBe("פעילים אתר · home");
+    vi.doUnmock("@/lib/supabase");
+    vi.doUnmock("next/headers");
   });
 });

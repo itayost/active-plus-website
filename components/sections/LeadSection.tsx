@@ -7,16 +7,14 @@ import { CONTACT_HOURS, CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants
 /**
  * The home lead card: heading, the form, and a line for people who would
  * rather call. The padding gives way on a narrow phone so enlarged text keeps
- * its width. Task 7 restyles the form itself.
+ * its width.
  */
 export default function LeadSection({
   source,
   heading = LEAD_HEADING,
-  withEmail = true,
 }: {
   source: string;
   heading?: string;
-  withEmail?: boolean;
 }) {
   return (
     <section
@@ -28,7 +26,7 @@ export default function LeadSection({
         <h2 id="lead-heading" className="text-[22px] font-extrabold leading-tight text-ink lg:text-[28px]">
           {heading}
         </h2>
-        <LeadForm source={source} submitLabel="שליחה" withEmail={withEmail} />
+        <LeadForm source={source} submitLabel="שליחה" variant="short" />
         <p className="text-lg text-ink">
           מעדיפים לדבר?{" "}
           <a

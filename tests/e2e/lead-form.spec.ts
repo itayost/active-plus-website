@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
+import { getBuildId } from "./build-id";
 
 /*
   The lead form writes to the CRM's production table, so no request in this
@@ -7,10 +7,6 @@ import { expect, test, type Page } from "@playwright/test";
   hand-built server-action payload (the same two-line flight format Next
   returns), or aborted to simulate a dropped connection.
 */
-// Read when a stub first answers, not at import: on a fresh clone .next does
-// not exist until Playwright's webServer has built the app.
-let buildId: string | undefined;
-const getBuildId = () => (buildId ??= readFileSync(".next/BUILD_ID", "utf8").trim());
 
 type LeadResult =
   | { status: "success"; message: string }
@@ -46,7 +42,7 @@ async function typeNameAndPhone(page: Page, name = "ישראל ישראלי", ph
 }
 
 test.beforeEach(async ({ page }, testInfo) => {
-  if (testInfo.titlePath.includes("without JavaScript")) return;
+  if (testInfo.titlePath.includes("without JavaScript") || testInfo.titlePath.includes("field set") || testInfo.titlePath.includes("contact form")) return;
   await page.goto("/");
   await form(page).scrollIntoViewIfNeeded();
 });
@@ -184,5 +180,61 @@ test.describe("without JavaScript", () => {
     await expect(form(page).getByText("מספר הטלפון לא נראה תקין. לדוגמה: 050-1234567")).toBeVisible();
     await expect(form(page).locator('input[name="fullName"]')).toHaveValue("ישראל ישראלי");
     await expect(form(page).locator('input[name="phone"]')).toHaveValue("123");
+  });
+});
+
+test.describe("field set", () => {
+  test("the home form asks for name, phone and the offers opt-in, and no email", async ({ page }) => {
+    await page.goto("/");
+    const f = form(page);
+    await expect(f.locator('input[name="fullName"]')).toHaveCount(1);
+    await expect(f.locator('input[name="phone"]')).toHaveCount(1);
+    await expect(f.locator('input[name="marketingOptIn"]')).toHaveCount(1);
+    await expect(f.getByText("אני אשמח לקבל מבצעים והטבות")).toBeVisible();
+    await expect(f.locator('input[name="email"], select[name="topic"], textarea[name="message"]')).toHaveCount(0);
+  });
+});
+
+/*
+  The /contact cases below fail until Task 8 creates the page; that is
+  expected. They are written now so the contract is pinned.
+*/
+test.describe("contact form", () => {
+  const contactForm = (page: Page) => page.locator("main form").first();
+
+  test("has name, phone, email, a four-option topic, message and the opt-in", async ({ page }) => {
+    await page.goto("/contact");
+    const f = contactForm(page);
+    for (const name of ["fullName", "phone", "email", "marketingOptIn"]) {
+      await expect(f.locator(`input[name="${name}"]`)).toHaveCount(1);
+    }
+    await expect(f.locator('textarea[name="message"]')).toHaveCount(1);
+    const options = f.locator('select[name="topic"] option');
+    await expect(options).toHaveText(["בירור והצטרפות", "שירות לקוחות", "תמיכה באפליקציה", "אחר"]);
+  });
+
+  test("a bad phone shows the error under the field", async ({ page }) => {
+    await page.goto("/contact");
+    const f = contactForm(page);
+    await f.locator('input[name="fullName"]').fill("ישראל ישראלי");
+    await f.locator('input[name="phone"]').fill("123");
+    await f.getByRole("button", { name: "שליחה" }).click();
+    await expect(f.getByText("מספר הטלפון לא נראה תקין. לדוגמה: 050-1234567")).toBeVisible();
+    await expect(f.locator('input[name="phone"]')).toHaveAttribute("aria-invalid", "true");
+  });
+
+  test.describe("without JavaScript", () => {
+    test.use({ javaScriptEnabled: false, reducedMotion: "reduce" });
+
+    test("a rejected contact lead re-renders with the error and the values", async ({ page }) => {
+      await page.goto("/contact");
+      const f = contactForm(page);
+      await f.locator('input[name="fullName"]').fill("ישראל ישראלי");
+      await f.locator('input[name="phone"]').fill("123");
+      await f.locator('textarea[name="message"]').fill("שלום");
+      await f.getByRole("button", { name: "שליחה" }).click();
+      await expect(f.getByText("מספר הטלפון לא נראה תקין. לדוגמה: 050-1234567")).toBeVisible();
+      await expect(f.locator('textarea[name="message"]')).toHaveValue("שלום");
+    });
   });
 });

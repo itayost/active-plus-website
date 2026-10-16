@@ -12,17 +12,10 @@ import {
 import { submitLead, type LeadField, type LeadResult } from "@/lib/leads";
 import { checkField, submitWithFallback } from "@/lib/lead-form";
 import { ArrowIcon, CheckIcon } from "@/components/ui/icons";
+import ContactFields from "./ContactFields";
+import { FieldError, fieldClass, LABEL_CLASS } from "./FieldParts";
 
 const INITIAL: LeadResult = { status: "idle" };
-
-const FIELD_BASE =
-  "w-full min-w-0 rounded-field border-2 bg-white px-[min(1rem,5vw)] py-3.5 text-lead text-ink " +
-  "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] " +
-  "focus:border-blue-deep focus:outline-none";
-
-function fieldClass(invalid: boolean) {
-  return `${FIELD_BASE} ${invalid ? "border-danger" : "border-hairline hover:border-ink/25"}`;
-}
 
 /*
   Pending comes from the action state rather than useFormStatus: the form is
@@ -36,26 +29,11 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
     <button
       type="submit"
       aria-disabled={pending || undefined}
-      className="inline-flex min-h-[60px] w-full items-center justify-center gap-2.5 rounded-[30px] bg-green-deep pill-pad-lg font-display text-lead font-bold text-white shadow-lift-1 transition-[background-color,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:bg-green hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] forced-colors:border-2 aria-disabled:pointer-events-none aria-disabled:opacity-60 sm:w-auto"
+      className="inline-flex min-h-[58px] w-full items-center justify-center gap-2.5 rounded-[29px] bg-cta pill-pad-lg font-display text-lead font-extrabold text-white shadow-cta transition-[filter,box-shadow,transform] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:brightness-95 active:translate-y-0 active:scale-[0.97] active:brightness-90 forced-colors:border-2 aria-disabled:pointer-events-none aria-disabled:opacity-60"
     >
       {pending ? "שולח…" : label}
       {pending ? null : <ArrowIcon className="h-5 w-5" />}
     </button>
-  );
-}
-
-/**
- * One message, directly under the field it belongs to. Module scope on
- * purpose: defined inside the form it became a new component type on every
- * render, so each blur unmounted and remounted every alert and screen readers
- * re-announced errors the reader had already heard.
- */
-function FieldError({ id, text }: { id: string; text: string | undefined }) {
-  if (!text) return null;
-  return (
-    <p id={id} role="alert" className="mt-2 font-semibold text-danger">
-      {text}
-    </p>
   );
 }
 
@@ -64,16 +42,16 @@ const isOnline = () => typeof navigator === "undefined" || navigator.onLine !== 
 type Props = {
   /** Which surface the lead came from, stored alongside the row. */
   source: string;
+  /** short: name, phone, offers. contact: adds email, topic and message. */
+  variant: "short" | "contact";
   submitLabel?: string;
-  /** Show the optional email field. The home page asks for name and phone only. */
-  withEmail?: boolean;
   className?: string;
 };
 
 export default function LeadForm({
   source,
+  variant,
   submitLabel = "שליחה",
-  withEmail = true,
   className = "",
 }: Props) {
   // Set synchronously on submit, before React has re-rendered the button, so a
@@ -199,78 +177,54 @@ export default function LeadForm({
         <input id={`${uid}-company`} name="company" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor={`${uid}-fullName`}
-            className="mb-2 block font-display font-bold"
-          >
+      <div className="flex flex-col gap-3.5">
+        <div className="flex flex-col gap-2">
+          <label htmlFor={`${uid}-fullName`} className={LABEL_CLASS}>
             שם מלא
+            <input
+              id={`${uid}-fullName`}
+              name="fullName"
+              autoComplete="name"
+              required
+              aria-invalid={invalid("fullName")}
+              aria-describedby={describedBy("fullName")}
+              onBlur={handleBlur("fullName")}
+              defaultValue={values.fullName}
+              className={fieldClass(invalid("fullName"))}
+            />
           </label>
-          <input
-            id={`${uid}-fullName`}
-            name="fullName"
-            autoComplete="name"
-            required
-            aria-invalid={invalid("fullName")}
-            aria-describedby={describedBy("fullName")}
-            onBlur={handleBlur("fullName")}
-            defaultValue={values.fullName}
-            placeholder="ישראל ישראלי"
-            className={fieldClass(invalid("fullName"))}
-          />
           <FieldError id={errorId("fullName")} text={errorFor("fullName")} />
         </div>
 
-        <div>
-          <label
-            htmlFor={`${uid}-phone`}
-            className="mb-2 block font-display font-bold"
-          >
+        <div className="flex flex-col gap-2">
+          <label htmlFor={`${uid}-phone`} className={LABEL_CLASS}>
             טלפון
+            <input
+              id={`${uid}-phone`}
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              required
+              dir="ltr"
+              aria-invalid={invalid("phone")}
+              aria-describedby={describedBy("phone")}
+              onBlur={handleBlur("phone")}
+              defaultValue={values.phone}
+              className={`${fieldClass(invalid("phone"))} text-end`}
+            />
           </label>
-          <input
-            id={`${uid}-phone`}
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            required
-            dir="ltr"
-            aria-invalid={invalid("phone")}
-            aria-describedby={describedBy("phone")}
-            onBlur={handleBlur("phone")}
-            defaultValue={values.phone}
-            placeholder="050-1234567"
-            className={`${fieldClass(invalid("phone"))} text-end`}
-          />
           <FieldError id={errorId("phone")} text={errorFor("phone")} />
         </div>
 
-        {withEmail ? (
-          <div className="sm:col-span-2">
-            <label
-              htmlFor={`${uid}-email`}
-              className="mb-2 block font-display font-bold"
-            >
-              אימייל{" "}
-              <span className="font-sans font-normal text-ink-soft">(לא חובה)</span>
-            </label>
-            <input
-              id={`${uid}-email`}
-              name="email"
-              type="email"
-              autoComplete="email"
-              dir="ltr"
-              aria-invalid={invalid("email")}
-              aria-describedby={describedBy("email")}
-              onBlur={handleBlur("email")}
-              defaultValue={values.email}
-              placeholder="israel@gmail.com"
-              className={`${fieldClass(invalid("email"))} text-end`}
-            />
-            <FieldError id={errorId("email")} text={errorFor("email")} />
-          </div>
+        {variant === "contact" ? (
+          <ContactFields
+            uid={uid}
+            values={values}
+            errorFor={errorFor}
+            errorId={errorId}
+            onBlur={handleBlur}
+          />
         ) : null}
       </div>
 
@@ -289,11 +243,11 @@ export default function LeadForm({
             id={`${uid}-marketing`}
             name="marketingOptIn"
             type="checkbox"
-            className="h-8 w-8 rounded-[8px] border-2 border-hairline accent-[var(--green-deep)]"
+            className="h-8 w-8 rounded-[8px] border-2 border-[#CFCFCF] accent-[var(--green-deep)]"
           />
         </span>
         <span className="text-ink-soft">
-          אני רוצה לקבל מידע על מבצעים והטבות.
+          אני אשמח לקבל מבצעים והטבות
         </span>
       </label>
 

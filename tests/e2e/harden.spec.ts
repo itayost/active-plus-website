@@ -1,9 +1,5 @@
-import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-
-// Read lazily: on a fresh clone .next only exists once the webServer has built.
-let buildId: string | undefined;
-const getBuildId = () => (buildId ??= readFileSync(".next/BUILD_ID", "utf8").trim());
+import { getBuildId } from "./build-id";
 
 /** Answer every POST locally: no request in this file may reach a server action. */
 async function stubActions(page: Page, result: unknown) {
