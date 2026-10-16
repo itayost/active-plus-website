@@ -16,7 +16,7 @@ export default function BackLink({
   return (
     <Link
       href={href}
-      className="group mb-5 inline-flex min-h-[48px] items-center gap-2 font-display text-base font-bold text-blue transition-colors hover:text-blue-deep hover:underline hover:underline-offset-[5px]"
+      className="group mb-5 inline-flex min-h-[48px] items-center gap-2 font-display text-base font-bold text-blue-deep transition-colors hover:text-ink hover:underline hover:underline-offset-[5px]"
     >
       <ArrowBackIcon className="h-5 w-5 transition-transform duration-[var(--dur-fast)] group-hover:translate-x-[3px]" />
       {label}
