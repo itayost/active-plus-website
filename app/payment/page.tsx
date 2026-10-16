@@ -25,11 +25,10 @@ export default async function PaymentPage({
       <PaymentFlow linkPlan={parsePlan(plan)} cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}>
         <h1
           id="payment-heading"
-          className="max-w-[18ch] font-display text-[clamp(1.66rem,1.09rem+2.8vw,4.29rem)] font-extrabold leading-[1.05] tracking-[-0.025em]"
+          className="max-w-measure font-display text-[clamp(1.75rem,1.35rem+1.6vw,3rem)] font-extrabold leading-[1.15] text-blue"
         >
-          חיים פעילים יותר, חיים טובים יותר.
+          מסלולים ומחירים
         </h1>
-        <h2 className="mt-4 font-display text-h3 font-bold text-blue-deep">התוכנית האישית שלך</h2>
       </PaymentFlow>
 
       <ArticlesStrip />

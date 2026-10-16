@@ -85,6 +85,21 @@ test.describe("200% text on a 390px phone", () => {
     });
   }
 
+  test("/payment at 200% text: the annual button is fully on screen at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await withRootText(page, 200);
+    await page.goto("/payment");
+    const result = await page.evaluate(overflowing, 320);
+    expect(result.offenders).toEqual([]);
+    expect(result.scrollWidth).toBeLessThanOrEqual(320);
+    for (const name of ["לבחירת המנוי השנתי", "לבחירה"]) {
+      const box = (await page.getByRole("link", { name, exact: true }).or(page.getByRole("button", { name, exact: true })).boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(320);
+      expect(box.height).toBeGreaterThanOrEqual(48);
+    }
+  });
+
   test("the bar holds no fit-check pill and the drawer still carries it", async ({ page }) => {
     await withRootText(page, 200);
     await page.goto("/");

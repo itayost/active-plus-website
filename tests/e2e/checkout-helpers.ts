@@ -42,9 +42,12 @@ export async function stubFunctions(page: Page, create: Reply = OK, access: Repl
   return sent;
 }
 
+/** The plan cards' own buttons: they choose the plan and open the checkout. */
+export const PLAN_CTA = { annual: "לבחירת המנוי השנתי", monthly: "לבחירה" } as const;
+
 export async function openCheckout(page: Page, plan: "annual" | "monthly" = "annual") {
   await page.goto(`/payment?plan=${plan}`);
-  await page.getByRole("button", { name: "המשך לרכישה" }).click();
+  await page.getByRole("button", { name: PLAN_CTA[plan], exact: true }).click();
   await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
 }
 

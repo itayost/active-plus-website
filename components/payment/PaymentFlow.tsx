@@ -41,7 +41,7 @@ function StoreFlow({ linkPlan, children }: Props) {
 }
 
 /**
- * Flag on: "המשך לרכישה" opens the checkout under the plans; a checkout draft
+ * Flag on: a plan's button selects it and opens the checkout under the plans; a checkout draft
  * in sessionStorage (Otp's remount, Grow's cancel URL) reopens it directly,
  * unless an explicit ?plan= link asks for another plan: the link wins and
  * that draft is discarded. Choosing a plan keeps ?plan= in step, so a reload
@@ -91,7 +91,7 @@ function WebCheckoutFlow({ linkPlan, cancelled = false, children }: Props) {
   };
 
   const changePlan = () => {
-    const checked = document.querySelector<HTMLInputElement>('input[name="plan"]:checked');
+    const checked = document.querySelector<HTMLElement>('#plans [aria-pressed="true"]');
     checked?.scrollIntoView({ block: "center" });
     checked?.focus();
   };
@@ -107,7 +107,12 @@ function WebCheckoutFlow({ linkPlan, cancelled = false, children }: Props) {
             {C.cancelled}
           </p>
         ) : null}
-        <PlanSelector selected={selectedPlan} onSelect={selectPlan} onContinue={checkoutOpen ? undefined : () => setStage("checkout")} />
+        <PlanSelector
+          selected={selectedPlan}
+          onSelect={selectPlan}
+          onContinue={checkoutOpen ? undefined : () => setStage("checkout")}
+          checkoutOpen={checkoutOpen}
+        />
       </Section>
       {checkoutOpen ? (
         CheckoutView ? <CheckoutView plan={selectedPlan} initialDraft={draft} onChangePlan={changePlan} /> : <CheckoutLoading />

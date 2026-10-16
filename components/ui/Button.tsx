@@ -55,6 +55,8 @@ type Props = {
   type?: "button" | "submit";
   disabled?: boolean;
   onClick?: () => void;
+  "aria-pressed"?: boolean;
+  "aria-describedby"?: string;
 };
 
 export default function Button({
@@ -66,6 +68,8 @@ export default function Button({
   type = "button",
   disabled,
   onClick,
+  "aria-pressed": ariaPressed,
+  "aria-describedby": ariaDescribedBy,
 }: Props) {
   const classes = `${SHARED} ${VARIANTS[variant]} ${SIZES[size]} ${className}`;
 
@@ -88,14 +92,21 @@ export default function Button({
       );
     }
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} className={classes} aria-describedby={ariaDescribedBy}>
         {children}
       </Link>
     );
   }
 
   return (
-    <button type={type} className={classes} disabled={disabled} onClick={onClick}>
+    <button
+      type={type}
+      className={classes}
+      disabled={disabled}
+      onClick={onClick}
+      aria-pressed={ariaPressed}
+      aria-describedby={ariaDescribedBy}
+    >
       {children}
     </button>
   );

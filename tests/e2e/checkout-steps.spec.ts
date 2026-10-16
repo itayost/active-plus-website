@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { OTP_LENGTH } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import { CHECKOUT_COPY as C } from "../../lib/payment/copy";
-import { openCheckout, signUp, SIGN_UP_STUB, stubFunctions } from "./checkout-helpers";
+import { openCheckout, PLAN_CTA, signUp, SIGN_UP_STUB, stubFunctions } from "./checkout-helpers";
 import { stubSupabase } from "./supabase-stub";
 
 /* The checkout steps (flag on): identity, invoice email, phone, the stored draft and ?plan= links, focus, axe. */
@@ -15,7 +15,7 @@ test("a signed-in buyer with a full profile name only gives the email", async ({
   await signUp(page);
   await page.evaluate(() => sessionStorage.removeItem("ap.checkout.draft"));
   await page.goto("/payment");
-  await page.getByRole("button", { name: "המשך לרכישה" }).click();
+  await planButton(page, "annual").click();
   await expect(page.getByText("שלב 1 מתוך 2")).toBeVisible();
   await expect(page.getByLabel(C.emailTitle)).toBeVisible();
   await expect(page.getByText("050-1234567")).toBeVisible();
@@ -63,7 +63,7 @@ test("opening the checkout and every step move focus to its heading, in view und
 /* ---- /code-review: an explicit ?plan= link and a stored draft ---- */
 
 const draft = (page: Page) => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"));
-const planRadio = (page: Page, plan: "annual" | "monthly") => page.locator(`input[name="plan"][value="${plan}"]`);
+const planButton = (page: Page, plan: "annual" | "monthly") => page.getByRole("button", { name: PLAN_CTA[plan], exact: true });
 
 test("a ?plan= link for another plan wins over a stored draft, and the draft is discarded", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
@@ -72,8 +72,7 @@ test("a ?plan= link for another plan wins over a stored draft, and the draft is 
   await page.getByLabel(C.nameTitle).fill("רחל כהן");
   await expect.poll(() => draft(page)).toContain('"plan":"annual"');
   await page.goto("/payment?plan=monthly");
-  await expect(planRadio(page, "monthly")).toBeChecked();
-  await expect(page.getByRole("button", { name: "המשך לרכישה" })).toBeVisible();
+  await expect(planButton(page, "monthly")).toBeVisible();
   await expect(page.getByRole("heading", { name: C.heading })).toHaveCount(0);
   await expect.poll(() => draft(page)).toBeNull();
 });
@@ -87,7 +86,7 @@ test("a ?plan= link for the draft's own plan, or no plan in the link, resumes th
   for (const url of ["/payment?plan=monthly", "/payment"]) {
     await page.goto(url);
     await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
-    await expect(planRadio(page, "monthly")).toBeChecked();
+    await expect(planButton(page, "monthly")).toHaveAttribute("aria-pressed", "true");
   }
 });
 
@@ -95,14 +94,13 @@ test("choosing another plan keeps the link in step, so a reload resumes the chec
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await page.goto("/payment?plan=annual");
-  await page.locator('label:has(input[value="monthly"])').click();
+  await planButton(page, "monthly").click();
   await expect(page).toHaveURL(/plan=monthly/);
-  await page.getByRole("button", { name: "המשך לרכישה" }).click();
   await page.getByLabel(C.nameTitle).fill("רחל כהן");
   await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
   await page.reload();
   await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
-  await expect(planRadio(page, "monthly")).toBeChecked();
+  await expect(planButton(page, "monthly")).toHaveAttribute("aria-pressed", "true");
 });
 
 test("opening the checkout stores nothing; typing starts the draft", async ({ page }) => {
@@ -157,7 +155,7 @@ test.describe("accessibility", () => {
     await expect.poll(() => serious(page)).toEqual([]);
     await page.evaluate(() => sessionStorage.removeItem("ap.checkout.draft"));
     await page.goto("/payment");
-    await page.getByRole("button", { name: "המשך לרכישה" }).click();
+    await planButton(page, "annual").click();
     await expect(page.getByLabel(C.emailTitle)).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);
     await page.getByLabel(C.emailTitle).fill("r@example.com");
@@ -166,4 +164,18 @@ test.describe("accessibility", () => {
     await expect(page.getByText(C.success.steps[1].title)).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);
   });
+});
+
+test("the annual card shows the price, the saving and its own button; the monthly row is a real button", async ({ page }) => {
+  await page.goto("/payment");
+  await expect(page.getByRole("heading", { level: 1, name: "מסלולים ומחירים" })).toBeVisible();
+  const annual = page.getByTestId("plan-annual");
+  await expect(annual).toContainText("69 ₪");
+  await expect(annual).toContainText("חיסכון של 360 ₪");
+  await expect(annual).toContainText("ל-12 תשלומים · מנוי שנתי");
+  const monthly = planButton(page, "monthly");
+  await expect(page.getByTestId("plan-monthly")).toContainText("99 ₪");
+  expect((await monthly.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+  await monthly.focus();
+  await expect(monthly).toBeFocused();
 });
