@@ -73,8 +73,17 @@ test("a ?plan= link for another plan wins over a stored draft, and the draft is 
   await expect.poll(() => draft(page)).toContain('"plan":"annual"');
   await page.goto("/payment?plan=monthly");
   await expect(planButton(page, "monthly")).toBeVisible();
+  // The link wins: the annual checkout is not resumed, and its draft is gone.
   await expect(page.getByRole("heading", { name: C.heading })).toHaveCount(0);
   await expect.poll(() => draft(page)).toBeNull();
+  // Choosing the monthly plan opens the checkout for monthly, not annual.
+  await planButton(page, "monthly").click();
+  await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
+  await expect(page.getByText(`${C.chosenPlan} מנוי חודשי`)).toBeVisible();
+  await expect(planButton(page, "monthly")).toHaveAttribute("aria-pressed", "true");
+  await expect(planButton(page, "annual")).toHaveAttribute("aria-pressed", "false");
+  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
 });
 
 test("a ?plan= link for the draft's own plan, or no plan in the link, resumes the checkout", async ({ page }) => {

@@ -30,6 +30,7 @@ export default function PaymentFlow(props: Props) {
 
 /** Flag off (production until Task 9): the plans, then the store fallback ends the path. */
 function StoreFlow({ linkPlan, children }: Props) {
+  // With the flag off the plan buttons only jump to the store fallback; the selection is kept for the shared selector API.
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
   return (
     <Section id="plans" labelledBy="payment-heading" className={`${PLANS_TOP} pb-0`}>

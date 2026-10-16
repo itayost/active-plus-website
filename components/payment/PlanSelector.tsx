@@ -88,6 +88,7 @@ export default function PlanSelector({ selected, onSelect, onContinue, checkoutO
 
         <Card
           as="section"
+          aria-labelledby="plan-monthly-name"
           className={cn(
             "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 !rounded-tile p-[18px]",
             checkoutOpen && selected === "monthly" && "ring-2 ring-green ring-offset-2",
