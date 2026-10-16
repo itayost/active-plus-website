@@ -1,53 +1,47 @@
 ---
 name: פעילים+ (Active Plus)
-description: Dual-tasking fitness-and-cognition training for Israeli readers 55+, in Hebrew RTL.
+description: Dual-tasking fitness-and-cognition training for Israeli readers 55+, in Hebrew RTL. The client's 2026-10 handoff system - white, one blue, green actions.
 colors:
-  blue: "#0d68a4"
-  blue-deep: "#0a5f81"
-  blue-bright: "#1aa9e0"
-  blue-wash: "#e6f6fd"
-  green: "#3d7d23"
-  green-deep: "#2a5f17"
-  green-wash: "#eaf6e3"
-  purple: "#6b4fd8"
-  purple-deep: "#4b33a8"
-  purple-wash: "#efebfe"
-  burgundy: "#6a2532"
-  burgundy-deep: "#4c1723"
-  burgundy-wash: "#f7ecef"
-  emphasis-cyan: "#5fd3ff"
-  brand-yellow: "#fdb913"
-  hero-field: "#08222f"
-  ink: "#0f2230"
-  ink-soft: "#375260"
-  ink-faint: "#576f7d"
   surface: "#ffffff"
-  sunken: "#f2f6f9"
-  hairline: "#dfe7ed"
+  sunken: "#F7F9FC"
+  hairline: "#EEF0F3"
+  divider: "#ECEEF1"
+  ink: "#111111"
+  ink-soft: "#3d4450"
+  ink-faint: "#5b6470"
+  blue: "#1E6FD9"
+  blue-deep: "#1659B3"
+  blue-wash: "#EAF1FB"
+  blue-sky: "#EEF5FE"
+  green: "#2E9E5B"
+  green-hi: "#29864E"
+  green-lo: "#217241"
+  green-deep: "#237A47"
+  green-wash: "#E8F5ED"
+  star: "#F5B301"
+  danger: "#C62828"
+  danger-deep: "#A81F1F"
 typography:
-  display:
-    fontFamily: "Rubik, system-ui, sans-serif"
-    fontSize: "clamp(2.125rem, 1.4rem + 3.6vw, 5.5rem)"
-    fontWeight: 900
-    lineHeight: 1.02
-    letterSpacing: "-0.025em"
-  headline:
-    fontFamily: "Rubik, system-ui, sans-serif"
-    fontSize: "clamp(1.875rem, 1.3rem + 2vw, 3.75rem)"
-    fontWeight: 900
-    lineHeight: 1.1
-    letterSpacing: "-0.025em"
-  title:
-    fontFamily: "Rubik, system-ui, sans-serif"
-    fontSize: "clamp(1.375rem, 1.15rem + 0.7vw, 1.875rem)"
-    fontWeight: 700
-    lineHeight: 1.25
-    letterSpacing: "-0.025em"
-  lead:
+  hero:
     fontFamily: "Heebo, system-ui, sans-serif"
-    fontSize: "clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem)"
-    fontWeight: 400
-    lineHeight: 1.55
+    fontSize: "37px phone; clamp(2.75rem, 4vw, 4.5rem) from lg"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.02em"
+  page-title:
+    fontFamily: "Heebo, system-ui, sans-serif"
+    fontSize: "clamp(1.75rem, 1.35rem + 1.6vw, 3rem); clamp(2.5rem, 1.2rem + 2.4vw, 3.75rem) from lg"
+    fontWeight: 800
+    lineHeight: 1.15
+  section:
+    fontFamily: "Heebo, system-ui, sans-serif"
+    fontSize: "27px phone; 40px from lg"
+    fontWeight: 700
+    lineHeight: 1.1
+  card-title:
+    fontFamily: "Heebo, system-ui, sans-serif"
+    fontSize: "19-20px"
+    fontWeight: 700
   body:
     fontFamily: "Heebo, system-ui, sans-serif"
     fontSize: "clamp(1.125rem, 1rem + 0.25vw, 1.3125rem)"
@@ -55,251 +49,211 @@ typography:
     lineHeight: 1.65
 rounded:
   field: "14px"
-  tile: "20px"
-  panel: "22px"
-  card: "28px"
-  hero: "clamp(20px, 2.5vw, 36px)"
+  logo: "16px"
+  tile: "18px"
+  video: "20px"
+  card: "22px"
+  hero: "32px"
   pill: "999px"
 spacing:
-  gutter: "clamp(1.25rem, 4vw, 4.5rem)"
-  section-y: "clamp(4rem, 3rem + 6vw, 8.5rem)"
+  gutter: "clamp(min(1.25rem, 6.25vw), 4vw, 4.5rem)"
+  section-gap-phone: "48px"
+  section-gap-desktop: "64px"
   shell: "1520px"
   narrow: "1080px"
   measure: "68ch"
 components:
   button-primary:
-    backgroundColor: "{colors.green-deep}"
+    background: "linear-gradient(180deg, {colors.green-hi}, {colors.green-lo})"
     textColor: "#ffffff"
     rounded: "{rounded.pill}"
-    height: "52px"
-    padding: "0 24px"
-  button-primary-hover:
-    backgroundColor: "{colors.green}"
-  button-purple:
-    backgroundColor: "{colors.purple-deep}"
-    textColor: "#ffffff"
-    rounded: "{rounded.pill}"
-    height: "52px"
-    padding: "0 24px"
-  button-purple-hover:
-    backgroundColor: "{colors.purple}"
-  button-onColor:
-    backgroundColor: "#ffffff"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.pill}"
-    height: "52px"
-    padding: "0 24px"
+    height: "58px (lg) / 52px (md)"
+    shadow: "0 10px 22px rgb(33 114 65 / 0.28)"
   button-outline:
     backgroundColor: "#ffffff"
     textColor: "{colors.ink}"
+    border: "2px {colors.hairline}"
     rounded: "{rounded.pill}"
-    height: "52px"
-    padding: "0 24px"
-  button-ghost:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink-soft}"
-    rounded: "{rounded.pill}"
-    padding: "0 24px"
   card:
     backgroundColor: "{colors.surface}"
+    border: "1px {colors.hairline}"
+    shadow: "0 10px 28px rgb(20 40 80 / 0.07)"
     rounded: "{rounded.card}"
-    padding: "clamp(1.5rem, 3vw, 2.5rem)"
-  dark-hero-card:
-    backgroundColor: "{colors.hero-field}"
-    textColor: "#ffffff"
-    rounded: "{rounded.hero}"
+  round-header-button:
+    size: "46px disc in a 48px hit box"
+    background: "{components.button-primary.background}"
   input:
     backgroundColor: "#ffffff"
-    textColor: "{colors.ink}"
+    border: "1px #CFCFCF"
     rounded: "{rounded.field}"
-    padding: "14px 16px"
+    height: "52px"
+    fontSize: "17px"
 ---
 
 # Design System: פעילים+ (Active Plus)
 
 ## Overview
 
-**Creative North Star: "Two Things At Once"**
+**Creative North Star: "Clean, White, Premium"**
 
-The site's thesis is that it never shows body or mind alone: every primary surface stages movement and thinking together, and the composition carries the claim rather than only stating it. In the v2 build that idea lives in three places. The home hero is a full-bleed video of people moving, held inside a dark rounded card, with a two-line headline whose second line ("וחדות המחשבה") is set in Emphasis Cyan, so body and mind arrive as one sentence in two colours. The three explainer cards (personal plan, motion detection, progress) each carry one brand field and lead to an explainer page. How-it-works makes the dual task concrete with paired examples: a physical action set beside a cognitive one ("הרמת ברכיים" with "שליפת מילים"), each in its own tinted chip. This remains a rebuild of a client-pinned reference (effectivate.co.il) in the client's own material: the reference supplied the page-scale colour cards, the two-arrow carousel with a progress bar, the lead form and the FAQ accordion; the client's v2 structure added the explainer pages, the fit-check close and the plan picker; Active Plus supplied the palette, the type pairing and the explicit refusal of the reference's orange.
+Since the 2026-10 handoff the client's phone prototype (`docs/handoff/peilim-plus-2026-10/prototype/index.html`) is the source of truth for look and structure. It replaces the earlier multi-colour field system (blue, green, purple and burgundy cards, a dark hero, Rubik display type). The page is white; one blue carries emphasis; green means "do this" and appears only on actions; cards are white, hairline-bordered and softly shadowed; sections are separated by space, not by colour bands.
 
-Everything is built to a 55+ reading and motor floor, not just WCAG AA: an 18px body-text minimum that grows to 21px on wide screens, 48px+ touch targets throughout, and a focus ring sized to be seen rather than merely compliant. Hebrew RTL is the only mode; nothing in the system assumes LTR as a base case. The v2 shell is wide (1520px) and the type scale is raised to fill it, so large monitors read as generous rather than as a narrow column in empty space.
+The prototype only shows a phone. On phones the site follows it section for section, copy for copy. Desktop was designed in the same language: rows become grids where the count fits, carousels with arrows where it does not, and reading pages become an editorial spread. A phone column floating in a wide page is the failure this system is built to avoid.
 
-**Key Characteristics:**
-- Brand hues used as page- or card-scale fields (never small accent chips)
-- Rubik display over Heebo body, both variable-loaded via `next/font`
-- A dark rounded hero card (Hero Field) opens the home and how-it-works pages
-- Depth from offset-plus-blur shadows only; no flat coloured halos
-- One shared entrance animation for every revealed element, gated by `prefers-reduced-motion`
-- Structure inherited from a pinned reference and the client's v2 brief; palette and type are the project's own
+Everything is built to a 55+ reading and motor floor, not just WCAG AA: 18px minimum for body text (growing to 21px on wide screens), 48px minimum touch targets, a focus ring sized to be seen, pinch-zoom never capped, reduced motion honoured, and layouts that survive the browser's text at 200% on a 320px phone. Hebrew RTL is the only mode.
+
+**Key characteristics:**
+- White ground, `#F7F9FC` only for the footer and quiet panels
+- One accent blue (`#1E6FD9`) for title lines, card titles, links and hints
+- Green gradient pills for every action, and only for actions
+- Soft card shadow `0 10px 28px rgba(20,40,80,.07)` with a `#EEF0F3` hairline
+- Heebo only, weights 400 / 500 / 700 / 800
+- Swipe rows on phones, grids or arrowed carousels on desktop
 
 ## Colors
 
-The palette is not a single accent on a neutral field: it is four co-equal brand hues, each used as a page- or card-scale colour field tied to a fixed meaning, plus a dark hero ground and two narrowly reserved emphasis colours.
+### Accent
+- **Blue** `#1E6FD9` (4.85:1 on white): the accented second line of the hero h1, inner-page titles, card titles in the world cards, links, the "החליקו הצידה לעוד" hint and the FAQ markers.
+- **Blue Deep** `#1659B3`: hover and pressed step of blue, the focus ring, active nav state, and **any blue text on a wash**.
+- **Blue Wash** `#EAF1FB`: image placeholders, the fit-check close panels, the active nav pill, the ring around team portraits.
+- **Blue Sky** `#EEF5FE`: the top of the hero wash (`linear-gradient(180deg, #EEF5FE 0%, #fff 60%)`).
 
-### Primary
-- **Movement Blue** (base, deep, wash, bright): body and motion content, the motion-detection explainer, primary navigation state, links, the selected plan, and the focus ring.
-- **Progress Green** (base, deep, wash): the site's action and progress colour. The default `Button` variant and the header's fit-check pill, the lead-form panel (wash), the progress explainer, the "what matters" and "included in both plans" check badges, and the store-fallback field.
-- **Cognition Purple** (base, deep, wash): mind-training content. The personal-plan explainer, its fit-check close panel, the light lavender feature card, and the cognitive half of each How-it-works example pair.
-- **Daily-Practice Burgundy** (base, deep, wash): the articles section's page hero and the destructive/error state (form errors, delete-account). No longer a feature-card field in v2.
-
-Each brand hue ships as a triad: the base tone for large fields, `-deep` for text, icons and filled controls against a light wash, and `-wash` as the tinted background those sit on. Blue carries a fourth value, `bright`, the logo's turquoise, kept for marks and illustration only; no text is ever set on it.
-
-Every field value is the brightest tone of its hue that still clears 4.5:1 with white, so fields can carry white copy (see The AA-on-Field Exception).
-
-### Secondary
-- **Emphasis Cyan**: reserved for one emphasised line on the dark hero field, the second line of the home hero headline. It never appears on a light ground and never becomes a field colour.
-
-### Tertiary
-- **Brand Yellow**: one semantic job, the money the visitor keeps. It appears only as the annual plan's savings figure, bold `lead`-size display type inside an ink pill (on the plan teaser photo and in the plan picker). Never body text, never on a light ground.
+### Action
+- **CTA gradient** `#29864E` to `#217241` (top to bottom): every primary button and the two round header buttons. The handoff drew `#35AC64` to `#2A9253`; white text on that measures under 4.5:1, so the gradient was darkened, keeping the look. White text measures **4.55:1 on the top stop and 5.92:1 on the bottom stop**.
+- **Green** `#2E9E5B`: the annual plan card's border and other decoration. White on it is 3.41:1, so never put text on it.
+- **Green Deep** `#237A47`: green text on white (5.32:1), check badges, the store-fallback field.
+- **Green Wash** `#E8F5ED`: the lead form's success state.
 
 ### Neutral
-- **Hero Field** (`--hero-field`, Tailwind `hero`): the near-black teal ground of the Dark Hero Card. Its photo/video scrims are the same colour at partial alpha, written `rgb(var(--hero-field-rgb) / a)` from the channel token rather than through color-mix, so an engine without color-mix never loses the scrim that keeps the headline readable.
-- **Ink**: primary text, AAA on white; also the ground of the savings pill, the carousel progress fill and the skip link.
-- **Ink Soft** (AAA on white and on Cool Paper): secondary text, ledes, body inside neutral cards, nav labels at rest, long-form article body.
-- **Ink Faint** (AA only: 5.28:1 on white, 4.86:1 on Cool Paper): placeholders, image captions and the faded first line of a large display heading. Never instructions, hints, labels or legal links, which use `ink-soft`.
-- **Surface White**: the base ground and raised-card background.
-- **Cool Paper** (`--surface-sunken`): the sunken ground that alternates with white to separate sections (What Matters, Testimonials, FAQ, narrow interludes on the explainers).
-- **Hairline**: the border colour for inputs, plan cards at rest, dividers and accordion rules. Unboxed lists and carousel arrows use `ink/15` instead, so the rule reads on Cool Paper.
+- **Ink** `#111`: all body copy and headings.
+- **Ink Soft** `#3d4450`: secondary text, hours, legal links; AAA on white and on `#F7F9FC` (9.3:1).
+- **Ink Faint** `#5b6470`: placeholders and the company line only (5.69:1 on `#F7F9FC`); never instructions or labels.
+- **Surface** `#fff`, **Sunken** `#F7F9FC` (footer, the plans' "what both include" panel on desktop), **Hairline** `#EEF0F3` (card borders), **Divider** `#ECEEF1` (list rules, FAQ rows, footer rules).
+
+### Status
+- **Star** `#F5B301`: testimonial stars only.
+- **Danger** `#C62828`: field errors. **Danger Deep** `#A81F1F`: hover of a filled danger button (white on it is 7.29:1).
 
 ### Named Rules
-**The Page-Scale Field Rule.** A brand hue is a section or card background, not a small UI accent; the palette reads as confident because each colour claims real territory, not a 2px underline.
+**The Blue-on-Wash Rule.** Blue text on `#EAF1FB` or `#EEF5FE` uses `blue-deep`, never `blue`. `#1E6FD9` measures 4.27:1 on `#EAF1FB` and 4.42:1 on `#EEF5FE`, both under AA; `#1659B3` measures 5.93:1 and 6.14:1. This covers the back link on the page hero, the fit-check close headings and the active nav pill.
 
-**The Value-Separation Rule.** Fields have to separate by lightness, not only by hue. Saturated darks at the same luminance read as one dark field wearing several colours. The set therefore runs dark blue, dark green, **light lavender** and near-black burgundy: the purple card is a light ground with deep purple ink and a filled purple action. A new field colour joins this scale or it does not join.
+**The Green-Means-Act Rule.** Green fills are actions (buttons, the round header buttons) or the one field whose job is the purchase path (store fallback). Green is never a decorative band or a heading colour.
 
-**The No-Orange Rule.** The structural reference (effectivate.co.il) uses orange as its accent; this build deliberately excludes it. No orange appears anywhere in the token set; this is a confirmed brand decision, not an oversight.
-
-**The Two-Step Rule.** Every filled-control hue ships as a pair: the `-deep` value is the resting state and the base value is its hover. The step is sized to read as a change (blue 7.08:1 to 5.73:1, green 7.64:1 to 5.05:1 against white). A hue whose two steps land within a ratio point of each other has no hover.
-
-**The Inverted Action Exception.** Actions on a colour field are white pills, except on the light lavender field, where a white pill has nothing to stand against. There the action is the `purple` Button variant (filled `purple-deep`). The rule is "the action carries the strongest available contrast against its own field".
-
-**The AA-on-Field Exception (stated, not accidental).** Ink and Ink Soft clear AAA on white and on Cool Paper; Ink Faint is AA only and is restricted to text that carries no meaning of its own (see Neutral). White text on a colour field reaches AA (4.5:1) and stops; AAA is unreachable at these hues without darkening the brand past recognition. So fields carry short card copy only, and every long-form reading surface stays on `ink-soft` over a neutral ground. Secondary copy on a field is the field's own foreground at the lowest opacity that still clears 4.5:1 there (green 95%, blue 90%, burgundy 85%, purple-deep 90% on lavender), never gray.
-
-**The Var-Alpha Rule.** Every colour is a CSS variable, and Tailwind opacity modifiers on them (`bg-ink/85`, `border-ink/15`) are generated through a `color-mix(in srgb, ...)` helper in `tailwind.config.ts`. Use the modifier on the token; never hand-write an rgba copy of a token value.
+**The Gradient-Contrast Rule.** axe cannot read text over a CSS gradient, so every gradient pairing is computed by hand and recorded here. Any change to `--green-hi` / `--green-lo` must keep white text at 4.5:1 on both stops.
 
 ## Typography
 
-**Display Font:** Rubik (weights 500/700/900), with `system-ui, sans-serif` fallback
-**Body Font:** Heebo (variable weight), with `system-ui, sans-serif` fallback
-
-**Character:** Rubik carries every heading at heavy weight (700 to 900) with tightened tracking (-0.025em) and `text-wrap: balance`, a blunt, confident display layer; Heebo runs everything else at a calm 1.65 line-height built for a reader who wants zero ambiguity, not editorial flourish.
+**Font:** Heebo (`next/font/google`, Hebrew subset, weights 400 / 500 / 700 / 800). No other family. No 900 weight anywhere. The Tailwind `font-display` utility is kept as an alias of Heebo so call sites did not churn.
 
 ### Hierarchy
-- **Display** (900, 34px to 88px fluid, 1.02): the h1, one per page, in the hero and page hero.
-- **Headline** (900, 30px to 60px fluid, 1.1): the h2, every section heading.
-- **Title** (700, 22px to 30px fluid, 1.25): the h3, card titles, FAQ questions, footer column headings.
-- **Lead** (400, 20px to 26px fluid, 1.55, Heebo): ledes and standfirsts under a headline, plan figures, testimonial quotes; capped to the 68ch measure.
-- **Body** (400, 18px to 21px fluid via `text-base`, 1.65, Heebo): the reading size. The document root is fixed at the 18px floor; components opt into the fluid step.
-
-Three in-between sizes are sanctioned and named in the Tailwind config: the article page hero sets a long editorial h1 smaller and wider (`text-h1-article`, `clamp(2rem, 1.3rem + 2.6vw, 4.25rem)`, 24ch), article-body `h2`s (`Prose`) use `text-h2-prose` (`clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)`) bold, between Title and Headline, and the feature cards' titles use `text-card-title` (`clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem)`) at 900. The How-it-works challenges and the blue fit-check card run close to that step but not on it (`clamp(1.625rem, 1.3rem + 1.1vw, 2.25rem)` and `clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem)`); folding them in would visibly resize them, so it waits for a typeset pass. Both Dark Hero Card ledes use `text-lead` at snug leading.
+- **Hero h1** (800, 37px on a phone, `clamp(2.75rem, 4vw, 4.5rem)` from lg, 1.1, -0.02em): two lines, the second in blue.
+- **Inner-page h1** (800, blue, `clamp(1.75rem, 1.35rem + 1.6vw, 3rem)`, and `clamp(2.5rem, 1.2rem + 2.4vw, 3.75rem)` in the desktop rail).
+- **Section heading** (700, 27px phone, 40px from lg): every home section h2 (`SectionHeading`).
+- **Inner-page section heading** (800, blue, `clamp(1.3125rem, 1.15rem + 0.6vw, 1.75rem)`): the prototype's h3 look on an h2.
+- **Card title** (700, 19-20px): world cards in blue, program and article cards in ink.
+- **Body** (400, `text-base` = 18px to 21px fluid, 1.65): all long reading (about, research, articles, FAQ answers).
+- **Small** (13-14px): the swipe hint (14px/500, blue, 4.85:1) and the annual card's badge (13px/800 on the gradient); never long text.
 
 ### Named Rules
-**The 18px Floor Rule.** Body text never goes below 1.125rem anywhere on the site, including inside buttons (`md` buttons set `text-base`). This is the audience's accessibility floor and is not negotiable for a "compact" variant.
+**The 18px Floor Rule.** Long-reading text is never under 18px. Card copy that the prototype sets at 15-16px is set at 18px here; only labels, badges and hints go smaller.
 
-**The Balanced Heading Rule.** `h1` to `h3` set `text-wrap: balance`; body copy sets `text-wrap: pretty`. Hebrew line breaks are handled by the browser, never by manual `<br>`; a deliberate two-line headline uses block spans.
+**The Balanced Heading Rule.** h1-h3 use `text-wrap: balance`, body `text-wrap: pretty`. A deliberate two-line headline uses block spans or a `<br>`, never a manual break inside a sentence.
 
 ## Layout
 
-A single centred shell (`max-w-shell`, 1520px) with a fluid side gutter (`--gutter`, up to 4.5rem) applied through `.gutter-x`, which also widens on whichever physical edge a notch or home indicator occupies (`max(var(--gutter), env(safe-area-inset-*))`). A narrow shell (1080px) holds single-column content: FAQ, legal pages, error pages and the centred interludes and closes on the explainer pages. Vertical rhythm is `--section-y` on every top-level section through the shared `Section`/`Shell` primitives. Reading measure is 68ch.
+- **Shell:** `max-w-shell` (1520px) centred, with the fluid `--gutter` applied by `.gutter-x` (20px on a phone, as in the prototype; widened on whichever physical edge a notch occupies).
+- **Rhythm:** about 48px between home sections on phones (`pt-12`), 64px from lg (`pt-16`). Inner pages use `--section-y` at the bottom.
+- **Swipe rows** run edge to edge with the gutter as inline padding (`.snap-gutter` keeps the snap port aligned with it).
+- **Breakpoints:** Tailwind defaults. `md` (768) turns the world cards two by two and the footer into two columns; `lg` (1024) is the desktop switch for grids, the hero's two columns, the inner-page rail, the pricing columns and the footer's three columns; `xl` (1280) is the inline header nav.
+- **Grids** use `minmax(0, ...)` tracks so long Hebrew words and intrinsic image widths never push a column past its share. `html { overflow-x: clip }` guards the document.
 
-Sections alternate white and Cool Paper to separate without a hairline. Carousel tracks break out of the shell and run edge to edge with the gutter as their inline padding, while their heading, arrows and progress bar stay in the shell.
-
-Image and card grids use `minmax(0, …)` tracks (for example `minmax(0,1.15fr) minmax(0,0.85fr)` for the plan picker), so long Hebrew words or intrinsic image widths can never push a column past its share. `html { overflow-x: clip }` guards against any overlapping composition widening the document, and `clip` (not `hidden`) keeps the sticky header working.
-
-Breakpoints are Tailwind's defaults (`sm` 640, `md` 768, `lg` 1024, `xl` 1280); the header adds one 420px step where the fit-check pill tightens its padding to stay on one line at 320px.
+### Desktop compositions
+- **Home hero:** text and CTA at the start, the rounded video (22px) at the end, from lg.
+- **Home rows:** world cards 4 across; program cards and articles 3 across; testimonials and partners stay carousels with arrows (the arrows disappear when a row fits whole).
+- **Inner pages** (`InnerPage`): from lg a 5/7 editorial spread. The title, plus the page's `intro` (the about photo; the contact details), holds a sticky start rail; the body runs beside it at the 68ch measure, its first heading flush with the title. `wide` pages (team) keep the title on top: four portrait cards in a row.
+- **Contact:** details in the rail, the form in a card beside it.
+- **Pricing:** plan cards and the sunken "what both include" panel side by side (equal columns at lg, 36rem plus the rest from xl).
+- **Footer:** one column on a phone; brand across the top with menu and contact side by side on a tablet; brand, menu and contact as three columns over a ruled legal row from lg.
 
 ## Elevation & Depth
 
-Depth is soft, offset drop shadows at three strengths (`--lift-1/2/3`), all keyed to the ink colour; no flat colour-matched halo, no tonal surface-layering scheme. Resting buttons, outline elements, testimonial cards and unselected plan cards use `lift-1`; field cards, the lead-form inner card, plan teasers and the selected plan use `lift-2`; the mobile drawer uses `lift-3`. The sticky header gains `lift-1` and a hairline only after 12px of scroll.
+Depth is one soft drop shadow keyed to a navy ink, never a coloured halo.
 
-### Shadow Vocabulary
-- **lift-1** (`0 1px 2px rgb(15 34 48 / 0.06), 0 4px 12px -4px rgb(15 34 48 / 0.1)`): resting buttons, testimonial cards, unselected plan cards, the scrolled header.
-- **lift-2** (`0 2px 4px rgb(15 34 48 / 0.06), 0 16px 32px -12px rgb(15 34 48 / 0.18)`): field cards, plan teasers, the selected plan, hovered buttons.
-- **lift-3** (`0 4px 8px rgb(15 34 48 / 0.08), 0 32px 64px -24px rgb(15 34 48 / 0.28)`): the mobile navigation drawer, the most lifted surface.
+- **shadow-card** `0 10px 28px rgb(20 40 80 / 0.07)`: every card, partner tile, plan card and the desktop form card.
+- **shadow-cta** `0 10px 22px rgb(33 114 65 / 0.28)`: green buttons and the round header buttons.
+- **lift-1**: the header once scrolled 12px. **lift-3**: the menu drawer.
 
-### Named Rules
-**The Offset-Not-Halo Rule.** Depth always comes from an asymmetric, blurred drop shadow keyed to the ink colour; never a symmetric glow, never a shadow tinted to the element's own hue.
+Swipe tracks carry 20px of top padding (`pt-5`) and 40px of bottom padding so the card shadow (18px of upward reach) is never clipped by the scroller.
 
 ## Shapes
 
-Corners run on a fixed scale, each a Tailwind token: 14px (`rounded-field`) for inputs and inline alerts, 20px (`rounded-tile`) for image tiles inset in a card and list rows, 22px (`rounded-panel`) for floating image panels, 28px (`rounded-card`) for every card-scale container (testimonial cards and the framed /progress photo included), a fluid 20px to 36px (`rounded-hero`) for the Dark Hero Card, and 999px (`rounded-pill`) for every pill and the carousel progress bar. Buttons are the one exception: their radius is half their minimum height (26px, 30px), the same pill on one line, a rounded rectangle when a label wraps at enlarged text. Icon buttons (carousel arrows, check badges, nav toggle) are full circles. Borders are 2px: `hairline` on inputs and plan cards, `ink/15` on outline buttons and carousel arrows; unboxed list rules are 1px `ink/15`.
+`rounded-field` 14px inputs; `rounded-logo` 16px partner tiles; `rounded-tile` 18px small and list cards (world cards, the monthly plan row); `rounded-video` 20px video tiles; `rounded-card` 22px every card and panel; `rounded-hero` 32px the hero block's bottom corners; `rounded-pill` buttons. Portraits are circles.
 
 ## Components
 
-### Buttons
-- **Shape:** fully round (`rounded-pill`), always; Rubik bold, `text-balance` so a long label breaks into even lines at 320px, icons pinned at their authored size.
-- **Primary:** `green-deep` fill, white text, `lift-1` resting, `green` + `lift-2` + a 2px rise on hover. The default for every CTA, including the header's "בדיקת התאמה" pill, which never wraps and drops to tighter padding below 421px so it holds one line at 320px.
-- **Purple:** `purple-deep` fill, `purple` hover; used only on the lavender field (Inverted Action Exception).
-- **On-Color:** white fill, ink text; the action on blue, green and dark-hero fields.
-- **Outline:** white fill, 2px `ink/15` border darkening to `ink/35` on hover; secondary verbs (the monthly plan teaser).
-- **Ghost:** no fill, `ink-soft` text, Cool Paper on hover; used sparingly.
-- **Pressed:** `active:scale-[0.97]` on every variant and on the custom pills that mirror Button (the feature-card action, the lead and delete-account submits, the footer store pills), because `hover:` compiles out on touch (`hoverOnlyWhenSupported`).
-- **Sizes:** `md` (52px, `text-base`) and `lg` (60px, `text-lead`). Both clear the 48px floor. External links append a screen-reader "(נפתח בחלון חדש)".
+### Header (`components/layout/Header.tsx`)
+Phone and up to 1279px: the text wordmark ("פעילים" in blue, "+" in ink, 800) at the start; at the end the menu button then the call button, as in the handoff (call ends the row at the left edge). Both are 46px gradient discs in 48px hit boxes, 12px apart, with a 1px focus offset so neighbouring rings never touch. The call button draws `CallIcon` (a filled handset, the handoff's glyph and the icon set's one stated fill exception).
 
-### Cards / Containers
-- **Corner Style:** 28px for every card-scale container.
-- **Background:** a brand field (feature cards, How-it-works challenges, fit-check closes, store fallback) or white/wash (plans, lead panel, testimonials).
-- **Shadow Strategy:** `lift-2` for field and feature cards, `lift-1` for quieter white cards; see Elevation & Depth.
-- **Internal Padding:** fluid, `clamp(1.5rem, 3vw, 2.5rem)` up to `clamp(1.75rem, 4vw, 4rem)` by card size.
+From xl (1280px), and only while the bar is at least 75rem wide, the six links sit inline (48px pills, active `blue-wash` with bold `blue-deep`), followed by the green "בדיקת התאמה" pill and the call button. That switch lives in one place, `app/globals.css` (`@media (min-width: 1280px) { @container (width >= 75rem) }`); Header.tsx has no breakpoint classes for it. So 1024-1279px and any width at enlarged text get the phone bar and the drawer.
 
-### Dark Hero Card (signature component)
-The rounded dark card that opens the home and how-it-works pages. It runs almost the full viewport width, inset only by a small fluid margin so its fluid 20px to 36px corners read against white. Ground is Hero Field; media (video with a poster, or a photo) sits behind a Hero Field scrim strongest at the centre where the copy sits. The card sets `.on-dark`, which switches the focus ring to white. The video is hidden under `prefers-reduced-motion`, leaving the poster. Copy is centred: h1 with the cyan second line, a white/90 lead, one On-Color action.
+The drawer: six 60px rows (48px on short screens), the fit-check button, the phone with `CallIcon`, and the hours. Focus trap, Escape, scroll lock, `inert` when closed.
 
-### Page Hero
-The interior-page opener: a full-bleed brand wash with the h1 in that hue's deep ink and an `ink-soft` lede. Variants: `back` (a Back Link above the h1, used by the explainers), `aside` (media beside the copy on wide screens, below on narrow), and `article` (smaller, wider h1 and deep bottom padding so the cover image can overlap the hero's lower edge).
+### Footer (`components/layout/Footer.tsx`)
+`#F7F9FC` field under a divider. Wordmark (30px), the six menu links, phone with the hours under it, WhatsApp (`https://wa.me/972506316060`), email in blue-deep, address, "מבית המרכז לשיפור התנועה בע״מ", and the legal links (privacy policy, delete account; "ניהול מנוי" only with the web checkout on). Grid areas place the blocks per breakpoint without changing reading or Tab order.
 
-### Back Link
-A 48px-tall Rubik bold `ink-soft` link with a right-pointing arrow, rendered in the Page Hero's `back` slot above the h1: "חזרה לעמוד הבית" on the explainers, "כל המאמרים" on an article. On hover the text darkens and underlines and the arrow nudges 3px. It is the only back-link style.
+### Buttons (`components/ui/Button.tsx`)
+- **Primary:** CTA gradient, white 800 text, `shadow-cta`. `lg` 58px, `md` 52px. Full width on phones and tablets for the lone CTAs (`CtaBar`, the hero), auto-width centred pills from lg.
+- **Outline:** white, 2px hairline border, ink text (store buttons, "לכל המאמרים").
+- **Ghost:** ink-soft text, sunken on hover.
+- **States:** hover lifts 2px and dims 5%; `active:scale-[0.97]` is the pressed state for touch and mouse (hover compiles out on touch); radius is half the min height so a label wrapped at 200% text becomes a rounded rectangle, not a lens.
 
-### The Card Carousel (signature component)
-A scroll-snapped row driven by the shared `useSnapCarousel` hook: position from `IntersectionObserver` (first child at least 60% visible), an `atEnd` flag that disables "next" when several cards are visible and the track can no longer scroll. Controls are the shared `CarouselArrows`: 56px circular outline arrows beside the heading, each pointing the way it moves the track in RTL, with the pressed scale Button has. `atEnd` is recomputed when the track resizes. Two instances:
-- **Feature Cards:** three field cards (lavender, blue, green), one at a time, with the illustration inset as a 20px-radius tile on the field rather than butted to its edge, a 56px card action pill, and a thin ink progress bar under the shell; a primary fit-check CTA closes the section.
-- **Testimonials:** white quote cards on Cool Paper with `lift-1`, several visible at once, name as the h3 and the source as a text label (no stars, no third-party logos), quote in `lead`.
+### SectionHeading (`components/ui/SectionHeading.tsx`)
+The home h2 plus the optional blue "החליקו הצידה לעוד ←" hint (phones and tablets only) and an optional trailing link.
 
-### What Matters (signature component)
-An unboxed list: rows ruled by 1px `ink/15` hairlines top and bottom, each with a 48px solid `green-deep` check badge, an h3 title and an `ink-soft` body that moves into a third column on `lg`. (The photo rotator meant for when each point has an image was removed unused; if photos arrive it returns from git history with a visible pause control.)
+### SwipeRow (`components/ui/SwipeRow.tsx`)
+Scroll-snap row on phones (card 284px, video 190px, logo 138px), becoming at lg either a plain grid (`grid-3`, `grid-4`) or the same track with `CarouselArrows` above it. Arrows are `aria-disabled` at the ends (focus stays put) and are not rendered at all when the whole row fits. `focusableItems` makes each card a Tab stop when it has nothing interactive inside; a focused card is scrolled into view. Smooth scrolling is dropped under reduced motion.
 
-### Clients Ring
-The client's own ring of portraits, edge-faded with a radial mask so the artwork never meets the page in a hard rectangle, with the clients line set bold in the open centre (`sm` and up) or dropped under the picture on phones.
+### Card (`components/ui/Card.tsx`)
+White, 1px hairline border, `shadow-card`, 22px. World cards and the monthly plan row use the 18px tile radius.
 
-### Plans Teaser and Plan Selector
-The home teaser is two photo cards (28px, `lift-2`) with the plan name set white over an ink-to-transparent scrim, the featured annual plan ringed in 2px `blue-deep` and carrying the yellow-on-ink savings pill; figures and a full-width lg Button sit beneath the photo. On /payment the Plan Selector is a native radio group (shared `name`, visually hidden inputs, so arrow keys come from the browser): each plan is a 28px white card with a 2px border, `hairline` and `lift-1` at rest, `blue-deep` border and `lift-2` when selected, with a circular check that fills `blue-deep`. Focus is drawn on the card via `peer-focus-visible`.
+### Hero (`components/home/Hero.tsx`)
+On the hero wash with 32px bottom corners: h1, sub, the client's hero video (muted, looping, mounted only after load and never under reduced motion or save-data; the poster is the LCP image), then the CTA. Full-bleed video on a phone; two columns from lg and on a short landscape phone (`.hero-grid`).
+
+### InnerPage and PageHero
+`InnerPage` is the prototype's inner-page shell (about, research, team, contact): see Desktop compositions. Its body styles plain descendant `h2` and `p`, so pages write semantic markup only; a component nested in the body that must look different sets its own margin and colour. `PageHero` opens the explainers and articles on the hero wash, with an optional `BackLink` (blue-deep, per the Blue-on-Wash Rule) and media aside.
+
+### Pricing (`components/payment/PlanSelector.tsx`)
+Annual card: 2px green border, the gradient badge "מנוי שנתי – החיסכון הגדול", 69 ₪ לחודש at 38px/800, terms, the computed saving in blue, full-width lg button. Monthly: a lighter 18px row with a text "לבחירה" action. Pressed state (checkout open) is a green ring. "What both include" sits in a sunken panel beside the plans from lg.
 
 ### Store Fallback
-The phase-1 end of the purchase path: a `green-deep` field card, white h3 and lead, white focus ring, and two On-Color store buttons.
+With the web checkout off, the purchase path ends in a `green-deep` field with white text, a white focus ring and outline store buttons.
 
-### Fit-Check Close (signature component)
-The shared close of the three explainers: same action, three shapes. Purple: a centred lavender panel, h2 in `purple-deep`, `purple` Button. Blue: either a start-aligned blue card with a card-title heading and an On-Color button, or a centred blue band. Green: a centred green band with white/90 body lines and an optional bold closing line. All field versions set a white focus ring.
+### Fit-Check Close
+The explainers' and articles list's closing panel: centred `blue-wash` panel, `blue-deep` heading, ink-soft body, the green CTA "בדקו איזו תוכנית מתאימה לכם".
 
-### Inputs / Fields
-- **Style:** 14px radius, 2px `hairline` border, white fill, 14px by 16px padding, `lead`-size text, `blue-deep` caret.
-- **Focus:** border shifts to `blue-deep` (to `burgundy` on the delete-account form); the bordered field's colour shift is its focus signal.
-- **Error:** `burgundy` border and a `burgundy-wash` message with `role="alert"`. The honeypot is off-screen with `tabIndex={-1}`, not `display:none`.
+### Accordion (FAQ)
+Divider-ruled rows, 17px/700 questions (20px from lg), a blue "+" / "−" marker, answers at 18px. First item open. One open at a time.
 
-### Navigation
-Sticky white header; transparent border until 12px of scroll, then `hairline` and `lift-1`. Desktop links (from `lg`) are 48px pills: active `blue-wash` with bold `blue-deep`, inactive `ink-soft` with Cool Paper on hover. The green fit-check pill sits at the end of the bar at every width. Below `lg` the nav moves to a start-edge drawer (`min(88vw, 380px)`, `lift-3`, scrim `ink/45`) with 60px rows that drop to 48px on short landscape screens.
+### Forms (`components/forms/*`)
+52px inputs, 14px radius, 1px `#CFCFCF` border, 17px text, blue-deep caret and focus border. Labels are 700 above the field; optional fields read "(לא חובה)" inline after the label text. One error line under its field (`role="alert"`). Submit is the full-width gradient pill.
 
-### The Accordion (signature component)
-Single-open FAQ list in the narrow shell, hairline-divided rows, no card chrome. The disclosure is a circular chevron badge that fills `blue-deep` and rotates 180° when open. First item open by default.
+### Icons (`components/ui/icons.tsx`)
+One grammar: 1.75 stroke, round caps and joins, 24-unit grid, no fills, with one stated exception (`CallIcon`). `PhoneIcon` is the smartphone, for SMS codes and numbers to type. No emoji, no unicode glyph icons, no icon font.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep body text at 1.125rem (18px) minimum everywhere; use `text-base` (18px to 21px) for reading copy in components.
-- **Do** give every interactive target at least 48px in its shortest dimension.
-- **Do** give focus a 3px solid outline (`blue-deep`) with 3px offset, and switch it to white on any dark or saturated field (`.on-dark` or `[--focus-ring:#ffffff]`).
-- **Do** treat each brand hue as a full-bleed field claim (section or card background), never a small accent.
-- **Do** use the authored stroke-icon set only (1.75 stroke, round caps/joins, 24-unit grid, no fill); never an emoji, a unicode glyph, or a third-party icon font.
-- **Do** run the shared `Reveal` entrance (rise, de-blur, settle) for content that enters on scroll, staggered by 90ms per sibling, and render content visible with no animation under `prefers-reduced-motion`.
-- **Do** author section headings without an eyebrow/kicker; a heading carries its own weight.
-- **Do** use `minmax(0, …)` tracks for any grid that holds images or long Hebrew words.
-- **Do** use opacity modifiers on colour tokens (`ink/15`, `white/90`) rather than hand-written rgba copies.
+- **Do** keep long-reading text at 18px or more and every touch target at 48px or more.
+- **Do** use `blue-deep` for blue text on any wash.
+- **Do** compute contrast by hand for text over a gradient and record it here.
+- **Do** give desktop its own composition: grids, rails and columns, not the phone column on a wide page.
+- **Do** keep the prototype's copy verbatim.
+- **Do** honour reduced motion: no reveal, no smooth scroll, no hero video.
 
 ### Don't:
-- **Don't** use orange anywhere; the structural reference's accent is a confirmed exclusion.
-- **Don't** use a flat, colour-matched glow as a shadow; depth is always an offset, ink-tinted blur (`--lift-1/2/3`).
-- **Don't** drop a touch target below 48px or body text below 18px to fit a "compact" layout.
-- **Don't** give an element its own bespoke entrance animation; `Reveal` is the one authored entrance.
-- **Don't** reach for a glyph icon, an emoji, or an icon font.
-- **Don't** set a white action pill on the lavender field; it takes the `purple` variant.
-- **Don't** use Emphasis Cyan or Brand Yellow outside their single jobs (the hero's second line; the savings figure on ink).
+- **Don't** bring back purple, burgundy, yellow, cyan emphasis, a dark hero field or Rubik.
+- **Don't** use green as decoration or for headings; green means act.
+- **Don't** put text on flat `#2E9E5B`.
+- **Don't** add header breakpoint classes in Header.tsx; the switch lives in globals.css.
+- **Don't** render carousel arrows that can go nowhere.
+- **Don't** ship placeholder boxes ("[תמונה: ...]", "[לוגו שותף]"); use real assets or hide the section (the testimonial videos section renders nothing while its list is empty).
