@@ -80,6 +80,30 @@ test.describe("phone bar", () => {
     await expect(fit).toHaveAttribute("href", "/questionnaire");
     await expect(drawer.locator("a[href^='tel:']")).toBeVisible();
   });
+
+  test("tapping the FAQ link on the home page closes the drawer and shows the FAQ", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.getByRole("banner").getByRole("button", { name: "פתיחת התפריט" }).click();
+    const drawer = page.getByRole("dialog", { name: "תפריט האתר" });
+    await drawer.getByRole("link", { name: "שאלות נפוצות" }).click();
+    // Hash-only navigation does not change the pathname, so the drawer has to
+    // close on the activation itself.
+    await expect(drawer).toBeHidden();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
+    await expect(page.locator("#faq")).toBeInViewport();
+  });
+
+  test("tapping the link of the current page closes the drawer", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/about");
+    await page.getByRole("banner").getByRole("button", { name: "פתיחת התפריט" }).click();
+    const drawer = page.getByRole("dialog", { name: "תפריט האתר" });
+    await drawer.getByRole("link", { name: "הכירו את פעילים+" }).click();
+    await expect(drawer).toBeHidden();
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
+  });
 });
 
 test("footer links both legal pages", async ({ page }) => {

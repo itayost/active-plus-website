@@ -39,6 +39,12 @@ export default function Header() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  // A hash-only link ("/#faq" from the home page) or the link of the current
+  // page does not change the pathname, so the effect above never fires for
+  // them. Closing on activation covers both. Focus is not returned to the
+  // toggle: the page is navigating.
+  const closeOnNavigate = useCallback(() => setOpen(false), []);
+
   useEffect(() => {
     const onScroll = () => setLifted(window.scrollY > 12);
     onScroll();
@@ -215,6 +221,7 @@ export default function Header() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={closeOnNavigate}
                   aria-current={isCurrent(item.href) ? "page" : undefined}
                   className={`flex min-h-[60px] items-center border-b border-divider text-[21px] font-bold transition-colors ${
                     isCurrent(item.href) ? "text-blue-deep" : "text-ink hover:text-blue-deep"
