@@ -15,22 +15,19 @@ import {
 } from "@/lib/constants";
 import PhoneNumber from "@/components/ui/PhoneNumber";
 
+/* 46px disc drawn inside a 48px hit box, so the touch target meets the floor.
+   The focus outline sits outside the box, on white, clear of the green. */
+const ROUND_HIT = "inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-pill";
+const ROUND_DISC =
+  "inline-flex h-[46px] w-[46px] items-center justify-center rounded-pill bg-cta text-white shadow-cta " +
+  "transition-[transform,filter] duration-[var(--dur-fast)] ease-out-expo hover:brightness-95 active:scale-[0.95]";
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [lifted, setLifted] = useState(false);
-  // Where the drawer puts the fit-check pill: at the top when the bar has had
-  // to drop it (large text, see globals.css), at the foot otherwise.
-  const [pillOnTop, setPillOnTop] = useState(false);
   const pathname = usePathname();
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const pillSlotRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
-
-  const openDrawer = useCallback(() => {
-    const pill = pillSlotRef.current?.firstElementChild;
-    setPillOnTop(pill ? getComputedStyle(pill).display === "none" : false);
-    setOpen(true);
-  }, []);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -88,33 +85,31 @@ export default function Header() {
 
   return (
     <>
-      {/* site-header is a size container: at enlarged text the row measures
-          itself in rem and drops the wordmark before anything is pushed off
-          the screen (see globals.css). */}
+      {/* site-header is a size container: the bar measures itself in rem and
+          swaps the inline links for the menu button before anything is pushed
+          off the screen at enlarged text (see globals.css). */}
       <header
         className={`site-header sticky top-0 z-40 bg-surface pt-[env(safe-area-inset-top)] transition-[box-shadow,border-color] duration-[var(--dur)] ${
           lifted ? "border-b border-hairline shadow-lift-1" : "border-b border-transparent"
         }`}
       >
         {/*
-          The row wraps instead of overflowing. At the default size everything
-          fits on one line at 320px; with the browser's text enlarged, the
-          wordmark folds, the pill wraps its label and, past that, the actions
-          drop to a second line.
-          Nothing is ever pushed past the inline end, where html's
-          overflow-x: clip would silently hide the menu toggle.
+          The row wraps instead of overflowing, so nothing is ever pushed past
+          the inline end, where html's overflow-x: clip would silently hide the
+          menu toggle. The round buttons are sized in px, not rem: they are
+          already larger than the 48px floor and must not grow with the text.
         */}
-        <div className="header-row mx-auto flex max-w-shell flex-wrap items-center justify-between gap-2 gutter-x min-[421px]:gap-x-6 py-3">
+        <div className="header-row mx-auto flex max-w-shell flex-wrap items-center justify-between gap-x-4 gap-y-1 gutter-x py-2 xl:gap-x-6">
           <Logo />
 
-          <nav aria-label="ניווט ראשי" className="desktop-nav hidden lg:block">
-            <ul className="flex items-center gap-1">
+          <nav aria-label="ניווט ראשי" className="desktop-nav hidden xl:block">
+            <ul className="flex items-center">
               {NAV.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     aria-current={isCurrent(item.href) ? "page" : undefined}
-                    className={`inline-flex min-h-12 items-center rounded-pill px-4 text-base transition-colors duration-[var(--dur-fast)] ${
+                    className={`inline-flex min-h-12 items-center rounded-pill px-3 text-base transition-colors duration-[var(--dur-fast)] ${
                       isCurrent(item.href)
                         ? "bg-blue-wash font-bold text-blue-deep"
                         : "text-ink-soft hover:bg-sunken hover:text-ink"
@@ -127,27 +122,29 @@ export default function Header() {
             </ul>
           </nav>
 
-          {/* Below lg the actions take the rest of the row from a zero basis,
-              so at enlarged text the pill wraps its own label before the row
-              has to wrap. Their minimum is still their content, which keeps
-              the row-wrap fallback for browsers without container queries. */}
-          <div ref={pillSlotRef} className="header-actions ms-auto flex items-center justify-end gap-2 max-lg:flex-[1_1_0%]">
-            <Button
-              href={FIT_CHECK.href}
-              className="fit-pill text-center leading-tight max-[420px]:px-4 max-[420px]:text-base"
-            >
-              {FIT_CHECK.label}
-            </Button>
+          <div className="header-actions ms-auto flex items-center gap-1">
+            <div className="header-pill hidden xl:block">
+              <Button href={FIT_CHECK.href} className="whitespace-nowrap [text-wrap:nowrap]">
+                {FIT_CHECK.label}
+              </Button>
+            </div>
+            <a href={`tel:${CONTACT_PHONE_TEL}`} aria-label="התקשרו אלינו" className={ROUND_HIT}>
+              <span className={ROUND_DISC}>
+                <PhoneIcon className="h-6 w-6" />
+              </span>
+            </a>
             <button
               ref={toggleRef}
               type="button"
-              onClick={() => (open ? close() : openDrawer())}
+              onClick={() => (open ? close() : setOpen(true))}
               aria-expanded={open}
               aria-controls="site-drawer"
-              className="nav-toggle inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-pill text-ink transition-colors hover:bg-sunken lg:hidden"
+              className={`nav-toggle xl:hidden ${ROUND_HIT}`}
             >
               <span className="sr-only">{open ? "סגירת התפריט" : "פתיחת התפריט"}</span>
-              <MenuIcon className="h-7 w-7" />
+              <span className={ROUND_DISC} aria-hidden="true">
+                <MenuIcon className="h-6 w-6" />
+              </span>
             </button>
           </div>
         </div>
@@ -161,7 +158,7 @@ export default function Header() {
         aria-hidden="true"
         onClick={close}
         className={`fixed inset-0 z-40 bg-ink/45 backdrop-blur-[2px] transition-opacity duration-[var(--dur)] ${
-          open ? "opacity-100" : "pointer-events-none opacity-0 lg:hidden"
+          open ? "opacity-100" : "pointer-events-none opacity-0 xl:hidden"
         }`}
       />
 
@@ -186,13 +183,13 @@ export default function Header() {
         className={`drawer-safe fixed inset-y-0 start-0 z-50 flex w-[min(88vw,380px)] flex-col overflow-y-auto overscroll-contain bg-surface motion-reduce:transition-none ${
           open
             ? "visible translate-x-0 shadow-lift-3 [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s]"
-            : "invisible translate-x-full shadow-none lg:hidden rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
+            : "invisible translate-x-full shadow-none xl:hidden rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
         }`}
       >
         {/* The close row is sized in px, capped at 56px: at 200% a 3rem
             button made this row a sixth of a portrait screen and a third of
             a landscape one, before a single menu item. */}
-        <div className="flex items-center justify-between border-b border-hairline px-5 py-[12px]">
+        <div className="flex items-center justify-between border-b border-divider px-5 py-[12px]">
           <Logo />
           <button
             type="button"
@@ -204,28 +201,15 @@ export default function Header() {
           </button>
         </div>
 
-        {/* With the text enlarged the bar has no room for the pill, so the
-            drawer leads with it: the site's one action is still the first
-            thing under the reader's thumb when the menu opens. */}
-        {pillOnTop ? (
-          <div className="px-5 pt-5">
-            <Button href={FIT_CHECK.href} size="lg" className="w-full text-center">
-              {FIT_CHECK.label}
-            </Button>
-          </div>
-        ) : null}
-
-        <nav aria-label="ניווט האתר" className="flex-1 px-5 py-4">
+        <nav aria-label="ניווט האתר" className="flex-1 px-5 py-2">
           <ul className="flex flex-col">
             {NAV.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   aria-current={isCurrent(item.href) ? "page" : undefined}
-                  className={`flex min-h-[60px] items-center border-b border-hairline text-lead transition-colors ${
-                    isCurrent(item.href)
-                      ? "font-bold text-blue-deep"
-                      : "text-ink hover:text-blue-deep"
+                  className={`flex min-h-[60px] items-center border-b border-divider text-[21px] font-bold transition-colors ${
+                    isCurrent(item.href) ? "text-blue-deep" : "text-ink hover:text-blue-deep"
                   }`}
                 >
                   {item.label}
@@ -235,14 +219,12 @@ export default function Header() {
           </ul>
         </nav>
 
-        {/* A phone number is the fastest route for this audience, so the
-            drawer ends with it rather than with another link. */}
-        <div className="border-t border-hairline px-5 py-5">
-          {pillOnTop ? null : (
-            <Button href={FIT_CHECK.href} size="lg" className="mb-4 w-full text-center">
-              {FIT_CHECK.label}
-            </Button>
-          )}
+        {/* The one action first, then the phone: for this audience a number
+            to ring is the fastest route, so the drawer ends with it. */}
+        <div className="px-5 pb-6 pt-4">
+          <Button href={FIT_CHECK.href} size="lg" className="mb-4 w-full text-center">
+            {FIT_CHECK.label}
+          </Button>
           <a
             href={`tel:${CONTACT_PHONE_TEL}`}
             className="flex min-h-12 items-center gap-3 text-ink-soft transition-colors hover:text-blue-deep"

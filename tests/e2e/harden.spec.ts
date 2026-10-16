@@ -65,25 +65,19 @@ for (const [width, scale] of [
     await page.evaluate((s) => (document.documentElement.style.fontSize = s), scale);
     const banner = page.getByRole("banner");
     for (const control of [
-      banner.getByRole("link", { name: "פעילים פלוס — לעמוד הבית" }),
+      banner.getByRole("link", { name: "פעילים+ – לדף הבית" }),
+      banner.getByRole("link", { name: "התקשרו אלינו" }),
       banner.getByRole("button", { name: "פתיחת התפריט" }),
     ]) {
       const box = (await control.boundingBox())!;
       expect(box.x).toBeGreaterThanOrEqual(0);
       expect(box.x + box.width).toBeLessThanOrEqual(width);
     }
-    // The fit-check pill is either in the bar and fully on screen, or (the
-    // compact bar at large text) gone from it and leading the drawer.
-    const pill = banner.getByRole("link", { name: "בדיקת התאמה" });
-    if (await pill.isVisible()) {
-      const box = (await pill.boundingBox())!;
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(width);
-    } else {
-      await banner.getByRole("button", { name: "פתיחת התפריט" }).click();
-      const drawer = page.getByRole("dialog", { name: "תפריט האתר" });
-      await expect(drawer.getByRole("link").nth(1)).toHaveAccessibleName("בדיקת התאמה");
-    }
+    // The bar carries no fit-check pill below the desktop width; the drawer does.
+    await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
+    await banner.getByRole("button", { name: "פתיחת התפריט" }).click();
+    const drawer = page.getByRole("dialog", { name: "תפריט האתר" });
+    await expect(drawer.getByRole("link", { name: "בדיקת התאמה", exact: true })).toHaveCount(1);
   });
 }
 

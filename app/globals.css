@@ -162,100 +162,24 @@ html {
 
 /*
   The header bar at enlarged text. This audience raises the browser's text
-  size, and every rem in the bar grows with it while the screen does not: at
-  130% on a 360px phone the row no longer fit and the menu toggle slid past
-  the left edge, where html's overflow-x: clip hid it. The header is a size
-  container and the queries below are in rem, so they track the text size as
-  well as the pixel width.
+  size, and every rem in the bar grows with it while the screen does not. The
+  bar is the wordmark and two 48px round buttons, which hold their size in px
+  and fit even a 320px phone at 200%; the row wraps as a last resort. The
+  header is a size container and the query below is in rem, so it tracks the
+  text size as well as the pixel width.
 
-  Below 21.5rem the wordmark folds away and the walking-figure mark carries
-  the link on its own (its name is the link's aria-label). That includes a
-  320px phone at the default size, where logo, pill and toggle need 315px of
-  the 280px between the gutters: the old bar only fitted by squeezing the
-  pill narrower than its own label. Between 17rem and 20rem, which only
-  enlarged text reaches, the pill may wrap its label onto two lines with
-  tighter padding.
-
-  Below 17rem (150% on a 390px phone, 130% on a 320px one) the bar stops
-  trying to hold three things. Squeezed, it had grown to 209-247px at 200%:
-  a quarter to almost half of a portrait screen, sticky, over every page.
-  It becomes the brand and the menu, one row at a fixed 72px, and the
-  fit-check pill moves to the top of the drawer (Header.tsx decides where
-  from the pill's own computed display). Every page still carries its own
-  fit-check action in its content. With the pill gone there is room for the
-  wordmark again, except at the very narrowest (200% on 320px).
-
-  The toggle keeps 3rem at every size the bar holds all three, so it grows
-  with the text as before; in the compact bar it is a fixed 56px — larger
-  than the 48px floor, and no longer the thing that sets the bar's height.
-
-  The pill's wrapping is set here rather than with utilities because the
-  Button's text-balance is a text-wrap shorthand that silently undoes
-  whitespace-nowrap.
+  The inline links (six of them, the longest labels in the site) and the
+  fit-check pill need about 75rem. Below that, whether the screen is small or
+  the text is large, the bar is the wordmark, the call button and the menu,
+  and the drawer carries the links and the pill.
 */
 .site-header {
   container-type: inline-size;
 }
 
-.site-header .fit-pill {
-  white-space: nowrap;
-  text-wrap: nowrap;
-}
-
-@container (width < 21.5rem) {
-  .site-header .logo-wordmark {
-    display: none;
-  }
-}
-
-@container (width < 20rem) {
-  .site-header .fit-pill {
-    white-space: normal;
-    text-wrap: balance;
-    padding-inline: 0.75rem;
-    /* text-base brings body leading (1.65); two lines of a pill need less. */
-    line-height: 1.2;
-  }
-}
-
-@container (width < 17rem) {
-  .site-header .fit-pill {
-    display: none;
-  }
-
-  .site-header .logo-wordmark {
-    display: inline;
-  }
-
-  .site-header .header-row {
-    padding-block: 8px;
-  }
-
-  .site-header .nav-toggle {
-    width: 56px;
-    height: 56px;
-  }
-
-  .site-header .nav-toggle svg {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-@container (width < 11.5rem) {
-  .site-header .logo-wordmark {
-    display: none;
-  }
-}
-
-/*
-  The desktop bar at enlarged text. Logo, four links and the pill need about
-  46rem, plus gaps and gutters about 55rem: at 125% on a 1024px screen the
-  links wrapped and the bar grew to 153-173px. Below that the bar becomes the
-  tablet one — logo, pill, menu — and the drawer carries the links.
-*/
-@container (width < 55rem) {
-  .site-header .desktop-nav {
+@container (width < 75rem) {
+  .site-header .desktop-nav,
+  .site-header .header-pill {
     display: none;
   }
 
@@ -277,11 +201,6 @@ html {
 
   .site-header .header-row {
     padding-block: 4px;
-  }
-
-  .site-header .nav-toggle {
-    width: min(3rem, 56px);
-    height: min(3rem, 56px);
   }
 }
 
