@@ -84,7 +84,7 @@ components:
     background: "{components.button-primary.background}"
   input:
     backgroundColor: "#ffffff"
-    border: "1px #CFCFCF"
+    border: "1px #8A8F98"
     rounded: "{rounded.field}"
     height: "52px"
     fontSize: "17px"
@@ -121,7 +121,7 @@ Everything is built to a 55+ reading and motor floor, not just WCAG AA: 18px min
 ### Action
 - **CTA gradient** `#29864E` to `#217241` (top to bottom): every primary button and the two round header buttons. The handoff drew `#35AC64` to `#2A9253`; white text on that measures under 4.5:1, so the gradient was darkened, keeping the look. White text measures **4.55:1 on the top stop and 5.92:1 on the bottom stop**.
 - **Green** `#2E9E5B`: the annual plan card's border and other decoration. White on it is 3.41:1, so never put text on it.
-- **Green Deep** `#237A47`: green text on white (5.32:1), check badges, the store-fallback field.
+- **Green Deep** `#237A47`: green text on white (5.32:1), check badges.
 - **Green Wash** `#E8F5ED`: the lead form's success state.
 
 ### Neutral
@@ -135,9 +135,9 @@ Everything is built to a 55+ reading and motor floor, not just WCAG AA: 18px min
 - **Danger** `#C62828`: field errors. **Danger Deep** `#A81F1F`: hover of a filled danger button (white on it is 7.29:1).
 
 ### Named Rules
-**The Blue-on-Wash Rule.** Blue text on `#EAF1FB` or `#EEF5FE` uses `blue-deep`, never `blue`. `#1E6FD9` measures 4.27:1 on `#EAF1FB` and 4.42:1 on `#EEF5FE`, both under AA; `#1659B3` measures 5.93:1 and 6.14:1. This covers the back link on the page hero, the fit-check close headings and the active nav pill.
+**The Blue-on-Wash Rule.** Normal-size blue text on `#EAF1FB` or `#EEF5FE` uses `blue-deep`, never `blue`. The hero and PageHero h1 accents are large text, where the 3:1 floor applies. `#1E6FD9` measures 4.27:1 on `#EAF1FB` and 4.42:1 on `#EEF5FE`, both under AA; `#1659B3` measures 5.93:1 and 6.14:1. This covers the back link on the page hero, the fit-check close headings and the active nav pill.
 
-**The Green-Means-Act Rule.** Green fills are actions (buttons, the round header buttons) or the one field whose job is the purchase path (store fallback). Green is never a decorative band or a heading colour.
+**The Green-Means-Act Rule.** Green fills are actions (buttons, the round header buttons). Green is never a field, a decorative band or a heading colour.
 
 **The Gradient-Contrast Rule.** axe cannot read text over a CSS gradient, so every gradient pairing is computed by hand and recorded here. Any change to `--green-hi` / `--green-lo` must keep white text at 4.5:1 on both stops.
 
@@ -226,7 +226,7 @@ On the hero wash with 32px bottom corners: h1, sub, the client's hero video (mut
 Annual card: 2px green border, the gradient badge "מנוי שנתי – החיסכון הגדול", 69 ₪ לחודש at 38px/800, terms, the computed saving in blue, full-width lg button. Monthly: a lighter 18px row with a text "לבחירה" action. Pressed state (checkout open) is a green ring. "What both include" sits in a sunken panel beside the plans from lg.
 
 ### Store Fallback
-With the web checkout off, the purchase path ends in a `green-deep` field with white text, a white focus ring and outline store buttons.
+With the web checkout off, the purchase path ends in a `blue-wash` panel with a `blue-deep` heading, ink text and the two green store buttons.
 
 ### Fit-Check Close
 The explainers' and articles list's closing panel: centred `blue-wash` panel, `blue-deep` heading, ink-soft body, the green CTA "בדקו איזו תוכנית מתאימה לכם".
@@ -235,7 +235,7 @@ The explainers' and articles list's closing panel: centred `blue-wash` panel, `b
 Divider-ruled rows, 17px/700 questions (20px from lg), a blue "+" / "−" marker, answers at 18px. First item open. One open at a time.
 
 ### Forms (`components/forms/*`)
-52px inputs, 14px radius, 1px `#CFCFCF` border, 17px text, blue-deep caret and focus border. Labels are 700 above the field; optional fields read "(לא חובה)" inline after the label text. One error line under its field (`role="alert"`). Submit is the full-width gradient pill.
+52px inputs, 14px radius, 1px `#8A8F98` border (3.25:1 on white, the 1.4.11 floor is 3:1), 17px text, blue-deep caret; focus turns the border blue-deep and adds a 2px blue-deep ring (3px in all, the site focus weight). Labels are 700 above the field; optional fields read "(לא חובה)" inline after the label text. One error line under its field (`role="alert"`). Submit is the full-width gradient pill.
 
 ### Icons (`components/ui/icons.tsx`)
 One grammar: 1.75 stroke, round caps and joins, 24-unit grid, no fills, with one stated exception (`CallIcon`). `PhoneIcon` is the smartphone, for SMS codes and numbers to type. No emoji, no unicode glyph icons, no icon font.
