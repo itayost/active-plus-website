@@ -2,20 +2,34 @@ import type { QA } from "@/content/pages";
 
 export type { QA };
 
-export type WhatMatter = { title: string; body: string };
-
 export type Testimonial = {
   name: string;
   source: "google" | "facebook";
   quote: string;
 };
 
-/** "מה חשוב לנו?" - copy is the client's, verbatim from the approved mock. */
-export const WHAT_MATTERS: readonly WhatMatter[] = [
-  { title: "שתמשיכו לעשות את מה שאתם אוהבים", body: "לנוע, לצאת, לטייל, לבלות עם המשפחה ולחיות חיים פעילים, עצמאיים ומהנים יותר." },
-  { title: "שתשמרו על חדות המחשבה", body: "לחזק את הקשב, הריכוז ומהירות התגובה כדי להרגיש בטוחים יותר בחיי היום־יום." },
-  { title: "לחיות טוב יותר, בכל יום", body: "כששומרים על שגרת חיים פעילה, מרוויחים יותר אנרגיה, יותר ביטחון ויותר איכות חיים לכם ולמשפחה שלכם." },
-];
+/** Hero copy, verbatim from the handoff prototype. */
+export const HERO = {
+  titleLead: "תוכנית אישית",
+  titleAccent: "לאימון וחיזוק הגוף וחדות המחשבה",
+  sub: "רק 10 דקות ביום מהבית ובקצב שלך",
+  cta: "לתוכנית אישית לחצו כאן",
+} as const;
+
+export const WORLD = {
+  heading: "עולם שלם בחיבור אחד",
+  cards: [
+    { title: "לחזק את השרירים", body: "חיזוק שרירי הרגליים והליבה בנוחות מהבית" },
+    { title: "לאמן את המוח", body: "תרגול קוגניטיבי ומשחקי זיכרון וחשיבה." },
+    { title: "אתגרים", body: "מגוון אתגרי כוח וזיכרון למי שרוצה עוד" },
+    { title: "התאמה אישית AI", body: "המערכת לומדת מאימון לאימון ומבצעת התאמה אישית" },
+  ],
+} as const;
+
+export const PROGRAM_HEADING = "מעטפת מקצועית במיוחד בשבילכם";
+
+/** The two labels the home page's CTA bars use. */
+export const CTAS = { fit: "לבדיקת התאמה", plan: "לקבלת תוכנית אישית" } as const;
 
 export const TESTIMONIALS: readonly Testimonial[] = [
   { name: "אורלי אזולאי", source: "google", quote: "אני מאוד נהנית מפעילים+. האימונים קצרים אבל מרגישים אפקטיביים, ואחרי תקופה אני מרגישה יותר אנרגטית ויותר חדה. כיף לעשות משהו טוב בשביל עצמי כל יום." },

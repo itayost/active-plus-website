@@ -6,7 +6,7 @@ import { shouldLoadHeroVideo } from "@/lib/media";
 type NetworkInformationLike = { saveData?: boolean; effectiveType?: string };
 
 /**
- * The hero's moving background, mounted only after hydration and only when it
+ * The hero's moving picture, mounted only after hydration and only when it
  * will be seen.
  *
  * In the server HTML a <video autoPlay> ignores preload="metadata" and
@@ -20,6 +20,8 @@ type NetworkInformationLike = { saveData?: boolean; effectiveType?: string };
  * page's own images and fonts are still arriving, and a 1.4 MB stream started
  * at hydration would share the connection with them; the poster is already
  * painted, so starting the video a moment later costs nothing visible.
+ *
+ * It fills its positioned parent and paints above the poster by DOM order.
  *
  * No `poster` attribute: the optimised next/image poster already sits directly
  * underneath, and a video with no frame yet is transparent, so the attribute
@@ -77,7 +79,7 @@ export default function HeroVideo({ src }: { src: string }) {
       {marker}
       <video
         ref={videoRef}
-        className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
+        className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
         autoPlay
         muted
         loop

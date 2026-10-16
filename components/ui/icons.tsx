@@ -15,14 +15,6 @@ const base = {
   focusable: false,
 };
 
-export function PlayIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M8 5.6v12.8a.8.8 0 0 0 1.22.68l10.2-6.4a.8.8 0 0 0 0-1.36L9.22 4.92A.8.8 0 0 0 8 5.6Z" />
-    </svg>
-  );
-}
-
 export function ArrowIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>

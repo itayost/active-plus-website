@@ -108,7 +108,7 @@ test.describe("a phone held sideways", () => {
       await page.setViewportSize({ width, height });
       await page.goto("/");
       const heading = (await page.locator("#hero-heading").boundingBox())!;
-      const action = (await page.getByRole("main").getByRole("link", { name: "בדיקת התאמה", exact: true }).first().boundingBox())!;
+      const action = (await page.getByRole("main").getByRole("link", { name: "לתוכנית אישית לחצו כאן", exact: true }).first().boundingBox())!;
       expect(heading.y).toBeGreaterThanOrEqual(0);
       expect(action.y + action.height).toBeLessThanOrEqual(height);
     });

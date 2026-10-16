@@ -86,49 +86,42 @@ export const PLAN_INCLUDES = [
 ] as const;
 
 /**
- * Three cards, each opening its own explainer page, each with its client photo.
+ * "מעטפת מקצועית" cards on the home page: each opens its own explainer page and
+ * carries its client photo. Copy is the handoff prototype's, verbatim.
  */
-export const FEATURE_CARDS = [
+export const PROGRAM_CARDS = [
   {
     id: "personal-plan",
-    tone: "blue",
     title: "תוכנית אישית בהתאמה חכמה",
-    body: [
-      "התוכנית מותאמת לרמה האישית שלכם גם באימון הגופני וגם באימון המוח.",
-      "המערכת לומדת את הביצועים שלכם, מספקת משוב, ומדייקת את התוכנית מאימון לאימון.",
-    ],
+    body: "התוכנית מותאמת לרמה האישית שלכם גם באימון הגופני וגם באימון המוח. המערכת לומדת את הביצועים שלכם, מספקת משוב, ומדייקת את התוכנית מאימון לאימון.",
     href: "/personal-plan",
     image: "/img/v2/card-personal-plan.webp",
-    // A tall portrait in a wider frame: centred, the crop cut his head off.
-    // Phones show about half the height, so aim high (head + exercise list);
-    // the desktop frame shows about two thirds, enough for head to shoes.
-    focus: { base: "50% 15%", lg: "50% 26%" },
+    // A tall portrait in a wide frame: aim high so his head stays in.
+    focus: "50% 15%",
     alt: "מבוגר בתרגיל מכרע צידי בסלון, לצד רשימת התרגילים שלו",
+    cta: "תראו לי עוד",
   },
   {
     id: "motion-detection",
-    tone: "blue",
     title: "טכנולוגיה שמחזקת את הביטחון",
-    body: [
-      "המצלמה החכמה שלנו מזהה את התנועה בזמן אמת ומספקת משוב אישי במהלך האימון,",
-      "כדי לעזור לכם לבצע כל תרגיל בצורה מדויקת יותר ולהפיק ממנו יותר.",
-    ],
+    body: "המצלמה החכמה שלנו מזהה את התנועה בזמן אמת ומספקת משוב אישי במהלך האימון, כדי לעזור לכם לבצע כל תרגיל בצורה מדויקת יותר ולהפיק ממנו יותר.",
     href: "/motion-detection",
     image: "/img/v2/card-motion.webp",
+    focus: "50% 50%",
     alt: "אישה מרימה ידיים בתנוחת Y מול הטלפון, עם נקודות זיהוי התנועה",
+    cta: "תראו לי עוד",
   },
   {
     id: "progress",
-    tone: "green",
     title: "מדידה והתקדמות לאורך זמן",
-    body: [
-      "המערכת עוקבת אחר מדדים כמו קשב, זיכרון, מהירות תגובה, איכות התנועה והשליטה בגוף כדי להראות לכם מה משתפר ואיפה כדאי להתמקד יותר.",
-    ],
+    body: "המערכת עוקבת אחר מדדים כמו קשב, זיכרון, מהירות תגובה, איכות התנועה והשליטה בגוף כדי להראות לכם מה משתפר ואיפה כדאי להתמקד יותר.",
     href: "/progress",
     image: "/img/v2/card-progress.webp",
+    focus: "50% 50%",
     alt: "מבוגר מחייך מול טאבלט עם מסך ההתקדמות שלו",
+    cta: "תראו לי עוד",
   },
 ] as const;
 
-export type FeatureCard = (typeof FEATURE_CARDS)[number];
+export type ProgramCard = (typeof PROGRAM_CARDS)[number];
 export type Tone = "blue" | "green";
