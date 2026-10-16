@@ -2,7 +2,7 @@ import Card from "@/components/ui/Card";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { WORLD } from "@/content/home";
 
-/** "עולם שלם בחיבור אחד": a stack of four on a phone, one row of four from lg. */
+/** "עולם שלם בחיבור אחד": a stack of four on a phone, two by two on a tablet, one row of four from lg. */
 export default function WorldCards() {
   return (
     <section
@@ -10,7 +10,7 @@ export default function WorldCards() {
       className="mx-auto w-full max-w-shell gutter-x pb-3 pt-12 lg:pt-16"
     >
       <SectionHeading id="world-heading" title={WORLD.heading} />
-      <ul role="list" className="mt-4 flex flex-col gap-3 lg:mt-8 lg:grid lg:grid-cols-4 lg:gap-5">
+      <ul role="list" className="mt-4 flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:mt-8 lg:grid-cols-4 lg:gap-5">
         {WORLD.cards.map((card) => (
           <li key={card.title}>
             <Card className="h-full rounded-tile p-[18px] lg:p-6">

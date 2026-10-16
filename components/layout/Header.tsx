@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Logo from "./Logo";
 import Button from "@/components/ui/Button";
-import { CloseIcon, MenuIcon, PhoneIcon } from "@/components/ui/icons";
+import { CallIcon, CloseIcon, MenuIcon } from "@/components/ui/icons";
 import {
   CONTACT_HOURS,
   CONTACT_PHONE,
@@ -16,8 +16,11 @@ import {
 import PhoneNumber from "@/components/ui/PhoneNumber";
 
 /* 46px disc drawn inside a 48px hit box, so the touch target meets the floor.
-   The focus outline sits outside the box, on white, clear of the green. */
-const ROUND_HIT = "inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-pill";
+   The focus outline sits outside the box, on white, clear of the green, at a
+   1px offset (not the global 3px) so the rings of two neighbouring buttons,
+   12px apart, never touch. */
+const ROUND_HIT =
+  "inline-flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-pill focus-visible:outline-offset-1";
 const ROUND_DISC =
   "inline-flex h-[46px] w-[46px] items-center justify-center rounded-pill bg-cta text-white shadow-cta " +
   "transition-[transform,filter] duration-[var(--dur-fast)] ease-out-expo hover:brightness-95 active:scale-[0.95]";
@@ -85,9 +88,11 @@ export default function Header() {
 
   return (
     <>
-      {/* site-header is a size container: the bar measures itself in rem and
-          swaps the inline links for the menu button before anything is pushed
-          off the screen at enlarged text (see globals.css). */}
+      {/* site-header is a size container. Which bar shows (inline links and
+          pill, or the menu button) is decided in one place, globals.css: from
+          xl (1280px), and only while the bar is at least 75rem wide, so
+          enlarged text gets the menu button before anything is pushed off
+          the screen. */}
       <header
         className={`site-header sticky top-0 z-40 bg-surface pt-[env(safe-area-inset-top)] transition-[box-shadow,border-color] duration-[var(--dur)] ${
           lifted ? "border-b border-hairline shadow-lift-1" : "border-b border-transparent"
@@ -96,13 +101,14 @@ export default function Header() {
         {/*
           The row wraps instead of overflowing, so nothing is ever pushed past
           the inline end, where html's overflow-x: clip would silently hide the
-          menu toggle. The round buttons are sized in px, not rem: they are
-          already larger than the 48px floor and must not grow with the text.
+          menu toggle. The round buttons are sized in px, not rem: their 48px
+          hit boxes already meet the floor (the discs are 46px) and must not
+          grow with the text.
         */}
         <div className="header-row mx-auto flex max-w-shell flex-wrap items-center justify-between gap-x-4 gap-y-1 gutter-x py-2 xl:gap-x-6">
           <Logo />
 
-          <nav aria-label="ניווט ראשי" className="desktop-nav hidden xl:block">
+          <nav aria-label="ניווט ראשי" className="desktop-nav">
             <ul className="flex items-center">
               {NAV.map((item) => (
                 <li key={item.href}>
@@ -122,30 +128,32 @@ export default function Header() {
             </ul>
           </nav>
 
-          <div className="header-actions ms-auto flex items-center gap-1">
-            <div className="header-pill hidden xl:block">
+          {/* Menu then call, as in the handoff: in RTL the call button ends
+              the row at the screen's left edge. */}
+          <div className="header-actions ms-auto flex items-center gap-3">
+            <div className="header-pill">
               <Button href={FIT_CHECK.href} className="whitespace-nowrap [text-wrap:nowrap]">
                 {FIT_CHECK.label}
               </Button>
             </div>
-            <a href={`tel:${CONTACT_PHONE_TEL}`} aria-label="התקשרו אלינו" className={ROUND_HIT}>
-              <span className={ROUND_DISC}>
-                <PhoneIcon className="h-6 w-6" />
-              </span>
-            </a>
             <button
               ref={toggleRef}
               type="button"
               onClick={() => (open ? close() : setOpen(true))}
               aria-expanded={open}
               aria-controls="site-drawer"
-              className={`nav-toggle xl:hidden ${ROUND_HIT}`}
+              className={`nav-toggle ${ROUND_HIT}`}
             >
               <span className="sr-only">{open ? "סגירת התפריט" : "פתיחת התפריט"}</span>
               <span className={ROUND_DISC} aria-hidden="true">
                 <MenuIcon className="h-6 w-6" />
               </span>
             </button>
+            <a href={`tel:${CONTACT_PHONE_TEL}`} aria-label="התקשרו אלינו" className={ROUND_HIT}>
+              <span className={ROUND_DISC}>
+                <CallIcon className="h-[22px] w-[22px]" />
+              </span>
+            </a>
           </div>
         </div>
       </header>
@@ -158,7 +166,7 @@ export default function Header() {
         aria-hidden="true"
         onClick={close}
         className={`fixed inset-0 z-40 bg-ink/45 backdrop-blur-[2px] transition-opacity duration-[var(--dur)] ${
-          open ? "opacity-100" : "pointer-events-none opacity-0 xl:hidden"
+          open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
@@ -183,7 +191,7 @@ export default function Header() {
         className={`drawer-safe fixed inset-y-0 start-0 z-50 flex w-[min(88vw,380px)] flex-col overflow-y-auto overscroll-contain bg-surface motion-reduce:transition-none ${
           open
             ? "visible translate-x-0 shadow-lift-3 [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s]"
-            : "invisible translate-x-full shadow-none xl:hidden rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
+            : "invisible translate-x-full shadow-none rtl:translate-x-full [transition:transform_var(--dur)_var(--ease-out-expo),box-shadow_var(--dur)_var(--ease-out-expo),visibility_0s_linear_var(--dur)]"
         }`}
       >
         {/* The close row is sized in px, capped at 56px: at 200% a 3rem
@@ -229,7 +237,7 @@ export default function Header() {
             href={`tel:${CONTACT_PHONE_TEL}`}
             className="flex min-h-12 items-center gap-3 text-ink-soft transition-colors hover:text-blue-deep"
           >
-            <PhoneIcon className="h-6 w-6 shrink-0 text-blue-deep" />
+            <CallIcon className="h-6 w-6 shrink-0 text-blue-deep" />
             <span dir="ltr"><PhoneNumber value={CONTACT_PHONE} /></span>
           </a>
           <p className="mt-1 ps-9 text-ink-soft">{CONTACT_HOURS}</p>

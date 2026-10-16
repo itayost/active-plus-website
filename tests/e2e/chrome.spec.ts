@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { CONTACT_HOURS, CONTACT_PHONE_TEL } from "../../lib/constants";
 
 const NAV_LABELS = [
   "הכירו את פעילים+",
@@ -31,6 +32,28 @@ test.describe("desktop bar", () => {
   });
 });
 
+/* 1024-1279px is a laptop, not a phone, but six long links and the pill do
+   not fit there: the bar is the phone's (wordmark, menu, call) by design. */
+test.describe("laptop band between lg and xl", () => {
+  test.use({ viewport: { width: 1100, height: 800 } });
+
+  test("no pill or inline links; the menu opens the drawer with the six links", async ({ page }) => {
+    await page.goto("/");
+    const banner = page.getByRole("banner");
+    await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
+    await expect(banner.getByRole("navigation", { name: "ניווט ראשי" })).toBeHidden();
+    const toggle = banner.getByRole("button", { name: "פתיחת התפריט" });
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    const drawer = page.getByRole("dialog", { name: "תפריט האתר" });
+    const links = drawer.getByRole("navigation", { name: "ניווט האתר" }).getByRole("link");
+    await expect(links).toHaveText(NAV_LABELS);
+    for (const [i, href] of NAV_HREFS.entries()) {
+      await expect(links.nth(i)).toHaveAttribute("href", href);
+    }
+  });
+});
+
 test.describe("phone bar", () => {
   test("wordmark, menu and call buttons; no fit pill", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -39,7 +62,7 @@ test.describe("phone bar", () => {
     await expect(banner.getByRole("link", { name: "פעילים+ – לדף הבית" })).toHaveAttribute("href", "/");
     await expect(banner.getByRole("button", { name: "פתיחת התפריט" })).toBeVisible();
     const call = banner.getByRole("link", { name: "התקשרו אלינו" });
-    await expect(call).toHaveAttribute("href", "tel:+972737296699");
+    await expect(call).toHaveAttribute("href", `tel:${CONTACT_PHONE_TEL}`);
     for (const control of [call, banner.getByRole("button", { name: "פתיחת התפריט" })]) {
       const box = (await control.boundingBox())!;
       expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(48);
@@ -65,6 +88,7 @@ test("footer links both legal pages", async ({ page }) => {
   await expect(footer.getByRole("link", { name: "מחיקת חשבון" })).toHaveAttribute("href", "/delete-account");
   await expect(footer.getByRole("link", { name: "מדיניות פרטיות" })).toHaveAttribute("href", "/privacy-policy");
   await expect(footer.locator('a[href="https://wa.me/972506316060"]')).toBeVisible();
+  await expect(footer.getByText(CONTACT_HOURS)).toBeVisible();
   await expect(footer.getByRole("navigation", { name: "ניווט תחתון" }).getByRole("link")).toHaveText(NAV_LABELS);
 });
 

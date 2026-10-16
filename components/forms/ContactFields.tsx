@@ -4,6 +4,14 @@ import { areaClass, FieldError, fieldClass, LABEL_CLASS } from "./FieldParts";
 
 const OPTIONAL = <span className="font-normal text-ink-soft">(לא חובה)</span>;
 
+/* The label text and its "(לא חובה)" share one line: LABEL_CLASS is a flex
+   column, so as two loose children they stacked on two lines. */
+const labelText = (text: string) => (
+  <span>
+    {text} {OPTIONAL}
+  </span>
+);
+
 type Props = {
   uid: string;
   values: LeadValues;
@@ -26,7 +34,7 @@ export default function ContactFields({ uid, values, errorFor, errorId, onBlur }
     <>
       <div className="flex flex-col gap-2">
         <label className={LABEL_CLASS}>
-          אימייל {OPTIONAL}
+          {labelText("אימייל")}
           <input
             name="email"
             type="email"
@@ -44,7 +52,7 @@ export default function ContactFields({ uid, values, errorFor, errorId, onBlur }
       </div>
 
       <label className={LABEL_CLASS} htmlFor={`${uid}-topic`}>
-        נושא פנייה {OPTIONAL}
+        {labelText("נושא פנייה")}
         <select
           id={`${uid}-topic`}
           name="topic"
@@ -61,7 +69,7 @@ export default function ContactFields({ uid, values, errorFor, errorId, onBlur }
 
       <div className="flex flex-col gap-2">
         <label className={LABEL_CLASS}>
-          הודעה {OPTIONAL}
+          {labelText("הודעה")}
           <textarea
             name="message"
             rows={4}

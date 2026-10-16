@@ -43,8 +43,10 @@ export default function PlanSelector({ selected, onSelect, onContinue, checkoutO
   };
   const href = WEB_CHECKOUT_ENABLED ? undefined : STORE_FALLBACK_HREF;
 
+  // From lg the plans and "what both include" stand side by side, the list in
+  // a sunken panel, instead of one 36rem column against the right edge.
   return (
-    <>
+    <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-12 xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] xl:gap-x-16">
       <div className="mt-8 grid max-w-xl gap-4">
         <section
           data-testid="plan-annual"
@@ -108,13 +110,13 @@ export default function PlanSelector({ selected, onSelect, onContinue, checkoutO
       </div>
 
       <div
-        className={`mt-10 grid gap-8 ${
-          showMethods ? "md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-start" : ""
+        className={`mt-10 grid gap-8 lg:mt-8 lg:rounded-card lg:bg-sunken lg:p-10 ${
+          showMethods ? "md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-start lg:grid-cols-1" : ""
         }`}
       >
         <div>
           <h2 className="font-display text-h3 font-bold">מה כלול בשני המסלולים</h2>
-          <ul className="mt-5 grid gap-4 sm:grid-cols-2">
+          <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             {PLAN_INCLUDES.map((item) => (
               <li key={item} className="flex items-center gap-3 text-lead font-medium">
                 <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-deep text-white">
@@ -148,7 +150,7 @@ export default function PlanSelector({ selected, onSelect, onContinue, checkoutO
           </div>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
 

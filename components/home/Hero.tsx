@@ -30,7 +30,7 @@ export default function Hero() {
         <div className="hero-text gutter-x flex flex-col gap-2.5">
           <h1
             id="hero-heading"
-            className="text-[2.3125rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink lg:text-[clamp(2.5rem,3.3vw,3.875rem)]"
+            className="text-[2.3125rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink lg:text-[clamp(2.75rem,4vw,4.5rem)]"
           >
             {HERO.titleLead}
             <br />

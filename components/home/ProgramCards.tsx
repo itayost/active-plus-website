@@ -13,7 +13,7 @@ export default function ProgramCards() {
       <div className="mx-auto w-full max-w-shell gutter-x">
         <SectionHeading id="program-heading" title={PROGRAM_HEADING} swipeHint />
       </div>
-      <div className="mx-auto mt-3 w-full max-w-shell lg:mt-6">
+      <div className="mx-auto w-full max-w-shell lg:mt-6">
         <SwipeRow label={PROGRAM_HEADING} desktop="grid-3" itemWidth="card">
           {PROGRAM_CARDS.map((card) => (
             <Card key={card.id} as="article" className="flex h-full flex-col overflow-hidden">

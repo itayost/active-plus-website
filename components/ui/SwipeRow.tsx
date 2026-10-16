@@ -44,6 +44,9 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
     items.length,
   );
   const isGrid = desktop !== "carousel";
+  // The whole row is on screen (the seven partner tiles at 1440): arrows that
+  // can go nowhere read as broken, so the row drops them.
+  const fits = !canPrev && !canNext;
 
   // Chrome leaves a focused item where it is when part of it is already on
   // screen, so a Tab landed on a card showing only a sliver. Bring any item
@@ -60,8 +63,8 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
 
   return (
     <div role="region" aria-label={label}>
-      {isGrid ? null : (
-        <div className="mb-6 hidden justify-end lg:flex">
+      {isGrid || fits ? null : (
+        <div className="mb-2 hidden justify-end lg:flex">
           <CarouselArrows
             prevLabel="הקודם"
             nextLabel="הבא"
@@ -76,7 +79,7 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
         role="list"
         ref={trackRef}
         onFocus={revealFocused}
-        className={`snap-gutter flex snap-x snap-mandatory gap-3.5 overflow-x-auto scroll-smooth gutter-x pb-10 pt-2 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${DESKTOP_TRACK[desktop]}`}
+        className={`snap-gutter flex snap-x snap-mandatory gap-3.5 overflow-x-auto scroll-smooth gutter-x pb-10 pt-5 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${DESKTOP_TRACK[desktop]}`}
       >
         {items.map((child, i) => (
           <li

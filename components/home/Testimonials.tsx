@@ -17,7 +17,7 @@ export default function Testimonials() {
       <div className="mx-auto w-full max-w-shell gutter-x">
         <SectionHeading id="testimonials-heading" title={TESTIMONIALS_HEADING} swipeHint />
       </div>
-      <div className="mx-auto mt-3 w-full max-w-shell lg:mt-6">
+      <div className="mx-auto w-full max-w-shell lg:mt-6">
         <SwipeRow label={TESTIMONIALS_HEADING} desktop="carousel" itemWidth="card" focusableItems>
           {TESTIMONIALS.map((item) => (
             <Card key={item.name} as="article" className="flex h-full flex-col gap-2.5 p-[18px]">

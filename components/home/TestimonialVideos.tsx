@@ -17,7 +17,7 @@ export default function TestimonialVideos({ videos = TESTIMONIAL_VIDEOS }: Props
       <div className="mx-auto w-full max-w-shell gutter-x">
         <SectionHeading id="videos-heading" title={VIDEOS_HEADING} swipeHint />
       </div>
-      <div className="mx-auto mt-3 w-full max-w-shell lg:mt-6">
+      <div className="mx-auto w-full max-w-shell lg:mt-6">
         <SwipeRow label={VIDEOS_HEADING} desktop="carousel" itemWidth="video">
           {videos.map((video) => (
             <figure key={video.src} className="m-0 flex flex-col gap-2">

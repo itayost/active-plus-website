@@ -191,23 +191,33 @@ html {
   header is a size container and the query below is in rem, so it tracks the
   text size as well as the pixel width.
 
-  The inline links (six of them, the longest labels in the site) and the
-  fit-check pill need about 75rem. Below that, whether the screen is small or
-  the text is large, the bar is the wordmark, the call button and the menu,
-  and the drawer carries the links and the pill.
+  This is the one place that decides which bar shows; Header.tsx carries no
+  breakpoint classes for it. The inline links (six of them, the longest labels
+  in the site) and the fit-check pill need about 75rem, so they show from xl
+  (1280px) and only while the bar is at least 75rem wide. Below that, whether
+  the screen is small (a tablet, a 1024-1279px laptop) or the text is large,
+  the bar is the wordmark, the menu and the call button, and the drawer
+  carries the links and the pill.
 */
 .site-header {
   container-type: inline-size;
 }
 
-@container (width < 75rem) {
-  .site-header .desktop-nav,
-  .site-header .header-pill {
-    display: none;
-  }
+.site-header .desktop-nav,
+.site-header .header-pill {
+  display: none;
+}
 
-  .site-header .nav-toggle {
-    display: inline-flex;
+@media (min-width: 1280px) {
+  @container (width >= 75rem) {
+    .site-header .desktop-nav,
+    .site-header .header-pill {
+      display: block;
+    }
+
+    .site-header .nav-toggle {
+      display: none;
+    }
   }
 }
 
@@ -228,9 +238,10 @@ html {
 }
 
 /*
-  Held sideways, a phone offers about 390px of height and the drawer wants ~750.
-  Scrolling a nine-item menu to reach "צור קשר" is the wrong answer when the rows
-  themselves are the slack: 60px is the drawer's designed rhythm, not its floor.
+  Held sideways, a phone offers about 390px of height and the drawer wants ~650.
+  Scrolling a six-item menu to reach the fit-check button and the phone number
+  under it is the wrong answer when the rows themselves are the slack: 60px is
+  the drawer's designed rhythm, not its floor.
   Landscape trades it for 48px — still clear of the 44px target minimum and of
   this audience's own 48px floor — which brings the whole menu back into one
   screen. Keyed to viewport height, not to orientation, so a small window on a

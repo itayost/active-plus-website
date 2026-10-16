@@ -21,26 +21,35 @@ const LINK = "inline-flex min-h-[48px] items-center";
 
 export default function ContactPage() {
   return (
-    <InnerPage title={C.title}>
-      <p className="font-extrabold">{C.lede}</p>
-      <address className="mb-6 not-italic leading-[1.9]">
-        <a href={`tel:${CONTACT_PHONE_TEL}`} className={LINK}>
-          {CONTACT_PHONE}
-        </a>
-        <br />
-        {CONTACT_HOURS}
-        <br />
-        <a href={CONTACT_WHATSAPP_URL} className={LINK}>
-          {CONTACT_WHATSAPP} (וואטסאפ)
-        </a>
-        <br />
-        <a href={`mailto:${CONTACT_EMAIL}`} className={`${LINK} text-blue-deep`}>
-          {CONTACT_EMAIL}
-        </a>
-        <br />
-        {CONTACT_ADDRESS}
-      </address>
-      <LeadForm source="contact" variant="contact" />
+    <InnerPage
+      title={C.title}
+      intro={
+        <>
+          <p className="mb-3 font-extrabold">{C.lede}</p>
+          <address className="mb-6 not-italic leading-[1.9]">
+            <a href={`tel:${CONTACT_PHONE_TEL}`} className={LINK}>
+              {CONTACT_PHONE}
+            </a>
+            <br />
+            {CONTACT_HOURS}
+            <br />
+            <a href={CONTACT_WHATSAPP_URL} className={LINK}>
+              {CONTACT_WHATSAPP} (וואטסאפ)
+            </a>
+            <br />
+            <a href={`mailto:${CONTACT_EMAIL}`} className={`${LINK} text-blue-deep`}>
+              {CONTACT_EMAIL}
+            </a>
+            <br />
+            {CONTACT_ADDRESS}
+          </address>
+        </>
+      }
+    >
+      {/* Beside the details from lg, the form gets the handoff's card. */}
+      <div className="lg:rounded-card lg:border lg:border-hairline lg:bg-surface lg:p-10 lg:shadow-card">
+        <LeadForm source="contact" variant="contact" />
+      </div>
     </InnerPage>
   );
 }

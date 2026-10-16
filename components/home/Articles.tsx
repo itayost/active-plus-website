@@ -24,7 +24,7 @@ export default function Articles() {
           }
         />
       </div>
-      <div className="mx-auto mt-3 w-full max-w-shell lg:mt-6">
+      <div className="mx-auto w-full max-w-shell lg:mt-6">
         <SwipeRow label={ARTICLES_HEADING} desktop="grid-3" itemWidth="card">
           {ARTICLES.map((article, i) => (
             <ArticleCard key={article.slug} article={article} number={i + 1} />

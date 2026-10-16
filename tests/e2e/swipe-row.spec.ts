@@ -84,6 +84,22 @@ test.describe("desktop", () => {
   });
 });
 
+test.describe("wide desktop", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test("a row that fits whole drops its arrows; one that does not keeps them", async ({ page }) => {
+    await page.goto("/");
+    // The row's own region, not the section of the same name around it.
+    const partners = page.locator('div[role="region"][aria-label="שיתופי פעולה"]');
+    // Positive control first: the arrows exist on this page and width.
+    await expect(row(page).getByRole("button", { name: "הבא" })).toBeVisible();
+    await partners.scrollIntoViewIfNeeded();
+    await expect(partners.getByRole("listitem").last()).toBeInViewport();
+    await expect(partners.getByRole("button", { name: "הבא" })).toHaveCount(0);
+    await expect(partners.getByRole("button", { name: "הקודם" })).toHaveCount(0);
+  });
+});
+
 test.describe("reduced motion", () => {
   test.use({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
 
