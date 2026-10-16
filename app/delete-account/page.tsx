@@ -15,13 +15,12 @@ export default function DeleteAccountPage() {
       <PageHero
         title="מחיקת חשבון"
         lede="עדכון אחרון: פברואר 2026"
-        tone="blue"
       />
       <div className="bg-surface py-[var(--section-y)]">
         <Shell width="narrow">
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           כיצד למחוק את החשבון שלך
         </h2>
         <div className="text-ink-soft">
@@ -51,7 +50,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           אילו נתונים יימחקו
         </h2>
         <div className="text-ink-soft">
@@ -69,7 +68,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           מידע חשוב
         </h2>
         <div className="text-ink-soft">
@@ -88,7 +87,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           שאלות נוספות
         </h2>
         <div className="text-ink-soft">

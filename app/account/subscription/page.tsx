@@ -13,7 +13,7 @@ export default function SubscriptionPage() {
   return (
     <Section id="subscription" tone="sunken" labelledBy="subscription-heading" className="pt-[clamp(2.5rem,5vw,4.5rem)]">
       <div className="mx-auto max-w-[56.25rem]">
-        <h1 id="subscription-heading" className="mb-8 font-display text-[clamp(2rem,1.4rem+2.2vw,3rem)] font-extrabold">{A.title}</h1>
+        <h1 id="subscription-heading" className="mb-8 font-display text-[clamp(2rem,1.4rem+2.2vw,3rem)] font-extrabold text-blue">{A.title}</h1>
         <div className="rounded-card bg-surface p-[clamp(1.25rem,3.5vw,2.5rem)] shadow-lift-2">
           <SubscriptionManager />
         </div>

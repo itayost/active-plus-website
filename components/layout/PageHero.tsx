@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { Shell } from "@/components/ui/Section";
-import type { Tone } from "@/lib/constants";
 
 export default function PageHero({
   title,
@@ -11,8 +10,6 @@ export default function PageHero({
 }: {
   title: string;
   lede?: string;
-  /** Accepted for the callers that still pass it; every page hero is now the one white-to-blue wash. */
-  tone?: Tone;
   /** Rendered above the h1: a BackLink (home from the explainers, the list from an article). */
   back?: ReactNode;
   /** Optional media beside the copy on wide screens, below it on narrow ones. */
@@ -27,7 +24,7 @@ export default function PageHero({
           {back}
 
           <h1
-            className={`font-display font-extrabold text-ink ${
+            className={`font-display font-extrabold text-blue ${
               article ? "max-w-[24ch] text-h1-article leading-[1.08]" : "max-w-[20ch] text-h1"
             }`}
           >

@@ -25,7 +25,7 @@ const STEP_ICONS = [ClipboardIcon, SlidersIcon];
 export default function PersonalPlanPage() {
   return (
     <>
-      <PageHero tone="blue" title={C.title} lede={C.lede} back={<BackLink />} />
+      <PageHero title={C.title} lede={C.lede} back={<BackLink />} />
 
       <Section>
         {/*
@@ -125,7 +125,6 @@ export default function PersonalPlanPage() {
 
       <Section labelledBy="result-h">
         <FitCheckClose
-          tone="wash"
           cta={C.cta}
           headingId="result-h"
           body={C.result.body}

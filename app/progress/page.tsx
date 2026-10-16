@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function ProgressPage() {
   return (
     <>
-      <PageHero tone="green" title={C.title} lede={C.lede} back={<BackLink />} />
+      <PageHero title={C.title} lede={C.lede} back={<BackLink />} />
 
       <Section labelledBy="know-h">
         <div className="grid gap-[clamp(2.5rem,5vw,3.5rem)] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-[clamp(4rem,8vw,8rem)] lg:gap-y-20">
@@ -125,7 +125,7 @@ export default function ProgressPage() {
         </h2>
         <p className="mt-6 max-w-measure text-lead text-ink-soft">{C.final.body}</p>
         <div className="mt-[clamp(3rem,6vw,4.5rem)]">
-          <FitCheckClose tone="green" cta={C.cta} heading={C.final.question} level={3} />
+          <FitCheckClose cta={C.cta} heading={C.final.question} level={3} />
         </div>
       </Section>
     </>

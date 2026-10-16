@@ -21,18 +21,15 @@ const [LEAD, ...MORE] = ARTICLES;
 export default function ArticlesPage() {
   return (
     <>
-      <div className="bg-blue-sky pb-[clamp(4rem,8vw,7rem)]">
-        <PageHero
-          title="מאמרים"
-          lede="מה שכדאי לדעת על הגוף, המוח והתנועה אחרי גיל 50."
-          tone="blue"
-        />
-      </div>
+      <PageHero
+        title="מאמרים"
+        lede="מה שכדאי לדעת על הגוף, המוח והתנועה אחרי גיל 50."
+      />
 
       <section aria-label="רשימת המאמרים" className="bg-surface pb-[var(--section-y)]">
         <Shell>
           <Reveal>
-            <article className="relative -mt-[clamp(4rem,8vw,7rem)] grid min-w-0 overflow-hidden rounded-card border border-hairline bg-white text-ink shadow-card transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+            <article className="relative mt-[clamp(2rem,4vw,3rem)] grid min-w-0 overflow-hidden rounded-card border border-hairline bg-white text-ink shadow-card transition-[transform,box-shadow] duration-[var(--dur)] ease-out-expo hover:-translate-y-[3px] hover:shadow-lift-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
               <div className="p-[clamp(min(0.75rem,3.75vw),1.6vw,1.25rem)]">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-tile lg:aspect-auto lg:h-full lg:min-h-[460px]">
                   <Image
@@ -80,8 +77,6 @@ export default function ArticlesPage() {
 
       <Section labelledBy="articles-cta" className="pt-0">
         <FitCheckClose
-          tone="blue"
-          centered
           cta="לבדיקת התאמה"
           headingId="articles-cta"
           heading="רוצים לראות איך פעילים+ יכולה להתאים גם לכם?"

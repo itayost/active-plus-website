@@ -17,7 +17,6 @@ export default function MotionDetectionPage() {
   return (
     <>
       <PageHero
-        tone="blue"
         title={C.title}
         lede={C.lede}
         back={<BackLink />}
@@ -88,7 +87,7 @@ export default function MotionDetectionPage() {
         </p>
         <p className="mt-8 text-lead text-ink-soft">{C.precise}</p>
         <div className="mt-[clamp(3rem,6vw,4.5rem)]">
-          <FitCheckClose tone="blue" cta={C.cta} heading={C.closing} headingId="close-h" />
+          <FitCheckClose cta={C.cta} heading={C.closing} headingId="close-h" />
         </div>
       </Section>
     </>
