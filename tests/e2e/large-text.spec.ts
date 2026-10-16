@@ -12,7 +12,6 @@ import { expect, test, type Page } from "@playwright/test";
 const ROUTES = [
   "/",
   "/about",
-  "/how-it-works",
   "/personal-plan",
   "/motion-detection",
   "/progress",
@@ -108,7 +107,7 @@ test.describe("a phone held sideways", () => {
       await page.setViewportSize({ width, height });
       await page.goto("/");
       const heading = (await page.locator("#hero-heading").boundingBox())!;
-      const action = (await page.getByRole("link", { name: "בואו לראות איך זה עובד" }).boundingBox())!;
+      const action = (await page.getByRole("link", { name: "בדיקת התאמה" }).boundingBox())!;
       expect(heading.y).toBeGreaterThanOrEqual(0);
       expect(action.y + action.height).toBeLessThanOrEqual(height);
     });

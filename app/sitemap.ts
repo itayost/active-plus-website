@@ -5,7 +5,7 @@ import { SITE_URL } from "@/lib/constants";
 /** Marked noindex on the page itself, so it must not appear here. */
 const EXCLUDED = new Set(["/questionnaire"]);
 
-const MAIN_PAGES = new Set(["/about", "/how-it-works", "/payment", "/articles"]);
+const MAIN_PAGES = new Set(["/about", "/research", "/team", "/payment", "/contact", "/articles"]);
 
 const LEGAL_PAGES = new Set(["/privacy-policy", "/delete-account"]);
 

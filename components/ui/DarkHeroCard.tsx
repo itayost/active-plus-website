@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /**
- * The rounded dark card that opens the home and how-it-works pages. Not the
+ * The rounded dark card that opens the home page. Not the
  * page shell: the card runs almost the full viewport, inset only by a small
  * margin so the rounded corners read. `background` holds the absolutely
  * positioned media and scrims (use negative z-index inside the card).

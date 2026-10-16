@@ -9,44 +9,51 @@ export const CONTACT_PHONE = "073-729-66-99";
 export const CONTACT_PHONE_TEL = "+972737296699";
 export const CONTACT_HOURS = "ימים א׳–ה׳, 10:00–17:00";
 export const CONTACT_ADDRESS = "יצחק שמיר 2, קרית ביאליק";
+export const CONTACT_WHATSAPP = "050-631-60-60";
+export const CONTACT_WHATSAPP_URL = "https://wa.me/972506316060";
+export const COMPANY_LINE = "מבית המרכז לשיפור התנועה בע״מ";
 
 export const STORE_IOS = "https://apps.apple.com/il/app/id6757860198";
 export const STORE_ANDROID =
   "https://play.google.com/store/apps/details?id=com.activeplus.app";
 
 /**
- * The client's v2 brief names six pages. Home is the logo, the questionnaire is
- * the green action that closes the bar, and the other four are the links. Four
- * fit at full size in one row, so every item now carries the same weight in the
- * bar, the drawer and the footer.
+ * The six menu items of the handoff prototype, in the order it shows them.
+ * Home is the wordmark, so it is not listed. The questionnaire is the primary
+ * action (FIT_CHECK), not a menu link.
  */
 export const NAV = [
-  { href: "/about", label: "אודות" },
-  { href: "/how-it-works", label: "איך זה עובד" },
+  { href: "/about", label: "הכירו את פעילים+" },
+  { href: "/research", label: "המחקר והגישה המקצועית" },
+  { href: "/team", label: "הצוות המקצועי" },
+  { href: "/#faq", label: "שאלות נפוצות" },
   { href: "/payment", label: "מסלולים ומחירים" },
-  { href: "/articles", label: "מאמרים" },
+  { href: "/contact", label: "צור קשר" },
 ] as const;
 
 /** The site's primary action: every "בדיקת התאמה" leads here. */
 export const FIT_CHECK = { href: "/questionnaire", label: "בדיקת התאמה" } as const;
 
 /**
- * Two plans. The annual is one charge of 708 ₪ that the buyer may split into
- * up to 12 installments; the monthly recurs at 99 ₪ with no commitment.
+ * Two plans. The annual is one charge of 828 ₪ (shown as 69 ₪ a month) that
+ * the buyer may split into up to 12 installments; the monthly recurs at 99 ₪
+ * with no commitment. The charge amount is always `total`, never `price`.
  *
- * The brief prints a saving of 600, but the prices produce a different figure,
- * so the saving shown is computed from the prices by annualSavings() in lib/pricing.ts.
+ * The saving shown is computed from the prices by annualSavings() in
+ * lib/pricing.ts (99 x 12 - 828 = 360), never typed by hand.
  */
 export const PLANS = [
   {
     id: "annual",
     name: "שנתי",
     longName: "מנוי שנתי",
-    price: 59,
+    price: 69,
     priceSuffix: "לחודש",
-    terms: "708 ₪ לשנה, בהתחייבות ל־12 חודשים",
-    total: 708,
+    terms: "ל-12 תשלומים · מנוי שנתי",
+    total: 828,
     maxInstallments: 12,
+    badge: "מנוי שנתי – החיסכון הגדול",
+    cta: "לבחירת המנוי השנתי",
     image: "/img/v2/plan-annual.webp",
     alt: "",
     featured: true,
@@ -60,6 +67,7 @@ export const PLANS = [
     terms: "חיוב חודשי, ללא התחייבות",
     total: 99,
     maxInstallments: 1,
+    cta: "לבחירה",
     image: "/img/v2/plan-monthly.webp",
     alt: "",
     featured: false,

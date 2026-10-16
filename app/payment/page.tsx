@@ -5,7 +5,7 @@ import { PLANS, type PlanId } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "מסלולים ומחירים",
-  description: "מנוי שנתי ב־59 ₪ לחודש או מנוי חודשי ב־99 ₪, ללא התחייבות. שני המסלולים כוללים תוכנית אימון מותאמת אישית.",
+  description: "מנוי שנתי ב־69 ₪ לחודש (חיוב אחד של 828 ₪, עד 12 תשלומים) או מנוי חודשי ב־99 ₪, ללא התחייבות. שני המסלולים כוללים תוכנית אימון מותאמת אישית.",
 };
 
 /** The plan an explicit link names; undefined without one (or with an unknown one). */

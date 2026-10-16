@@ -2,7 +2,7 @@ import Image from "next/image";
 import DarkHeroCard from "@/components/ui/DarkHeroCard";
 import Button from "@/components/ui/Button";
 import HeroVideo from "@/components/home/HeroVideo";
-import { PlayIcon } from "@/components/ui/icons";
+import { FIT_CHECK } from "@/lib/constants";
 
 /**
  * First viewport: one full-width rounded card, content centred inside it.
@@ -11,7 +11,7 @@ import { PlayIcon } from "@/components/ui/icons";
  * image sits underneath as the LCP element and is all that reduced-motion and
  * save-data visitors get: HeroVideo mounts the video on the client, after the
  * page has loaded, only when motion is allowed, data saving is off and the
- * connection is not known to be slow. One action only: the walkthrough.
+ * connection is not known to be slow. One action only: the fit check.
  *
  * `priority` alone (Next 15) preloads the poster at the browser's default Low
  * image priority, where it queued behind the fonts and partner logos on slow
@@ -69,13 +69,12 @@ export default function Hero() {
 
       <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
         <Button
-          href="/how-it-works"
+          href={FIT_CHECK.href}
           variant="primary"
           size="lg"
           className="w-full sm:w-auto"
         >
-          <PlayIcon className="h-5 w-5" />
-          בואו לראות איך זה עובד
+          {FIT_CHECK.label}
         </Button>
       </div>
     </DarkHeroCard>

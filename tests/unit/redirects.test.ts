@@ -15,11 +15,22 @@ describe("legacy redirects", () => {
     const sources = LEGACY_REDIRECTS.map((r) => r.source);
     expect(sources).toEqual(
       expect.arrayContaining([
-        "/dual-tasking", "/research", "/team", "/faq", "/contact", "/pricing",
+        "/how-it-works", "/dual-tasking", "/faq", "/pricing",
         "/articles/improve-memory-after-50", "/articles/balance-after-50",
         "/articles/brain-plasticity-dual-tasking",
       ]),
     );
+  });
+
+  it("does not redirect the live /research, /team and /contact pages", () => {
+    const sources = LEGACY_REDIRECTS.map((r) => r.source);
+    for (const path of ["/research", "/team", "/contact"]) expect(sources).not.toContain(path);
+  });
+
+  it("sends /how-it-works and /dual-tasking to /research", () => {
+    for (const source of ["/how-it-works", "/dual-tasking"]) {
+      expect(LEGACY_REDIRECTS.find((r) => r.source === source)?.destination).toBe("/research");
+    }
   });
 
   it("has no chains: no destination is itself a source", () => {

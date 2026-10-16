@@ -4,15 +4,18 @@ import { SITE_ROUTES } from "@/lib/routes";
 import { ARTICLES } from "@/content/articles";
 
 describe("routes", () => {
-  it("contains the six brief pages, three explainers and both legal pages", () => {
+  it("contains the main pages, three explainers and both legal pages", () => {
     expect(SITE_ROUTES).toEqual(expect.arrayContaining([
-      "/", "/about", "/how-it-works", "/questionnaire", "/payment", "/articles",
+      "/", "/about", "/research", "/team", "/contact", "/questionnaire", "/payment", "/articles",
       "/personal-plan", "/motion-detection", "/progress",
       "/delete-account", "/privacy-policy",
     ]));
   });
+  it("no longer serves /how-it-works", () => {
+    expect(SITE_ROUTES).not.toContain("/how-it-works");
+  });
   it("every nav link, card link and the fit check point at real routes", () => {
-    const targets = [...NAV.map((n) => n.href), ...FEATURE_CARDS.map((c) => c.href), FIT_CHECK.href];
+    const targets = [...NAV.map((n) => n.href.split("#")[0] || "/"), ...FEATURE_CARDS.map((c) => c.href), FIT_CHECK.href];
     for (const href of targets) expect(SITE_ROUTES).toContain(href);
   });
   it("article slugs are unique", () => {
