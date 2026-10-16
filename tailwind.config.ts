@@ -61,7 +61,10 @@ const config: Config = {
           wash: cssVar("--green-wash"),
         },
         star: cssVar("--star"),
-        danger: cssVar("--danger"),
+        danger: {
+          DEFAULT: cssVar("--danger"),
+          deep: cssVar("--danger-deep"),
+        },
       },
       backgroundImage: {
         /* The primary button's fill and the hero's top wash. */

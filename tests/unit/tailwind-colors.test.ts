@@ -29,4 +29,11 @@ describe("themed colour utilities", () => {
     expect(css).toContain("color-mix(in srgb, var(--ink) calc(0.15 * 100%), transparent)");
     expect(css).toContain("color-mix(in srgb, var(--blue) calc(0.85 * 100%), transparent)");
   });
+
+  it("emits the danger hover step and the CTA gradient", async () => {
+    const css = await compile("hover:bg-danger-deep bg-cta bg-hero-wash");
+
+    expect(css).toMatch(/hover\\:bg-danger-deep[^}]*background-color:\s*var\(--danger-deep\)/);
+    expect(css).toContain("linear-gradient(180deg, var(--green-hi), var(--green-lo))");
+  });
 });

@@ -80,16 +80,12 @@ export default function ProgressPage() {
                 }`}
               >
                 <span
-                  className={`flex h-14 w-14 items-center justify-center rounded-pill ${
-                    isMove ? "bg-blue-wash text-blue-deep" : "bg-blue-wash text-blue-deep"
-                  }`}
+                  className="flex h-14 w-14 items-center justify-center rounded-pill bg-blue-wash text-blue-deep"
                 >
                   <Icon className="h-7 w-7" />
                 </span>
                 <h3
-                  className={`text-[clamp(1.625rem,1.3rem+1.2vw,2.25rem)] font-display font-extrabold ${
-                    isMove ? "text-blue-deep" : "text-blue-deep"
-                  }`}
+                  className="text-[clamp(1.625rem,1.3rem+1.2vw,2.25rem)] font-display font-extrabold text-blue-deep"
                 >
                   {item.label}
                 </h3>

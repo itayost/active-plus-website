@@ -5,7 +5,7 @@ type Variant = "primary" | "outline" | "ghost";
 type Size = "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
-  // White on the gradient's lighter stop is the contrast floor (globals.css).
+  // White text on the gradient: 4.55:1 on the lighter stop, 5.92:1 on the darker (globals.css).
   primary:
     "bg-cta text-white font-extrabold shadow-cta hover:brightness-95 active:brightness-90",
   outline:

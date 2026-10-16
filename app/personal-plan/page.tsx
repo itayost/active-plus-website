@@ -79,9 +79,7 @@ export default function PersonalPlanPage() {
             return (
               <Reveal as="li" key={item.label} delayIndex={i}>
                 <div
-                  className={`flex h-full flex-col gap-5 rounded-card p-[clamp(min(1.75rem,8.75vw),3.5vw,3rem)] ${
-                    isBody ? "bg-blue-wash text-blue-deep" : "bg-blue-wash text-blue-deep"
-                  }`}
+                  className="flex h-full flex-col gap-5 rounded-card bg-blue-wash p-[clamp(min(1.75rem,8.75vw),3.5vw,3rem)] text-blue-deep"
                 >
                   <div className="flex items-center gap-4">
                     <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-white shadow-lift-1">

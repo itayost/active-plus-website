@@ -12,6 +12,9 @@ describe("design tokens", () => {
     expect(css).toContain("--ink: #111");
     expect(css).toContain("--green: #2E9E5B");
     expect(css).toContain("--hairline: #EEF0F3");
+    expect(css).toContain("--green-hi: #29864E");
+    expect(css).toContain("--green-lo: #217241");
+    expect(css).toContain("--danger-deep:");
   });
 
   it("drops the retired palette", () => {
