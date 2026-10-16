@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PauseIcon, PlayIcon } from "@/components/ui/icons";
 import { shouldLoadHeroVideo } from "@/lib/media";
 
 type NetworkInformationLike = { saveData?: boolean; effectiveType?: string };
 
 /**
- * The hero's moving background, mounted only after hydration and only when it
+ * The hero's moving picture, mounted only after hydration and only when it
  * will be seen.
  *
  * In the server HTML a <video autoPlay> ignores preload="metadata" and
@@ -21,6 +22,12 @@ type NetworkInformationLike = { saveData?: boolean; effectiveType?: string };
  * at hydration would share the connection with them; the poster is already
  * painted, so starting the video a moment later costs nothing visible.
  *
+ * It fills its positioned parent and paints above the poster by DOM order.
+ *
+ * A looping video needs a way to stop it (WCAG 2.2.2, IS 5568): a 48px
+ * pause/play button sits in the bottom end corner, clear of the subjects at
+ * the centre of the frame, and exists only while the video does.
+ *
  * No `poster` attribute: the optimised next/image poster already sits directly
  * underneath, and a video with no frame yet is transparent, so the attribute
  * only cost a second, unoptimised download of the same picture.
@@ -31,6 +38,7 @@ export default function HeroVideo({ src }: { src: string }) {
   const [mode, setMode] = useState<"pending" | "on" | "off">("pending");
   const enabled = mode === "on";
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -66,8 +74,15 @@ export default function HeroVideo({ src }: { src: string }) {
     const video = videoRef.current;
     if (!enabled || !video) return;
     video.muted = true;
-    video.play().catch(() => undefined);
+    video.play().catch(() => setPaused(true));
   }, [enabled]);
+
+  const toggle = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) video.play().catch(() => setPaused(true));
+    else video.pause();
+  };
 
   const marker = <span hidden data-hero-video={mode} />;
   if (!enabled) return marker;
@@ -77,7 +92,7 @@ export default function HeroVideo({ src }: { src: string }) {
       {marker}
       <video
         ref={videoRef}
-        className="absolute inset-0 -z-20 h-full w-full object-cover motion-reduce:hidden"
+        className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
         autoPlay
         muted
         loop
@@ -85,9 +100,20 @@ export default function HeroVideo({ src }: { src: string }) {
         preload="auto"
         aria-hidden="true"
         tabIndex={-1}
+        onPlay={() => setPaused(false)}
+        onPause={() => setPaused(true)}
       >
         <source src={src} type="video/mp4" />
       </video>
+      {/* The white halo keeps the 3px focus ring readable over grass and sky. */}
+      <button
+        type="button"
+        onClick={toggle}
+        className="absolute bottom-3 end-3 inline-flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-ink shadow-lift-1 transition-colors hover:bg-white focus-visible:outline-offset-0 focus-visible:shadow-[0_0_0_6px_#fff]"
+      >
+        <span className="sr-only">{paused ? "הפעלת הסרטון" : "השהיית הסרטון"}</span>
+        {paused ? <PlayIcon className="h-6 w-6" /> : <PauseIcon className="h-6 w-6" />}
+      </button>
     </>
   );
 }

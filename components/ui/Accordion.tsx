@@ -1,44 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronIcon } from "./icons";
 import type { QA } from "@/content/pages";
 
+/**
+ * Accessible accordion: one button per question (aria-expanded, aria-controls)
+ * inside a heading, the answer in a panel that is `hidden` while closed.
+ * The blue marker is decorative; the state is carried by aria-expanded.
+ */
 export default function Accordion({ items }: { items: readonly QA[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <ul className="divide-y divide-hairline border-y border-hairline">
+    <ul className="border-t border-divider">
       {items.map((item, index) => {
         const isOpen = open === index;
         return (
-          <li key={item.q}>
+          <li key={item.q} className="border-b border-divider">
             <h3>
               <button
                 type="button"
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${index}`}
                 onClick={() => setOpen(isOpen ? null : index)}
-                className="group flex w-full items-start gap-[min(1rem,5vw)] py-6 text-start transition-colors duration-[var(--dur-fast)] hover:text-blue-deep"
+                className="group flex min-h-12 w-full items-start gap-4 py-4 text-start text-[17px] font-bold leading-snug text-ink transition-colors duration-[var(--dur-fast)] hover:text-blue-deep lg:text-xl"
               >
+                <span className="min-w-0 flex-1">{item.q}</span>
                 <span
-                  className={`mt-0.5 shrink-0 rounded-full border-2 p-[6px] transition-[transform,border-color,background-color] duration-[var(--dur)] ease-out-expo ${
-                    isOpen
-                      ? "rotate-180 border-blue-deep bg-blue-deep text-white"
-                      : "border-hairline text-ink-soft group-hover:border-blue-deep"
-                  }`}
+                  aria-hidden="true"
+                  className="w-6 shrink-0 text-center text-2xl font-bold leading-none text-blue"
                 >
-                  <ChevronIcon className="h-[20px] w-[20px]" />
+                  {isOpen ? "−" : "+"}
                 </span>
-                <span className="min-w-0 text-h3 font-display font-bold">{item.q}</span>
               </button>
             </h3>
-            <div
-              id={`faq-panel-${index}`}
-              hidden={!isOpen}
-              className="pb-7 ps-[calc(36px+min(1rem,5vw))] text-ink-soft"
-            >
-              <p className="max-w-measure">{item.a}</p>
+            <div id={`faq-panel-${index}`} hidden={!isOpen} className="pb-4">
+              <p className="max-w-measure text-lg leading-relaxed text-ink">{item.a}</p>
             </div>
           </li>
         );

@@ -187,7 +187,7 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
     <CheckoutShell
       header={
         <>
-          <h2 id="checkout-heading" ref={heading} tabIndex={-1} className="scroll-mt-28 font-display text-h2 font-black outline-none">
+          <h2 id="checkout-heading" ref={heading} tabIndex={-1} className="scroll-mt-28 font-display text-h2 font-extrabold outline-none">
             {C.heading}
           </h2>
           <p className="mt-4 flex flex-wrap items-center gap-x-3 text-lead text-ink-soft">

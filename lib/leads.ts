@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { createServiceClient } from "@/lib/supabase";
 import { createRateLimiter } from "@/lib/rate-limit";
+import { buildLeadRemark, LEAD_SOURCES, LEAD_TOPICS } from "@/lib/lead-form";
 import { clientIp } from "@/lib/request-ip";
 
 export type LeadField = "fullName" | "phone" | "email" | "message";
@@ -14,7 +15,7 @@ export type FieldErrors = Partial<Record<LeadField, string>>;
  * JavaScript (the form posting natively) can refill the fields. The honeypot
  * is never echoed.
  */
-export type LeadValues = Partial<Record<"fullName" | "phone" | "email" | "message", string>>;
+export type LeadValues = Partial<Record<"fullName" | "phone" | "email" | "message" | "topic", string>>;
 
 export type LeadResult =
   | { status: "idle" }
@@ -49,12 +50,16 @@ export async function submitLead(
   const phoneRaw = String(formData.get("phone") ?? "").trim();
   const phone = phoneRaw.replace(/[\s-]/g, "");
   const email = String(formData.get("email") ?? "").trim();
-  const topic = String(formData.get("topic") ?? "").trim();
+  const topicRaw = String(formData.get("topic") ?? "").trim();
+  const topic = (LEAD_TOPICS as readonly string[]).includes(topicRaw) ? topicRaw : "";
   const message = String(formData.get("message") ?? "").trim();
   const marketingOptIn = formData.get("marketingOptIn") === "on";
-  const source = String(formData.get("source") ?? "website").trim();
+  const sourceRaw = String(formData.get("source") ?? "").trim();
+  const source = (LEAD_SOURCES as readonly string[]).includes(sourceRaw)
+    ? sourceRaw
+    : "website-unknown";
 
-  const values: LeadValues = { fullName, phone: phoneRaw, email, message };
+  const values: LeadValues = { fullName, phone: phoneRaw, email, message, topic };
 
   // Collect every problem before returning, so one round trip surfaces all
   // of them rather than making the reader discover fields one at a time.
@@ -101,14 +106,7 @@ export async function submitLead(
   // subject, a message or a marketing opt-in, so they travel in raw_remark
   // where the team already reads free-text context. `source` stays inside the
   // CRM's own small vocabulary; the originating page goes in the remark.
-  const remark = [
-    `נשלח מהאתר · ${source}`,
-    topic ? `נושא: ${topic}` : null,
-    message ? `פירוט: ${message}` : null,
-    `דיוור: ${marketingOptIn ? "אישר/ה" : "לא אישר/ה"}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const remark = buildLeadRemark({ source, topic, message, marketingOptIn });
 
   try {
     const supabase = createServiceClient();

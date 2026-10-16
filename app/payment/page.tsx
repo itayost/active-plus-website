@@ -5,7 +5,7 @@ import { PLANS, type PlanId } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "מסלולים ומחירים",
-  description: "מנוי שנתי ב־59 ₪ לחודש או מנוי חודשי ב־99 ₪, ללא התחייבות. שני המסלולים כוללים תוכנית אימון מותאמת אישית.",
+  description: "מנוי שנתי ב־69 ₪ לחודש (חיוב אחד של 828 ₪, עד 12 תשלומים) או מנוי חודשי ב־99 ₪, ללא התחייבות. שני המסלולים כוללים תוכנית אימון מותאמת אישית.",
 };
 
 /** The plan an explicit link names; undefined without one (or with an unknown one). */
@@ -25,11 +25,10 @@ export default async function PaymentPage({
       <PaymentFlow linkPlan={parsePlan(plan)} cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}>
         <h1
           id="payment-heading"
-          className="max-w-[18ch] font-display text-[clamp(1.66rem,1.09rem+2.8vw,4.29rem)] font-black leading-[1.05] tracking-[-0.025em]"
+          className="max-w-measure font-display text-[clamp(1.75rem,1.35rem+1.6vw,3rem)] font-extrabold leading-[1.15] text-blue"
         >
-          חיים פעילים יותר, חיים טובים יותר.
+          מסלולים ומחירים
         </h1>
-        <h2 className="mt-4 font-display text-h3 font-bold text-blue-deep">התוכנית האישית שלך</h2>
       </PaymentFlow>
 
       <ArticlesStrip />

@@ -9,3 +9,8 @@ for (const route of SITE_ROUTES) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
 }
+
+test("/contact has the lead form with a topic select", async ({ page }) => {
+  await page.goto("/contact");
+  await expect(page.locator("form select[name=\"topic\"]")).toHaveCount(1);
+});

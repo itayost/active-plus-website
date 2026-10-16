@@ -23,9 +23,17 @@ describe("themed colour utilities", () => {
   });
 
   it("uses color-mix only for an explicit opacity modifier", async () => {
-    const css = await compile("bg-ink/85 border-ink/15");
+    const css = await compile("bg-ink/85 border-ink/15 bg-blue/85");
 
     expect(css).toContain("color-mix(in srgb, var(--ink) calc(0.85 * 100%), transparent)");
     expect(css).toContain("color-mix(in srgb, var(--ink) calc(0.15 * 100%), transparent)");
+    expect(css).toContain("color-mix(in srgb, var(--blue) calc(0.85 * 100%), transparent)");
+  });
+
+  it("emits the danger hover step and the CTA gradient", async () => {
+    const css = await compile("hover:bg-danger-deep bg-cta bg-hero-wash");
+
+    expect(css).toMatch(/hover\\:bg-danger-deep[^}]*background-color:\s*var\(--danger-deep\)/);
+    expect(css).toContain("linear-gradient(180deg, var(--green-hi), var(--green-lo))");
   });
 });

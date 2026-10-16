@@ -13,6 +13,8 @@ type Options = {
 
 /** One e2e setup: a production build against stub Supabase, served on its own port, in a desktop and a mobile project. */
 export function e2eConfig({ port, distDir, extraEnv = {}, testMatch, testIgnore }: Options) {
+  // Tests that stub server actions need this build's id (see build-id.ts).
+  process.env.E2E_DIST_DIR = distDir;
   return defineConfig({
     testDir: "tests/e2e",
     ...(testMatch ? { testMatch } : {}),

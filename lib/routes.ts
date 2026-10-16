@@ -4,7 +4,9 @@ import { ARTICLES } from "@/content/articles";
 export const SITE_ROUTES: readonly string[] = [
   "/",
   "/about",
-  "/how-it-works",
+  "/research",
+  "/team",
+  "/contact",
   "/questionnaire",
   "/payment",
   "/articles",

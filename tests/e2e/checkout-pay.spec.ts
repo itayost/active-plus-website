@@ -14,7 +14,7 @@ test("signed out, annual in 6 installments: verifies the phone, then hands off t
   await openCheckout(page);
   await signUp(page);
   await page.getByLabel(C.rows.installments).selectOption("6");
-  await expect(page.getByText("כל תשלום: 118 ₪")).toBeVisible();
+  await expect(page.getByText("כל תשלום: 138 ₪")).toBeVisible();
   await expect(page.getByLabel(C.consentLabel)).not.toBeChecked();
   expect(await violations()).toEqual([]);
   await page.getByRole("button", { name: C.pay }).click();

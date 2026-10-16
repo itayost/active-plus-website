@@ -55,7 +55,7 @@ export function Reinforcement2({ gender, onContinue }: Props) {
 const CALLOUT_ICONS = [
   { Icon: StrengthIcon, tone: "bg-blue-wash text-blue-deep" },
   { Icon: MovementIcon, tone: "bg-green-wash text-green-deep" },
-  { Icon: HeartIcon, tone: "bg-purple-wash text-purple-deep" },
+  { Icon: HeartIcon, tone: "bg-blue-wash text-blue-deep" },
 ] as const;
 
 /*

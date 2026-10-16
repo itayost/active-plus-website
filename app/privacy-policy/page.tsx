@@ -17,7 +17,7 @@ interface PrivacySectionProps {
 function PrivacySection({ title, children }: PrivacySectionProps) {
   return (
     <section className="legal-section">
-      <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+      <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
         {title}
       </h2>
       <div className="text-ink-soft">{children}</div>
@@ -28,7 +28,7 @@ function PrivacySection({ title, children }: PrivacySectionProps) {
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: ינואר 2025" tone="blue" />
+      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: ינואר 2025" />
       <div className="bg-surface py-[var(--section-y)]">
         <Shell width="narrow">
 

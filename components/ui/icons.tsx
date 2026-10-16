@@ -1,6 +1,7 @@
 /**
  * Authored icon set. One grammar: 1.75 stroke, round caps and joins,
- * 24-unit grid, no fills. Nothing here is an emoji or a unicode glyph.
+ * 24-unit grid, no fills (one stated exception: CallIcon). Nothing here is an
+ * emoji or a unicode glyph.
  */
 type IconProps = { className?: string };
 
@@ -14,14 +15,6 @@ const base = {
   "aria-hidden": true,
   focusable: false,
 };
-
-export function PlayIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M8 5.6v12.8a.8.8 0 0 0 1.22.68l10.2-6.4a.8.8 0 0 0 0-1.36L9.22 4.92A.8.8 0 0 0 8 5.6Z" />
-    </svg>
-  );
-}
 
 export function ArrowIcon({ className }: IconProps) {
   return (
@@ -68,6 +61,23 @@ export function CloseIcon({ className }: IconProps) {
   );
 }
 
+export function PauseIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9 6v12" />
+      <path d="M15 6v12" />
+    </svg>
+  );
+}
+
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M8 5.5v13l10.5-6.5z" />
+    </svg>
+  );
+}
+
 export function CheckIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
@@ -106,6 +116,20 @@ export function PhoneIcon({ className }: IconProps) {
     <svg {...base} className={className}>
       <path d="M6.5 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5Z" />
       <path d="M10.5 17.4h3" />
+    </svg>
+  );
+}
+
+/**
+ * A phone handset, for "call us" (PhoneIcon is the smartphone, for an SMS
+ * code or a number to type). The one filled icon in the set: it is the
+ * handoff's own call glyph, drawn white inside a green disc, where a 1.75
+ * outline read as thin and grey at 24px.
+ */
+export function CallIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable={false} className={className}>
+      <path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11 11 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.6 3.6a1 1 0 0 1-.25 1Z" />
     </svg>
   );
 }

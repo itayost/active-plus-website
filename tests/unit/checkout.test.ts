@@ -3,6 +3,7 @@ import {
   checkoutSteps, clearCheckoutDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
   readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
+import { PLANS } from "@/lib/constants";
 
 function memoryStorage(seed: Record<string, string> = {}) {
   const map = new Map(Object.entries(seed));
@@ -28,6 +29,14 @@ describe("checkout steps", () => {
   });
   it("maps site plans to edge-function plans", () => {
     expect([toWebPlan("annual"), toWebPlan("monthly")]).toEqual(["ANNUAL", "MONTHLY"]);
+  });
+});
+
+describe("plan charges", () => {
+  it("charges the annual total of 828 in up to 12 installments, and 99 monthly; price is display only", () => {
+    const [annual, monthly] = PLANS;
+    expect([annual.total, annual.maxInstallments, annual.price]).toEqual([828, 12, 69]);
+    expect([monthly.total, monthly.maxInstallments, monthly.price]).toEqual([99, 1, 99]);
   });
 });
 

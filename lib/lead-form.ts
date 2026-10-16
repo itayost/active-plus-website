@@ -3,7 +3,17 @@ import { CONTACT_PHONE } from "@/lib/constants";
 
 const PHONE_RE = /^0(5\d|7\d|[2-4]|[8-9])\d{7}$/;
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+/** CR, LF, NEL, vertical tab, form feed, line and paragraph separators. */
+const LINE_BREAKS = /[\r\n\u000B\u000C\u0085\u2028\u2029]+/g;
+
+/** Surfaces the site sends as `source`; anything else is stored as unknown. */
+export const LEAD_SOURCES = ["home", "contact"] as const;
+
 const NAME_MAX = 120;
+const MESSAGE_MAX = 2000;
+
+/** The contact form's subjects. The server accepts only these. */
+export const LEAD_TOPICS = ["בירור והצטרפות", "שירות לקוחות", "תמיכה באפליקציה", "אחר"] as const;
 
 /**
  * Mirrors the server's rules so the reader hears about a typo on blur. An
@@ -20,6 +30,9 @@ export function checkField(field: LeadField, value: string): string | undefined 
   }
   if (field === "phone" && v && !PHONE_RE.test(v.replace(/[\s-]/g, ""))) {
     return "מספר הטלפון לא נראה תקין. לדוגמה: 050-1234567";
+  }
+  if (field === "message" && v.length > MESSAGE_MAX) {
+    return "הפירוט ארוך מדי. אפשר לקצר עד 2000 תווים.";
   }
   if (field === "email" && v && !EMAIL_RE.test(v)) {
     return "כתובת המייל לא נראית תקינה. לדוגמה: israel@gmail.com";
@@ -57,4 +70,29 @@ export async function submitWithFallback(
     console.error("[lead-form] submit failed before reaching the server", caught);
     return { status: "error", message: NETWORK_MESSAGE };
   }
+}
+
+/**
+ * The note stored in public.leads.raw_remark. The table has no columns for a
+ * subject, a message or the offers opt-in, so they travel here, under a first
+ * line that names the site and the surface the lead came from. Pure and kept
+ * out of lib/leads.ts, a "use server" module that may only export actions.
+ */
+export function buildLeadRemark(input: {
+  source: string;
+  topic: string;
+  message: string;
+  marketingOptIn: boolean;
+}): string {
+  // Free text must not be able to start a line of its own: the team reads
+  // each line as a fact, so a newline in the message could fake the opt-in.
+  const oneLine = (value: string) => value.replace(LINE_BREAKS, " ").trim();
+  return [
+    `פעילים אתר · ${oneLine(input.source)}`,
+    input.topic ? `נושא: ${oneLine(input.topic)}` : null,
+    `דיוור: ${input.marketingOptIn ? "אישר/ה" : "לא אישר/ה"}`,
+    input.message ? `פירוט: ${oneLine(input.message)}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
 }

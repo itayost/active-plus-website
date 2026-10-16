@@ -15,13 +15,12 @@ export default function DeleteAccountPage() {
       <PageHero
         title="מחיקת חשבון"
         lede="עדכון אחרון: פברואר 2026"
-        tone="burgundy"
       />
       <div className="bg-surface py-[var(--section-y)]">
         <Shell width="narrow">
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           כיצד למחוק את החשבון שלך
         </h2>
         <div className="text-ink-soft">
@@ -40,8 +39,8 @@ export default function DeleteAccountPage() {
         </div>
       </section>
 
-      <section className="my-12 rounded-card border-2 border-burgundy/25 bg-burgundy-wash p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)]">
-        <h2 className="mb-6 font-display text-h3 font-bold text-burgundy">
+      <section className="my-12 rounded-card border-2 border-danger/25 bg-danger/10 p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)]">
+        <h2 className="mb-6 font-display text-h3 font-bold text-danger">
           בקשת מחיקת חשבון
         </h2>
 
@@ -51,7 +50,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           אילו נתונים יימחקו
         </h2>
         <div className="text-ink-soft">
@@ -69,7 +68,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           מידע חשוב
         </h2>
         <div className="text-ink-soft">
@@ -88,7 +87,7 @@ export default function DeleteAccountPage() {
       </section>
 
       <section className="legal-section">
-        <h2 className="mb-4 font-display text-h3 font-bold text-ink">
+        <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
           שאלות נוספות
         </h2>
         <div className="text-ink-soft">

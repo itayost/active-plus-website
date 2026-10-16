@@ -1,30 +1,19 @@
 import Accordion from "@/components/ui/Accordion";
-import Reveal from "@/components/ui/Reveal";
-import { Shell } from "@/components/ui/Section";
-import { FAQ } from "@/content/home";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { FAQ, FAQ_HEADING } from "@/content/home";
 
-export default function FaqSection({
-  heading = "שאלות ותשובות",
-}: {
-  heading?: string;
-}) {
+/** The home FAQ; `id="faq"` is the target of the menu's /#faq link. */
+export default function FaqSection({ heading = FAQ_HEADING }: { heading?: string }) {
   return (
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="bg-sunken py-[var(--section-y)]"
+      className="mx-auto w-full max-w-narrow scroll-mt-4 gutter-x pb-4 pt-12 lg:pt-16"
     >
-      <Shell width="narrow">
-        <Reveal>
-          <h2 id="faq-heading" className="text-h2 font-display font-black">
-            {heading}
-          </h2>
-        </Reveal>
-
-        <Reveal className="mt-10">
-          <Accordion items={FAQ} />
-        </Reveal>
-      </Shell>
+      <SectionHeading id="faq-heading" title={heading} />
+      <div className="mt-2 lg:mt-5">
+        <Accordion items={FAQ} />
+      </div>
     </section>
   );
 }

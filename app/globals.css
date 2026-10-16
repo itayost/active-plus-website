@@ -4,56 +4,51 @@
 
 /*
   Design tokens for פעילים+.
-  The palette is the brand's four card colors used as page-scale fields:
-  blue carries movement, purple carries cognition, green carries progress,
-  burgundy carries the daily practice.
+  The handoff's white system: a white page, one blue accent, and green kept for
+  the single primary action (a gradient pill) and for "progress" text. Cards are
+  soft-shadowed and hairline-bordered rather than colour fields.
 */
 :root {
   color-scheme: light;
 
   /* Ground */
   --surface: #ffffff;
-  --surface-sunken: #f2f6f9;
-  --hairline: #dfe7ed;
+  --surface-sunken: #F7F9FC;
+  --hairline: #EEF0F3;
+  --divider: #ECEEF1;
 
-  /* Ink. --ink and --ink-soft are AAA (≥7:1) against both --surface and
-     --surface-sunken, because the longest reading task on the site is an
-     article set in --ink-soft. --ink-faint is NOT: it measures 5.28:1 on
-     --surface and 4.86:1 on --surface-sunken, which is AA only. It is kept for
-     text that carries no meaning of its own: placeholders, image captions and
-     the faded first line of a large display heading. Instructions, hints,
-     labels, legal links and anything else a reader needs go in --ink-soft. */
-  --ink: #0f2230;
-  --ink-soft: #375260;
-  --ink-faint: #576f7d;
+  /* Ink. --ink-soft is the reading colour: set in it, body text clears AAA
+     (>=7:1) on --surface and --surface-sunken. --ink-faint is AA only (about
+     5.9:1 on --surface), so it is kept for text that carries no meaning of its
+     own: placeholders, image captions and the faded first line of a display
+     heading. Instructions, hints, labels and legal links go in --ink-soft. */
+  --ink: #111;
+  --ink-soft: #3d4450;
+  --ink-faint: #5b6470;
 
-  /* Brand */
-  /* Each -deep value is a filled control's resting state and each base value
-     is its hover, a step wide enough to read as a change. The base values
-     double as the page-scale card fields.
-
-     Stated exception: white on a colour field reaches AA (4.5:1) but not the
-     AAA this project holds elsewhere — AAA is unreachable at these hues
-     without losing the brand colours entirely, so the fields carry short
-     card copy while every long-form reading surface stays on --ink-soft.
-     --blue-bright is the logo's turquoise, decorative only; no text on it. */
-  --blue: #0d68a4;
-  --blue-bright: #1aa9e0;
-  --blue-deep: #0a5f81;
-  --blue-wash: #e6f6fd;
-  --emphasis-cyan: #5fd3ff;
-  --green: #3d7d23;
-  --green-deep: #2a5f17;
-  --green-wash: #eaf6e3;
-  --purple: #6b4fd8;
-  --purple-deep: #4b33a8;
-  --purple-wash: #efebfe;
-  --burgundy: #6a2532;
-  --burgundy-deep: #4c1723;
-  --burgundy-wash: #f7ecef;
-  /* The brand's third colour, reserved for one job: the gain the visitor
-     keeps. Used as bold display type on a dark field, never as body text. */
-  --yellow: #fdb913;
+  /* Brand.
+     --blue is the one accent: links, highlighted lines, selected states and the
+     outline of a focused field. --blue-deep is its hover/pressed step and the
+     blue to use for text on a wash. --blue-wash is the image wash, --blue-sky
+     the top of the hero gradient. */
+  --blue: #1E6FD9;
+  --blue-deep: #1659B3;
+  --blue-wash: #EAF1FB;
+  --blue-sky: #EEF5FE;
+  /* Green carries the primary button and progress. The button gradient runs
+     --green-hi to --green-lo; white text measures 4.55:1 on --green-hi and
+     5.92:1 on --green-lo, so the label clears AA on both stops. --green is the
+     flat fill for decoration only (white on it is 3.41:1, never put text on
+     it); --green-deep is the green for text on white (5.32:1) and the flat
+     fill behind white text. */
+  --green: #2E9E5B;
+  --green-hi: #29864E;
+  --green-lo: #217241;
+  --green-deep: #237A47;
+  --green-wash: #E8F5ED;
+  --star: #F5B301;
+  --danger: #C62828;
+  --danger-deep: #A81F1F; /* hover for a filled danger button, white on it is 7.29:1 */
 
   /* Rhythm.
      The rem floors are held against the screen: min(Xrem, X*5vw) is exactly
@@ -65,12 +60,6 @@
   --gutter: clamp(min(1.25rem, 6.25vw), 4vw, 4.5rem);
   --section-y: clamp(min(4rem, 20vw), min(3rem, 15vw) + 6vw, 8.5rem);
   --measure: 68ch;
-  /* Hero Field as channels too: the photo and video scrims grade its alpha
-     with rgb(var(--hero-field-rgb) / a). Not color-mix, because the scrim is
-     what keeps the white headline readable over the picture, and an engine
-     without color-mix would drop the whole gradient. */
-  --hero-field-rgb: 8 34 47;
-  --hero-field: rgb(var(--hero-field-rgb));
 
   /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -78,10 +67,13 @@
   --dur: 320ms;
   --dur-slow: 720ms;
 
-  /* Depth — offset plus soft blur, never a flat halo */
-  --lift-1: 0 1px 2px rgb(15 34 48 / 0.06), 0 4px 12px -4px rgb(15 34 48 / 0.1);
-  --lift-2: 0 2px 4px rgb(15 34 48 / 0.06), 0 16px 32px -12px rgb(15 34 48 / 0.18);
-  --lift-3: 0 4px 8px rgb(15 34 48 / 0.08), 0 32px 64px -24px rgb(15 34 48 / 0.28);
+  /* Depth - offset plus soft blur, never a flat halo. --shadow-card is the
+     handoff's card shadow, --shadow-cta the green button's glow. */
+  --lift-1: 0 1px 2px rgb(20 40 80 / 0.05), 0 4px 12px -4px rgb(20 40 80 / 0.08);
+  --lift-2: 0 10px 28px rgb(20 40 80 / 0.07);
+  --lift-3: 0 4px 8px rgb(20 40 80 / 0.08), 0 32px 64px -24px rgb(20 40 80 / 0.24);
+  --shadow-card: 0 10px 28px rgb(20 40 80 / 0.07);
+  --shadow-cta: 0 10px 22px rgb(33 114 65 / 0.28);
 }
 
 /*
@@ -156,119 +148,76 @@ html {
 }
 
 /*
-  The dark hero card runs almost edge to edge, inset by a few pixels so its
-  corners read. Held sideways on a notched phone that inset is narrower than
-  the camera housing, so the card's own padding is not enough to keep the
-  headline clear of it. The media may run under the notch; the inset that
-  frames the card widens on whichever physical edge the hardware is eating,
-  exactly as .gutter-x does for the shell.
+  The hero: one column on a phone (text, video, action), two from lg and on a
+  short landscape phone, where the text and action sit at the start and the
+  video, rounded, at the end. The text and action columns carry .gutter-x, so
+  copy stays clear of a notch; the video may run under it.
 */
-.hero-inset {
-  padding-left: max(clamp(0.625rem, 1.4vw, 1.5rem), env(safe-area-inset-left));
-  padding-right: max(clamp(0.625rem, 1.4vw, 1.5rem), env(safe-area-inset-right));
+.hero-grid {
+  display: grid;
+  grid-template-areas: "text" "media" "cta";
+}
+
+.hero-text { grid-area: text; }
+.hero-media { grid-area: media; }
+.hero-cta { grid-area: cta; }
+
+@media (min-width: 1024px), (max-height: 560px) and (orientation: landscape) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    grid-template-areas: "text media" "cta media";
+    column-gap: 2.5rem;
+    align-items: start;
+  }
+
+  .hero-media {
+    margin-top: 0;
+    margin-left: max(var(--gutter), env(safe-area-inset-left));
+    margin-right: 0;
+    width: auto;
+    border-radius: 22px;
+    align-self: center;
+  }
+
+  .hero-text { align-self: end; }
 }
 
 /*
   The header bar at enlarged text. This audience raises the browser's text
-  size, and every rem in the bar grows with it while the screen does not: at
-  130% on a 360px phone the row no longer fit and the menu toggle slid past
-  the left edge, where html's overflow-x: clip hid it. The header is a size
-  container and the queries below are in rem, so they track the text size as
-  well as the pixel width.
+  size, and every rem in the bar grows with it while the screen does not. The
+  bar is the wordmark and two 48px round buttons, which hold their size in px
+  and fit even a 320px phone at 200%; the row wraps as a last resort. The
+  header is a size container and the query below is in rem, so it tracks the
+  text size as well as the pixel width.
 
-  Below 21.5rem the wordmark folds away and the walking-figure mark carries
-  the link on its own (its name is the link's aria-label). That includes a
-  320px phone at the default size, where logo, pill and toggle need 315px of
-  the 280px between the gutters: the old bar only fitted by squeezing the
-  pill narrower than its own label. Between 17rem and 20rem, which only
-  enlarged text reaches, the pill may wrap its label onto two lines with
-  tighter padding.
-
-  Below 17rem (150% on a 390px phone, 130% on a 320px one) the bar stops
-  trying to hold three things. Squeezed, it had grown to 209-247px at 200%:
-  a quarter to almost half of a portrait screen, sticky, over every page.
-  It becomes the brand and the menu, one row at a fixed 72px, and the
-  fit-check pill moves to the top of the drawer (Header.tsx decides where
-  from the pill's own computed display). Every page still carries its own
-  fit-check action in its content. With the pill gone there is room for the
-  wordmark again, except at the very narrowest (200% on 320px).
-
-  The toggle keeps 3rem at every size the bar holds all three, so it grows
-  with the text as before; in the compact bar it is a fixed 56px — larger
-  than the 48px floor, and no longer the thing that sets the bar's height.
-
-  The pill's wrapping is set here rather than with utilities because the
-  Button's text-balance is a text-wrap shorthand that silently undoes
-  whitespace-nowrap.
+  This is the one place that decides which bar shows; Header.tsx carries no
+  breakpoint classes for it. The inline links (six of them, the longest labels
+  in the site) and the fit-check pill need about 75rem, so they show from xl
+  (1280px) and only while the bar is at least 75rem wide. Below that, whether
+  the screen is small (a tablet, a 1024-1279px laptop) or the text is large,
+  the bar is the wordmark, the menu and the call button, and the drawer
+  carries the links and the pill.
 */
 .site-header {
   container-type: inline-size;
 }
 
-.site-header .fit-pill {
-  white-space: nowrap;
-  text-wrap: nowrap;
+.site-header .desktop-nav,
+.site-header .header-pill {
+  display: none;
 }
 
-@container (width < 21.5rem) {
-  .site-header .logo-wordmark {
-    display: none;
-  }
-}
+@media (min-width: 1280px) {
+  @container (width >= 75rem) {
+    .site-header .desktop-nav,
+    .site-header .header-pill {
+      display: block;
+    }
 
-@container (width < 20rem) {
-  .site-header .fit-pill {
-    white-space: normal;
-    text-wrap: balance;
-    padding-inline: 0.75rem;
-    /* text-base brings body leading (1.65); two lines of a pill need less. */
-    line-height: 1.2;
-  }
-}
-
-@container (width < 17rem) {
-  .site-header .fit-pill {
-    display: none;
-  }
-
-  .site-header .logo-wordmark {
-    display: inline;
-  }
-
-  .site-header .header-row {
-    padding-block: 8px;
-  }
-
-  .site-header .nav-toggle {
-    width: 56px;
-    height: 56px;
-  }
-
-  .site-header .nav-toggle svg {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-@container (width < 11.5rem) {
-  .site-header .logo-wordmark {
-    display: none;
-  }
-}
-
-/*
-  The desktop bar at enlarged text. Logo, four links and the pill need about
-  46rem, plus gaps and gutters about 55rem: at 125% on a 1024px screen the
-  links wrapped and the bar grew to 153-173px. Below that the bar becomes the
-  tablet one — logo, pill, menu — and the drawer carries the links.
-*/
-@container (width < 55rem) {
-  .site-header .desktop-nav {
-    display: none;
-  }
-
-  .site-header .nav-toggle {
-    display: inline-flex;
+    .site-header .nav-toggle {
+      display: none;
+    }
   }
 }
 
@@ -286,62 +235,18 @@ html {
   .site-header .header-row {
     padding-block: 4px;
   }
-
-  .site-header .nav-toggle {
-    width: min(3rem, 56px);
-    height: min(3rem, 56px);
-  }
 }
 
 /*
-  Held sideways, a phone offers about 390px of height and the drawer wants ~750.
-  Scrolling a nine-item menu to reach "צור קשר" is the wrong answer when the rows
-  themselves are the slack: 60px is the drawer's designed rhythm, not its floor.
+  Held sideways, a phone offers about 390px of height and the drawer wants ~650.
+  Scrolling a six-item menu to reach the fit-check button and the phone number
+  under it is the wrong answer when the rows themselves are the slack: 60px is
+  the drawer's designed rhythm, not its floor.
   Landscape trades it for 48px — still clear of the 44px target minimum and of
   this audience's own 48px floor — which brings the whole menu back into one
   screen. Keyed to viewport height, not to orientation, so a small window on a
   laptop gets the same treatment.
 */
-@media (max-height: 560px) and (orientation: landscape) {
-  /* Capping the hero's height is only half of it — the stack inside was spaced
-     for a portrait card and still overflows the cap, which pushes the actions
-     back out of view. Landscape spends its slack the other way: the type keeps
-     its size, the air between the three blocks gives. */
-  .hero-stack {
-    /* Dropping the floor entirely, rather than capping it lower, is what makes
-       this hold: a minimum height the content does not reach still centres the
-       stack inside the leftover space, so the actions drift back down to the
-       fold however tightly the cap is tuned. With no floor the card is exactly
-       its content, and the CTA clears the fold on its own arithmetic instead of
-       a number picked for one handset. */
-    min-height: 0;
-    padding-block: clamp(min(1.25rem, 4dvh), 4vh, 2.25rem);
-  }
-
-  /* The headline sized for a portrait card wraps to four lines held
-     sideways, and at enlarged text that alone outgrows the screen. Here it
-     takes the width the landscape card has (26ch, two lines) and is capped
-     by the screen's height, while the 2.125rem floor still follows the
-     reader's text size. */
-  .hero-stack > h1 {
-    max-width: 26ch;
-    font-size: min(clamp(2.125rem, 1.4rem + 3.6vw, 5.5rem), max(1.75rem, 11.5dvh));
-  }
-
-  /* The lead's width-driven step (the text-lead clamp) is what makes it
-     large on a wide landscape phone at 150%; here it is held to the height
-     instead, never below the 18px body floor in the reader's own text size. */
-  .hero-stack > p {
-    margin-top: min(0.75rem, 2dvh);
-    max-width: 52ch;
-    font-size: max(1.125rem, min(clamp(1.25rem, 1.05rem + 0.6vw, 1.625rem), 7dvh));
-  }
-
-  .hero-stack > div {
-    margin-top: min(1.25rem, 4dvh);
-  }
-}
-
 @media (max-height: 560px) {
   #site-drawer nav a {
     min-height: 48px;
@@ -361,7 +266,7 @@ html {
    ~300ms later — but only on the controls, so pinch-zoom and double-tap-zoom
    still work everywhere else on the page. The tap highlight is a browser
    surface with no design system behind it: iOS paints an unbranded grey-black
-   flash over the element's own radius. Ours is the movement blue at the low
+   flash over the element's own radius. Ours is the accent blue at the low
    alpha the fields already use. */
 a,
 button,
@@ -371,7 +276,7 @@ textarea,
 summary,
 [role="button"] {
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgb(13 104 164 / 0.14);
+  -webkit-tap-highlight-color: rgb(30 111 217 / 0.14);
 }
 
 body {
@@ -421,7 +326,7 @@ label {
 h1,
 h2,
 h3 {
-  font-family: var(--font-rubik), system-ui, sans-serif;
+  font-family: var(--font-heebo), system-ui, sans-serif;
   text-wrap: balance;
   letter-spacing: -0.025em;
   line-height: 1.1;
@@ -431,17 +336,8 @@ h3 {
    outline already follows each element's own radius, and setting one would
    square off the pill buttons the moment they take focus. */
 :focus-visible {
-  outline: 3px solid var(--focus-ring, var(--blue-deep));
+  outline: 3px solid var(--blue-deep);
   outline-offset: 3px;
-}
-
-/* The default ring is tuned for white grounds and falls to ~2.3:1 on the
-   near-black hero and research fields — under the 3:1 WCAG non-text floor,
-   at exactly the spot where the hero's two CTAs live. Dark surfaces set
-   their own light ring rather than lightening the global token, which would
-   cost the contrast win on white. */
-.on-dark {
-  --focus-ring: #ffffff;
 }
 
 ::selection {
@@ -517,15 +413,6 @@ html {
   color: var(--blue-deep);
 }
 
-/* The partner strip's soft edges, only while it moves: the reduced-motion
-   layout is a static wrapped row, and a fade would eat its outer logos. */
-@media (prefers-reduced-motion: no-preference) {
-  .partners-strip {
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-  }
-}
-
 /* One authored entrance, shared by every revealed element. Content is
    visible by default; the class only runs when JS confirms support. */
 @media (prefers-reduced-motion: no-preference) {
@@ -557,59 +444,6 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  /* The arc rings are an exception to the blanket rule above. Collapsing a
-     full revolution lands every child back at its start angle, which is
-     correct, but only while the animation is still running. With
-     iteration-count 1 it finishes instead, the transform reverts, and all
-     fourteen portraits pile onto the ring's twelve o'clock. Keeping the
-     duration and pausing holds each one where its start angle put it. */
-  [class*="animate-arc-"] {
-    animation-duration: inherit;
-    animation-iteration-count: infinite !important;
-    animation-play-state: paused !important;
-  }
-}
-
-/*
-  Two layouts that nest a padded box inside another, and run out of width only
-  when the reader's text is enlarged on a phone. Both are measured in rem, so
-  they track the text size as well as the screen; neither query can match at
-  the default size on any screen from 320px up.
-
-  The lead panel puts the white form card inside the green card: 104px of
-  padding on a 320px phone, which at 200% left the form narrower than its own
-  checkbox row. Below 13rem (200% on 390px, 175% on 360 or 320) the two cards
-  hand that width back to the form.
-
-  The team list sets each member as a 7.5rem photo beside the name and bio.
-  Below 17rem (130% on 390px) the bio was a few characters wide; the member
-  stacks instead, photo above text.
-*/
-.lead-section,
-.team-list {
-  container-type: inline-size;
-}
-
-@container (width < 13rem) {
-  .lead-panel {
-    padding: 5vw;
-  }
-
-  .lead-form-card {
-    padding: 4vw;
-  }
-}
-
-@container (width < 17rem) {
-  .team-list > li {
-    display: block;
-  }
-
-  .team-list > li > img {
-    width: min(7.5rem, 50%);
-    margin-bottom: 1.25rem;
   }
 }
 

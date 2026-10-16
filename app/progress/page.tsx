@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default function ProgressPage() {
   return (
     <>
-      <PageHero tone="green" title={C.title} lede={C.lede} back={<BackLink />} />
+      <PageHero title={C.title} lede={C.lede} back={<BackLink />} />
 
       <Section labelledBy="know-h">
         <div className="grid gap-[clamp(2.5rem,5vw,3.5rem)] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-[clamp(4rem,8vw,8rem)] lg:gap-y-20">
@@ -39,7 +39,7 @@ export default function ProgressPage() {
           </figure>
 
           <div className="lg:col-start-1 lg:row-start-2">
-            <h2 id="know-h" className="max-w-[18ch] text-h2 font-display font-black text-ink">
+            <h2 id="know-h" className="max-w-[18ch] text-h2 font-display font-extrabold text-ink">
               {C.strengths.heading}
             </h2>
             {C.strengths.intro.map((line, i) => (
@@ -63,7 +63,7 @@ export default function ProgressPage() {
       </Section>
 
       <Section tone="sunken" labelledBy="one-h">
-        <h2 id="one-h" className="text-h2 font-display font-black text-ink">
+        <h2 id="one-h" className="text-h2 font-display font-extrabold text-ink">
           {C.onePicture.heading}
         </h2>
         <p className="mt-7 max-w-measure text-lead text-ink-soft">{C.onePicture.lede}</p>
@@ -80,16 +80,12 @@ export default function ProgressPage() {
                 }`}
               >
                 <span
-                  className={`flex h-14 w-14 items-center justify-center rounded-pill ${
-                    isMove ? "bg-blue-wash text-blue-deep" : "bg-purple-wash text-purple-deep"
-                  }`}
+                  className="flex h-14 w-14 items-center justify-center rounded-pill bg-blue-wash text-blue-deep"
                 >
                   <Icon className="h-7 w-7" />
                 </span>
                 <h3
-                  className={`text-[clamp(1.625rem,1.3rem+1.2vw,2.25rem)] font-display font-black ${
-                    isMove ? "text-blue-deep" : "text-purple-deep"
-                  }`}
+                  className="text-[clamp(1.625rem,1.3rem+1.2vw,2.25rem)] font-display font-extrabold text-blue-deep"
                 >
                   {item.label}
                 </h3>
@@ -106,7 +102,7 @@ export default function ProgressPage() {
           <Reveal>
             <h2
               id="beats-h"
-              className="font-display text-[clamp(2.25rem,1.5rem+3.4vw,4.5rem)] font-black leading-[1.05]"
+              className="font-display text-[clamp(2.25rem,1.5rem+3.4vw,4.5rem)] font-extrabold leading-[1.05]"
             >
               <span className="block text-ink-faint">{C.beats.heading[0]}</span>{" "}
               <span className="block text-ink-soft">{C.beats.heading[1]}</span>{" "}
@@ -124,12 +120,12 @@ export default function ProgressPage() {
       </Section>
 
       <Section tone="sunken" labelledBy="final-h">
-        <h2 id="final-h" className="max-w-[20ch] text-h2 font-display font-black text-ink">
+        <h2 id="final-h" className="max-w-[20ch] text-h2 font-display font-extrabold text-ink">
           {C.final.heading}
         </h2>
         <p className="mt-6 max-w-measure text-lead text-ink-soft">{C.final.body}</p>
         <div className="mt-[clamp(3rem,6vw,4.5rem)]">
-          <FitCheckClose tone="green" cta={C.cta} heading={C.final.question} level={3} />
+          <FitCheckClose cta={C.cta} heading={C.final.question} level={3} />
         </div>
       </Section>
     </>

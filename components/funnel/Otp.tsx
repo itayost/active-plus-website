@@ -57,7 +57,7 @@ function CodeBoxes({ code, invalid, busy, onChange, inputRef }: {
               "flex h-[4.25rem] items-center justify-center rounded-field border-2 bg-surface font-display text-[2rem] font-bold text-ink",
               "transition-[border-color,box-shadow] duration-[var(--dur-fast)]",
               invalid
-                ? "border-burgundy"
+                ? "border-danger"
                 : i === next
                   ? "border-hairline group-focus-within:border-blue-deep group-focus-within:ring-[3px] group-focus-within:ring-blue-wash"
                   : "border-hairline",

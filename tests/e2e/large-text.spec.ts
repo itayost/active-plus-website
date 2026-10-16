@@ -12,11 +12,13 @@ import { expect, test, type Page } from "@playwright/test";
 const ROUTES = [
   "/",
   "/about",
-  "/how-it-works",
   "/personal-plan",
   "/motion-detection",
   "/progress",
   "/articles",
+  "/research",
+  "/team",
+  "/contact",
   "/articles/body-after-50",
   "/payment",
   "/privacy-policy",
@@ -72,7 +74,8 @@ test.describe("200% text on a 390px phone", () => {
 
       const banner = page.getByRole("banner");
       for (const control of [
-        banner.getByRole("link", { name: "פעילים פלוס — לעמוד הבית" }),
+        banner.getByRole("link", { name: "פעילים+ – לדף הבית" }),
+        banner.getByRole("link", { name: "התקשרו אלינו" }),
         banner.getByRole("button", { name: "פתיחת התפריט" }),
       ]) {
         const box = (await control.boundingBox())!;
@@ -85,17 +88,32 @@ test.describe("200% text on a 390px phone", () => {
     });
   }
 
-  test("the drawer leads with the fit-check pill the bar has dropped", async ({ page }) => {
+  test("/payment at 200% text: the annual button is fully on screen at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await withRootText(page, 200);
+    await page.goto("/payment");
+    const result = await page.evaluate(overflowing, 320);
+    expect(result.offenders).toEqual([]);
+    expect(result.scrollWidth).toBeLessThanOrEqual(320);
+    for (const name of ["לבחירת המנוי השנתי", "לבחירה"]) {
+      const box = (await page.getByRole("link", { name, exact: true }).or(page.getByRole("button", { name, exact: true })).boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(320);
+      expect(box.height).toBeGreaterThanOrEqual(48);
+    }
+  });
+
+  test("the bar holds no fit-check pill and the drawer still carries it", async ({ page }) => {
     await withRootText(page, 200);
     await page.goto("/");
     const banner = page.getByRole("banner");
-    await expect(banner.getByRole("link", { name: "בדיקת התאמה" })).toBeHidden();
+    await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
     await banner.getByRole("button", { name: "פתיחת התפריט" }).click();
     const drawer = page.getByRole("dialog", { name: "תפריט האתר" });
-    const pills = drawer.getByRole("link", { name: "בדיקת התאמה" });
-    await expect(pills).toHaveCount(1);
-    await expect(drawer.getByRole("link").nth(1)).toHaveAccessibleName("בדיקת התאמה");
-    await expect(pills).toBeInViewport();
+    const pill = drawer.getByRole("link", { name: "בדיקת התאמה", exact: true });
+    await expect(pill).toHaveCount(1);
+    await pill.scrollIntoViewIfNeeded();
+    await expect(pill).toBeInViewport();
   });
 });
 
@@ -108,7 +126,7 @@ test.describe("a phone held sideways", () => {
       await page.setViewportSize({ width, height });
       await page.goto("/");
       const heading = (await page.locator("#hero-heading").boundingBox())!;
-      const action = (await page.getByRole("link", { name: "בואו לראות איך זה עובד" }).boundingBox())!;
+      const action = (await page.getByRole("main").getByRole("link", { name: "לתוכנית אישית לחצו כאן", exact: true }).first().boundingBox())!;
       expect(heading.y).toBeGreaterThanOrEqual(0);
       expect(action.y + action.height).toBeLessThanOrEqual(height);
     });

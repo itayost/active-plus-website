@@ -1,5 +1,6 @@
 /**
- * v1 URLs that the v2 brief removed, mapped to where their content now lives.
+ * Old URLs mapped to where their content now lives (v1 pages, and the
+ * how-it-works page the handoff redesign folded into /research).
  * Permanent: these URLs are in search results and in links people sent each
  * other on WhatsApp.
  *
@@ -10,11 +11,9 @@
 export const PROTECTED_PATHS = ["/delete-account", "/privacy-policy"] as const;
 
 export const LEGACY_REDIRECTS: readonly { source: string; destination: string }[] = [
-  { source: "/dual-tasking", destination: "/how-it-works" },
-  { source: "/research", destination: "/about" },
-  { source: "/team", destination: "/about" },
+  { source: "/how-it-works", destination: "/research" },
+  { source: "/dual-tasking", destination: "/research" },
   { source: "/faq", destination: "/#faq" },
-  { source: "/contact", destination: "/#lead" },
   { source: "/pricing", destination: "/payment" },
   { source: "/articles/improve-memory-after-50", destination: "/articles/memory-after-50" },
   { source: "/articles/balance-after-50", destination: "/articles/body-after-50" },

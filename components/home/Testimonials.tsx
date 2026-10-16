@@ -1,67 +1,43 @@
-"use client";
-
-import { Shell } from "@/components/ui/Section";
-import CarouselArrows from "@/components/ui/CarouselArrows";
-import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
+import Card from "@/components/ui/Card";
 import ReviewSourceLogo from "@/components/ui/ReviewSourceLogo";
-import { TESTIMONIALS } from "@/content/home";
+import SectionHeading from "@/components/ui/SectionHeading";
+import SwipeRow from "@/components/ui/SwipeRow";
+import { TESTIMONIALS, TESTIMONIALS_HEADING } from "@/content/home";
+
+const SOURCE_NAME = { google: "Google", facebook: "Facebook" } as const;
 
 /**
- * Written reviews only, no star ratings (none were supplied). The source
- * shows as the Google or Facebook mark, with its name for screen readers.
- *
- * TODO(brief): 3-4 testimonial videos are pending from the client. When they
- * arrive they enter above this track as a row of circles with a play button.
+ * Written reviews as a swipe row. The cards hold nothing interactive, so the
+ * row makes each one a Tab stop (`focusableItems`) and keyboard users reach
+ * every card.
  */
 export default function Testimonials() {
-  const { trackRef, index, canPrev, canNext, goTo } = useSnapCarousel<HTMLUListElement>(
-    TESTIMONIALS.length,
-  );
-
   return (
-    <section
-      aria-labelledby="reviews-heading"
-      aria-roledescription="קרוסלה"
-      className="bg-sunken py-[var(--section-y)]"
-    >
-      <Shell>
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <h2 id="reviews-heading" className="max-w-[18ch] text-h2 font-display font-black">
-            מה אומרים הלקוחות שלנו
-          </h2>
-          <CarouselArrows
-            prevLabel="הביקורת הקודמת"
-            nextLabel="הביקורת הבאה"
-            canPrev={canPrev}
-            canNext={canNext}
-            onPrev={() => goTo(index - 1)}
-            onNext={() => goTo(index + 1)}
-          />
-        </div>
-      </Shell>
-
-      <ul
-        ref={trackRef}
-        tabIndex={0}
-        aria-label="ביקורות לקוחות"
-        className="snap-gutter mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth gutter-x pb-6 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {TESTIMONIALS.map((item, i) => (
-          <li
-            key={item.name}
-            aria-label={`${i + 1} מתוך ${TESTIMONIALS.length}`}
-            className="w-[min(84vw,600px)] shrink-0 snap-start"
-          >
-            <article className="flex h-full flex-col rounded-card bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1">
-              <header className="flex items-center justify-between gap-4">
-                <h3 className="font-display text-h3 font-bold">{item.name}</h3>
-                <ReviewSourceLogo source={item.source} />
+    <section aria-labelledby="testimonials-heading" className="pt-12 lg:pt-16">
+      <div className="mx-auto w-full max-w-shell gutter-x">
+        <SectionHeading id="testimonials-heading" title={TESTIMONIALS_HEADING} swipeHint />
+      </div>
+      <div className="mx-auto w-full max-w-shell lg:mt-6">
+        <SwipeRow label={TESTIMONIALS_HEADING} desktop="carousel" itemWidth="card" focusableItems>
+          {TESTIMONIALS.map((item) => (
+            <Card key={item.name} as="article" className="flex h-full flex-col gap-2.5 p-[18px]">
+              <header className="flex items-center justify-between gap-2">
+                <h3 className="text-[17px] font-bold text-ink">{item.name}</h3>
+                <span className="flex items-center gap-1.5 text-sm font-bold text-blue-deep">
+                  <ReviewSourceLogo source={item.source} />
+                  <span aria-hidden="true">{SOURCE_NAME[item.source]}</span>
+                </span>
               </header>
-              <blockquote className="mt-5 text-lead text-ink-soft">{item.quote}</blockquote>
-            </article>
-          </li>
-        ))}
-      </ul>
+              <span role="img" aria-label="5 כוכבים" className="text-xl leading-none tracking-[2px] text-star">
+                ★★★★★
+              </span>
+              <blockquote className="text-lg leading-relaxed text-ink">
+                &ldquo;{item.quote}&rdquo;
+              </blockquote>
+            </Card>
+          ))}
+        </SwipeRow>
+      </div>
     </section>
   );
 }

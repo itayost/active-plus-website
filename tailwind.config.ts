@@ -34,13 +34,14 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-heebo)", "system-ui", "sans-serif"],
-        display: ["var(--font-rubik)", "system-ui", "sans-serif"],
+        /* Heebo too: the utility name stays so call sites do not churn. */
+        display: ["var(--font-heebo)", "system-ui", "sans-serif"],
       },
       colors: {
         surface: cssVar("--surface"),
         sunken: cssVar("--surface-sunken"),
         hairline: cssVar("--hairline"),
-        hero: cssVar("--hero-field"),
+        divider: cssVar("--divider"),
         ink: {
           DEFAULT: cssVar("--ink"),
           soft: cssVar("--ink-soft"),
@@ -48,27 +49,27 @@ const config: Config = {
         },
         blue: {
           DEFAULT: cssVar("--blue"),
-          bright: cssVar("--blue-bright"),
           deep: cssVar("--blue-deep"),
           wash: cssVar("--blue-wash"),
+          sky: cssVar("--blue-sky"),
         },
         green: {
           DEFAULT: cssVar("--green"),
+          hi: cssVar("--green-hi"),
+          lo: cssVar("--green-lo"),
           deep: cssVar("--green-deep"),
           wash: cssVar("--green-wash"),
         },
-        purple: {
-          DEFAULT: cssVar("--purple"),
-          deep: cssVar("--purple-deep"),
-          wash: cssVar("--purple-wash"),
+        star: cssVar("--star"),
+        danger: {
+          DEFAULT: cssVar("--danger"),
+          deep: cssVar("--danger-deep"),
         },
-        yellow: cssVar("--yellow"),
-        emphasis: cssVar("--emphasis-cyan"),
-        burgundy: {
-          DEFAULT: cssVar("--burgundy"),
-          deep: cssVar("--burgundy-deep"),
-          wash: cssVar("--burgundy-wash"),
-        },
+      },
+      backgroundImage: {
+        /* The primary button's fill and the hero's top wash. */
+        cta: "linear-gradient(180deg, var(--green-hi), var(--green-lo))",
+        "hero-wash": "linear-gradient(180deg, var(--blue-sky) 0%, var(--surface) 60%)",
       },
       fontSize: {
         base: ["clamp(1.125rem, 1rem + 0.25vw, 1.3125rem)", { lineHeight: "1.65" }],
@@ -81,7 +82,6 @@ const config: Config = {
            heading leading. */
         "h1-article": "clamp(2rem, 1.3rem + 2.6vw, 4.25rem)", // long editorial h1
         "h2-prose": "clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)", // article-body h2
-        "card-title": "clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem)", // field-card title
       },
       maxWidth: {
         measure: "var(--measure)",
@@ -92,55 +92,22 @@ const config: Config = {
         "lift-1": "var(--lift-1)",
         "lift-2": "var(--lift-2)",
         "lift-3": "var(--lift-3)",
+        card: "var(--shadow-card)",
+        cta: "var(--shadow-cta)",
       },
       transitionTimingFunction: {
         "out-expo": "var(--ease-out-expo)",
-      },
-      keyframes: {
-        /* One copy's width, because the track holds the list three times
-           (see PartnersBand). */
-        marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(calc(-100% / 3))" },
-        },
-        /*
-         * A full revolution from each child's own start angle. The cancel
-         * pair turns the opposite way at the same rate, which keeps the face
-         * upright while its position still travels the ring. Duration must
-         * match between a spin and its cancel or the two stop agreeing.
-         */
-        "arc-cw": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) + 360deg))" },
-        },
-        "arc-ccw": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) - 360deg))" },
-        },
-        "arc-cw-cancel": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) - 360deg))" },
-        },
-        "arc-ccw-cancel": {
-          from: { transform: "rotate(var(--arc-start))" },
-          to: { transform: "rotate(calc(var(--arc-start) + 360deg))" },
-        },
-      },
-      animation: {
-        marquee: "marquee 38s linear infinite",
-        "arc-cw": "arc-cw 30s linear infinite",
-        "arc-ccw": "arc-ccw 30s linear infinite",
-        "arc-cw-cancel": "arc-cw-cancel 30s linear infinite",
-        "arc-ccw-cancel": "arc-ccw-cancel 30s linear infinite",
       },
       /* The corner scale from DESIGN.md. Named for their jobs rather than
          sm/md/lg, which Tailwind already defines at 2-8px. */
       borderRadius: {
         field: "14px", // inputs and inline alerts
-        tile: "20px", // image tiles inset in a card, list rows
+        logo: "16px", // partner logo tiles
+        tile: "18px", // image tiles inset in a card, list cards
+        video: "20px", // testimonial video tiles
         panel: "22px", // floating image panels
-        card: "28px", // every card-scale container
-        hero: "clamp(20px, 2.5vw, 36px)", // the Dark Hero Card
+        card: "22px", // every card-scale container
+        hero: "32px", // the hero block's bottom corners
         pill: "999px",
       },
     },

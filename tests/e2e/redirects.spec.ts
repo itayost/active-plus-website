@@ -21,3 +21,11 @@ test("delete-account form is usable", async ({ page }) => {
   await expect(page.locator('input[name="email"]')).toBeVisible();
   await expect(page.locator('input[name="confirmation"]')).toBeVisible();
 });
+
+test("/how-it-works lands on /research after one 308 hop", async ({ request, page }) => {
+  const hop = await request.get("/how-it-works", { maxRedirects: 0 });
+  expect(hop.status()).toBe(308);
+  expect(new URL(hop.headers()["location"], "http://x").pathname).toBe("/research");
+  await page.goto("/how-it-works");
+  await expect(page).toHaveURL(/\/research$/);
+});

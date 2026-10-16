@@ -1,28 +1,30 @@
 import Hero from "@/components/home/Hero";
-import ChoosingDaily from "@/components/home/ChoosingDaily";
-import Intro from "@/components/home/Intro";
-import WhatMatters from "@/components/home/WhatMatters";
-import FeatureCards from "@/components/home/FeatureCards";
+import WorldCards from "@/components/home/WorldCards";
+import ProgramCards from "@/components/home/ProgramCards";
+import CtaBar from "@/components/home/CtaBar";
 import Testimonials from "@/components/home/Testimonials";
-import PartnersBand from "@/components/home/PartnersBand";
+import TestimonialVideos from "@/components/home/TestimonialVideos";
+import Partners from "@/components/home/Partners";
+import Articles from "@/components/home/Articles";
 import LeadSection from "@/components/sections/LeadSection";
 import FaqSection from "@/components/sections/FaqSection";
-import PlansTeaser from "@/components/sections/PlansTeaser";
+import { CTAS } from "@/content/home";
 
-/** Section order is the client's v2 brief ("עמוד הבית פעילים פלוס"), top to bottom. */
+/** Section order follows the handoff prototype, top to bottom. */
 export default function Home() {
   return (
     <>
       <Hero />
-      <ChoosingDaily />
-      <Intro />
-      <WhatMatters />
-      <FeatureCards />
+      <WorldCards />
+      <ProgramCards />
+      <CtaBar label={CTAS.fit} />
       <Testimonials />
-      <PartnersBand />
-      <LeadSection source="home" withEmail={false} />
+      <TestimonialVideos />
+      <CtaBar label={CTAS.plan} />
+      <Partners />
+      <LeadSection source="home" />
+      <Articles />
       <FaqSection />
-      <PlansTeaser />
     </>
   );
 }

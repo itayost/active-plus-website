@@ -25,7 +25,7 @@ export default function Prose({
           return (
             <Fragment key={`${block.text}-${index}`}>
               {h2Count === 2 ? figure : null}
-              <h2 className="mb-4 mt-14 text-h2-prose font-display font-bold first:mt-0">
+              <h2 className="mb-4 mt-14 text-h2-prose font-display font-extrabold text-blue first:mt-0">
                 {block.text}
               </h2>
             </Fragment>
@@ -34,7 +34,7 @@ export default function Prose({
         return (
           <p
             key={`${block.text}-${index}`}
-            className={`mt-5 first:mt-0 ${index === 0 ? "text-lead text-ink" : "text-ink-soft"}`}
+            className={`mt-5 first:mt-0 ${index === 0 ? "text-lead text-ink" : "text-ink"}`}
           >
             {block.text}
           </p>

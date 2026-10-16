@@ -1,0 +1,55 @@
+import type { Metadata } from "next";
+import InnerPage from "@/components/layout/InnerPage";
+import LeadForm from "@/components/forms/LeadForm";
+import { CONTACT as C } from "@/content/pages";
+import {
+  CONTACT_ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_HOURS,
+  CONTACT_PHONE,
+  CONTACT_PHONE_TEL,
+  CONTACT_WHATSAPP,
+  CONTACT_WHATSAPP_URL,
+} from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "צור קשר",
+  description: C.lede,
+};
+
+const LINK = "inline-flex min-h-[48px] items-center";
+
+export default function ContactPage() {
+  return (
+    <InnerPage
+      title={C.title}
+      intro={
+        <>
+          <p className="mb-3 font-extrabold">{C.lede}</p>
+          <address className="mb-6 not-italic leading-[1.9]">
+            <a href={`tel:${CONTACT_PHONE_TEL}`} className={`${LINK} text-blue-deep`}>
+              {CONTACT_PHONE}
+            </a>
+            <br />
+            {CONTACT_HOURS}
+            <br />
+            <a href={CONTACT_WHATSAPP_URL} className={`${LINK} text-blue-deep`}>
+              {CONTACT_WHATSAPP} (וואטסאפ)
+            </a>
+            <br />
+            <a href={`mailto:${CONTACT_EMAIL}`} className={`${LINK} text-blue-deep`}>
+              {CONTACT_EMAIL}
+            </a>
+            <br />
+            {CONTACT_ADDRESS}
+          </address>
+        </>
+      }
+    >
+      {/* Beside the details from lg, the form gets the handoff's card. */}
+      <div className="lg:rounded-card lg:border lg:border-hairline lg:bg-surface lg:p-10 lg:shadow-card">
+        <LeadForm source="contact" variant="contact" />
+      </div>
+    </InnerPage>
+  );
+}

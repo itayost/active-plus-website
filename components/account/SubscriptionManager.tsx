@@ -146,7 +146,7 @@ export default function SubscriptionManager() {
         </p>
       ) : null}
       {notice === "failed" ? (
-        <div id={FOCUS.notice} tabIndex={-1} role="alert" className="rounded-field bg-burgundy-wash px-4 py-3 text-lead font-medium text-burgundy outline-none">
+        <div id={FOCUS.notice} tabIndex={-1} role="alert" className="rounded-field bg-danger/10 px-4 py-3 text-lead font-medium text-danger outline-none">
           <p>{A.cancelFailed}</p>
           <OfficePhone />
         </div>
@@ -171,7 +171,7 @@ export default function SubscriptionManager() {
         </div>
       ) : null}
       {action === "cancel" && confirming ? (
-        <section aria-labelledby={FOCUS.confirm} aria-busy={cancelling || undefined} className="rounded-card border-2 border-burgundy p-5">
+        <section aria-labelledby={FOCUS.confirm} aria-busy={cancelling || undefined} className="rounded-card border-2 border-danger p-5">
           <h2 id={FOCUS.confirm} tabIndex={-1} className="font-display text-h3 font-bold outline-none">{A.confirmTitle}</h2>
           <p className="mt-2 text-lead">{A.confirmBody.replace("{date}", date)}</p>
           {/* Disabled while the request runs, labels kept: a second tap can never send a second cancel. */}

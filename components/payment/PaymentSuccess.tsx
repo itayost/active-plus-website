@@ -56,14 +56,14 @@ export default function PaymentSuccess() {
       <span aria-hidden="true" className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-pill bg-green-deep text-white">
         <CheckIcon className="h-10 w-10" />
       </span>
-      <h1 id="payment-success-heading" className="font-display text-[clamp(1.6rem,1.1rem+1.7vw,3.2rem)] font-black leading-[1.1]">{title}</h1>
+      <h1 id="payment-success-heading" className="font-display text-[clamp(1.6rem,1.1rem+1.7vw,3.2rem)] font-extrabold leading-[1.1]">{title}</h1>
       <p role="status" className="mx-auto mt-4 max-w-measure text-lead">
         <Message state={state} email={email} />
       </p>
       <ol className="mt-8 grid gap-4 text-start">
         {S.steps.map((step, i) => (
           <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-5">
-            <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-black text-white">{i + 1}</span>
+            <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">{i + 1}</span>
             <div>
               <strong className="block font-display text-[1.25rem] font-bold">{step.title}</strong>
               <p className="mt-1 text-ink-soft">{step.body}</p>
