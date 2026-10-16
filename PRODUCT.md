@@ -49,7 +49,7 @@ web
 - דפים: Home (`/`), About (`/about`, מכתב של מידד גולן), Research (`/research`), Team (`/team`), Contact (`/contact`, טופס פנייה), Payment (`/payment` + `/payment/success`), Questionnaire (`/questionnaire`), Articles (`/articles`, `/articles/[slug]`), Account (`/account/subscription`). Card explainers at `/personal-plan`, `/motion-detection`, `/progress`.
 - Redirects (קבועים, הופ אחד): `/how-it-works` ו-`/dual-tasking` → `/research`; `/faq` → `/#faq`; `/pricing` → `/payment`.
 - **דפים משפטיים: נשארים live בלי שינוי באותן URL** — `/privacy-policy`, `/delete-account`. (בחוקי App Store / Google Play כ-URLs של מחיקת חשבון; לא redirect, לא noindex, לא rename.) עמודים שהוסרו 308 (קבוע) למקומות חדשים.
-- ניווט (מגירה בטלפון ועד 1279px, שורה בהדר מ-1280px, וגם בפוטר), לפי הסדר: הכירו את פעילים+ (`/about`) · המחקר והגישה המקצועית (`/research`) · הצוות המקצועי (`/team`) · שאלות נפוצות (`/#faq`) · מסלולים ומחירים (`/payment`) · צור קשר (`/contact`). בדסקטופ ובמגירה גם כפתור ירוק "בדיקת התאמה". בהדר של הטלפון: כפתור תפריט וכפתור חיוג עגולים.
+- ניווט (מגירה בטלפון ועד 1343px, שורה בהדר מ-1344px, וגם בפוטר), לפי הסדר: הכירו את פעילים+ (`/about`) · המחקר והגישה המקצועית (`/research`) · הצוות המקצועי (`/team`) · שאלות נפוצות (`/#faq`) · מסלולים ומחירים (`/payment`) · צור קשר (`/contact`). בדסקטופ ובמגירה גם כפתור ירוק "בדיקת התאמה". בהדר של הטלפון: כפתור תפריט וכפתור חיוג עגולים.
 - **CTA ראשי (הוכרע):** כל הכפתורים הירוקים ("לתוכנית אישית לחצו כאן", "לבדיקת התאמה", "לקבלת תוכנית אישית", "בדקו איזו תוכנית מתאימה לכם", "בדיקת התאמה") מובילים ל-`/questionnaire`. טופס פרטים משני (שם + טלפון +
   הסכמה לשיווק) נשאר בעמוד הראשי; בעמוד צור קשר טופס מלא (אימייל, נושא, הודעה). שניהם עוברים דרך `submitLead`, `source` נשאר `"website"` וההערה מתחילה ב-"פעילים אתר".
 
