@@ -7,6 +7,8 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 */
 const ROW = "מה אומרים הלקוחות שלנו";
 
+// The section named by its heading is the row's only landmark; the list inside
+// carries the same name but is not a region.
 function row(page: Page): Locator {
   return page.getByRole("region", { name: ROW });
 }
@@ -84,13 +86,50 @@ test.describe("desktop", () => {
   });
 });
 
+test.describe("desktop focus", () => {
+  test.use({ viewport: { width: 1280, height: 900 } });
+
+  test("an exhausted arrow keeps keyboard focus, and previous still works", async ({ page }) => {
+    await page.goto("/");
+    const region = row(page);
+    const track = region.getByRole("list");
+    const next = region.getByRole("button", { name: "הבא" });
+    const previous = region.getByRole("button", { name: "הקודם" });
+    const settled = () =>
+      expect
+        .poll(async () => {
+          const a = await track.evaluate((t) => t.scrollLeft);
+          await page.waitForTimeout(150);
+          return a === (await track.evaluate((t) => t.scrollLeft));
+        })
+        .toBe(true);
+    await next.focus();
+    // Settle after each press, the way a reader presses: that is when presses
+    // on an already-exhausted arrow used to desync the index.
+    for (let i = 0; i < 7; i++) {
+      await page.keyboard.press("Enter");
+      await settled();
+    }
+    await expect(next).toHaveAttribute("aria-disabled", "true");
+    await expect(next).toBeFocused();
+    // Every "previous" press must move the track until it is back at the start.
+    for (let i = 0; i < 7 && (await previous.getAttribute("aria-disabled")) !== "true"; i++) {
+      const before = await track.evaluate((t) => t.scrollLeft);
+      await previous.click();
+      await expect.poll(() => track.evaluate((t) => t.scrollLeft), { timeout: 2000 }).not.toBe(before);
+      await settled();
+    }
+    await expect(previous).toHaveAttribute("aria-disabled", "true");
+    await expect(region.getByRole("listitem").first()).toBeInViewport();
+  });
+});
+
 test.describe("wide desktop", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
   test("a row that fits whole drops its arrows; one that does not keeps them", async ({ page }) => {
     await page.goto("/");
-    // The row's own region, not the section of the same name around it.
-    const partners = page.locator('div[role="region"][aria-label="שיתופי פעולה"]');
+    const partners = page.getByRole("region", { name: "שיתופי פעולה" });
     // Positive control first: the arrows exist on this page and width.
     await expect(row(page).getByRole("button", { name: "הבא" })).toBeVisible();
     await partners.scrollIntoViewIfNeeded();

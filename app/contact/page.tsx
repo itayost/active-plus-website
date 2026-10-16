@@ -27,13 +27,13 @@ export default function ContactPage() {
         <>
           <p className="mb-3 font-extrabold">{C.lede}</p>
           <address className="mb-6 not-italic leading-[1.9]">
-            <a href={`tel:${CONTACT_PHONE_TEL}`} className={LINK}>
+            <a href={`tel:${CONTACT_PHONE_TEL}`} className={`${LINK} text-blue-deep`}>
               {CONTACT_PHONE}
             </a>
             <br />
             {CONTACT_HOURS}
             <br />
-            <a href={CONTACT_WHATSAPP_URL} className={LINK}>
+            <a href={CONTACT_WHATSAPP_URL} className={`${LINK} text-blue-deep`}>
               {CONTACT_WHATSAPP} (וואטסאפ)
             </a>
             <br />

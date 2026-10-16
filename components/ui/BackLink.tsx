@@ -8,7 +8,7 @@ import { ArrowBackIcon } from "@/components/ui/icons";
  */
 export default function BackLink({
   href = "/",
-  label = "חזרה",
+  label = "חזרה לדף הבית",
 }: {
   href?: string;
   label?: string;

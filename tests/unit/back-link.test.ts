@@ -8,6 +8,9 @@ describe("BackLink", () => {
     expect(source).toContain("text-blue-deep");
     expect(source).not.toMatch(/text-blue(?![-\w])/);
   });
+  it("defaults to a label that says where it goes", () => {
+    expect(source).toContain('label = "חזרה לדף הבית"');
+  });
   it("keeps a 48px touch target", () => {
     expect(source).toContain("min-h-[48px]");
   });

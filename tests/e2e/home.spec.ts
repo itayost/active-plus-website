@@ -24,6 +24,21 @@ test("hero: poster always, CTA to the questionnaire, video once motion is allowe
   await expect(hero.locator("video")).toHaveCount(1);
 });
 
+test("hero video has a pause control that pauses and resumes it", async ({ page }) => {
+  await page.goto("/");
+  const hero = page.locator("section[aria-labelledby='hero-heading']");
+  await expect(hero.locator("[data-hero-video]")).toHaveAttribute("data-hero-video", "on");
+  const video = hero.locator("video");
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  const pause = hero.getByRole("button", { name: "השהיית הסרטון" });
+  const box = (await pause.boundingBox())!;
+  expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(48);
+  await pause.click();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  await hero.getByRole("button", { name: "הפעלת הסרטון" }).click();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+});
+
 test("world cards list the four titles", async ({ page }) => {
   await page.goto("/");
   const titles = await page.locator("section[aria-labelledby='world-heading'] h3").allInnerTexts();

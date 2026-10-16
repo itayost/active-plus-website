@@ -8,6 +8,7 @@ import { PROGRAM_CARDS } from "@/lib/constants";
 
 /** "מעטפת מקצועית": three explainer cards, a swipe row on a phone and a grid from lg. */
 export default function ProgramCards() {
+  // The cards are `relative` so the sr-only text in each link stays inside the scrolling row.
   return (
     <section aria-labelledby="program-heading" className="pt-12 lg:pt-16">
       <div className="mx-auto w-full max-w-shell gutter-x">
@@ -16,7 +17,7 @@ export default function ProgramCards() {
       <div className="mx-auto w-full max-w-shell lg:mt-6">
         <SwipeRow label={PROGRAM_HEADING} desktop="grid-3" itemWidth="card">
           {PROGRAM_CARDS.map((card) => (
-            <Card key={card.id} as="article" className="flex h-full flex-col overflow-hidden">
+            <Card key={card.id} as="article" className="relative flex h-full flex-col overflow-hidden">
               <div className="relative aspect-[284/160] w-full bg-blue-wash">
                 <Image
                   src={card.image}
@@ -32,6 +33,7 @@ export default function ProgramCards() {
                 <p className="flex-1 text-lg leading-normal text-ink">{card.body}</p>
                 <Button href={card.href} size="md" className="self-start">
                   {card.cta}
+                  <span className="sr-only">: {card.title}</span>
                 </Button>
               </div>
             </Card>

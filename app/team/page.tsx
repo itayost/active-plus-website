@@ -23,7 +23,7 @@ export default function TeamPage() {
               src={m.photo}
               width={200}
               height={200}
-              alt={m.name}
+              alt=""
               sizes="(min-width: 1024px) 160px, (min-width: 640px) 96px, 72px"
               className="h-[72px] w-[72px] flex-none rounded-full object-cover shadow-[0_4px_12px_rgba(20,40,80,.12)] sm:h-24 sm:w-24 lg:h-40 lg:w-40 lg:ring-8 lg:ring-blue-wash"
             />

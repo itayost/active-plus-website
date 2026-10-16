@@ -5,7 +5,7 @@ import CarouselArrows from "@/components/ui/CarouselArrows";
 import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
 type Props = {
-  /** Accessible name of the region. */
+  /** Accessible name of the list (the enclosing section carries the landmark). */
   label: string;
   /** What the row becomes at lg+: a plain grid, or the same track with arrows. */
   desktop: "grid-3" | "grid-4" | "carousel";
@@ -62,7 +62,7 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
   };
 
   return (
-    <div role="region" aria-label={label}>
+    <div>
       {isGrid || fits ? null : (
         <div className="mb-2 hidden justify-end lg:flex">
           <CarouselArrows
@@ -77,6 +77,7 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
       )}
       <ul
         role="list"
+        aria-label={label}
         ref={trackRef}
         onFocus={revealFocused}
         className={`snap-gutter flex snap-x snap-mandatory gap-3.5 overflow-x-auto scroll-smooth gutter-x pb-10 pt-5 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${DESKTOP_TRACK[desktop]}`}

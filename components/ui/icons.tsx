@@ -61,6 +61,23 @@ export function CloseIcon({ className }: IconProps) {
   );
 }
 
+export function PauseIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9 6v12" />
+      <path d="M15 6v12" />
+    </svg>
+  );
+}
+
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M8 5.5v13l10.5-6.5z" />
+    </svg>
+  );
+}
+
 export function CheckIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
