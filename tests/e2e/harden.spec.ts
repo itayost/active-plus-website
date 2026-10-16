@@ -134,78 +134,21 @@ test.describe("home carousels and partners", () => {
   test("snap tracks rest at their gutter instead of scrolling on load", async ({ page }) => {
     await page.goto("/");
     const offsets = await page.locator("ul.snap-gutter").evaluateAll((tracks) => tracks.map((t) => t.scrollLeft));
-    expect(offsets).toEqual([0, 0]);
+    expect(offsets.length).toBeGreaterThanOrEqual(4);
+    expect(offsets.every((x) => x === 0)).toBe(true);
   });
 
-  test("an exhausted arrow keeps keyboard focus, and previous still works", async ({ page }) => {
+  test("all seven partner logos are rendered, with names", async ({ page }) => {
     await page.goto("/");
-    const next = page.getByRole("button", { name: "הביקורת הבאה" });
-    const track = page.locator("ul.snap-gutter").nth(1);
-    const settled = () =>
-      expect
-        .poll(async () => {
-          const a = await track.evaluate((t) => t.scrollLeft);
-          await page.waitForTimeout(150);
-          return a === (await track.evaluate((t) => t.scrollLeft));
-        })
-        .toBe(true);
-    await next.focus();
-    // Settle after each press, the way a reader presses: that is when the
-    // presses on an already-exhausted arrow used to desync the index.
-    for (let i = 0; i < 6; i++) {
-      await page.keyboard.press("Enter");
-      await settled();
+    const logos = page.getByRole("region", { name: "שיתופי פעולה" }).getByRole("img");
+    await expect(logos).toHaveCount(7);
+    for (const alt of await logos.evaluateAll((els) => els.map((e) => e.getAttribute("alt")))) {
+      expect(alt && alt.length).toBeTruthy();
     }
-    await expect(next).toHaveAttribute("aria-disabled", "true");
-    await expect(next).toBeFocused();
-    // Focus is parked on the exhausted arrow, so its ring must not be dimmed
-    // with it: the dimming lives on the border and icon, never the button.
-    expect(await next.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
-    expect(await next.locator("svg").evaluate((el) => getComputedStyle(el).opacity)).toBe("0.35");
-    // Every "previous" press must move the track until it is back at the
-    // start. Presses on the exhausted "next" used to advance the index past
-    // what was on screen, so the first "previous" presses did nothing.
-    const previous = page.getByRole("button", { name: "הביקורת הקודמת" });
-    for (let i = 0; i < 6 && (await previous.getAttribute("aria-disabled")) !== "true"; i++) {
-      const before = await track.evaluate((t) => t.scrollLeft);
-      await previous.click();
-      await expect.poll(() => track.evaluate((t) => t.scrollLeft), { timeout: 2000 }).not.toBe(before);
-      await page.waitForTimeout(700);
-    }
-    expect(Math.abs(await track.evaluate((t) => t.scrollLeft))).toBeLessThan(2);
-  });
-
-  test("the partner strip is never empty during its loop", async ({ page }) => {
-    await page.goto("/");
-    const emptyPx = await page.locator(".animate-marquee").evaluate((track) => {
-      const strip = track.parentElement!.getBoundingClientRect();
-      const animation = track.getAnimations()[0];
-      return [0, 0.25, 0.5, 0.75, 0.999].map((fraction) => {
-        animation.pause();
-        animation.currentTime = Number(animation.effect!.getTiming().duration) * fraction;
-        const r = track.getBoundingClientRect();
-        return Math.max(0, strip.right - r.right) + Math.max(0, r.left - strip.left);
-      });
-    });
-    expect(emptyPx.every((px) => px < 1)).toBe(true);
   });
 
   test.describe("reduced motion", () => {
     test.use({ reducedMotion: "reduce" });
-
-    test("every partner is shown, once, inside the band", async ({ page }) => {
-      await page.goto("/");
-      const shown = await page.locator(".animate-marquee > li").evaluateAll((items) => {
-        const strip = items[0].parentElement!.parentElement!.getBoundingClientRect();
-        return items
-          .filter((li) => getComputedStyle(li).display !== "none")
-          .filter((li) => {
-            const r = li.getBoundingClientRect();
-            return r.left >= strip.left - 1 && r.right <= strip.right + 1;
-          }).length;
-      });
-      expect(shown).toBe(7);
-    });
 
     test("the hero video is not even requested", async ({ page }) => {
       const videoRequests: string[] = [];

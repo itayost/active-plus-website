@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, isValidElement, type ReactNode } from "react";
+import { Children, isValidElement, type FocusEvent, type ReactNode } from "react";
 import CarouselArrows from "@/components/ui/CarouselArrows";
 import { useSnapCarousel } from "@/components/ui/useSnapCarousel";
 
@@ -45,6 +45,19 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
   );
   const isGrid = desktop !== "carousel";
 
+  // Chrome leaves a focused item where it is when part of it is already on
+  // screen, so a Tab landed on a card showing only a sliver. Bring any item
+  // that is not fully inside the track to the start edge.
+  const revealFocused = (event: FocusEvent<HTMLUListElement>) => {
+    const track = event.currentTarget;
+    const item = (event.target as HTMLElement).closest("li");
+    if (!item || item.parentElement !== track) return;
+    const box = track.getBoundingClientRect();
+    const rect = item.getBoundingClientRect();
+    if (rect.left >= box.left && rect.right <= box.right) return;
+    goTo(Array.from(track.children).indexOf(item));
+  };
+
   return (
     <div role="region" aria-label={label}>
       {isGrid ? null : (
@@ -62,6 +75,7 @@ export default function SwipeRow({ label, desktop, itemWidth, focusableItems = f
       <ul
         role="list"
         ref={trackRef}
+        onFocus={revealFocused}
         className={`snap-gutter flex snap-x snap-mandatory gap-3.5 overflow-x-auto scroll-smooth gutter-x pb-10 pt-2 motion-reduce:scroll-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${DESKTOP_TRACK[desktop]}`}
       >
         {items.map((child, i) => (

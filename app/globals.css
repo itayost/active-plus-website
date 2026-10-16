@@ -411,15 +411,6 @@ html {
   color: var(--blue-deep);
 }
 
-/* The partner strip's soft edges, only while it moves: the reduced-motion
-   layout is a static wrapped row, and a fade would eat its outer logos. */
-@media (prefers-reduced-motion: no-preference) {
-  .partners-strip {
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-  }
-}
-
 /* One authored entrance, shared by every revealed element. Content is
    visible by default; the class only runs when JS confirms support. */
 @media (prefers-reduced-motion: no-preference) {
@@ -452,48 +443,17 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  /* The arc rings are an exception to the blanket rule above. Collapsing a
-     full revolution lands every child back at its start angle, which is
-     correct, but only while the animation is still running. With
-     iteration-count 1 it finishes instead, the transform reverts, and all
-     fourteen portraits pile onto the ring's twelve o'clock. Keeping the
-     duration and pausing holds each one where its start angle put it. */
-  [class*="animate-arc-"] {
-    animation-duration: inherit;
-    animation-iteration-count: infinite !important;
-    animation-play-state: paused !important;
-  }
 }
 
 /*
-  Two layouts that nest a padded box inside another, and run out of width only
-  when the reader's text is enlarged on a phone. Both are measured in rem, so
-  they track the text size as well as the screen; neither query can match at
-  the default size on any screen from 320px up.
-
-  The lead panel puts the white form card inside the green card: 104px of
-  padding on a 320px phone, which at 200% left the form narrower than its own
-  checkbox row. Below 13rem (200% on 390px, 175% on 360 or 320) the two cards
-  hand that width back to the form.
-
   The team list sets each member as a 7.5rem photo beside the name and bio.
   Below 17rem (130% on 390px) the bio was a few characters wide; the member
-  stacks instead, photo above text.
+  stacks instead, photo above text. Measured in rem, so it tracks the text
+  size as well as the screen; it cannot match at the default size on any
+  screen from 320px up.
 */
-.lead-section,
 .team-list {
   container-type: inline-size;
-}
-
-@container (width < 13rem) {
-  .lead-panel {
-    padding: 5vw;
-  }
-
-  .lead-form-card {
-    padding: 4vw;
-  }
 }
 
 @container (width < 17rem) {

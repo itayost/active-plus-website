@@ -2,17 +2,15 @@ import { expect, test } from "@playwright/test";
 
 test("home has every brief section in order", async ({ page }) => {
   await page.goto("/");
-  // The h1 and the two top-half h2s, then the sections still to be rebuilt.
   const ids = await page.locator("main h1, main h2").evaluateAll((els) => els.map((e) => e.id));
-  const top = ["hero-heading", "world-heading", "program-heading"].map((id) => ids.indexOf(id));
-  expect(top.every((p) => p >= 0)).toBe(true);
-  expect([...top].sort((a, b) => a - b)).toEqual(top);
 
-  const headings = await page.locator("main h2").allInnerTexts();
-  const order = ["מה אומרים הלקוחות שלנו", "שיתופי פעולה", "השאירו פרטים ונחזור אליכם לתיאום", "שאלות ותשובות", "המסלול שמתאים בדיוק בשבילך"];
-  const positions = order.map((h) => headings.findIndex((x) => x.includes(h)));
-  expect(positions.every((p) => p >= 0)).toBe(true);
-  expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+  const all = ["hero-heading", "world-heading", "program-heading", "testimonials-heading", "partners-heading", "lead-heading", "articles-heading", "faq-heading"];
+  expect(ids.filter((id) => all.includes(id))).toEqual(all);
+  // No recommender videos yet: no heading for them, but the CTA stays.
+  expect(ids).not.toContain("videos-heading");
+  await expect(page.getByRole("heading", { name: "סרטוני ממליצים" })).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("link", { name: "לקבלת תוכנית אישית" })).toHaveAttribute("href", "/questionnaire");
+  await expect(page.locator("#faq")).toHaveCount(1);
 });
 
 test("hero: poster always, CTA to the questionnaire, video once motion is allowed", async ({ page }) => {
@@ -50,4 +48,20 @@ test("the fit-check bar under the program cards goes to the questionnaire", asyn
   await page.goto("/");
   const bar = page.getByRole("main").getByRole("link", { name: "לבדיקת התאמה", exact: true }).first();
   await expect(bar).toHaveAttribute("href", "/questionnaire");
+});
+
+test("the fit-check bar sits between the program cards and the testimonials", async ({ page }) => {
+  await page.goto("/");
+  const order = await page.evaluate(() => {
+    const y = (el: Element | null) => el!.getBoundingClientRect().top + window.scrollY;
+    const bar = [...document.querySelectorAll("main a")].find((a) => a.textContent?.trim() === "לבדיקת התאמה");
+    return [y(document.getElementById("program-heading")), y(bar!), y(document.getElementById("testimonials-heading"))];
+  });
+  expect(order[0]).toBeLessThan(order[1]);
+  expect(order[1]).toBeLessThan(order[2]);
+});
+
+test("the articles heading links to the full list", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("main").getByRole("link", { name: "לכל המאמרים" })).toHaveAttribute("href", "/articles");
 });

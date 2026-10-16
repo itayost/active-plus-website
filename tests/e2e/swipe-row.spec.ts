@@ -68,6 +68,15 @@ test.describe("desktop", () => {
       await expect
         .poll(() => region.getByRole("list").evaluate((el) => el.scrollLeft))
         .not.toBe(before);
+      // Let the smooth scroll finish: the arrow turns aria-disabled when the
+      // track reaches its end, and clicking mid-scroll races that.
+      await expect
+        .poll(async () => {
+          const a = await region.getByRole("list").evaluate((el) => el.scrollLeft);
+          await page.waitForTimeout(150);
+          return a === (await region.getByRole("list").evaluate((el) => el.scrollLeft));
+        })
+        .toBe(true);
     }
     await expect(next).toHaveAttribute("aria-disabled", "true");
     await expect(prev).not.toHaveAttribute("aria-disabled", "true");
