@@ -23,7 +23,7 @@ export default function Hero() {
   return (
     <section
       aria-labelledby="hero-heading"
-      className="rounded-b-[32px] bg-hero-wash pt-[22px] lg:pb-12 lg:pt-10"
+      className="rounded-b-hero bg-hero-wash pt-[22px] lg:pb-12 lg:pt-10"
     >
       <div className="hero-grid mx-auto w-full max-w-shell">
         {/* gutter-x keeps the copy clear of a landscape notch; the video may run under it. */}

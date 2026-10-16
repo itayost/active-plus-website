@@ -82,7 +82,6 @@ const config: Config = {
            heading leading. */
         "h1-article": "clamp(2rem, 1.3rem + 2.6vw, 4.25rem)", // long editorial h1
         "h2-prose": "clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)", // article-body h2
-        "card-title": "clamp(1.5rem, 1.2rem + 1.4vw, 2.5rem)", // field-card title
       },
       maxWidth: {
         measure: "var(--measure)",

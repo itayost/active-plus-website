@@ -336,17 +336,8 @@ h3 {
    outline already follows each element's own radius, and setting one would
    square off the pill buttons the moment they take focus. */
 :focus-visible {
-  outline: 3px solid var(--focus-ring, var(--blue-deep));
+  outline: 3px solid var(--blue-deep);
   outline-offset: 3px;
-}
-
-/* The default ring is tuned for white grounds and falls short of the 3:1
-   non-text floor on any dark field (today the hero photo scrim, where the
-   hero's CTAs live). Dark surfaces set
-   their own light ring rather than lightening the global token, which would
-   cost the contrast win on white. */
-.on-dark {
-  --focus-ring: #ffffff;
 }
 
 ::selection {

@@ -123,4 +123,3 @@ export const PROGRAM_CARDS = [
   },
 ] as const;
 
-export type ProgramCard = (typeof PROGRAM_CARDS)[number];
