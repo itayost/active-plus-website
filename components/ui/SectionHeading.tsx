@@ -5,7 +5,7 @@ type Props = {
   title: string;
   /** Shows the "swipe for more" line under the title, below lg only. */
   swipeHint?: boolean;
-  /** Trailing control beside the title (a link or the carousel arrows). */
+  /** Small trailing link beside the title (e.g. a link to the full list). */
   action?: ReactNode;
 };
 

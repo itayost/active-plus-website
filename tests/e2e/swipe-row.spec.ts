@@ -28,12 +28,12 @@ test.describe("phone", () => {
     await page.goto("/");
     const items = row(page).getByRole("listitem");
     const count = await items.count();
-    // Focus the control just before the row, then Tab through it.
-    await items.first().locator("a, button, [tabindex='0']").first().focus();
+    // The row sets focusableItems, so each list item is a Tab stop.
+    await items.first().focus();
     for (let i = 0; i < count; i++) {
       const item = items.nth(i);
       if (i > 0) await page.keyboard.press("Tab");
-      await expect(item.locator(":focus, :focus-within").first()).toBeAttached();
+      await expect(item).toBeFocused();
       await expect
         .poll(async () => {
           const b = await item.boundingBox();
@@ -41,6 +41,14 @@ test.describe("phone", () => {
         })
         .toBe(true);
     }
+  });
+
+  test("the track scrolls smoothly without reduced motion", async ({ page }) => {
+    await page.goto("/");
+    const behavior = await row(page)
+      .getByRole("list")
+      .evaluate((el) => getComputedStyle(el).scrollBehavior);
+    expect(behavior).toBe("smooth");
   });
 });
 
@@ -55,8 +63,11 @@ test.describe("desktop", () => {
     await expect(prev).toHaveAttribute("aria-disabled", "true");
     for (let i = 0; i < 12; i++) {
       if ((await next.getAttribute("aria-disabled")) === "true") break;
+      const before = await region.getByRole("list").evaluate((el) => el.scrollLeft);
       await next.click();
-      await page.waitForTimeout(300);
+      await expect
+        .poll(() => region.getByRole("list").evaluate((el) => el.scrollLeft))
+        .not.toBe(before);
     }
     await expect(next).toHaveAttribute("aria-disabled", "true");
     await expect(prev).not.toHaveAttribute("aria-disabled", "true");
