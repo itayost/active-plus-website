@@ -143,25 +143,12 @@ test.describe("home carousels and partners", () => {
     }
   });
 
-  test.describe("reduced motion", () => {
-    test.use({ reducedMotion: "reduce" });
-
-    test("the hero video is not even requested", async ({ page }) => {
-      const videoRequests: string[] = [];
-      page.on("request", (r) => r.url().includes("/video/") && videoRequests.push(r.url()));
-      await page.goto("/");
-      // HeroVideo marks its decision once its effect has run.
-      await expect(page.locator("[data-hero-video]")).toHaveAttribute("data-hero-video", "off");
-      await expect(page.locator("video")).toHaveCount(0);
-      expect(videoRequests).toEqual([]);
-    });
-  });
-
-  test("with motion allowed the hero video mounts and plays muted", async ({ page }) => {
+  test("the hero is a still photo: no video is mounted or requested", async ({ page }) => {
+    const videoRequests: string[] = [];
+    page.on("request", (r) => r.url().includes("/video/") && videoRequests.push(r.url()));
     await page.goto("/");
-    await expect(page.locator("[data-hero-video]")).toHaveAttribute("data-hero-video", "on");
-    const video = page.locator("video");
-    await expect(video).toHaveCount(1);
-    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.muted && !v.paused)).toBe(true);
+    await page.waitForLoadState("load");
+    await expect(page.locator("video")).toHaveCount(0);
+    expect(videoRequests).toEqual([]);
   });
 });

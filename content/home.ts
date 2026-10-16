@@ -14,6 +14,13 @@ export const HERO = {
   titleAccent: "לאימון וחיזוק הגוף וחדות המחשבה",
   sub: "רק 10 דקות ביום מהבית ובקצב שלך",
   cta: "לתוכנית אישית לחצו כאן",
+  /** The client's hero photo (2026-10-16), which replaced the hero video. */
+  image: {
+    src: "/img/v2/hero-family.webp",
+    alt: "סבא וסבתא רצים בפארק עם שני נכדים",
+    width: 1370,
+    height: 1148,
+  },
 } as const;
 
 export const WORLD = {

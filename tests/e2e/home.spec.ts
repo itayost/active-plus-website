@@ -13,30 +13,18 @@ test("home has every brief section in order", async ({ page }) => {
   await expect(page.locator("#faq")).toHaveCount(1);
 });
 
-test("hero: poster always, CTA to the questionnaire, video once motion is allowed", async ({ page }) => {
+test("hero: the family photo, described, and the CTA to the questionnaire; no video", async ({ page }) => {
+  const videoRequests: string[] = [];
+  page.on("request", (r) => r.url().includes("/video/") && videoRequests.push(r.url()));
   await page.goto("/");
   const hero = page.locator("section[aria-labelledby='hero-heading']");
-  await expect(hero.locator("img[src*='hero-poster']")).toHaveCount(1);
-  const cta = hero.getByRole("link", { name: "לתוכנית אישית לחצו כאן" });
-  await expect(cta).toHaveAttribute("href", "/questionnaire");
-  // HeroVideo exposes its decision; wait for it rather than for a timeout.
-  await expect(hero.locator("[data-hero-video]")).toHaveAttribute("data-hero-video", "on");
-  await expect(hero.locator("video")).toHaveCount(1);
-});
-
-test("hero video has a pause control that pauses and resumes it", async ({ page }) => {
-  await page.goto("/");
-  const hero = page.locator("section[aria-labelledby='hero-heading']");
-  await expect(hero.locator("[data-hero-video]")).toHaveAttribute("data-hero-video", "on");
-  const video = hero.locator("video");
-  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
-  const pause = hero.getByRole("button", { name: "השהיית הסרטון" });
-  const box = (await pause.boundingBox())!;
-  expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(48);
-  await pause.click();
-  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
-  await hero.getByRole("button", { name: "הפעלת הסרטון" }).click();
-  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  const photo = hero.getByRole("img", { name: "סבא וסבתא רצים בפארק עם שני נכדים" });
+  await expect(photo).toBeVisible();
+  await expect(photo).toHaveAttribute("src", /hero-family/);
+  await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  await expect(hero.getByRole("link", { name: "לתוכנית אישית לחצו כאן" })).toHaveAttribute("href", "/questionnaire");
+  await expect(hero.locator("video")).toHaveCount(0);
+  expect(videoRequests).toEqual([]);
 });
 
 test("world cards list the four titles", async ({ page }) => {

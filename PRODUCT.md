@@ -44,7 +44,7 @@ web
 ## Capabilities and Constraints
 
 - Stack קיים: Next.js 15 App Router, React 19, Tailwind 3, TypeScript, Supabase, Vercel.
-- `<html lang="he" dir="rtl">`. תיקייה `public/` קיימת עם נכסים ו-video.
+- `<html lang="he" dir="rtl">`. תיקייה `public/` קיימת עם נכסים.
 - מקור האמת לעיצוב ולמבנה (מ-2026-10): ה-handoff של הלקוח, `docs/handoff/peilim-plus-2026-10/` (פרוטוטייפ טלפון + README). הוא גובר על ה-brief v2 ועל references קודמים. דסקטופ עוצב באותה שפה (הפרוטוטייפ טלפון בלבד).
 - דפים: Home (`/`), About (`/about`, מכתב של מידד גולן), Research (`/research`), Team (`/team`), Contact (`/contact`, טופס פנייה), Payment (`/payment` + `/payment/success`), Questionnaire (`/questionnaire`), Articles (`/articles`, `/articles/[slug]`), Account (`/account/subscription`). Card explainers at `/personal-plan`, `/motion-detection`, `/progress`.
 - Redirects (קבועים, הופ אחד): `/how-it-works` ו-`/dual-tasking` → `/research`; `/faq` → `/#faq`; `/pricing` → `/payment`.
@@ -88,7 +88,7 @@ web
 
 **תוכן כתוב מוכן:** הקופי של ה-handoff לעמוד הראשי (ארבעה כרטיסי "עולם שלם", שלושה כרטיסי "מעטפת מקצועית"), 14 שאלות נפוצות, עמודי אודות, מחקר, צוות וצור קשר, ושלושה מאמרים עם Meta: `/articles/body-after-50` · `/articles/memory-after-50` · `/articles/brain-and-movement`. (מאמר 2 חסר משפט אחד; מאמר 3 לחלקו האחרון אין body; open with client.)
 
-**נכסים ויזואליים:** תיקייה `public/img/v2` עם כרטיסים, תמונות לתוכניות, מאמרים, צוות (תמונות לקוח), דמויות בהתקנים ב-app, clients ring, progress. וידאו hero `public/video/hero.mp4` (832px רוחב; מבקשים ≥1920px). לוגואי שותפים ב-`public/img/partners/` (שורת החלקה). בנוסף במאגר האפליקציה: צילומי מסך אמיתיים
+**נכסים ויזואליים:** תיקייה `public/img/v2` עם כרטיסים, תמונות לתוכניות, מאמרים, צוות (תמונות לקוח), דמויות בהתקנים ב-app, clients ring, progress. תמונת hero `public/img/v2/hero-family.webp` (1370×1148, מהלקוח 2026-10-16; החליפה את וידאו ה-hero). לוגואי שותפים ב-`public/img/partners/` (שורת החלקה). בנוסף במאגר האפליקציה: צילומי מסך אמיתיים
 (דף אימון, התקדמות, פרופיל, תרגילים) וסרטוני פתיחה בשלוש רמות תפקוד.
 
 **קישורי חנות חיים:** iOS `apps.apple.com/il/app/id6757860198` ·

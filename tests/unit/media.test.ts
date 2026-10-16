@@ -1,35 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scrollBehaviorFor, shouldLoadHeroVideo } from "@/lib/media";
-
-describe("shouldLoadHeroVideo", () => {
-  it("loads the video when motion is allowed and data saving is off", () => {
-    expect(shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: false })).toBe(true);
-  });
-  it("loads the video when the browser does not report save-data at all", () => {
-    expect(shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: undefined })).toBe(true);
-  });
-  it("keeps the poster only for reduced-motion visitors", () => {
-    expect(shouldLoadHeroVideo({ prefersReducedMotion: true, saveData: false })).toBe(false);
-  });
-  it("keeps the poster only for visitors saving data", () => {
-    expect(shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: true })).toBe(false);
-  });
-  it.each(["slow-2g", "2g", "3g"])("keeps the poster only on a %s connection", (effectiveType) => {
-    expect(
-      shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: false, effectiveType }),
-    ).toBe(false);
-  });
-  it("loads the video on a 4g connection", () => {
-    expect(
-      shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: false, effectiveType: "4g" }),
-    ).toBe(true);
-  });
-  it("loads the video when the browser does not report a connection type", () => {
-    expect(
-      shouldLoadHeroVideo({ prefersReducedMotion: false, saveData: undefined, effectiveType: undefined }),
-    ).toBe(true);
-  });
-});
+import { scrollBehaviorFor } from "@/lib/media";
 
 describe("scrollBehaviorFor", () => {
   it("animates the scroll when motion is allowed", () => {
