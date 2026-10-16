@@ -2,6 +2,8 @@ import type { LeadField, LeadValues } from "@/lib/leads";
 import { LEAD_TOPICS } from "@/lib/lead-form";
 import { areaClass, FieldError, fieldClass, LABEL_CLASS } from "./FieldParts";
 
+const OPTIONAL = <span className="font-normal text-ink-soft">(לא חובה)</span>;
+
 type Props = {
   uid: string;
   values: LeadValues;
@@ -24,7 +26,7 @@ export default function ContactFields({ uid, values, errorFor, errorId, onBlur }
     <>
       <div className="flex flex-col gap-2">
         <label className={LABEL_CLASS}>
-          אימייל
+          אימייל {OPTIONAL}
           <input
             name="email"
             type="email"
@@ -42,7 +44,7 @@ export default function ContactFields({ uid, values, errorFor, errorId, onBlur }
       </div>
 
       <label className={LABEL_CLASS} htmlFor={`${uid}-topic`}>
-        נושא פנייה
+        נושא פנייה {OPTIONAL}
         <select
           id={`${uid}-topic`}
           name="topic"
@@ -59,7 +61,7 @@ export default function ContactFields({ uid, values, errorFor, errorId, onBlur }
 
       <div className="flex flex-col gap-2">
         <label className={LABEL_CLASS}>
-          הודעה
+          הודעה {OPTIONAL}
           <textarea
             name="message"
             rows={4}

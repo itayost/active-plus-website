@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { createServiceClient } from "@/lib/supabase";
 import { createRateLimiter } from "@/lib/rate-limit";
-import { buildLeadRemark, LEAD_TOPICS } from "@/lib/lead-form";
+import { buildLeadRemark, LEAD_SOURCES, LEAD_TOPICS } from "@/lib/lead-form";
 import { clientIp } from "@/lib/request-ip";
 
 export type LeadField = "fullName" | "phone" | "email" | "message";
@@ -54,7 +54,10 @@ export async function submitLead(
   const topic = (LEAD_TOPICS as readonly string[]).includes(topicRaw) ? topicRaw : "";
   const message = String(formData.get("message") ?? "").trim();
   const marketingOptIn = formData.get("marketingOptIn") === "on";
-  const source = String(formData.get("source") ?? "website").trim();
+  const sourceRaw = String(formData.get("source") ?? "").trim();
+  const source = (LEAD_SOURCES as readonly string[]).includes(sourceRaw)
+    ? sourceRaw
+    : "website-unknown";
 
   const values: LeadValues = { fullName, phone: phoneRaw, email, message, topic };
 
