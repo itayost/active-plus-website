@@ -148,10 +148,10 @@ html {
 }
 
 /*
-  The hero: one column on a phone (text, video, action), two from lg and on a
+  The hero: one column on a phone (text, photo, action), two from lg and on a
   short landscape phone, where the text and action sit at the start and the
-  video, rounded, at the end. The text and action columns carry .gutter-x, so
-  copy stays clear of a notch; the video may run under it.
+  photo, rounded, at the end. The text and action columns carry .gutter-x, so
+  copy stays clear of a notch; the photo may run under it.
 */
 .hero-grid {
   display: grid;

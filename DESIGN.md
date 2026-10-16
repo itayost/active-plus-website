@@ -168,7 +168,7 @@ Everything is built to a 55+ reading and motor floor, not just WCAG AA: 18px min
 - **Grids** use `minmax(0, ...)` tracks so long Hebrew words and intrinsic image widths never push a column past its share. `html { overflow-x: clip }` guards the document.
 
 ### Desktop compositions
-- **Home hero:** text and CTA at the start, the rounded video (22px) at the end, from lg.
+- **Home hero:** text and CTA at the start, the rounded photo (22px) at the end, from lg.
 - **Home rows:** world cards 4 across; program cards and articles 3 across; testimonials and partners stay carousels with arrows (the arrows disappear when a row fits whole).
 - **Inner pages** (`InnerPage`): from lg a 5/7 editorial spread. The title, plus the page's `intro` (the about photo; the contact details), holds a sticky start rail; the body runs beside it at the 68ch measure, its first heading flush with the title. `wide` pages (team) keep the title on top: four portrait cards in a row.
 - **Contact:** details in the rail, the form in a card beside it.
@@ -217,7 +217,7 @@ Scroll-snap row on phones (card 284px, video 190px, logo 138px), becoming at lg 
 White, 1px hairline border, `shadow-card`, 22px. World cards and the monthly plan row use the 18px tile radius.
 
 ### Hero (`components/home/Hero.tsx`)
-On the hero wash with 32px bottom corners: h1, sub, the client's hero video (muted, looping, mounted only after load and never under reduced motion or save-data; the poster is the LCP image), then the CTA. Full-bleed video on a phone; two columns from lg and on a short landscape phone (`.hero-grid`).
+On the hero wash with 32px bottom corners: h1, sub, the client's hero photo (a family in the park, 1370×1148; the LCP image, preloaded with high fetch priority, and described in its alt text), then the CTA. It replaced the hero video on 2026-10-16 at the client's request. Full-bleed photo on a phone; two columns from lg and on a short landscape phone (`.hero-grid`).
 
 ### InnerPage and PageHero
 `InnerPage` is the prototype's inner-page shell (about, research, team, contact): see Desktop compositions. Its body styles plain descendant `h2` and `p`, so pages write semantic markup only; a component nested in the body that must look different sets its own margin and colour. `PageHero` opens the explainers and articles on the hero wash, with an optional `BackLink` (blue-deep, per the Blue-on-Wash Rule) and media aside.
@@ -248,7 +248,7 @@ One grammar: 1.75 stroke, round caps and joins, 24-unit grid, no fills, with one
 - **Do** compute contrast by hand for text over a gradient and record it here.
 - **Do** give desktop its own composition: grids, rails and columns, not the phone column on a wide page.
 - **Do** keep the prototype's copy verbatim.
-- **Do** honour reduced motion: no reveal, no smooth scroll, no hero video.
+- **Do** honour reduced motion: no reveal, no smooth scroll.
 
 ### Don't:
 - **Don't** bring back purple, burgundy, yellow, cyan emphasis, a dark hero field or Rubik.
