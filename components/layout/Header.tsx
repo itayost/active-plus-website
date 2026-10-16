@@ -95,8 +95,8 @@ export default function Header() {
   return (
     <>
       {/* site-header is a size container. Which bar shows (inline links and
-          pill, or the menu button) is decided in one place, globals.css: from
-          xl (1280px), and only while the bar is at least 75rem wide, so
+          pill, or the menu button) is decided in one place, globals.css: only
+          while the bar is at least 75rem (1200px) wide, so
           enlarged text gets the menu button before anything is pushed off
           the screen. */}
       <header
@@ -121,9 +121,13 @@ export default function Header() {
                   <Link
                     href={item.href}
                     aria-current={isCurrent(item.href) ? "page" : undefined}
-                    className={`inline-flex min-h-12 items-center rounded-pill px-3 text-base transition-colors duration-[var(--dur-fast)] ${
+                    /* The current page is marked by the wash and the deeper blue,
+                       never by weight: bold Hebrew is wider, and at xl the row
+                       has ~12px to spare, so a bold current link wrapped the
+                       pill and the call button onto a second row. */
+                    className={`inline-flex min-h-12 items-center rounded-pill px-2.5 text-[1.125rem] transition-colors duration-[var(--dur-fast)] ${
                       isCurrent(item.href)
-                        ? "bg-blue-wash font-bold text-blue-deep"
+                        ? "bg-blue-wash text-blue-deep"
                         : "text-ink-soft hover:bg-sunken hover:text-ink"
                     }`}
                   >

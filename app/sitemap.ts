@@ -2,10 +2,11 @@ import type { MetadataRoute } from "next";
 import { SITE_ROUTES } from "@/lib/routes";
 import { SITE_URL } from "@/lib/constants";
 
-/** Marked noindex on the page itself, so it must not appear here. */
-const EXCLUDED = new Set(["/questionnaire"]);
+/** Marked noindex on the page itself, so it must not appear here. /payment is
+    only the questionnaire's hand-off now, unlisted at the client's request. */
+const EXCLUDED = new Set(["/questionnaire", "/payment"]);
 
-const MAIN_PAGES = new Set(["/about", "/research", "/team", "/payment", "/contact", "/articles"]);
+const MAIN_PAGES = new Set(["/about", "/research", "/team", "/contact", "/articles"]);
 
 const LEGAL_PAGES = new Set(["/privacy-policy", "/delete-account"]);
 

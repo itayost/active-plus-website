@@ -6,13 +6,12 @@ const NAV_LABELS = [
   "המחקר והגישה המקצועית",
   "הצוות המקצועי",
   "שאלות נפוצות",
-  "מסלולים ומחירים",
   "צור קשר",
 ];
-const NAV_HREFS = ["/about", "/research", "/team", "/#faq", "/payment", "/contact"];
+const NAV_HREFS = ["/about", "/research", "/team", "/#faq", "/contact"];
 
 test.describe("desktop bar", () => {
-  test.use({ viewport: { width: 1280, height: 800 } });
+  test.use({ viewport: { width: 1440, height: 800 } });
 
   test("fit check pill is one line, visible and links the questionnaire", async ({ page }) => {
     await page.goto("/");
@@ -22,7 +21,7 @@ test.describe("desktop bar", () => {
     await expect(cta).toHaveAttribute("href", "/questionnaire");
   });
 
-  test("the six menu links sit inline in the bar", async ({ page }) => {
+  test("the five menu links sit inline in the bar", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("banner").getByRole("navigation", { name: "ניווט ראשי" });
     await expect(nav.getByRole("link")).toHaveText(NAV_LABELS);
@@ -32,12 +31,78 @@ test.describe("desktop bar", () => {
   });
 });
 
-/* 1024-1279px is a laptop, not a phone, but six long links and the pill do
+/* The bar must never wrap. The inline links, the pill and the call button
+   need about 1,148px in one row, so below 1200px the bar is the phone's. With
+   six links (pricing, since hidden) the row needed about 1,420px and wrapped
+   the pill and the call button onto a second row at 1280-1439px (worse on the
+   current page, whose link was bold and wider). Every control in the bar shares one row at every width,
+   on every page the menu links to. */
+const BAR_WIDTHS = [1024, 1100, 1199, 1200, 1280, 1351, 1366, 1440, 1920];
+const ROUTES_IN_MENU = ["/", ...NAV_HREFS.filter((h) => !h.includes("#"))];
+
+for (const width of BAR_WIDTHS) {
+  test.describe(`header bar at ${width}px`, () => {
+    test.use({ viewport: { width, height: 800 } });
+
+    for (const href of ROUTES_IN_MENU) {
+      test(`stays one row on ${href}`, async ({ page }) => {
+        await page.goto(href);
+        const banner = page.getByRole("banner");
+        const logo = (await banner.getByRole("link", { name: "פעילים+ – לדף הבית" }).boundingBox())!;
+        const controls = [
+          banner.getByRole("navigation", { name: "ניווט ראשי" }),
+          banner.getByRole("link", { name: "בדיקת התאמה", exact: true }),
+          banner.getByRole("button", { name: "פתיחת התפריט" }),
+          banner.getByRole("link", { name: "התקשרו אלינו" }),
+        ];
+        for (const control of controls) {
+          if (!(await control.isVisible())) continue;
+          const box = (await control.boundingBox())!;
+          const mid = box.y + box.height / 2;
+          expect(mid).toBeGreaterThan(logo.y - 16);
+          expect(mid).toBeLessThan(logo.y + logo.height + 16);
+        }
+      });
+    }
+  });
+}
+
+/* A 1366px Windows laptop has a classic scrollbar, which leaves the bar about
+   1,351px: it must still get the inline links, not the menu button. */
+test.describe("1366px laptop with a scrollbar", () => {
+  test.use({ viewport: { width: 1351, height: 800 } });
+
+  test("shows the inline links and the pill", async ({ page }) => {
+    await page.goto("/research");
+    const banner = page.getByRole("banner");
+    await expect(banner.getByRole("navigation", { name: "ניווט ראשי" })).toBeVisible();
+    await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeVisible();
+    await expect(banner.getByRole("button", { name: "פתיחת התפריט" })).toBeHidden();
+  });
+});
+
+/* The current link is marked by colour, not weight: bold Hebrew is wider and
+   would widen the row on that page alone. */
+test.describe("current page link", () => {
+  test.use({ viewport: { width: 1440, height: 800 } });
+
+  test("keeps its width when it becomes the current page", async ({ page }) => {
+    const nav = page.getByRole("banner").getByRole("navigation", { name: "ניווט ראשי" });
+    const link = nav.getByRole("link", { name: "המחקר והגישה המקצועית" });
+    await page.goto("/");
+    const idle = (await link.boundingBox())!.width;
+    await page.goto("/research");
+    await expect(link).toHaveAttribute("aria-current", "page");
+    expect((await link.boundingBox())!.width).toBeCloseTo(idle, 0);
+  });
+});
+
+/* 1024-1199px is a laptop, not a phone, but five long links and the pill do
    not fit there: the bar is the phone's (wordmark, menu, call) by design. */
-test.describe("laptop band between lg and xl", () => {
+test.describe("laptop band below 1200px", () => {
   test.use({ viewport: { width: 1100, height: 800 } });
 
-  test("no pill or inline links; the menu opens the drawer with the six links", async ({ page }) => {
+  test("no pill or inline links; the menu opens the drawer with the five links", async ({ page }) => {
     await page.goto("/");
     const banner = page.getByRole("banner");
     await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
@@ -70,7 +135,7 @@ test.describe("phone bar", () => {
     await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
   });
 
-  test("drawer lists the six menu labels in order, then the fit check and the phone", async ({ page }) => {
+  test("drawer lists the five menu labels in order, then the fit check and the phone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     await page.getByRole("banner").getByRole("button", { name: "פתיחת התפריט" }).click();
