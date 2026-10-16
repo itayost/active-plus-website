@@ -164,7 +164,7 @@ Everything is built to a 55+ reading and motor floor, not just WCAG AA: 18px min
 - **Shell:** `max-w-shell` (1520px) centred, with the fluid `--gutter` applied by `.gutter-x` (20px on a phone, as in the prototype; widened on whichever physical edge a notch occupies).
 - **Rhythm:** about 48px between home sections on phones (`pt-12`), 64px from lg (`pt-16`). Inner pages use `--section-y` at the bottom.
 - **Swipe rows** run edge to edge with the gutter as inline padding (`.snap-gutter` keeps the snap port aligned with it).
-- **Breakpoints:** Tailwind defaults. `md` (768) turns the world cards two by two and the footer into two columns; `lg` (1024) is the desktop switch for grids, the hero's two columns, the inner-page rail, the pricing columns and the footer's three columns; the inline header nav switches on at 1344px (84rem), in globals.css, where its single row fits.
+- **Breakpoints:** Tailwind defaults. `md` (768) turns the world cards two by two and the footer into two columns; `lg` (1024) is the desktop switch for grids, the hero's two columns, the inner-page rail, the pricing columns and the footer's three columns; the inline header nav switches on at 1200px (75rem), in globals.css, where its single row fits.
 - **Grids** use `minmax(0, ...)` tracks so long Hebrew words and intrinsic image widths never push a column past its share. `html { overflow-x: clip }` guards the document.
 
 ### Desktop compositions
@@ -192,9 +192,9 @@ Swipe tracks carry 20px of top padding (`pt-5`) and 40px of bottom padding so th
 ## Components
 
 ### Header (`components/layout/Header.tsx`)
-Phone and up to 1343px: the text wordmark ("פעילים" in blue, "+" in ink, 800) at the start; at the end the menu button then the call button, as in the handoff (call ends the row at the left edge). Both are 46px gradient discs in 48px hit boxes, 12px apart, with a 1px focus offset so neighbouring rings never touch. The call button draws `CallIcon` (a filled handset, the handoff's glyph and the icon set's one stated fill exception).
+Phone and up to 1199px: the text wordmark ("פעילים" in blue, "+" in ink, 800) at the start; at the end the menu button then the call button, as in the handoff (call ends the row at the left edge). Both are 46px gradient discs in 48px hit boxes, 12px apart, with a 1px focus offset so neighbouring rings never touch. The call button draws `CallIcon` (a filled handset, the handoff's glyph and the icon set's one stated fill exception).
 
-From 1344px, and only while the bar is at least 84rem wide, the six links sit inline (48px pills, 18px text; the current page is `blue-wash` with `blue-deep`, never bold, because bold Hebrew is wider and would widen the row), followed by the green "בדיקת התאמה" pill and the call button. That switch lives in one place, `app/globals.css` (`@media (min-width: 1344px) { @container (width >= 84rem) }`); Header.tsx has no breakpoint classes for it. The row measures about 1,326px at 1344px, so it never wraps, and a 1366px Windows laptop (about 1,351px after its scrollbar) still gets the inline links. So 1024-1343px and any width at enlarged text get the phone bar and the drawer.
+From 1200px, and only while the bar is at least 75rem wide, the five links sit inline (48px pills, 18px text; the current page is `blue-wash` with `blue-deep`, never bold, because bold Hebrew is wider and would widen the row), followed by the green "בדיקת התאמה" pill and the call button. That switch lives in one place, `app/globals.css` (`@media (min-width: 1200px) { @container (width >= 75rem) }`); Header.tsx has no breakpoint classes for it. The row measures about 1,148px at 1200px, so it never wraps; re-measure if a link is added. So 1024-1199px and any width at enlarged text get the phone bar and the drawer.
 
 The drawer: six 60px rows (48px on short screens), the fit-check button, the phone with `CallIcon`, and the hours. Focus trap, Escape, scroll lock, `inert` when closed.
 

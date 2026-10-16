@@ -192,14 +192,15 @@ html {
   text size as well as the pixel width.
 
   This is the one place that decides which bar shows; Header.tsx carries no
-  breakpoint classes for it. The wordmark, the six inline links (the longest
+  breakpoint classes for it. The wordmark, the five inline links (the longest
   labels in the site), the fit-check pill and the call button measure about
-  1,326px in one row at 1344px, so they show only while the bar is at least
-  84rem (1344px) wide, about 18px to spare. That still includes a 1366px
-  Windows laptop, whose classic scrollbar leaves the bar about 1,351px. The old
-  75rem threshold let them show at 1280-1343px, where they wrapped the pill and
-  the call button onto a second row. Below that, whether the screen is small
-  (a tablet, a 1024-1343px laptop) or the text is large, the bar is the wordmark, the menu and the call
+  1,148px in one row at 1200px, so they show only while the bar is at least
+  75rem (1200px) wide, about 50px to spare; 1280px and 1366px laptops get them,
+  with a classic scrollbar too. Measure again whenever a link is added: with
+  six links (pricing, since hidden) the row needed about 1,420px, and showing
+  it from 1280px wrapped the pill and the call button onto a second row.
+  Below that, whether the screen is small (a tablet, a 1024-1199px laptop) or
+  the text is large, the bar is the wordmark, the menu and the call
   button, and the drawer carries the links and the pill.
 */
 .site-header {
@@ -211,8 +212,8 @@ html {
   display: none;
 }
 
-@media (min-width: 1344px) {
-  @container (width >= 84rem) {
+@media (min-width: 1200px) {
+  @container (width >= 75rem) {
     .site-header .desktop-nav,
     .site-header .header-pill {
       display: block;
@@ -242,7 +243,7 @@ html {
 
 /*
   Held sideways, a phone offers about 390px of height and the drawer wants ~650.
-  Scrolling a six-item menu to reach the fit-check button and the phone number
+  Scrolling a five-item menu to reach the fit-check button and the phone number
   under it is the wrong answer when the rows themselves are the slack: 60px is
   the drawer's designed rhythm, not its floor.
   Landscape trades it for 48px — still clear of the 44px target minimum and of

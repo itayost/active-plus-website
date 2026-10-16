@@ -18,16 +18,18 @@ export const STORE_ANDROID =
   "https://play.google.com/store/apps/details?id=com.activeplus.app";
 
 /**
- * The six menu items of the handoff prototype, in the order it shows them.
- * Home is the wordmark, so it is not listed. The questionnaire is the primary
- * action (FIT_CHECK), not a menu link.
+ * The menu items of the handoff prototype, in the order it shows them, minus
+ * "מסלולים ומחירים": the client asked (2026-10-16) to hide the pricing page.
+ * /payment is still served, because the questionnaire hands off to it, but it
+ * is unlisted (no menu, no footer, no sitemap) and noindex. Home is the
+ * wordmark and the questionnaire is the primary action (FIT_CHECK), so
+ * neither is a menu link.
  */
 export const NAV = [
   { href: "/about", label: "הכירו את פעילים+" },
   { href: "/research", label: "המחקר והגישה המקצועית" },
   { href: "/team", label: "הצוות המקצועי" },
   { href: "/#faq", label: "שאלות נפוצות" },
-  { href: "/payment", label: "מסלולים ומחירים" },
   { href: "/contact", label: "צור קשר" },
 ] as const;
 
