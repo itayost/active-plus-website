@@ -50,17 +50,17 @@ export default function Hero() {
           */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(var(--hero-field-rgb)_/_0.62)_0%,rgb(var(--hero-field-rgb)_/_0.86)_38%,rgb(var(--hero-field-rgb)_/_0.86)_62%,rgb(var(--hero-field-rgb)_/_0.62)_100%)]"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(17_17_17_/_0.62)_0%,rgb(17_17_17_/_0.86)_38%,rgb(17_17_17_/_0.86)_62%,rgb(17_17_17_/_0.62)_100%)]"
           />
         </>
       }
     >
       <h1
         id="hero-heading"
-        className="max-w-[18ch] text-h1 font-display font-black text-white"
+        className="max-w-[18ch] text-h1 font-display font-extrabold text-white"
       >
         <span className="block">תוכנית אישית לאימון הגוף</span>
-        <span className="block text-emphasis">וחדות המחשבה</span>
+        <span className="block text-blue-wash">וחדות המחשבה</span>
       </h1>
 
       <p className="mt-6 max-w-[34ch] text-lead font-medium leading-snug text-white/90">
@@ -70,7 +70,7 @@ export default function Hero() {
       <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
         <Button
           href="/how-it-works"
-          variant="onColor"
+          variant="primary"
           size="lg"
           className="w-full sm:w-auto"
         >

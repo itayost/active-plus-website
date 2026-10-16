@@ -26,7 +26,7 @@ export default function Testimonials() {
     >
       <Shell>
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <h2 id="reviews-heading" className="max-w-[18ch] text-h2 font-display font-black">
+          <h2 id="reviews-heading" className="max-w-[18ch] text-h2 font-display font-extrabold">
             מה אומרים הלקוחות שלנו
           </h2>
           <CarouselArrows

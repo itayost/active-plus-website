@@ -12,7 +12,7 @@ export default function ArticlesStrip() {
   return (
     <Section labelledBy="articles-strip-heading">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h2 id="articles-strip-heading" className="text-h2 font-display font-black">
+        <h2 id="articles-strip-heading" className="text-h2 font-display font-extrabold">
           מאמרים
         </h2>
         <Button href="/articles" variant="outline">

@@ -21,7 +21,7 @@ const FIELD_BASE =
   "focus:border-blue-deep focus:outline-none";
 
 function fieldClass(invalid: boolean) {
-  return `${FIELD_BASE} ${invalid ? "border-burgundy" : "border-hairline hover:border-ink/25"}`;
+  return `${FIELD_BASE} ${invalid ? "border-danger" : "border-hairline hover:border-ink/25"}`;
 }
 
 /*
@@ -53,7 +53,7 @@ function SubmitButton({ label, pending }: { label: string; pending: boolean }) {
 function FieldError({ id, text }: { id: string; text: string | undefined }) {
   if (!text) return null;
   return (
-    <p id={id} role="alert" className="mt-2 font-semibold text-burgundy">
+    <p id={id} role="alert" className="mt-2 font-semibold text-danger">
       {text}
     </p>
   );
@@ -300,7 +300,7 @@ export default function LeadForm({
       {state.status === "error" && state.message ? (
         <p
           role="alert"
-          className="mt-5 rounded-field border-2 border-burgundy bg-burgundy-wash px-4 py-3 font-semibold text-burgundy"
+          className="mt-5 rounded-field border-2 border-danger bg-danger/10 px-4 py-3 font-semibold text-danger"
         >
           {state.message}
         </p>

@@ -2,30 +2,16 @@ import type { ReactNode } from "react";
 import { Shell } from "@/components/ui/Section";
 import type { Tone } from "@/lib/constants";
 
-const FIELD: Record<Tone, string> = {
-  blue: "bg-blue-wash",
-  green: "bg-green-wash",
-  purple: "bg-purple-wash",
-  burgundy: "bg-burgundy-wash",
-};
-
-const INK: Record<Tone, string> = {
-  blue: "text-blue-deep",
-  green: "text-green-deep",
-  purple: "text-purple-deep",
-  burgundy: "text-burgundy",
-};
-
 export default function PageHero({
   title,
   lede,
-  tone = "blue",
   back,
   aside,
   article = false,
 }: {
   title: string;
   lede?: string;
+  /** Accepted for the callers that still pass it; every page hero is now the one white-to-blue wash. */
   tone?: Tone;
   /** Rendered above the h1: a BackLink (home from the explainers, the list from an article). */
   back?: ReactNode;
@@ -35,13 +21,13 @@ export default function PageHero({
   article?: boolean;
 }) {
   return (
-    <section className={`${FIELD[tone]} ${article ? "pb-[clamp(7rem,13vw,12rem)]" : "pb-[clamp(3rem,6vw,5rem)]"} pt-[clamp(3rem,6vw,5.5rem)]`}>
+    <section className={`bg-hero-wash ${article ? "pb-[clamp(7rem,13vw,12rem)]" : "pb-[clamp(3rem,6vw,5rem)]"} pt-[clamp(3rem,6vw,5.5rem)]`}>
       <Shell className={aside ? "grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16" : ""}>
         <div>
           {back}
 
           <h1
-            className={`font-display font-black ${INK[tone]} ${
+            className={`font-display font-extrabold text-ink ${
               article ? "max-w-[24ch] text-h1-article leading-[1.08]" : "max-w-[20ch] text-h1"
             }`}
           >

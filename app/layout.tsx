@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Heebo, Rubik } from "next/font/google";
+import { Heebo } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -15,14 +15,8 @@ import { SITE_NAME_FULL, SITE_URL } from "@/lib/constants";
  */
 const heebo = Heebo({
   subsets: ["hebrew"],
+  weight: ["400", "500", "700", "800"],
   variable: "--font-heebo",
-  display: "swap",
-});
-
-const rubik = Rubik({
-  subsets: ["hebrew"],
-  weight: ["500", "700", "900"],
-  variable: "--font-rubik",
   display: "swap",
 });
 
@@ -75,7 +69,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${heebo.variable} ${rubik.variable} font-sans`}>
+      <body className={`${heebo.variable} font-sans`}>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-50 focus:rounded-pill focus:bg-ink focus:px-6 focus:py-3 focus:text-white"

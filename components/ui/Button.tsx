@@ -1,19 +1,16 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Variant = "primary" | "purple" | "onColor" | "outline" | "ghost";
+type Variant = "primary" | "outline" | "ghost";
 type Size = "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
+  // White on the gradient's lighter stop is the contrast floor (globals.css).
   primary:
-    "bg-green-deep text-white shadow-lift-1 hover:bg-green hover:shadow-lift-2 active:shadow-lift-1",
-  purple:
-    "bg-purple-deep text-white shadow-lift-1 hover:bg-purple hover:shadow-lift-2 active:shadow-lift-1",
-  onColor:
-    "bg-white text-ink shadow-lift-1 hover:shadow-lift-2 active:shadow-lift-1",
+    "bg-cta text-white font-extrabold shadow-cta hover:brightness-95 active:brightness-90",
   outline:
-    "border-2 border-ink/15 bg-white text-ink hover:border-ink/35 hover:shadow-lift-1",
-  ghost: "text-ink-soft hover:text-ink hover:bg-sunken",
+    "border-2 border-hairline bg-white font-bold text-ink hover:border-ink/25 hover:shadow-lift-1",
+  ghost: "font-bold text-ink-soft hover:text-ink hover:bg-sunken",
 };
 
 // pill-pad-*: inline padding that gives way to enlarged text (globals.css).
@@ -23,7 +20,7 @@ const VARIANTS: Record<Variant, string> = {
 // runs into the words.
 const SIZES: Record<Size, string> = {
   md: "min-h-[52px] rounded-[26px] pill-pad-md text-base",  // never below the 18px floor
-  lg: "min-h-[60px] rounded-[30px] pill-pad-lg text-lead",
+  lg: "min-h-[58px] rounded-[29px] pill-pad-lg text-lead",
 };
 
 /*
@@ -36,14 +33,14 @@ const SIZES: Record<Size, string> = {
  * state itself.
  */
 const SHARED =
-  "inline-flex items-center justify-center gap-2.5 font-display font-bold tracking-tight " +
+  "inline-flex items-center justify-center gap-2.5 font-display tracking-tight " +
   // A flex row will squash an SVG before it wraps the label. On a 320px screen
   // that is where the longest CTAs live, so the icon is pinned at its authored
   // size here rather than at each of the sixteen call sites. `text-balance`
   // evens the two lines a long Hebrew label breaks into at that width, instead
   // of leaving a full first line over a two-word orphan.
   "[&_svg]:shrink-0 text-balance " +
-  "transition-[background-color,box-shadow,border-color,transform] duration-[var(--dur-fast)] ease-out-expo " +
+  "transition-[background-color,box-shadow,border-color,transform,filter] duration-[var(--dur-fast)] ease-out-expo " +
   "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55 " +
   // Forced colours strip the fill, which left every pill as bare text; a
   // border there is drawn in the system colour and gives it back its edge.

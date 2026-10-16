@@ -66,18 +66,18 @@ export default function PlanSelector({ selected, onSelect, onContinue }: Props) 
                   >
                     <CheckIcon className={`h-[18px] w-[18px] ${isSelected ? "opacity-100" : "opacity-0"}`} />
                   </span>
-                  <span className="font-display text-[clamp(1.5rem,1.25rem+1vw,2rem)] font-black leading-[1.1]">
+                  <span className="font-display text-[clamp(1.5rem,1.25rem+1vw,2rem)] font-extrabold leading-[1.1]">
                     {plan.longName}
                   </span>
                   {isAnnual ? (
-                    <span className="ms-auto rounded-pill bg-ink px-4 py-1.5 text-center font-display text-lead font-bold text-yellow">
+                    <span className="ms-auto rounded-pill bg-ink px-4 py-1.5 text-center font-display text-lead font-bold text-star">
                       {`חיסכון של ${formatShekel(annualSavings())}`}
                     </span>
                   ) : null}
                 </span>
 
                 <span
-                  className={`font-display font-black leading-none tracking-tight ${
+                  className={`font-display font-extrabold leading-none tracking-tight ${
                     isAnnual
                       ? "text-[clamp(2.5rem,2rem+2vw,3.75rem)]"
                       : "text-[clamp(2rem,1.7rem+1.4vw,2.75rem)]"

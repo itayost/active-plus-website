@@ -16,7 +16,7 @@ export default function FaqSection({
     >
       <Shell width="narrow">
         <Reveal>
-          <h2 id="faq-heading" className="text-h2 font-display font-black">
+          <h2 id="faq-heading" className="text-h2 font-display font-extrabold">
             {heading}
           </h2>
         </Reveal>

@@ -90,7 +90,7 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
           >
             <dt className="text-ink-soft">{label}</dt>
             <dd className="flex items-center justify-between gap-4">
-              <bdi dir={ltr ? "ltr" : undefined} className={cn("min-w-0 [overflow-wrap:anywhere]", total ? "font-display text-[1.5rem] font-black" : "font-medium")}>
+              <bdi dir={ltr ? "ltr" : undefined} className={cn("min-w-0 [overflow-wrap:anywhere]", total ? "font-display text-[1.5rem] font-extrabold" : "font-medium")}>
                 {value}
               </bdi>
               {edit ? (
@@ -151,7 +151,7 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
       )}
 
       {status.kind === "error" ? (
-        <div role="alert" className="mt-6 rounded-field bg-burgundy-wash px-4 py-3 font-medium text-burgundy">
+        <div role="alert" className="mt-6 rounded-field bg-danger/10 px-4 py-3 font-medium text-danger">
           <p>{errorText(status.error, gender)}</p>
           {status.error === "already_subscribed" || status.error === "not_configured" ? (
             <StoreButtons />

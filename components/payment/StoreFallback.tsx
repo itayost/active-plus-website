@@ -18,7 +18,7 @@ export default function StoreFallback() {
       <p className="mt-3 max-w-measure text-lead">
         מורידים את פעילים+, בוחרים את המסלול ומשלמים בחנות האפליקציות.
       </p>
-      <StoreButtons className="mt-7 flex flex-wrap gap-4" variant="onColor" size="lg" />
+      <StoreButtons className="mt-7 flex flex-wrap gap-4" variant="outline" size="lg" />
     </section>
   );
 }

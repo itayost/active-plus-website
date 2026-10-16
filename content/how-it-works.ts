@@ -8,7 +8,7 @@ const PROFESSIONALS = PROFESSIONAL_NAMES.map((name) => {
 });
 
 /** Copy for /how-it-works. Verbatim from the approved mock. */
-export type HowTone = "blue" | "green" | "purple";
+export type HowTone = "blue" | "green" | "neutral";
 
 export const HOW = {
   hero: {
@@ -91,7 +91,7 @@ export const HOW = {
     items: [
       { title: "אתגר הגוף החזק", body: "לחיזוק הגוף, השליטה בתנועה והביטחון בתפקוד היומיומי.", tone: "blue" },
       { title: "אתגר שיווי המשקל", body: "תרגול ממוקד של יציבה, שיווי משקל ושליטה.", tone: "green" },
-      { title: "אתגר המוח החד", body: "שילוב של קואורדינציה ומשימות קוגניטיביות באותו אימון.", tone: "purple" },
+      { title: "אתגר המוח החד", body: "שילוב של קואורדינציה ומשימות קוגניטיביות באותו אימון.", tone: "neutral" },
     ] as { title: string; body: string; tone: HowTone }[],
     outro: "כל אתגר נותן לכם מטרה ברורה ואת הדרך להשיגה.",
   },

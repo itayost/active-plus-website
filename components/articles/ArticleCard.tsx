@@ -37,7 +37,7 @@ export default function ArticleCard({
           </Link>
         </h3>
         <p className="text-ink-soft">{article.metaDescription}</p>
-        <span className="mt-auto inline-flex min-h-[48px] items-center gap-2 self-start font-display text-base font-bold text-burgundy">
+        <span className="mt-auto inline-flex min-h-[48px] items-center gap-2 self-start font-display text-base font-bold text-blue-deep">
           לקריאת המאמר
           <ArrowIcon className="h-5 w-5 transition-transform duration-[var(--dur)] ease-out-expo group-hover:-translate-x-1" />
         </span>

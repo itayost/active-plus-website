@@ -19,7 +19,7 @@ export default function WhatMatters() {
       className="bg-sunken py-[var(--section-y)]"
     >
       <Shell>
-        <h2 id="matters-heading" className="text-h2 font-display font-black">
+        <h2 id="matters-heading" className="text-h2 font-display font-extrabold">
           מה חשוב לנו?
         </h2>
         <ul className="mt-12 border-b border-ink/15">

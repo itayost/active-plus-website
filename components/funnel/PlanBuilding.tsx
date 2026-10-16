@@ -74,7 +74,7 @@ export default function PlanBuilding({ onDone }: Props) {
             className="stroke-green-deep forced-colors:stroke-[Highlight]"
           />
         </svg>
-        <b aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-display text-[2.5rem] font-black text-green-deep">
+        <b aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-display text-[2.5rem] font-extrabold text-green-deep">
           <bdi dir="ltr">{percent}%</bdi>
         </b>
       </div>

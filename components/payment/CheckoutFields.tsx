@@ -6,7 +6,7 @@ import { isEmail, isFullName } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 
 /** Each step's question, set as the mockup's step heading (0.78 of h2). */
-export const STEP_QUESTION = "block font-display text-[clamp(1.46rem,1.01rem+1.56vw,2.93rem)] font-black leading-[1.12] tracking-[-0.02em]";
+export const STEP_QUESTION = "block font-display text-[clamp(1.46rem,1.01rem+1.56vw,2.93rem)] font-extrabold leading-[1.12] tracking-[-0.02em]";
 
 type FieldProps = {
   id: string;

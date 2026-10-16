@@ -15,7 +15,7 @@ export default function DeleteAccountPage() {
       <PageHero
         title="מחיקת חשבון"
         lede="עדכון אחרון: פברואר 2026"
-        tone="burgundy"
+        tone="blue"
       />
       <div className="bg-surface py-[var(--section-y)]">
         <Shell width="narrow">
@@ -40,8 +40,8 @@ export default function DeleteAccountPage() {
         </div>
       </section>
 
-      <section className="my-12 rounded-card border-2 border-burgundy/25 bg-burgundy-wash p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)]">
-        <h2 className="mb-6 font-display text-h3 font-bold text-burgundy">
+      <section className="my-12 rounded-card border-2 border-danger/25 bg-danger/10 p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)]">
+        <h2 className="mb-6 font-display text-h3 font-bold text-danger">
           בקשת מחיקת חשבון
         </h2>
 

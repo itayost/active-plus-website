@@ -35,7 +35,7 @@ export default function MotionDetectionPage() {
       />
 
       <Section width="narrow" labelledBy="pivot-h">
-        <h2 id="pivot-h" className="max-w-[16ch] text-h2 font-display font-black text-blue-deep">
+        <h2 id="pivot-h" className="max-w-[16ch] text-h2 font-display font-extrabold text-blue-deep">
           {C.pivotHeading}
         </h2>
         <p className="mt-7 text-lead text-ink">{C.checks}</p>
@@ -83,7 +83,7 @@ export default function MotionDetectionPage() {
       <Section tone="sunken" width="narrow" labelledBy="close-h">
         <p className="font-display text-[clamp(1.5rem,1.2rem+1.3vw,2.25rem)] font-medium leading-[1.4] tracking-tight text-ink">
           {C.emphasis.before}
-          <strong className="font-black text-blue-deep">{C.emphasis.strong}</strong>
+          <strong className="font-extrabold text-blue-deep">{C.emphasis.strong}</strong>
           {C.emphasis.after}
         </p>
         <p className="mt-8 text-lead text-ink-soft">{C.precise}</p>

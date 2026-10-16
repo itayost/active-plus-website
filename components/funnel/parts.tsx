@@ -63,7 +63,7 @@ export function StepTitle({
     <h1
       id={STEP_TITLE_ID}
       tabIndex={-1}
-      className={cn("font-display font-black tracking-[-0.025em] outline-none", TITLE_SIZE[size])}
+      className={cn("font-display font-extrabold tracking-[-0.025em] outline-none", TITLE_SIZE[size])}
     >
       {children}
     </h1>
@@ -109,20 +109,20 @@ export function ContinueButton({
   );
 }
 
-/** A text field at rest, focused (border shift) and invalid (burgundy), per DESIGN.md Inputs. */
+/** A text field at rest, focused (border shift) and invalid (danger red), per DESIGN.md Inputs. */
 export const fieldClass = (invalid: boolean) =>
   cn(
     "min-h-[60px] w-full min-w-0 rounded-field border-2 bg-white px-4 py-3.5 text-lead text-ink caret-blue-deep",
     "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] focus:outline-none",
-    // An invalid field stays burgundy while focused, so the error is never hidden by the focus colour.
-    invalid ? "border-burgundy" : "border-hairline hover:border-ink/25 focus:border-blue-deep",
+    // An invalid field stays red while focused, so the error is never hidden by the focus colour.
+    invalid ? "border-danger" : "border-hairline hover:border-ink/25 focus:border-blue-deep",
   );
 
 /** The message under a field: mounted only with text, so role="alert" announces it once. */
 export function FieldError({ id, text }: { id: string; text: string }) {
   if (!text) return null;
   return (
-    <p id={id} role="alert" className="mt-2.5 rounded-field bg-burgundy-wash px-3.5 py-2.5 font-medium text-burgundy">
+    <p id={id} role="alert" className="mt-2.5 rounded-field bg-danger/10 px-3.5 py-2.5 font-medium text-danger">
       {text}
     </p>
   );

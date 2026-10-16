@@ -13,7 +13,7 @@ export default function Error({
   return (
     <section className="bg-surface py-[var(--section-y)]">
       <Shell width="narrow">
-        <h1 className="text-h2 font-display font-black">משהו השתבש בטעינת הדף</h1>
+        <h1 className="text-h2 font-display font-extrabold">משהו השתבש בטעינת הדף</h1>
         <p className="mt-5 max-w-measure text-lead text-ink-soft">
           זו תקלה אצלנו, לא אצלכם. אפשר לנסות לטעון שוב — ואם זה חוזר, נשמח
           שתתקשרו.

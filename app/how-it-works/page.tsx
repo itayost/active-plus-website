@@ -27,21 +27,21 @@ export default function HowItWorksPage() {
           C.hero.image ? (
             <>
               <Image src={C.hero.image} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
-              <div aria-hidden="true" className="absolute inset-0 -z-10 bg-hero opacity-80" />
+              <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink opacity-80" />
             </>
           ) : null
         }
       >
         <h1
           id="hero-h"
-          className="max-w-[24ch] font-display text-[clamp(2rem,1.4rem+2.6vw,3.75rem)] font-black leading-[1.1] text-white"
+          className="max-w-[24ch] font-display text-[clamp(2rem,1.4rem+2.6vw,3.75rem)] font-extrabold leading-[1.1] text-white"
         >
           {C.hero.title}
         </h1>
         <p className="mt-6 max-w-[44ch] text-lead font-medium leading-snug text-white/90">
           {C.hero.sub}
         </p>
-        <Button href={FIT_CHECK.href} variant="onColor" size="lg" className="mt-10">
+        <Button href={FIT_CHECK.href} variant="primary" size="lg" className="mt-10">
           {C.hero.cta}
           <ArrowIcon className="h-5 w-5" />
         </Button>
@@ -49,7 +49,7 @@ export default function HowItWorksPage() {
 
       <Section labelledBy="steps-h" className="pt-[clamp(3rem,6vw,5.5rem)]">
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-16">
-          <h2 id="steps-h" className="max-w-[16ch] text-h2 font-display font-black text-ink">
+          <h2 id="steps-h" className="max-w-[16ch] text-h2 font-display font-extrabold text-ink">
             {C.intro.heading}
           </h2>
           <div className="grid gap-5 text-lead text-ink-soft">
@@ -69,7 +69,7 @@ export default function HowItWorksPage() {
         ) : null}
         <div className="grid gap-[clamp(2.5rem,5vw,4.5rem)] lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div>
-            <h2 id="dual-h" className="text-h2 font-display font-black text-ink">{C.dual.heading}</h2>
+            <h2 id="dual-h" className="text-h2 font-display font-extrabold text-ink">{C.dual.heading}</h2>
             <p className="mt-6 max-w-[58ch] text-lead text-ink">{C.dual.body[0]}</p>
             <p className="mt-6 max-w-[58ch] text-base text-ink-soft">{C.dual.body[1]}</p>
             <p className="mt-8 font-display font-bold text-ink">{C.dual.examplesLabel}</p>
@@ -81,16 +81,16 @@ export default function HowItWorksPage() {
                 >
                   <span className="rounded-pill bg-blue-wash px-3.5 py-1.5 font-display font-bold text-blue-deep">{move}</span>
                   {link}
-                  <span className="rounded-pill bg-purple-wash px-3.5 py-1.5 font-display font-bold text-purple-deep">{mind}</span>
+                  <span className="rounded-pill bg-blue-wash px-3.5 py-1.5 font-display font-bold text-blue-deep">{mind}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <figure className="m-0 rounded-card bg-purple-wash p-[clamp(min(1.75rem,8.75vw),4vw,3rem)] text-purple-deep">
+            <figure className="m-0 rounded-card bg-blue-wash p-[clamp(min(1.75rem,8.75vw),4vw,3rem)] text-blue-deep">
               <p className="font-display text-[clamp(1.5rem,1.2rem+1.2vw,2.125rem)] font-bold leading-[1.3] tracking-tight">
                 {C.dual.definition.before}{" "}
-                <span lang="en" dir="ltr" className="inline-block font-black">{C.dual.definition.term}</span>{" "}
+                <span lang="en" dir="ltr" className="inline-block font-extrabold">{C.dual.definition.term}</span>{" "}
                 {C.dual.definition.after}
               </p>
             </figure>
@@ -102,7 +102,7 @@ export default function HowItWorksPage() {
       <Section labelledBy="daily-h">
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 id="daily-h" className="text-h2 font-display font-black text-ink">{C.daily.heading}</h2>
+            <h2 id="daily-h" className="text-h2 font-display font-extrabold text-ink">{C.daily.heading}</h2>
             <p className={`mt-5 max-w-[34ch] text-lead leading-snug text-blue-deep ${LEDE_FONT}`}>{C.daily.lede}</p>
             <div className="mt-5 grid max-w-[56ch] gap-5 text-base text-ink-soft">
               {C.daily.body.map((p) => (
@@ -124,7 +124,7 @@ export default function HowItWorksPage() {
       </Section>
 
       <Section tone="sunken" labelledBy="progress-h">
-        <h2 id="progress-h" className="mx-auto max-w-[20ch] text-center text-h2 font-display font-black text-ink">
+        <h2 id="progress-h" className="mx-auto max-w-[20ch] text-center text-h2 font-display font-extrabold text-ink">
           {C.progress.heading}
         </h2>
         <p className="mx-auto mt-6 max-w-[52ch] text-center text-lead text-ink-soft">{C.progress.lede}</p>
@@ -151,7 +151,7 @@ export default function HowItWorksPage() {
       </Section>
 
       <Section labelledBy="ch-h">
-        <h2 id="ch-h" className="text-h2 font-display font-black text-ink">{C.challenges.heading}</h2>
+        <h2 id="ch-h" className="text-h2 font-display font-extrabold text-ink">{C.challenges.heading}</h2>
         <p className={`mt-6 text-lead text-ink ${LEDE_FONT}`}>{C.challenges.lede}</p>
         <p className="mt-3 text-lead text-ink-soft">{C.challenges.body}</p>
         <Challenges items={C.challenges.items} />
@@ -161,7 +161,7 @@ export default function HowItWorksPage() {
       <Section tone="sunken" labelledBy="pros-h">
         <div className="grid items-center gap-[clamp(2.5rem,5vw,4.5rem)] lg:grid-cols-[1fr_1.1fr]">
           <div>
-            <h2 id="pros-h" className="max-w-[16ch] text-h2 font-display font-black text-ink">{C.pros.heading}</h2>
+            <h2 id="pros-h" className="max-w-[16ch] text-h2 font-display font-extrabold text-ink">{C.pros.heading}</h2>
             <div className="mt-6 grid max-w-[54ch] gap-5 text-base text-ink-soft">
               {C.pros.body.map((p) => (
                 <p key={p}>{p}</p>

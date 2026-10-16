@@ -15,7 +15,7 @@ export default function PlansTeaser() {
     <section aria-labelledby="plans-heading" className="bg-surface py-[var(--section-y)]">
       <Shell>
         <Reveal>
-          <h2 id="plans-heading" className="text-h2 font-display font-black">
+          <h2 id="plans-heading" className="text-h2 font-display font-extrabold">
             המסלול שמתאים בדיוק בשבילך
           </h2>
           <p className="mt-5 max-w-measure text-lead text-ink-soft">
@@ -41,13 +41,13 @@ export default function PlansTeaser() {
                   />
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-[linear-gradient(0deg,rgb(var(--hero-field-rgb)_/_0.78)_0%,rgb(var(--hero-field-rgb)_/_0.18)_46%,rgb(var(--hero-field-rgb)_/_0)_72%)]"
+                    className="absolute inset-0 bg-[linear-gradient(0deg,rgb(17_17_17_/_0.78)_0%,rgb(17_17_17_/_0.18)_46%,rgb(17_17_17_/_0)_72%)]"
                   />
-                  <h3 className="absolute bottom-5 start-6 font-display text-[clamp(1.75rem,1.3rem+1.8vw,2.75rem)] font-black text-white">
+                  <h3 className="absolute bottom-5 start-6 font-display text-[clamp(1.75rem,1.3rem+1.8vw,2.75rem)] font-extrabold text-white">
                     {plan.name}
                   </h3>
                   {plan.featured ? (
-                    <p className="absolute top-5 start-6 rounded-pill bg-ink/85 px-4 py-2 font-display text-lead font-bold text-yellow">
+                    <p className="absolute top-5 start-6 rounded-pill bg-ink/85 px-4 py-2 font-display text-lead font-bold text-star">
                       {`חיסכון של ${formatShekel(annualSavings())}`}
                     </p>
                   ) : null}
@@ -55,7 +55,7 @@ export default function PlansTeaser() {
 
                 <div className="mt-auto flex flex-1 flex-col justify-between gap-6 bg-surface p-[clamp(min(1.5rem,7.5vw),3vw,2.25rem)]">
                   <div>
-                    <p className="font-display text-[clamp(2rem,1.6rem+1.6vw,3rem)] font-black leading-none tracking-tight text-ink">
+                    <p className="font-display text-[clamp(2rem,1.6rem+1.6vw,3rem)] font-extrabold leading-none tracking-tight text-ink">
                       {formatShekel(plan.price)}{" "}
                       <small className="text-lead font-bold text-ink-soft">{plan.priceSuffix}</small>
                     </p>

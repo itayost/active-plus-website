@@ -14,45 +14,23 @@ const CARD_ACTION_LABEL = "תראו לי עוד";
 const FIT_CHECK_LABEL = "לבדיקת התאמה";
 
 /**
- * Four fields, and they have to separate by VALUE as well as hue — three
- * saturated darks at the same luminance read as one dark field wearing three
- * colours. The purple card is a light lavender ground with deep purple ink,
- * which is how the client drew it and what gives the set its light beat.
+ * Light cards on the white page, separated by the card shadow and a hairline
+ * rather than by saturated fields: a blue wash for the plan and technology
+ * cards, a green wash for progress.
  */
 const FIELD: Record<Tone, string> = {
-  blue: "bg-blue text-white",
-  green: "bg-green text-white",
-  purple: "bg-purple-wash text-purple-deep",
-  burgundy: "bg-burgundy text-white",
+  blue: "border border-hairline bg-blue-wash text-ink",
+  green: "border border-hairline bg-green-wash text-ink",
 };
 
-/**
- * Secondary copy is tinted from the field's own foreground, never gray, at the
- * lowest opacity that still clears 4.5:1 on that specific field.
- */
-/**
- * The action inverts with the field: a white pill disappears on the light
- * lavender ground, so that card takes a filled purple pill instead.
- */
-/**
- * The focus ring travels with the action, not with the section. `.on-dark`
- * is scoped to whole dark surfaces, but these cards are coloured one by one
- * inside a light section, so the global navy ring landed on a navy card at
- * 1.19:1 — invisible, on a keyboard user's path.
- */
-const ACTION: Record<Tone, string> = {
-  blue: "bg-white text-ink [--focus-ring:#ffffff]",
-  green: "bg-white text-ink [--focus-ring:#ffffff]",
-  purple: "bg-purple-deep text-white [--focus-ring:var(--ink)]",
-  burgundy: "bg-white text-ink [--focus-ring:#ffffff]",
-};
-
+/** Secondary copy is the reading ink, which clears AAA on both washes. */
 const SOFT: Record<Tone, string> = {
-  blue: "text-white/90",
-  green: "text-white/95",
-  purple: "text-purple-deep/90",
-  burgundy: "text-white/85",
+  blue: "text-ink-soft",
+  green: "text-ink-soft",
 };
+
+/** The action is the site's one primary button treatment on every card. */
+const ACTION = "bg-cta text-white shadow-cta";
 
 export default function FeatureCards() {
   const { trackRef, index, canPrev, canNext, goTo } = useSnapCarousel<HTMLUListElement>(
@@ -69,7 +47,7 @@ export default function FeatureCards() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <h2
             id="cards-heading"
-            className="text-h2 font-display font-black"
+            className="text-h2 font-display font-extrabold"
           >
             מעטפת מקצועית במיוחד בשבילכם
           </h2>
@@ -96,7 +74,7 @@ export default function FeatureCards() {
             className="w-[min(88vw,620px)] shrink-0 snap-start lg:w-[min(76vw,1280px)]"
           >
             <article
-              className={`flex h-full flex-col overflow-hidden rounded-card shadow-lift-2 lg:flex-row-reverse ${FIELD[card.tone]}`}
+              className={`flex h-full flex-col overflow-hidden rounded-card shadow-card lg:flex-row-reverse ${FIELD[card.tone]}`}
             >
               {/*
                 The illustrations carry their own background colour, so butting
@@ -123,7 +101,7 @@ export default function FeatureCards() {
               </div>
 
               <div className="flex flex-1 flex-col p-[clamp(min(1.5rem,7.5vw),3vw,3rem)] lg:ps-[clamp(min(1rem,5vw),2vw,2rem)]">
-                <h3 className="text-card-title font-display font-black leading-tight">
+                <h3 className="text-card-title font-display font-extrabold leading-tight">
                   {card.title}
                 </h3>
                 <div className={`mt-5 space-y-4 ${SOFT[card.tone]}`}>
@@ -135,7 +113,7 @@ export default function FeatureCards() {
                 </div>
                 <Link
                   href={card.href}
-                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-bold shadow-lift-1 transition-[transform,box-shadow] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:shadow-lift-2 active:translate-y-0 active:scale-[0.97] forced-colors:border-2 ${ACTION[card.tone]}`}
+                  className={`mt-9 inline-flex min-h-[56px] w-fit items-center gap-2.5 rounded-pill px-7 font-display text-lead font-extrabold transition-[transform,filter] duration-[var(--dur-fast)] ease-out-expo hover:-translate-y-0.5 hover:brightness-95 active:translate-y-0 active:scale-[0.97] forced-colors:border-2 ${ACTION}`}
                 >
                   {CARD_ACTION_LABEL}
                   <ArrowIcon className="h-5 w-5" />

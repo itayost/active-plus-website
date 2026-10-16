@@ -83,7 +83,7 @@ export const PLAN_INCLUDES = [
 export const FEATURE_CARDS = [
   {
     id: "personal-plan",
-    tone: "purple",
+    tone: "blue",
     title: "תוכנית אישית בהתאמה חכמה",
     body: [
       "התוכנית מותאמת לרמה האישית שלכם גם באימון הגופני וגם באימון המוח.",
@@ -123,4 +123,4 @@ export const FEATURE_CARDS = [
 ] as const;
 
 export type FeatureCard = (typeof FEATURE_CARDS)[number];
-export type Tone = "blue" | "green" | "purple" | "burgundy";
+export type Tone = "blue" | "green";

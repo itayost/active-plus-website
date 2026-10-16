@@ -27,7 +27,7 @@ export default function LeadSection({
           <Reveal>
             <h2
               id="lead-heading"
-              className="text-h2 font-display font-black text-green-deep"
+              className="text-h2 font-display font-extrabold text-green-deep"
             >
               {heading}
             </h2>

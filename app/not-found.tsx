@@ -7,10 +7,10 @@ export default function NotFound() {
   return (
     <section className="bg-surface py-[var(--section-y)]">
       <Shell width="narrow">
-        <p className="font-display text-[clamp(4rem,3rem+6vw,8rem)] font-black leading-none tracking-tighter text-blue-wash">
+        <p className="font-display text-[clamp(4rem,3rem+6vw,8rem)] font-extrabold leading-none tracking-tighter text-blue-wash">
           404
         </p>
-        <h1 className="mt-4 text-h2 font-display font-black">הדף לא נמצא</h1>
+        <h1 className="mt-4 text-h2 font-display font-extrabold">הדף לא נמצא</h1>
         <p className="mt-5 max-w-measure text-lead text-ink-soft">
           הדף שחיפשתם אינו קיים או שהוסר. הנה כמה מקומות שאפשר להמשיך מהם.
         </p>

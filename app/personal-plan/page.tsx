@@ -25,7 +25,7 @@ const STEP_ICONS = [ClipboardIcon, SlidersIcon];
 export default function PersonalPlanPage() {
   return (
     <>
-      <PageHero tone="purple" title={C.title} lede={C.lede} back={<BackLink />} />
+      <PageHero tone="blue" title={C.title} lede={C.lede} back={<BackLink />} />
 
       <Section>
         {/*
@@ -43,7 +43,7 @@ export default function PersonalPlanPage() {
                 {i === 1 ? (
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-0 bottom-full mb-3 flex h-[48px] items-center justify-center text-purple lg:inset-x-auto lg:inset-y-0 lg:end-full lg:mb-0 lg:me-5 lg:h-auto lg:w-8"
+                    className="absolute inset-x-0 bottom-full mb-3 flex h-[48px] items-center justify-center text-blue lg:inset-x-auto lg:inset-y-0 lg:end-full lg:mb-0 lg:me-5 lg:h-auto lg:w-8"
                   >
                     <ArrowIcon className="h-8 w-8 -rotate-90 lg:rotate-0" />
                   </span>
@@ -52,7 +52,7 @@ export default function PersonalPlanPage() {
                   delayIndex={i}
                   className="flex h-full flex-col gap-5 rounded-card border border-hairline bg-white p-[clamp(min(1.5rem,7.5vw),3vw,2.5rem)] shadow-lift-1"
                 >
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-purple-wash text-purple-deep">
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-blue-wash text-blue-deep">
                     <Icon className="h-7 w-7" />
                   </span>
                   <p className="text-lead text-ink">{text}</p>
@@ -63,7 +63,7 @@ export default function PersonalPlanPage() {
         </ol>
 
         <div className="mt-[clamp(4rem,8vw,7rem)] grid gap-6 lg:grid-cols-2 lg:items-end lg:gap-16">
-          <h2 id="pivot-h" className="max-w-[14ch] text-h2 font-display font-black text-purple-deep">
+          <h2 id="pivot-h" className="max-w-[14ch] text-h2 font-display font-extrabold text-blue-deep">
             {C.pivot.heading}
           </h2>
           <p className="max-w-[40ch] text-lead text-ink-soft">{C.pivot.body}</p>
@@ -80,14 +80,14 @@ export default function PersonalPlanPage() {
               <Reveal as="li" key={item.label} delayIndex={i}>
                 <div
                   className={`flex h-full flex-col gap-5 rounded-card p-[clamp(min(1.75rem,8.75vw),3.5vw,3rem)] ${
-                    isBody ? "bg-blue-wash text-blue-deep" : "bg-purple-wash text-purple-deep"
+                    isBody ? "bg-blue-wash text-blue-deep" : "bg-blue-wash text-blue-deep"
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-white shadow-lift-1">
                       <Icon className="h-7 w-7" />
                     </span>
-                    <h3 className="text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] font-display font-black leading-[1.1]">
+                    <h3 className="text-[clamp(1.75rem,1.3rem+1.6vw,2.5rem)] font-display font-extrabold leading-[1.1]">
                       {item.label}
                     </h3>
                   </div>
@@ -104,8 +104,8 @@ export default function PersonalPlanPage() {
       <Section tone="sunken" width="narrow" className="py-[clamp(3.5rem,7vw,6rem)]">
         <ul className="rounded-card bg-white shadow-lift-2">
           {[
-            { rule: C.rule.up, Icon: ArrowUpIcon, chip: "bg-purple-deep text-white" },
-            { rule: C.rule.down, Icon: ArrowDownIcon, chip: "bg-purple-wash text-purple-deep" },
+            { rule: C.rule.up, Icon: ArrowUpIcon, chip: "bg-blue-deep text-white" },
+            { rule: C.rule.down, Icon: ArrowDownIcon, chip: "bg-blue-wash text-blue-deep" },
           ].map(({ rule, Icon, chip }, i) => (
             <li
               key={rule.strong}
@@ -127,13 +127,13 @@ export default function PersonalPlanPage() {
 
       <Section labelledBy="result-h">
         <FitCheckClose
-          tone="purple"
+          tone="wash"
           cta={C.cta}
           headingId="result-h"
           body={C.result.body}
           heading={
             <>
-              <span className="block text-purple">{C.result.kicker}</span>
+              <span className="block text-blue-deep">{C.result.kicker}</span>
               {C.result.statement}
             </>
           }

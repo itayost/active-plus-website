@@ -71,7 +71,7 @@ export default async function ArticlePage({
         article
         title={article.title}
         lede={article.metaDescription}
-        tone="burgundy"
+        tone="blue"
         back={<BackLink href="/articles" label="כל המאמרים" />}
       />
 
@@ -97,7 +97,7 @@ export default async function ArticlePage({
 
             {article.faq.length > 0 ? (
               <div className="mt-16">
-                <h2 className="text-h2 font-display font-black">שאלות נפוצות</h2>
+                <h2 className="text-h2 font-display font-extrabold">שאלות נפוצות</h2>
                 <div className="mt-8">
                   <Accordion items={article.faq} />
                 </div>
@@ -111,7 +111,7 @@ export default async function ArticlePage({
               <div>
                 <h2
                   id="article-fit"
-                  className="font-display text-[clamp(1.5rem,1.2rem+1.2vw,2.25rem)] font-black leading-[1.15] text-green-deep"
+                  className="font-display text-[clamp(1.5rem,1.2rem+1.2vw,2.25rem)] font-extrabold leading-[1.15] text-green-deep"
                 >
                   פעילים+ — תנועה וחשיבה באותו אימון
                 </h2>
@@ -130,14 +130,14 @@ export default async function ArticlePage({
             aria-label="בדיקת התאמה"
             className="hidden xl:sticky xl:top-36 xl:col-start-2 xl:row-start-1 xl:block"
           >
-            <div className="rounded-card bg-burgundy-wash p-8">
-              <p className="mb-6 font-display text-h3 font-bold text-burgundy">
+            <div className="rounded-card bg-blue-wash p-8">
+              <p className="mb-6 font-display text-h3 font-bold text-blue-deep">
                 כ־10 דקות ביום, מהבית ובקצב שמתאים לך.
               </p>
               <Button href={FIT_CHECK.href} size="lg" className="w-full">
                 לבדיקת התאמה
               </Button>
-              <p className="mt-8 border-t border-burgundy/20 pt-6 font-display font-bold text-ink">
+              <p className="mt-8 border-t border-blue/20 pt-6 font-display font-bold text-ink">
                 מאמרים נוספים
               </p>
               <ul className="mt-3 grid gap-3">
@@ -145,7 +145,7 @@ export default async function ArticlePage({
                   <li key={item.slug}>
                     <Link
                       href={`/articles/${item.slug}`}
-                      className="text-ink-soft underline decoration-burgundy/35 underline-offset-[5px] hover:text-burgundy"
+                      className="text-ink-soft underline decoration-blue/35 underline-offset-[5px] hover:text-blue-deep"
                     >
                       {item.title}
                     </Link>
@@ -158,7 +158,7 @@ export default async function ArticlePage({
       </article>
 
       <Section tone="sunken" labelledBy="more-articles">
-        <h2 id="more-articles" className="text-h2 font-display font-black">
+        <h2 id="more-articles" className="text-h2 font-display font-extrabold">
           להמשך קריאה
         </h2>
         <ul className="mt-10 grid gap-6 md:grid-cols-2">

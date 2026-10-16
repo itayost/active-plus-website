@@ -54,7 +54,7 @@ export default function AboutPage() {
               </p>
             ))}
             <blockquote className="m-0 mt-2 border-t-2 border-hairline pt-[clamp(1.5rem,3vw,2.25rem)]">
-              <p className="max-w-[18ch] font-display text-[clamp(1.875rem,1.4rem+2vw,3rem)] font-black leading-[1.15] tracking-tight text-blue-deep">
+              <p className="max-w-[18ch] font-display text-[clamp(1.875rem,1.4rem+2vw,3rem)] font-extrabold leading-[1.15] tracking-tight text-blue-deep">
                 {C.pullQuote}
               </p>
             </blockquote>
@@ -63,13 +63,13 @@ export default function AboutPage() {
       </Section>
 
       <Section tone="sunken" width="narrow" labelledBy="middle-h">
-        <h2 id="middle-h" className="text-h2 font-display font-black text-ink">{C.middle.heading}</h2>
+        <h2 id="middle-h" className="text-h2 font-display font-extrabold text-ink">{C.middle.heading}</h2>
         <div className="mt-8 grid gap-6 text-lead leading-[1.55] text-ink-soft">
           {C.middle.body.map((p) => (
             <p key={p}>{p}</p>
           ))}
         </div>
-        <p className="mt-[clamp(2.5rem,5vw,3.5rem)] font-display text-[clamp(2rem,1.5rem+2.4vw,3.5rem)] font-black leading-[1.1] tracking-tight text-ink">
+        <p className="mt-[clamp(2.5rem,5vw,3.5rem)] font-display text-[clamp(2rem,1.5rem+2.4vw,3.5rem)] font-extrabold leading-[1.1] tracking-tight text-ink">
           {C.middle.closer}
         </p>
       </Section>
@@ -77,14 +77,14 @@ export default function AboutPage() {
       <Section labelledBy="born-h">
         <div className="grid gap-[clamp(2rem,4vw,3.5rem)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <div>
-            <h2 id="born-h" className="text-h2 font-display font-black text-ink">{C.born.heading}</h2>
+            <h2 id="born-h" className="text-h2 font-display font-extrabold text-ink">{C.born.heading}</h2>
             {C.born.body.map((p) => (
               <p key={p} className="mt-6 max-w-[44ch] text-lead leading-[1.55] text-ink-soft">{p}</p>
             ))}
           </div>
           <div className="rounded-card bg-green-wash p-[clamp(min(1.75rem,8.75vw),4vw,3.5rem)] text-green-deep">
             <p className="text-lead leading-[1.5]">{C.born.visionLead}</p>
-            <p className="mt-4 font-display text-[clamp(1.75rem,1.35rem+1.8vw,2.75rem)] font-black leading-[1.2] tracking-tight">
+            <p className="mt-4 font-display text-[clamp(1.75rem,1.35rem+1.8vw,2.75rem)] font-extrabold leading-[1.2] tracking-tight">
               {C.born.vision}
             </p>
             <Button href={FIT_CHECK.href} size="lg" className="mt-8">
@@ -106,7 +106,7 @@ export default function AboutPage() {
             className="h-auto w-full rounded-panel shadow-lift-2"
           />
           <div>
-            <h2 id="measure-h" className="text-h2 font-display font-black text-ink">{C.measure.heading}</h2>
+            <h2 id="measure-h" className="text-h2 font-display font-extrabold text-ink">{C.measure.heading}</h2>
             <p className="mt-6 max-w-[52ch] text-lead text-ink">{C.measure.lede}</p>
             <div className="mt-6 grid max-w-[52ch] gap-5 text-base text-ink-soft">
               {C.measure.body.map((p) => (
@@ -123,7 +123,7 @@ export default function AboutPage() {
       </Section>
 
       <Section labelledBy="team-h">
-        <h2 id="team-h" className="text-h2 font-display font-black text-ink">{C.team.heading}</h2>
+        <h2 id="team-h" className="text-h2 font-display font-extrabold text-ink">{C.team.heading}</h2>
         <p className="mt-6 max-w-[52ch] text-lead text-ink-soft">{C.team.lede}</p>
         {/* team-list stacks each member at enlarged text on a phone, where a
             7.5rem photo column left the bio a few characters wide (globals.css). */}
