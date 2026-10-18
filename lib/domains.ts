@@ -18,14 +18,9 @@ export const HOST_REDIRECTS = LEGACY_HOSTS.map((host) => ({
 }));
 
 /**
- * The address Grow calls server to server after a charge (configured once, on
- * Grow's side, at the account level). It lives on our domain so a backend move
- * never needs a change at Grow; the request is forwarded to the function as is.
+ * The address Grow calls server to server: every charge's notify and the
+ * account webhooks. It lives on our domain so a backend move never needs a
+ * change at Grow; the middleware filters it by IP and forwards it to the
+ * growWebhook function (lib/grow-notify.ts).
  */
 export const GROW_NOTIFY_PATH = "/api/grow/notify";
-
-export function buildRewrites(supabaseUrl: string | undefined): { source: string; destination: string }[] {
-  const base = supabaseUrl?.trim().replace(/\/+$/, "");
-  if (!base) return [];
-  return [{ source: GROW_NOTIFY_PATH, destination: `${base}/functions/v1/growWebhook` }];
-}

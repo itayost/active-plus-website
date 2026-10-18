@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SITE_URL } from "@/lib/constants";
-import { CANONICAL_HOST, GROW_NOTIFY_PATH, HOST_REDIRECTS, LEGACY_HOSTS, buildRewrites } from "@/lib/domains";
+import { CANONICAL_HOST, GROW_NOTIFY_PATH, HOST_REDIRECTS, LEGACY_HOSTS } from "@/lib/domains";
 import { PROTECTED_PATHS } from "@/lib/redirects";
 
 // The site moved from activeplus.co.il to peilimplus.co.il on 2026-10-07.
@@ -35,15 +35,7 @@ describe("domains", () => {
     }
   });
 
-  it("forwards Grow's server callback to the growWebhook function", () => {
-    expect(buildRewrites("https://abc.supabase.co/")).toEqual([
-      { source: GROW_NOTIFY_PATH, destination: "https://abc.supabase.co/functions/v1/growWebhook" },
-    ]);
+  it("keeps Grow's callback path, which is configured at Grow", () => {
     expect(GROW_NOTIFY_PATH).toBe("/api/grow/notify");
-  });
-
-  it("adds no rewrite when the Supabase URL is missing", () => {
-    expect(buildRewrites(undefined)).toEqual([]);
-    expect(buildRewrites("")).toEqual([]);
   });
 });
