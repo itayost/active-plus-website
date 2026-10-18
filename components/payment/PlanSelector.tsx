@@ -8,7 +8,7 @@ import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { annualSavings, formatShekel } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
-// Grow's hosted pages: card for both plans. Task 9 adds Bit / Apple Pay / Google Pay if the one-time page shows them.
+// Card for both plans (annual: Grow's wallet; monthly: its hosted page). Bit / Apple Pay / Google Pay join this list once the wallet is seen offering them.
 const PAYMENT_METHODS = ["Visa", "Mastercard"] as const;
 const [ANNUAL, MONTHLY] = PLANS;
 const STORE_FALLBACK_HREF = "#store-fallback";

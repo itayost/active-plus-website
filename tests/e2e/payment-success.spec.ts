@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { CHECKOUT_COPY as C } from "../../lib/payment/copy";
-import { GROW_URL, openCheckout, signUp, SIGN_UP_STUB, stubFunctions } from "./checkout-helpers";
+import { GROW_URL, openCheckout, signUp, SIGN_UP_STUB, stubFunctions, walletEvent, walletSeen } from "./checkout-helpers";
 import { stubSupabase } from "./supabase-stub";
 
 /* Grow's success URL (flag on): the welcome, the invoice email from the draft, the next steps. */
@@ -17,10 +17,23 @@ test("success page: gendered welcome, the invoice email, and the next steps once
   await expect(page.getByText(C.success.steps[1].title)).toBeVisible();
 });
 
-test("the success page reads the invoice email once from the draft stored before Grow, and removes it", async ({ page }) => {
+test("after the wallet's success, the success page reads the invoice email once from the draft, and removes it", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
+  await signUp(page, "רחל כהן", "rachel@example.com");
+  await page.getByRole("button", { name: C.pay }).click();
+  await expect.poll(() => walletSeen(page)).not.toBeNull();
+  await walletEvent(page, "onSuccess", { status: 1 });
+  await page.waitForURL("**/payment/success");
+  await expect(page.getByText("rachel@example.com")).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toBeNull();
+});
+
+test("the success page reads the invoice email once from the draft stored before Grow's hosted page, and removes it", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  await stubFunctions(page);
+  await openCheckout(page, "monthly");
   await signUp(page, "רחל כהן", "rachel@example.com");
   await page.getByRole("button", { name: C.pay }).click();
   await page.waitForURL(GROW_URL);

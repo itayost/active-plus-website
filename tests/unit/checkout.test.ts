@@ -16,7 +16,7 @@ function memoryStorage(seed: Record<string, string> = {}) {
 
 const invoker = (result: unknown) => ({ functions: { invoke: vi.fn().mockResolvedValue(result) } });
 const httpError = (status: number) => ({ data: null, error: { name: "FunctionsHttpError", context: { status } } });
-const INPUT = { plan: "ANNUAL" as const, installments: 6, fullName: "רחל כהן", email: "r@example.com", tokenConsent: false };
+const INPUT = { plan: "ANNUAL" as const, installments: 6, fullName: "רחל כהן", email: "r@example.com" };
 const HOSTED = "https://sandbox.meshulam.co.il/s/abc";
 
 describe("checkout steps", () => {
@@ -81,9 +81,19 @@ describe("startPayment", () => {
     const unreadable = { data: null, error: { name: "FunctionsHttpError", context: { status: 400, json: async () => { throw new Error("x"); } } } };
     expect(await startPayment(invoker(unreadable) as never, INPUT)).toEqual({ error: "invalid_input" });
   });
-  it("refuses a url that is not Grow's", async () => {
-    const supabase = invoker({ data: { url: "https://evil.example/pay", webPaymentId: "wp-1" }, error: null });
-    expect(await startPayment(supabase as never, INPUT)).toEqual({ error: "processor_error" });
+  it("returns the wallet's authCode and environment for the annual plan", async () => {
+    const reply = { authCode: "auth-1", walletEnvironment: "DEV", webPaymentId: "wp-1" };
+    expect(await startPayment(invoker({ data: reply, error: null }) as never, INPUT)).toEqual(reply);
+  });
+  it.each([
+    ["a url that is not Grow's", { url: "https://evil.example/pay", webPaymentId: "wp-1" }],
+    ["an unknown wallet environment", { authCode: "auth-1", walletEnvironment: "STAGING", webPaymentId: "wp-1" }],
+    ["an empty authCode", { authCode: "", walletEnvironment: "DEV", webPaymentId: "wp-1" }],
+    ["an oversized authCode", { authCode: "a".repeat(1025), walletEnvironment: "DEV", webPaymentId: "wp-1" }],
+    ["no payment id", { authCode: "auth-1", walletEnvironment: "DEV" }],
+    ["nothing", null],
+  ])("refuses %s", async (_name, data) => {
+    expect(await startPayment(invoker({ data, error: null }) as never, INPUT)).toEqual({ error: "processor_error" });
   });
   it("a thrown invoke is a network error", async () => {
     const supabase = { functions: { invoke: vi.fn().mockRejectedValue(new Error("offline")) } };

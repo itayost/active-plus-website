@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { GENDER_FOR_PAYMENT } from "@/lib/funnel/storage";
 import type { Answers } from "@/lib/funnel/types";
+import { isWalletEnvironment, type WalletEnvironment } from "./grow-wallet";
 
 export type WebPlan = "ANNUAL" | "MONTHLY";
 export type CheckoutStep = "name" | "email" | "phone" | "summary";
@@ -40,10 +41,16 @@ export function isGrowHostedUrl(value: string): boolean {
   }
 }
 
-export type StartInput = { plan: WebPlan; installments: number; fullName: string; email: string; tokenConsent: boolean };
+export type StartInput = { plan: WebPlan; installments: number; fullName: string; email: string };
 export type StartError =
   | "already_subscribed" | "invalid_input" | "signed_out" | "rate_limited" | "not_configured" | "processor_error" | "network";
-export type StartResult = { url: string; webPaymentId: string } | { error: StartError };
+/** Annual: the authCode Grow's wallet SDK opens with. Monthly: Grow's hosted page to go to. */
+export type StartResult =
+  | { url: string; webPaymentId: string }
+  | { authCode: string; walletEnvironment: WalletEnvironment; webPaymentId: string }
+  | { error: StartError };
+
+const AUTH_CODE_MAX = 1024;
 
 const STATUS_ERROR: Record<number, StartError> = {
   400: "invalid_input",
@@ -81,9 +88,13 @@ export async function startPayment(supabase: Pick<SupabaseClient, "functions">, 
   try {
     const { data, error } = await supabase.functions.invoke("createGrowPayment", { body: input });
     if (error) return { error: await errorFor(error) };
-    const { url, webPaymentId } = (data ?? {}) as { url?: unknown; webPaymentId?: unknown };
-    if (typeof url !== "string" || !isGrowHostedUrl(url) || typeof webPaymentId !== "string") return { error: "processor_error" };
-    return { url, webPaymentId };
+    const { url, authCode, walletEnvironment, webPaymentId } = (data ?? {}) as Record<string, unknown>;
+    if (typeof webPaymentId !== "string") return { error: "processor_error" };
+    if (typeof authCode === "string" && authCode !== "" && authCode.length <= AUTH_CODE_MAX && isWalletEnvironment(walletEnvironment)) {
+      return { authCode, walletEnvironment, webPaymentId };
+    }
+    if (typeof url === "string" && isGrowHostedUrl(url)) return { url, webPaymentId };
+    return { error: "processor_error" };
   } catch {
     return { error: "network" };
   }
