@@ -7,6 +7,7 @@ import { ChevronIcon, LockIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
 import { onRestoredFromCache, saveCheckoutDraft, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
+import { openGrowWallet, type WalletOutcome } from "@/lib/payment/grow-wallet";
 import { CHECKOUT_COPY as C, gendered } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
 import { formatShekel, installmentAmount } from "@/lib/pricing";
@@ -16,9 +17,7 @@ import { STEP_QUESTION } from "./CheckoutFields";
 import StoreButtons from "./StoreButtons";
 
 const INSTALLMENTS_ID = "checkout-installments";
-const CONSENT_ID = "checkout-consent";
-const CONSENT_LABEL_ID = "checkout-consent-label";
-const CONSENT_HELP_ID = "checkout-consent-help";
+const SUCCESS_PATH = "/payment/success";
 
 type Props = {
   plan: PlanId;
@@ -34,32 +33,50 @@ type Props = {
 
 type Row = { label: string; value: string; edit?: CheckoutStep; total?: boolean; ltr?: boolean };
 
-type Status = { kind: "idle" } | { kind: "redirecting" } | { kind: "error"; error: StartError };
+type PayError = StartError | "payment_failed" | "expired";
+type Status = { kind: "idle" } | { kind: "redirecting" } | { kind: "wallet" } | { kind: "error"; error: PayError };
 
-function errorText(error: StartError, gender: Answers["gender"]): string {
+const WALLET_ERROR: Record<Exclude<WalletOutcome, "success" | "closed">, PayError> = {
+  failed: "payment_failed",
+  expired: "expired",
+  error: "processor_error",
+};
+
+function errorText(error: PayError, gender: Answers["gender"]): string {
   const text = C.errors[error];
   return typeof text === "string" ? text : gendered(gender, text);
 }
 
 export default function CheckoutSummary({ plan, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut }: Props) {
-  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   // Back from Grow through the back/forward cache: the page returns as it left, mid-redirect. Make the button usable again.
   useEffect(() => onRestoredFromCache(() => setStatus({ kind: "idle" })), []);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
   const annual = plan === "annual";
 
+  const busy = status.kind === "redirecting" || status.kind === "wallet";
+
   const pay = async () => {
-    if (status.kind === "redirecting") return;
-    setStatus({ kind: "redirecting" });
+    if (busy) return;
+    setStatus({ kind: annual ? "wallet" : "redirecting" });
     const supabase = await loadBrowserSupabase();
     const result = supabase
-      ? await startPayment(supabase, { plan: toWebPlan(plan), installments: annual ? installments : 1, fullName: name, email, tokenConsent: annual && consent })
+      ? await startPayment(supabase, { plan: toWebPlan(plan), installments: annual ? installments : 1, fullName: name, email })
       : ({ error: "network" } as const);
-    if ("url" in result) {
-      // Stored before leaving for Grow: the success page reads the invoice email from the draft.
+    if ("url" in result || "authCode" in result) {
+      // Stored before paying: the success page reads the invoice email from the draft.
       saveCheckoutDraft({ plan, name, email, installments });
+    }
+    if ("url" in result) {
       window.location.assign(result.url);
+      return;
+    }
+    if ("authCode" in result) {
+      const outcome = await openGrowWallet(result.authCode, result.walletEnvironment);
+      // The webhook activates the subscription; the success page waits to see it.
+      if (outcome === "success") window.location.assign(SUCCESS_PATH);
+      else if (outcome === "closed") setStatus({ kind: "idle" });
+      else setStatus({ kind: "error", error: WALLET_ERROR[outcome] });
       return;
     }
     if (result.error === "signed_out") {
@@ -124,27 +141,6 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
             <ChevronIcon className="pointer-events-none absolute end-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-ink-soft" />
           </div>
           <p className="mt-2 text-ink-soft" aria-live="polite">{C.perInstallment.replace("{amount}", formatShekel(installmentAmount(info.total, installments)))}</p>
-
-          {/* One label for the box and its text: the whole row is the target (at least 48px tall). */}
-          <label htmlFor={CONSENT_ID} className="mt-6 flex min-h-12 cursor-pointer items-start gap-3">
-            <input
-              id={CONSENT_ID}
-              type="checkbox"
-              checked={consent}
-              onChange={(event) => setConsent(event.target.checked)}
-              aria-labelledby={CONSENT_LABEL_ID}
-              aria-describedby={CONSENT_HELP_ID}
-              className="mt-0.5 h-7 w-7 shrink-0 cursor-pointer accent-blue-deep"
-            />
-            <span>
-              <span id={CONSENT_LABEL_ID} className="block font-display font-bold">
-                {C.consentLabel}
-              </span>
-              <span id={CONSENT_HELP_ID} className="mt-1 block text-ink-soft">
-                {gendered(gender, C.consentHelp)}
-              </span>
-            </span>
-          </label>
         </div>
       ) : (
         <p className="mt-6 text-lead">{C.monthlyTerms.replace("{amount}", formatShekel(info.price))}</p>
@@ -160,8 +156,8 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
       ) : null}
 
       <div className="mt-7 grid gap-3">
-        <Button size="lg" className="w-full" onClick={() => void pay()} disabled={status.kind === "redirecting"}>
-          {status.kind === "redirecting" ? C.paying : C.pay}
+        <Button size="lg" className="w-full" onClick={() => void pay()} disabled={busy}>
+          {status.kind === "redirecting" ? C.paying : status.kind === "wallet" ? C.openingWallet : C.pay}
         </Button>
         <p className="flex items-center justify-center gap-2 text-center text-ink-soft">
           <LockIcon className="h-5 w-5 shrink-0" />
