@@ -18,7 +18,7 @@ test("signed out, annual in 6 installments: verifies the phone, opens Grow's wal
   await page.getByRole("button", { name: C.pay }).click();
   await expect(page.getByRole("button", { name: C.openingWallet })).toBeDisabled();
   await expect.poll(() => walletSeen(page)).toEqual(["DEV", 1, ["e2e-auth-code"]]);
-  expect(sent).toEqual([{ plan: "ANNUAL", installments: 6, fullName: "רחל כהן", email: "r@example.com" }]);
+  expect(sent).toEqual([{ plan: "ANNUAL", installments: 6, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 828 }]);
   // The SDK is served from Grow's CDN address: the checkout's CSP lets it load.
   expect(await violations()).toEqual([]);
   await walletEvent(page, "onSuccess", { status: 1 });
@@ -79,7 +79,7 @@ test("monthly: no installments, standing-order terms, hands off to Grow's hosted
   await expect(page.getByText("חיוב חודשי של 99 ₪ בהוראת קבע")).toBeVisible();
   await page.getByRole("button", { name: C.pay }).click();
   await page.waitForURL(GROW_URL);
-  expect(sent).toEqual([{ plan: "MONTHLY", installments: 1, fullName: "רחל כהן", email: "r@example.com" }]);
+  expect(sent).toEqual([{ plan: "MONTHLY", installments: 1, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 99 }]);
 });
 
 test("already subscribed: explains, offers the apps, stays on the site", async ({ page }) => {
@@ -91,6 +91,18 @@ test("already subscribed: explains, offers the apps, stays on the site", async (
   await expect(page.getByRole("alert").filter({ hasText: C.errors.already_subscribed })).toBeVisible();
   await expect(page.getByRole("link", { name: "App Store" }).first()).toBeVisible();
   await expect(page).toHaveURL(/\/payment/);
+});
+
+test("the price changed since the page loaded: says so, charges nothing, and the summary stays for a retry", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  const sent = await stubFunctions(page, { status: 409, body: { code: "price_changed" } });
+  await openCheckout(page);
+  await signUp(page);
+  await page.getByRole("button", { name: C.pay }).click();
+  await expect(page.getByRole("alert").filter({ hasText: C.errors.price_changed })).toBeVisible();
+  await expect(page.getByRole("button", { name: C.pay })).toBeEnabled();
+  await expect(page).toHaveURL(/\/payment/);
+  expect(sent).toHaveLength(1);
 });
 
 test("keys not set yet: the dormant answer sends buyers to the apps", async ({ page }) => {

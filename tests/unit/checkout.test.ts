@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clearCheckoutDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
+  checkoutSteps, clampInstallments, clearCheckoutDraft, takeResumableDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
   readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
-import { PLANS } from "@/lib/constants";
 
 function memoryStorage(seed: Record<string, string> = {}) {
   const map = new Map(Object.entries(seed));
@@ -16,7 +15,7 @@ function memoryStorage(seed: Record<string, string> = {}) {
 
 const invoker = (result: unknown) => ({ functions: { invoke: vi.fn().mockResolvedValue(result) } });
 const httpError = (status: number) => ({ data: null, error: { name: "FunctionsHttpError", context: { status } } });
-const INPUT = { plan: "ANNUAL" as const, installments: 6, fullName: "רחל כהן", email: "r@example.com" };
+const INPUT = { plan: "ANNUAL" as const, installments: 6, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 828 };
 const HOSTED = "https://sandbox.meshulam.co.il/s/abc";
 
 describe("checkout steps", () => {
@@ -29,14 +28,6 @@ describe("checkout steps", () => {
   });
   it("maps site plans to edge-function plans", () => {
     expect([toWebPlan("annual"), toWebPlan("monthly")]).toEqual(["ANNUAL", "MONTHLY"]);
-  });
-});
-
-describe("plan charges", () => {
-  it("charges the annual total of 828 in up to 12 installments, and 99 monthly; price is display only", () => {
-    const [annual, monthly] = PLANS;
-    expect([annual.total, annual.maxInstallments, annual.price]).toEqual([828, 12, 69]);
-    expect([monthly.total, monthly.maxInstallments, monthly.price]).toEqual([99, 1, 99]);
   });
 });
 
@@ -70,6 +61,15 @@ describe("startPayment", () => {
     [500, "processor_error"], [502, "processor_error"], [503, "not_configured"], [504, "network"],
   ])("maps HTTP %i to %s", async (status, error) => {
     expect(await startPayment(invoker(httpError(status)) as never, INPUT)).toEqual({ error });
+  });
+  it("a 409 says which conflict: the price changed since the page loaded, or a subscription exists", async () => {
+    const reply = (body: unknown) => ({
+      data: null,
+      error: { name: "FunctionsHttpError", context: { status: 409, json: async () => body } },
+    });
+    expect(await startPayment(invoker(reply({ code: "price_changed" })) as never, INPUT)).toEqual({ error: "price_changed" });
+    expect(await startPayment(invoker(reply({ code: "already_subscribed" })) as never, INPUT)).toEqual({ error: "already_subscribed" });
+    expect(await startPayment(invoker(reply(null)) as never, INPUT)).toEqual({ error: "already_subscribed" });
   });
   it("a 400 on the phone means the session has no usable phone: verify it again", async () => {
     const reply = (body: unknown) => ({
@@ -175,5 +175,37 @@ describe("resumableDraft", () => {
   it("no draft, nothing to resume", () => {
     expect(resumableDraft(null, "annual")).toBeNull();
     expect(resumableDraft(null, undefined)).toBeNull();
+  });
+});
+
+describe("the draft a visit resumes", () => {
+  const DRAFT = '{"plan":"annual","name":"רחל כהן","email":"r@example.com","installments":6}';
+  it("keeps a draft the visit may resume, and discards one another plan's link replaces", () => {
+    const keep = memoryStorage({ "ap.checkout.draft": DRAFT });
+    expect(takeResumableDraft(undefined, keep)?.plan).toBe("annual");
+    expect(keep.getItem("ap.checkout.draft")).toBe(DRAFT);
+    const stale = memoryStorage({ "ap.checkout.draft": DRAFT });
+    expect(takeResumableDraft("monthly", stale)).toBeNull();
+    expect(stale.getItem("ap.checkout.draft")).toBeNull();
+    expect(takeResumableDraft(undefined, memoryStorage())).toBeNull();
+  });
+});
+
+describe("installments against the ceiling", () => {
+  it("a resumed draft of 12 against a ceiling of 6 becomes 6; nonsense becomes 1", () => {
+    expect(clampInstallments(12, 6)).toBe(6);
+    expect(clampInstallments(3, 6)).toBe(3);
+    expect(clampInstallments(6, 6)).toBe(6);
+    expect(clampInstallments(0, 6)).toBe(1);
+    expect(clampInstallments(2.5, 6)).toBe(1);
+    expect(clampInstallments(4, 1)).toBe(1);
+  });
+});
+
+describe("price copy", () => {
+  it("tells the buyer when the price changed under them, and when prices cannot be shown", async () => {
+    const { CHECKOUT_COPY } = await import("@/lib/payment/copy");
+    expect(CHECKOUT_COPY.errors.price_changed).toBe("המחיר או מספר התשלומים עודכנו. בדקו את הפרטים ונסו שוב.");
+    expect(CHECKOUT_COPY.pricesUnavailable).toMatch(/המחירים/);
   });
 });

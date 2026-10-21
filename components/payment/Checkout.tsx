@@ -9,11 +9,11 @@ import { CheckIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadSession } from "@/lib/funnel/storage";
 import {
-  checkoutSteps, isEmail, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
+  checkoutSteps, clampInstallments, isEmail, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
 } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
-import { formatShekel } from "@/lib/pricing";
+import { priceLabel, type PlanPrices } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { EmailStep, NameStep } from "./CheckoutFields";
@@ -37,6 +37,8 @@ async function loadIdentity(): Promise<Identity> {
 
 type Props = {
   plan: PlanId;
+  /** web_plans, from the page: what the summary shows and what it tells createGrowPayment to expect. */
+  prices: PlanPrices;
   /** The draft PaymentFlow resumed the checkout from (read once there); null for a fresh checkout. */
   initialDraft: CheckoutDraft | null;
   /** Returns the buyer to the plan cards above (the choice stays live). */
@@ -44,7 +46,7 @@ type Props = {
 };
 
 /** The checkout steps under the plan selector: identity, invoice email, then the summary that hands off to Grow. */
-export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
+export default function Checkout({ plan, prices, initialDraft, onChangePlan }: Props) {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [steps, setSteps] = useState<CheckoutStep[]>([]);
   const [index, setIndex] = useState(0);
@@ -62,6 +64,9 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
   // Only the draft the checkout opened with: later renders never restart the identity load below.
   const resumed = useRef(initialDraft);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
+  // Installments only split the annual plan. The count chosen is the state held to web_plans' annual ceiling (a
+  // resumed draft or a refresh after price_changed may carry more): it is what shows, what is saved and what is charged.
+  const chosen = clampInstallments(installments, prices.annual.maxInstallments);
 
   // First load, and again after Otp's router.push("/payment") remounts the page: resume from the draft.
   useEffect(() => {
@@ -87,8 +92,8 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
   }, []);
 
   useEffect(() => {
-    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments });
-  }, [identity, entered, plan, name, email, installments]);
+    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments: chosen });
+  }, [identity, entered, plan, name, email, chosen]);
 
   // After the checkout opens and after every step change, the heading takes focus (and scrolls into view, under
   // the sticky header via scroll-mt): the submit button that had focus is gone with the step it belonged to.
@@ -167,11 +172,13 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
   ) : (
     <CheckoutSummary
       plan={plan}
+      price={prices[plan]}
+      priceText={priceLabel(prices, plan)}
       name={name}
       email={email}
       phone={identity.phone}
       gender={gender}
-      installments={installments}
+      installments={chosen}
       onInstallments={setInstallments}
       onEdit={goTo}
       onSignedOut={signInAgain}
@@ -191,7 +198,7 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
             {C.heading}
           </h2>
           <p className="mt-4 flex flex-wrap items-center gap-x-3 text-lead text-ink-soft">
-            {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${formatShekel(info.price)} ${info.priceSuffix}`}</strong>
+            {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${priceLabel(prices, plan)}`}</strong>
             <button type="button" className={LINKISH} onClick={onChangePlan}>
               {C.changePlan}
             </button>

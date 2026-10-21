@@ -1,7 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PLANS, type PlanId } from "@/lib/constants";
+import type { PlanId } from "@/lib/constants";
 import { GENDER_FOR_PAYMENT } from "@/lib/funnel/storage";
 import type { Answers } from "@/lib/funnel/types";
+import { MAX_INSTALLMENTS } from "@/lib/pricing";
 import { isWalletEnvironment, type WalletEnvironment } from "./grow-wallet";
 
 export type WebPlan = "ANNUAL" | "MONTHLY";
@@ -41,9 +42,11 @@ export function isGrowHostedUrl(value: string): boolean {
   }
 }
 
-export type StartInput = { plan: WebPlan; installments: number; fullName: string; email: string };
+/** expectedTotal: the total the page showed; createGrowPayment refuses (409 price_changed) when web_plans now says otherwise. */
+export type StartInput = { plan: WebPlan; installments: number; fullName: string; email: string; expectedTotal: number };
 export type StartError =
-  | "already_subscribed" | "invalid_input" | "signed_out" | "rate_limited" | "not_configured" | "processor_error" | "network";
+  | "already_subscribed" | "price_changed" | "invalid_input" | "signed_out" | "rate_limited" | "not_configured" | "processor_error"
+  | "network";
 /** Annual: the authCode Grow's wallet SDK opens with. Monthly: Grow's hosted page to go to. */
 export type StartResult =
   | { url: string; webPaymentId: string }
@@ -65,13 +68,13 @@ const STATUS_ERROR: Record<number, StartError> = {
 
 type ErrorContext = { status?: unknown; json?: () => Promise<unknown> };
 
-/** The field a 400 names ({ code: "invalid_input", field }), or null when the body is unreadable. */
-async function invalidField(context: ErrorContext | undefined): Promise<unknown> {
+/** The error body ({ code, field? }), or an empty one when it is unreadable. */
+async function errorBody(context: ErrorContext | undefined): Promise<{ code?: unknown; field?: unknown }> {
   try {
     const body = await context?.json?.();
-    return body && typeof body === "object" ? (body as { field?: unknown }).field ?? null : null;
+    return body && typeof body === "object" ? (body as { code?: unknown; field?: unknown }) : {};
   } catch {
-    return null;
+    return {};
   }
 }
 
@@ -80,7 +83,8 @@ async function errorFor(error: unknown): Promise<StartError> {
   const status = context?.status;
   if (typeof status !== "number") return "network";
   // The phone comes from the session (the JWT), not the form: re-verifying it is the only fix.
-  if (status === 400 && (await invalidField(context)) === "phone") return "signed_out";
+  if (status === 400 && (await errorBody(context)).field === "phone") return "signed_out";
+  if (status === 409 && (await errorBody(context)).code === "price_changed") return "price_changed";
   return STATUS_ERROR[status] ?? "network";
 }
 
@@ -162,7 +166,11 @@ export function readPaymentGender(storage: Store | undefined = browserSession())
 }
 
 const DRAFT_KEY = "ap.checkout.draft";
-const MAX_INSTALLMENTS = Math.max(...PLANS.map((p) => p.maxInstallments));
+
+/** An installment count held to the plan's ceiling from web_plans: what the state, the draft and the charge all use. */
+export function clampInstallments(count: number, ceiling: number): number {
+  return Number.isInteger(count) && count >= 1 ? Math.min(count, ceiling) : 1;
+}
 
 /**
  * What the buyer typed, kept in this tab until the success page: it reopens
@@ -201,6 +209,14 @@ export function resumableDraft(draft: CheckoutDraft | null, linkPlan: PlanId | u
 
 export function clearCheckoutDraft(storage: Store | undefined = browserSession()): void {
   safeWrite(storage, DRAFT_KEY, null);
+}
+
+/** The stored draft this visit may resume; a stored draft it may not (another plan's link) is discarded. */
+export function takeResumableDraft(linkPlan: PlanId | undefined, storage: Store | undefined = browserSession()): CheckoutDraft | null {
+  const stored = readCheckoutDraft(storage);
+  const resumable = resumableDraft(stored, linkPlan);
+  if (!resumable && stored) clearCheckoutDraft(storage);
+  return resumable;
 }
 
 type Listenable = Pick<EventTarget, "addEventListener" | "removeEventListener">;

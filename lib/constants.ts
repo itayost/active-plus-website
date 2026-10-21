@@ -37,23 +37,22 @@ export const NAV = [
 export const FIT_CHECK = { href: "/questionnaire", label: "בדיקת התאמה" } as const;
 
 /**
- * Two plans. The annual is one charge of 828 ₪ (shown as 69 ₪ a month) that
- * the buyer may split into up to 12 installments; the monthly recurs at 99 ₪
- * with no commitment. The charge amount is always `total`, never `price`.
- *
- * The saving shown is computed from the prices by annualSavings() in
- * lib/pricing.ts (99 x 12 - 828 = 360), never typed by hand.
+ * Two plans: the annual is one charge the buyer may split into installments,
+ * shown spread over its 12 months; the monthly recurs with no commitment.
+ * Their copy lives here, their prices do not: the total and the installment
+ * ceiling come from Supabase's web_plans (lib/plan-prices.ts), the same rows
+ * createGrowPayment charges, and every figure shown (per month, total,
+ * installments, the saving) is derived from them in lib/pricing.ts.
  */
 export const PLANS = [
   {
     id: "annual",
     name: "שנתי",
     longName: "מנוי שנתי",
-    price: 69,
+    months: 12,
     priceSuffix: "לחודש",
-    terms: "ל-12 תשלומים · מנוי שנתי",
-    total: 828,
-    maxInstallments: 12,
+    /** After the installment count, which comes from web_plans (lib/pricing.ts annualCardCopy). */
+    terms: "מנוי שנתי",
     badge: "מנוי שנתי – החיסכון הגדול",
     cta: "לבחירת המנוי השנתי",
     image: "/img/v2/plan-annual.webp",
@@ -64,11 +63,9 @@ export const PLANS = [
     id: "monthly",
     name: "חודשי",
     longName: "מנוי חודשי",
-    price: 99,
+    months: 1,
     priceSuffix: "לחודש",
     terms: "חיוב חודשי, ללא התחייבות",
-    total: 99,
-    maxInstallments: 1,
     cta: "לבחירה",
     image: "/img/v2/plan-monthly.webp",
     alt: "",

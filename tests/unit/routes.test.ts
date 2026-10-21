@@ -1,9 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PROGRAM_CARDS, FIT_CHECK, NAV } from "@/lib/constants";
 import { SITE_ROUTES } from "@/lib/routes";
 import { ARTICLES } from "@/content/articles";
 import sitemap from "@/app/sitemap";
-import { metadata as paymentMetadata } from "@/app/payment/page";
+import { generateMetadata as paymentMetadata } from "@/app/payment/page";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+});
 
 describe("routes", () => {
   it("contains the main pages, three explainers and both legal pages", () => {
@@ -23,10 +29,20 @@ describe("routes", () => {
   it("the menu does not list the pricing page", () => {
     expect(NAV.map((n) => n.href)).toEqual(["/about", "/research", "/team", "/#faq", "/contact"]);
   });
-  it("the pricing page stays served for the questionnaire's hand-off, unlisted and noindex", () => {
+  it("the pricing page stays served for the questionnaire's hand-off, unlisted and noindex", async () => {
     expect(SITE_ROUTES).toContain("/payment");
     expect(sitemap().map((entry) => new URL(entry.url).pathname)).not.toContain("/payment");
-    expect(paymentMetadata.robots).toMatchObject({ index: false });
+    // Never a live Supabase here, even with NEXT_PUBLIC_SUPABASE_URL exported: the read fails, so the description
+    // names no price.
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://stub.supabase.invalid");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon");
+    const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
+    vi.stubGlobal("fetch", fetcher);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const metadata = await paymentMetadata();
+    expect(metadata.robots).toMatchObject({ index: false });
+    expect(metadata.description).not.toMatch(/\d/);
+    expect(fetcher.mock.calls.every(([url]) => String(url).startsWith("https://stub.supabase.invalid/"))).toBe(true);
   });
   it("article slugs are unique", () => {
     const slugs = ARTICLES.map((a) => a.slug);
