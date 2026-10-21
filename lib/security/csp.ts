@@ -1,12 +1,13 @@
 /**
- * The site's Content-Security-Policy. Everything the pages load is
- * first-party: next/font self-hosts the fonts, the hero video and images are
- * served from the site, and the only cross-origin calls go to Supabase (auth,
- * REST, edge functions), allowed by its exact origin. The monthly plan is a
+ * The site's Content-Security-Policy. Outside /payment everything the pages
+ * load is first-party: next/font self-hosts the fonts, the hero video and
+ * images are served from the site, and the only cross-origin calls go to
+ * Supabase (auth, REST, edge functions), allowed by its exact origin. The monthly plan is a
  * full-page redirect to Grow's hosted page (D1): top-level navigation is
  * outside CSP, and the target is checked by isGrowHostedUrl on the server and
  * in the browser. The annual plan opens Grow's wallet SDK over /payment, so
- * that page alone (growWallet) also allows the hosts the SDK uses.
+ * that page alone (growWallet) also allows the hosts the SDK uses, its
+ * fonts included.
  *
  * script-src keeps 'unsafe-inline': the App Router writes inline
  * self.__next_f.push(...) bootstrap scripts that differ per page and per
@@ -30,22 +31,26 @@ function originOf(url: string | undefined): string | null {
  * mp.min.js and its config/params.json), for both its DEV and PRODUCTION
  * environments: the loader, runtime, stylesheet and fonts on the CDN; its API
  * (sdk., or dev. in DEV), analytics (ga.) and PayBox (paybox.grow.security);
- * the card form, a frame from Grow; and Google Pay, which it offers. Google
- * Pay's pay.js checks readiness at google.com/pay; when that is blocked the
- * wallet drops Google Pay, and with no method left it does not open.
+ * the card form, a frame from Grow; and Google Pay, which it offers, read
+ * from pay.js: pay.google.com, and pay.sandbox.google.com in its TEST
+ * environment. Chrome fetches Google Pay's method manifest at google.com/pay,
+ * which redirects to www.google.com/pay, so connect-src needs both; when it
+ * is blocked the wallet drops Google Pay, and with no method left it does
+ * not open.
  */
 const GROW_CDN = "https://cdn.meshulam.co.il";
-const GOOGLE_PAY = "https://pay.google.com";
+const GOOGLE_PAY = ["https://pay.google.com", "https://pay.sandbox.google.com"] as const;
+const GOOGLE_PAY_MANIFEST = ["https://google.com/pay", "https://www.google.com/pay"] as const;
 export const GROW_WALLET_SOURCES = {
-  script: [GROW_CDN, GOOGLE_PAY],
+  script: [GROW_CDN, GOOGLE_PAY[0]],
   style: [GROW_CDN],
   font: [GROW_CDN],
-  img: [GROW_CDN, "https://www.gstatic.com"],
+  img: [GROW_CDN, "https://www.gstatic.com", ...GOOGLE_PAY],
   connect: [
     GROW_CDN, "https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", "https://ga.meshulam.co.il",
-    "https://paybox.grow.security", "https://devpaybox.grow.security", GOOGLE_PAY, "https://google.com/pay",
+    "https://paybox.grow.security", "https://devpaybox.grow.security", ...GOOGLE_PAY, ...GOOGLE_PAY_MANIFEST,
   ],
-  frame: ["https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", ...GROW_HOSTED_ORIGINS, GOOGLE_PAY],
+  frame: ["https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", ...GROW_HOSTED_ORIGINS, ...GOOGLE_PAY],
 } as const;
 
 export function buildCsp(supabaseUrl: string | undefined, options: { growWallet?: boolean } = {}): string {
