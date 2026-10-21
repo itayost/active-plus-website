@@ -28,19 +28,22 @@ function originOf(url: string | undefined): string | null {
 /**
  * What Grow's wallet SDK loads, read from its scripts (gs.min.js, the runtime
  * mp.min.js and its config/params.json), for both its DEV and PRODUCTION
- * environments: the loader, runtime and stylesheet on the CDN; its API
+ * environments: the loader, runtime, stylesheet and fonts on the CDN; its API
  * (sdk., or dev. in DEV), analytics (ga.) and PayBox (paybox.grow.security);
- * the card form, a frame from Grow; and Google Pay, which it offers.
+ * the card form, a frame from Grow; and Google Pay, which it offers. Google
+ * Pay's pay.js checks readiness at google.com/pay; when that is blocked the
+ * wallet drops Google Pay, and with no method left it does not open.
  */
 const GROW_CDN = "https://cdn.meshulam.co.il";
 const GOOGLE_PAY = "https://pay.google.com";
 export const GROW_WALLET_SOURCES = {
   script: [GROW_CDN, GOOGLE_PAY],
   style: [GROW_CDN],
+  font: [GROW_CDN],
   img: [GROW_CDN, "https://www.gstatic.com"],
   connect: [
     GROW_CDN, "https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", "https://ga.meshulam.co.il",
-    "https://paybox.grow.security", "https://devpaybox.grow.security", GOOGLE_PAY,
+    "https://paybox.grow.security", "https://devpaybox.grow.security", GOOGLE_PAY, "https://google.com/pay",
   ],
   frame: ["https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", ...GROW_HOSTED_ORIGINS, GOOGLE_PAY],
 } as const;
@@ -54,7 +57,7 @@ export function buildCsp(supabaseUrl: string | undefined, options: { growWallet?
     ["script-src", ["'self'", "'unsafe-inline'", ...wallet("script")]],
     ["style-src", ["'self'", "'unsafe-inline'", ...wallet("style")]],
     ["img-src", ["'self'", "data:", "blob:", ...wallet("img")]],
-    ["font-src", ["'self'"]],
+    ["font-src", ["'self'", ...wallet("font")]],
     ["media-src", ["'self'"]],
     ["connect-src", ["'self'", ...(supabase ? [supabase] : []), ...wallet("connect")]],
     ["frame-src", frames.length > 0 ? frames : ["'none'"]],
