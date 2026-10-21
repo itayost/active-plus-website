@@ -1,6 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { refreshPlanPrices } from "@/app/payment/actions";
 import Button from "@/components/ui/Button";
 import { fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
@@ -10,7 +12,7 @@ import { onRestoredFromCache, saveCheckoutDraft, startPayment, toWebPlan, type C
 import { openGrowWallet, type WalletOutcome } from "@/lib/payment/grow-wallet";
 import { CHECKOUT_COPY as C, gendered } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
-import { formatShekel, installmentAmount } from "@/lib/pricing";
+import { formatShekel, installmentAmount, type PlanPrice } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { STEP_QUESTION } from "./CheckoutFields";
@@ -21,6 +23,10 @@ const SUCCESS_PATH = "/payment/success";
 
 type Props = {
   plan: PlanId;
+  /** The plan's web_plans row: the total charged, sent as expectedTotal, and the installment ceiling. */
+  price: PlanPrice;
+  /** The "לחודש" figure, derived from the same row. */
+  perMonth: number;
   name: string;
   email: string;
   phone: string | null;
@@ -47,12 +53,17 @@ function errorText(error: PayError, gender: Answers["gender"]): string {
   return typeof text === "string" ? text : gendered(gender, text);
 }
 
-export default function CheckoutSummary({ plan, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut }: Props) {
+export default function CheckoutSummary({
+  plan, price, perMonth, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut,
+}: Props) {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   // Back from Grow through the back/forward cache: the page returns as it left, mid-redirect. Make the button usable again.
   useEffect(() => onRestoredFromCache(() => setStatus({ kind: "idle" })), []);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
   const annual = plan === "annual";
+  // A draft from before web_plans lowered the ceiling still opens: the count is held to today's ceiling.
+  const count = annual ? Math.min(installments, price.maxInstallments) : 1;
 
   const busy = status.kind === "redirecting" || status.kind === "wallet";
 
@@ -61,7 +72,7 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
     setStatus({ kind: annual ? "wallet" : "redirecting" });
     const supabase = await loadBrowserSupabase();
     const result = supabase
-      ? await startPayment(supabase, { plan: toWebPlan(plan), installments: annual ? installments : 1, fullName: name, email })
+      ? await startPayment(supabase, { plan: toWebPlan(plan), installments: count, fullName: name, email, expectedTotal: price.total })
       : ({ error: "network" } as const);
     if ("url" in result || "authCode" in result) {
       // Stored before paying: the success page reads the invoice email from the draft.
@@ -85,12 +96,17 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
       return;
     }
     setStatus({ kind: "error", error: result.error });
+    if (result.error === "price_changed") {
+      // Nothing was charged: drop the cached web_plans and re-render, so the summary shows the new price before a retry.
+      await refreshPlanPrices().catch(() => undefined);
+      router.refresh();
+    }
   };
 
   const rows: Row[] = [
     { label: C.rows.plan, value: info.longName },
-    { label: C.rows.price, value: `${formatShekel(info.price)} ${info.priceSuffix}` },
-    { label: C.rows.total, value: formatShekel(info.total), total: true },
+    { label: C.rows.price, value: `${formatShekel(perMonth)} ${info.priceSuffix}` },
+    { label: C.rows.total, value: formatShekel(price.total), total: true },
     { label: C.rows.name, value: name, edit: "name" },
     { label: C.rows.email, value: email, edit: "email", ltr: true },
     ...(phone ? [{ label: C.rows.phone, value: formatLocal(phone), ltr: true }] : []),
@@ -128,11 +144,11 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
           <div className="relative">
             <select
               id={INSTALLMENTS_ID}
-              value={installments}
+              value={count}
               onChange={(event) => onInstallments(Number(event.target.value))}
               className={cn(fieldClass(false), "cursor-pointer appearance-none pe-[3.25rem]")}
             >
-              {Array.from({ length: info.maxInstallments }, (_, i) => i + 1).map((n) => (
+              {Array.from({ length: price.maxInstallments }, (_, i) => i + 1).map((n) => (
                 <option key={n} value={n}>
                   {n === 1 ? C.singlePayment : C.installmentOption.replace("{n}", String(n))}
                 </option>
@@ -140,10 +156,10 @@ export default function CheckoutSummary({ plan, name, email, phone, gender, inst
             </select>
             <ChevronIcon className="pointer-events-none absolute end-4 top-1/2 h-[22px] w-[22px] -translate-y-1/2 text-ink-soft" />
           </div>
-          <p className="mt-2 text-ink-soft" aria-live="polite">{C.perInstallment.replace("{amount}", formatShekel(installmentAmount(info.total, installments)))}</p>
+          <p className="mt-2 text-ink-soft" aria-live="polite">{C.perInstallment.replace("{amount}", formatShekel(installmentAmount(price.total, count)))}</p>
         </div>
       ) : (
-        <p className="mt-6 text-lead">{C.monthlyTerms.replace("{amount}", formatShekel(info.price))}</p>
+        <p className="mt-6 text-lead">{C.monthlyTerms.replace("{amount}", formatShekel(price.total))}</p>
       )}
 
       {status.kind === "error" ? (

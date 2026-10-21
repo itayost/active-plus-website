@@ -13,7 +13,7 @@ import {
 } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
-import { formatShekel } from "@/lib/pricing";
+import { formatShekel, pricePerMonth, type PlanPrices } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { EmailStep, NameStep } from "./CheckoutFields";
@@ -37,6 +37,8 @@ async function loadIdentity(): Promise<Identity> {
 
 type Props = {
   plan: PlanId;
+  /** web_plans, from the page: what the summary shows and what it tells createGrowPayment to expect. */
+  prices: PlanPrices;
   /** The draft PaymentFlow resumed the checkout from (read once there); null for a fresh checkout. */
   initialDraft: CheckoutDraft | null;
   /** Returns the buyer to the plan cards above (the choice stays live). */
@@ -44,7 +46,7 @@ type Props = {
 };
 
 /** The checkout steps under the plan selector: identity, invoice email, then the summary that hands off to Grow. */
-export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
+export default function Checkout({ plan, prices, initialDraft, onChangePlan }: Props) {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [steps, setSteps] = useState<CheckoutStep[]>([]);
   const [index, setIndex] = useState(0);
@@ -167,6 +169,8 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
   ) : (
     <CheckoutSummary
       plan={plan}
+      price={prices[plan]}
+      perMonth={pricePerMonth(prices, plan)}
       name={name}
       email={email}
       phone={identity.phone}
@@ -191,7 +195,7 @@ export default function Checkout({ plan, initialDraft, onChangePlan }: Props) {
             {C.heading}
           </h2>
           <p className="mt-4 flex flex-wrap items-center gap-x-3 text-lead text-ink-soft">
-            {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${formatShekel(info.price)} ${info.priceSuffix}`}</strong>
+            {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${formatShekel(pricePerMonth(prices, plan))} ${info.priceSuffix}`}</strong>
             <button type="button" className={LINKISH} onClick={onChangePlan}>
               {C.changePlan}
             </button>

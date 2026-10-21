@@ -1,15 +1,36 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import ArticlesStrip from "@/components/articles/ArticlesStrip";
 import PaymentFlow from "@/components/payment/PaymentFlow";
 import { PLANS, type PlanId } from "@/lib/constants";
+import { loadPlanPrices } from "@/lib/plan-prices";
+import { formatShekel, pricePerMonth, type PlanPrices } from "@/lib/pricing";
 
-export const metadata: Metadata = {
-  title: "מסלולים ומחירים",
-  description: "מנוי שנתי ב־69 ₪ לחודש (חיוב אחד של 828 ₪, עד 12 תשלומים) או מנוי חודשי ב־99 ₪, ללא התחייבות. שני המסלולים כוללים תוכנית אימון מותאמת אישית.",
-  // Unlisted at the client's request: reached only from the questionnaire's
-  // hand-off, so search engines should not offer it either.
-  robots: { index: false, follow: true },
-};
+const TITLE = "מסלולים ומחירים";
+// One web_plans read per request, shared by the metadata and the page.
+const planPrices = cache(() => loadPlanPrices());
+const INCLUDED = "שני המסלולים כוללים תוכנית אימון מותאמת אישית.";
+
+/** The description search and share previews show, written from web_plans; without prices it names no figure. */
+function describePlans(prices: PlanPrices | null): string {
+  if (!prices) return `מנוי שנתי או מנוי חודשי ללא התחייבות. ${INCLUDED}`;
+  const { annual, monthly } = prices;
+  return (
+    `מנוי שנתי ב־${formatShekel(pricePerMonth(prices, "annual"))} לחודש ` +
+    `(חיוב אחד של ${formatShekel(annual.total)}, עד ${annual.maxInstallments} תשלומים) ` +
+    `או מנוי חודשי ב־${formatShekel(monthly.total)}, ללא התחייבות. ${INCLUDED}`
+  );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: TITLE,
+    description: describePlans(await planPrices()),
+    // Unlisted at the client's request: reached only from the questionnaire's
+    // hand-off, so search engines should not offer it either.
+    robots: { index: false, follow: true },
+  };
+}
 
 /** The plan an explicit link names; undefined without one (or with an unknown one). */
 function parsePlan(value: string | string[] | undefined): PlanId | undefined {
@@ -22,15 +43,19 @@ export default async function PaymentPage({
 }: {
   searchParams: Promise<{ plan?: string | string[]; cancelled?: string | string[] }>;
 }) {
-  const { plan, cancelled } = await searchParams;
+  const [{ plan, cancelled }, prices] = await Promise.all([searchParams, planPrices()]);
   return (
     <>
-      <PaymentFlow linkPlan={parsePlan(plan)} cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}>
+      <PaymentFlow
+        prices={prices}
+        linkPlan={parsePlan(plan)}
+        cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}
+      >
         <h1
           id="payment-heading"
           className="max-w-measure font-display text-[clamp(1.75rem,1.35rem+1.6vw,3rem)] font-extrabold leading-[1.15] text-blue"
         >
-          מסלולים ומחירים
+          {TITLE}
         </h1>
       </PaymentFlow>
 

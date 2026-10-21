@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { PROGRAM_CARDS, FIT_CHECK, NAV } from "@/lib/constants";
 import { SITE_ROUTES } from "@/lib/routes";
 import { ARTICLES } from "@/content/articles";
 import sitemap from "@/app/sitemap";
-import { metadata as paymentMetadata } from "@/app/payment/page";
+import { generateMetadata as paymentMetadata } from "@/app/payment/page";
 
 describe("routes", () => {
   it("contains the main pages, three explainers and both legal pages", () => {
@@ -23,10 +23,15 @@ describe("routes", () => {
   it("the menu does not list the pricing page", () => {
     expect(NAV.map((n) => n.href)).toEqual(["/about", "/research", "/team", "/#faq", "/contact"]);
   });
-  it("the pricing page stays served for the questionnaire's hand-off, unlisted and noindex", () => {
+  it("the pricing page stays served for the questionnaire's hand-off, unlisted and noindex", async () => {
     expect(SITE_ROUTES).toContain("/payment");
     expect(sitemap().map((entry) => new URL(entry.url).pathname)).not.toContain("/payment");
-    expect(paymentMetadata.robots).toMatchObject({ index: false });
+    // No Supabase in unit tests: web_plans cannot be read, and the description then names no price.
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const metadata = await paymentMetadata();
+    expect(metadata.robots).toMatchObject({ index: false });
+    expect(metadata.description).not.toMatch(/\d/);
+    vi.restoreAllMocks();
   });
   it("article slugs are unique", () => {
     const slugs = ARTICLES.map((a) => a.slug);

@@ -8,11 +8,14 @@ import type { PlanId } from "@/lib/constants";
 import { clearCheckoutDraft, readCheckoutDraft, resumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
+import type { PlanPrices } from "@/lib/pricing";
 import { CheckoutLoading } from "./CheckoutShell";
 
 type CheckoutForm = (typeof import("./Checkout"))["default"];
 
 type Props = {
+  /** web_plans, read by the page on the server; null when they could not be read. */
+  prices: PlanPrices | null;
   /** The plan an explicit `/payment?plan=` link asks for (validated by the page); undefined without one. */
   linkPlan?: PlanId;
   /** Back from Grow's cancel URL (`/payment?cancelled=1`). */
@@ -23,19 +26,38 @@ type Props = {
 
 const PLANS_TOP = "pt-[clamp(2.5rem,5vw,4.5rem)]";
 
-/** Owns the buyer's plan choice and what comes after the plans; the flag decides which path, once. */
-export default function PaymentFlow(props: Props) {
-  return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} /> : <StoreFlow {...props} />;
+type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
+
+/**
+ * Owns the buyer's plan choice and what comes after the plans; the flag decides which path, once.
+ * Without prices no plan card or checkout is shown (no figure that did not come from web_plans):
+ * a notice and the store fallback instead.
+ */
+export default function PaymentFlow({ prices, ...props }: Props) {
+  if (!prices) return <PricesUnavailable>{props.children}</PricesUnavailable>;
+  return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
+}
+
+function PricesUnavailable({ children }: { children?: ReactNode }) {
+  return (
+    <Section id="plans" labelledBy="payment-heading" className={`${PLANS_TOP} pb-0`}>
+      {children}
+      <p role="status" className="mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium">
+        {C.pricesUnavailable}
+      </p>
+      <StoreFallback />
+    </Section>
+  );
 }
 
 /** Flag off (production until Task 9): the plans, then the store fallback ends the path. */
-function StoreFlow({ linkPlan, children }: Props) {
+function StoreFlow({ prices, linkPlan, children }: Priced) {
   // With the flag off the plan buttons only jump to the store fallback; the selection is kept for the shared selector API.
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
   return (
     <Section id="plans" labelledBy="payment-heading" className={`${PLANS_TOP} pb-0`}>
       {children}
-      <PlanSelector selected={selectedPlan} onSelect={setSelectedPlan} />
+      <PlanSelector prices={prices} selected={selectedPlan} onSelect={setSelectedPlan} />
       <StoreFallback />
     </Section>
   );
@@ -49,7 +71,7 @@ function StoreFlow({ linkPlan, children }: Props) {
  * resumes the checkout the buyer was in.
  * The checkout is its own sunken section under the plans, as in the mockup.
  */
-function WebCheckoutFlow({ linkPlan, cancelled = false, children }: Props) {
+function WebCheckoutFlow({ prices, linkPlan, cancelled = false, children }: Priced) {
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
   const [stage, setStage] = useState<"plans" | "checkout">("plans");
   // The stored draft, read once here and handed to the checkout it reopens.
@@ -109,6 +131,7 @@ function WebCheckoutFlow({ linkPlan, cancelled = false, children }: Props) {
           </p>
         ) : null}
         <PlanSelector
+          prices={prices}
           selected={selectedPlan}
           onSelect={selectPlan}
           onContinue={checkoutOpen ? undefined : () => setStage("checkout")}
@@ -116,7 +139,11 @@ function WebCheckoutFlow({ linkPlan, cancelled = false, children }: Props) {
         />
       </Section>
       {checkoutOpen ? (
-        CheckoutView ? <CheckoutView plan={selectedPlan} initialDraft={draft} onChangePlan={changePlan} /> : <CheckoutLoading />
+        CheckoutView ? (
+          <CheckoutView plan={selectedPlan} prices={prices} initialDraft={draft} onChangePlan={changePlan} />
+        ) : (
+          <CheckoutLoading />
+        )
       ) : null}
     </>
   );
