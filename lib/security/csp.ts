@@ -36,11 +36,14 @@ function originOf(url: string | undefined): string | null {
  * environment. Chrome fetches Google Pay's method manifest at google.com/pay,
  * which redirects to www.google.com/pay, so connect-src needs both; when it
  * is blocked the wallet drops Google Pay, and with no method left it does
- * not open.
+ * not open. The card form inside the wallet is a CreditGuard (Hyp) frame
+ * whose host Grow's doPayment returns (ppsuat. in test); Hyp documents
+ * https://*.creditguard.co.il for it, the policy's only wildcard.
  */
 const GROW_CDN = "https://cdn.meshulam.co.il";
 const GOOGLE_PAY = ["https://pay.google.com", "https://pay.sandbox.google.com"] as const;
 const GOOGLE_PAY_MANIFEST = ["https://google.com/pay", "https://www.google.com/pay"] as const;
+const CREDITGUARD_FRAME = "https://*.creditguard.co.il";
 export const GROW_WALLET_SOURCES = {
   script: [GROW_CDN, GOOGLE_PAY[0]],
   style: [GROW_CDN],
@@ -50,7 +53,7 @@ export const GROW_WALLET_SOURCES = {
     GROW_CDN, "https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", "https://ga.meshulam.co.il",
     "https://paybox.grow.security", "https://devpaybox.grow.security", ...GOOGLE_PAY, ...GOOGLE_PAY_MANIFEST,
   ],
-  frame: ["https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", ...GROW_HOSTED_ORIGINS, ...GOOGLE_PAY],
+  frame: ["https://sdk.meshulam.co.il", "https://dev.meshulam.co.il", ...GROW_HOSTED_ORIGINS, ...GOOGLE_PAY, CREDITGUARD_FRAME],
 } as const;
 
 export function buildCsp(supabaseUrl: string | undefined, options: { growWallet?: boolean } = {}): string {
