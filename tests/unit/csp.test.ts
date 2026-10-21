@@ -35,19 +35,35 @@ describe("buildCsp", () => {
 
 describe("buildCsp for the checkout (Grow's wallet SDK)", () => {
   const csp = buildCsp("https://abcd.supabase.co", { growWallet: true });
-  it("adds Grow's CDN script and stylesheet, its API and card frame, and Google Pay", () => {
+  it("adds Grow's CDN script, stylesheet and fonts, its API and card frame, and Google Pay", () => {
     expect(directive(csp, "script-src")).toBe("script-src 'self' 'unsafe-inline' https://cdn.meshulam.co.il https://pay.google.com");
     expect(directive(csp, "style-src")).toBe("style-src 'self' 'unsafe-inline' https://cdn.meshulam.co.il");
-    expect(directive(csp, "connect-src")).toBe(["connect-src", "'self'", "https://abcd.supabase.co", ...GROW_WALLET_SOURCES.connect].join(" "));
-    expect(directive(csp, "frame-src")).toBe(["frame-src", ...GROW_WALLET_SOURCES.frame].join(" "));
+    expect(directive(csp, "font-src")).toBe("font-src 'self' https://cdn.meshulam.co.il");
+    // Google Pay's method manifest is at google.com/pay, which redirects to www.google.com/pay; blocked,
+    // the wallet drops Google Pay. pay.sandbox.google.com is Google Pay's TEST environment (Grow's DEV wallet).
+    expect(directive(csp, "connect-src")).toBe([
+      "connect-src 'self' https://abcd.supabase.co",
+      "https://cdn.meshulam.co.il https://sdk.meshulam.co.il https://dev.meshulam.co.il https://ga.meshulam.co.il",
+      "https://paybox.grow.security https://devpaybox.grow.security",
+      "https://pay.google.com https://pay.sandbox.google.com https://google.com/pay https://www.google.com/pay",
+    ].join(" "));
+    expect(directive(csp, "frame-src")).toBe([
+      "frame-src https://sdk.meshulam.co.il https://dev.meshulam.co.il https://secure.meshulam.co.il https://sandbox.meshulam.co.il",
+      "https://pay.google.com https://pay.sandbox.google.com",
+    ].join(" "));
+    expect(directive(csp, "img-src")).toBe(
+      "img-src 'self' data: blob: https://cdn.meshulam.co.il https://www.gstatic.com https://pay.google.com https://pay.sandbox.google.com",
+    );
   });
   it("only https origins, never a wildcard or eval, and the rest stays as on every page", () => {
-    for (const sources of Object.values(GROW_WALLET_SOURCES)) {
-      for (const source of sources) expect(source).toMatch(/^https:\/\/[a-z0-9.-]+$/);
+    // Origins only; connect-src alone may name a path (Google Pay's method manifest).
+    for (const [key, sources] of Object.entries(GROW_WALLET_SOURCES)) {
+      const source = key === "connect" ? /^https:\/\/[a-z0-9.-]+(\/[a-z0-9-]+)?$/ : /^https:\/\/[a-z0-9.-]+$/;
+      for (const value of sources) expect(value).toMatch(source);
     }
     expect(csp).not.toContain("*");
     expect(csp).not.toContain("unsafe-eval");
-    for (const name of ["default-src", "font-src", "media-src", "frame-ancestors", "form-action", "base-uri", "object-src"]) {
+    for (const name of ["default-src", "media-src", "frame-ancestors", "form-action", "base-uri", "object-src"]) {
       expect(directive(csp, name)).toBe(directive(buildCsp("https://abcd.supabase.co"), name));
     }
   });
