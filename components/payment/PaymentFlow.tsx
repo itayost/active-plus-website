@@ -5,7 +5,7 @@ import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
 import Section from "@/components/ui/Section";
 import type { PlanId } from "@/lib/constants";
-import { clearCheckoutDraft, readCheckoutDraft, resumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
+import { takeResumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import type { PlanPrices } from "@/lib/pricing";
@@ -34,15 +34,34 @@ type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
  * a notice and the store fallback instead.
  */
 export default function PaymentFlow({ prices, ...props }: Props) {
-  if (!prices) return <PricesUnavailable>{props.children}</PricesUnavailable>;
+  if (!prices) return <PricesUnavailable {...props} />;
   return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
 }
 
-function PricesUnavailable({ children }: { children?: ReactNode }) {
+const NOTICE = "mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium";
+
+/** Back from Grow's cancel URL: nothing was charged. Shown whether or not the prices could be read. */
+function CancelledNotice({ cancelled }: { cancelled: boolean }) {
+  return cancelled ? (
+    <p role="status" className={NOTICE}>
+      {C.cancelled}
+    </p>
+  ) : null;
+}
+
+/**
+ * The prices could not be read: no plan, no checkout. The cancelled notice still shows, and a stale
+ * draft is still discarded (a resumable one is kept for when the prices are back).
+ */
+function PricesUnavailable({ linkPlan, cancelled = false, children }: Omit<Props, "prices">) {
+  useEffect(() => {
+    takeResumableDraft(linkPlan);
+  }, [linkPlan]);
   return (
     <Section id="plans" labelledBy="payment-heading" className={`${PLANS_TOP} pb-0`}>
       {children}
-      <p role="status" className="mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium">
+      <CancelledNotice cancelled={cancelled} />
+      <p role="status" className={NOTICE}>
         {C.pricesUnavailable}
       </p>
       <StoreFallback />
@@ -93,12 +112,8 @@ function WebCheckoutFlow({ prices, linkPlan, cancelled = false, children }: Pric
   }, []);
 
   useEffect(() => {
-    const stored = readCheckoutDraft();
-    const resumable = resumableDraft(stored, linkPlan);
-    if (!resumable) {
-      if (stored) clearCheckoutDraft();
-      return;
-    }
+    const resumable = takeResumableDraft(linkPlan);
+    if (!resumable) return;
     setDraft(resumable);
     setSelectedPlan(resumable.plan);
     setStage("checkout");
@@ -125,11 +140,7 @@ function WebCheckoutFlow({ prices, linkPlan, cancelled = false, children }: Pric
     <>
       <Section id="plans" labelledBy="payment-heading" className={checkoutOpen ? PLANS_TOP : `${PLANS_TOP} pb-0`}>
         {children}
-        {cancelled ? (
-          <p role="status" className="mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium">
-            {C.cancelled}
-          </p>
-        ) : null}
+        <CancelledNotice cancelled={cancelled} />
         <PlanSelector
           prices={prices}
           selected={selectedPlan}

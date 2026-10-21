@@ -36,7 +36,6 @@ describe("routes", () => {
     // names no price.
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://stub.supabase.invalid");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon");
-    vi.stubEnv("PLAN_PRICES_URL", "");
     const fetcher = vi.fn().mockRejectedValue(new TypeError("offline"));
     vi.stubGlobal("fetch", fetcher);
     vi.spyOn(console, "error").mockImplementation(() => undefined);

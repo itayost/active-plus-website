@@ -211,6 +211,14 @@ export function clearCheckoutDraft(storage: Store | undefined = browserSession()
   safeWrite(storage, DRAFT_KEY, null);
 }
 
+/** The stored draft this visit may resume; a stored draft it may not (another plan's link) is discarded. */
+export function takeResumableDraft(linkPlan: PlanId | undefined, storage: Store | undefined = browserSession()): CheckoutDraft | null {
+  const stored = readCheckoutDraft(storage);
+  const resumable = resumableDraft(stored, linkPlan);
+  if (!resumable && stored) clearCheckoutDraft(storage);
+  return resumable;
+}
+
 type Listenable = Pick<EventTarget, "addEventListener" | "removeEventListener">;
 
 /**

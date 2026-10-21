@@ -59,25 +59,40 @@ export function parsePlanPrices(rows: unknown): PlanPrices {
 
 type Fetcher = (url: string, init: RequestInit) => Promise<Response>;
 
+/** A slow Supabase must not hold /payment open: past this the page shows the prices as unavailable. */
+const TIMEOUT_MS = 5_000;
+
 export type PlanPricesDeps = {
   fetcher?: Fetcher;
   env?: () => { url: string; anonKey: string };
-  /** PLAN_PRICES_URL: the e2e build points it at a local stub, since its Supabase host never resolves. */
-  overrideUrl?: string;
+  timeoutMs?: number;
 };
 
 export async function fetchPlanPrices({
   fetcher = fetch,
   env = publicSupabaseEnv,
-  overrideUrl = process.env.PLAN_PRICES_URL,
+  timeoutMs = TIMEOUT_MS,
 }: PlanPricesDeps = {}): Promise<PlanPrices> {
   const { url, anonKey } = env();
-  const res = await fetcher(overrideUrl || `${url.replace(/\/+$/, "")}/rest/v1/web_plans?${SELECT}`, {
-    headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
-    cache: "no-store",
+  const read = async () => {
+    const res = await fetcher(`${url.replace(/\/+$/, "")}/rest/v1/web_plans?${SELECT}`, {
+      headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
+      cache: "no-store",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) fail(`answered ${res.status}`);
+    return parsePlanPrices(await res.json());
+  };
+  // The signal cancels the request; the race also ends a read whose body (or fetcher) ignores it.
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`web_plans: no answer in ${timeoutMs}ms`)), timeoutMs);
   });
-  if (!res.ok) fail(`answered ${res.status}`);
-  return parsePlanPrices(await res.json());
+  try {
+    return await Promise.race([read(), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /** The prices, or null when they cannot be read (logged): the page then shows them as unavailable. */

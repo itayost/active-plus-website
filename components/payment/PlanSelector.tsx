@@ -5,7 +5,7 @@ import Card from "@/components/ui/Card";
 import { CheckIcon } from "@/components/ui/icons";
 import { PLAN_INCLUDES, PLANS, type PlanId } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
-import { annualCardCopy, formatShekel, perPayment, type PlanPrices } from "@/lib/pricing";
+import { annualCardCopy, priceParts, type PlanPrices } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 // Card for both plans (annual: Grow's wallet; monthly: its hosted page). Bit / Apple Pay / Google Pay join this list once the wallet is seen offering them.
@@ -45,6 +45,7 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
   };
   const href = WEB_CHECKOUT_ENABLED ? undefined : STORE_FALLBACK_HREF;
   const card = annualCardCopy(prices);
+  const monthly = priceParts(prices, "monthly");
 
   // From lg the plans and "what both include" stand side by side, the list in
   // a sunken panel, instead of one 36rem column against the right edge.
@@ -105,8 +106,7 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
               {MONTHLY.longName}
             </h2>
             <p className="font-display text-[22px] font-extrabold leading-tight">
-              {formatShekel(perPayment(prices, "monthly"))}{" "}
-              <span className="text-base font-medium">{MONTHLY.priceSuffix}</span>
+              {monthly.amount} <span className="text-base font-medium">{monthly.suffix}</span>
             </p>
           </div>
           <MonthlyChoice href={href} onClick={href ? undefined : choose("monthly")} pressed={checkoutOpen ? selected === "monthly" : undefined} />

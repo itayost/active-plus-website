@@ -1,12 +1,17 @@
 import type { Page, Request, Route } from "@playwright/test";
 
+/** A host that never resolves: what the service-role client gets, so an e2e run can never write to a real project. */
+export const E2E_DEAD_SUPABASE_URL = "https://stub.supabase.invalid";
+
 /**
- * The Supabase project the e2e server is built against: `.invalid` never
- * resolves, so nothing can leave the machine. Sign-in tests answer every auth
- * and REST call from here with page.route, and refuse any other host.
+ * The Supabase project the e2e server is built against: the local stub
+ * e2e-config starts (tests/e2e/plan-prices-stub.mjs), so nothing can leave
+ * the machine. e2e-config sets E2E_SUPABASE_URL before the workers start.
+ * Sign-in tests answer every auth and REST call from the browser with
+ * page.route, by this host, and refuse any other host.
  */
 export const E2E_SUPABASE = {
-  url: "https://stub.supabase.invalid",
+  url: process.env.E2E_SUPABASE_URL ?? E2E_DEAD_SUPABASE_URL,
   anonKey: "e2e-anon-key",
 } as const;
 

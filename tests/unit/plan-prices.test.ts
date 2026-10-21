@@ -47,14 +47,14 @@ describe("fetchPlanPrices", () => {
       {
         headers: { apikey: "anon", Authorization: "Bearer anon" },
         cache: "no-store",
+        signal: expect.any(AbortSignal),
       },
     );
   });
 
-  it("uses PLAN_PRICES_URL when set (the e2e stub), with the same headers", async () => {
-    const fetcher = ok(ROWS);
-    await fetchPlanPrices({ fetcher, env: ENV, overrideUrl: "http://127.0.0.1:3199/web_plans" });
-    expect(fetcher.mock.calls[0][0]).toBe("http://127.0.0.1:3199/web_plans");
+  it("gives up after the timeout, even on a fetch that never answers", async () => {
+    const hung = vi.fn(() => new Promise<Response>(() => undefined));
+    await expect(fetchPlanPrices({ fetcher: hung, env: ENV, timeoutMs: 20 })).rejects.toThrow(/web_plans: no answer in 20ms/);
   });
 
   it("fails on an error status, a network failure or unusable rows", async () => {
@@ -72,5 +72,10 @@ describe("loadPlanPrices", () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
     expect(await loadPlanPrices({ fetcher: ok([]), env: ENV })).toBeNull();
     expect(log).toHaveBeenCalledOnce();
+  });
+  it("a hung read is null too, so /payment shows the unavailable state instead of hanging", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const hung = vi.fn(() => new Promise<Response>(() => undefined));
+    expect(await loadPlanPrices({ fetcher: hung, env: ENV, timeoutMs: 20 })).toBeNull();
   });
 });

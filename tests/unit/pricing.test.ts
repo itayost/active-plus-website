@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  annualCardCopy, annualSavings, describePlans, formatShekel, installmentAmount, MAX_INSTALLMENTS, perPayment, priceLabel,
+  annualCardCopy, annualSavings, describePlans, formatShekel, installmentAmount, MAX_INSTALLMENTS, perPayment, priceLabel, priceParts,
 } from "@/lib/pricing";
 
 const PRICES = { annual: { total: 828, maxInstallments: 12 }, monthly: { total: 99, maxInstallments: 1 } };
@@ -18,6 +18,8 @@ describe("pricing", () => {
     expect(priceLabel(withAnnual(828, 6), "annual")).toBe("138 ₪ לחודש");
     expect(priceLabel(withAnnual(828, 1), "annual")).toBe("828 ₪ בתשלום אחד");
     expect(priceLabel(PRICES, "monthly")).toBe("99 ₪ לחודש");
+    expect(priceParts(PRICES, "monthly")).toEqual({ amount: "99 ₪", suffix: "לחודש" });
+    expect(priceParts(withAnnual(828, 1), "annual")).toEqual({ amount: "828 ₪", suffix: "בתשלום אחד" });
   });
   it("computes the annual saving from the plan prices, not a printed figure", () => {
     expect(annualSavings(PRICES)).toBe(360);

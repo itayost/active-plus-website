@@ -64,8 +64,9 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
   // Only the draft the checkout opened with: later renders never restart the identity load below.
   const resumed = useRef(initialDraft);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
-  // Installments only split the annual plan: web_plans' annual ceiling bounds the state, the draft and the charge.
-  const ceiling = prices.annual.maxInstallments;
+  // Installments only split the annual plan. The count chosen is the state held to web_plans' annual ceiling (a
+  // resumed draft or a refresh after price_changed may carry more): it is what shows, what is saved and what is charged.
+  const chosen = clampInstallments(installments, prices.annual.maxInstallments);
 
   // First load, and again after Otp's router.push("/payment") remounts the page: resume from the draft.
   useEffect(() => {
@@ -90,14 +91,9 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
     };
   }, []);
 
-  // A resumed draft (or a refresh after price_changed) may carry more installments than web_plans now allows.
   useEffect(() => {
-    setInstallments((count) => clampInstallments(count, ceiling));
-  }, [ceiling, installments]);
-
-  useEffect(() => {
-    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments: clampInstallments(installments, ceiling) });
-  }, [identity, entered, plan, name, email, installments, ceiling]);
+    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments: chosen });
+  }, [identity, entered, plan, name, email, chosen]);
 
   // After the checkout opens and after every step change, the heading takes focus (and scrolls into view, under
   // the sticky header via scroll-mt): the submit button that had focus is gone with the step it belonged to.
@@ -182,7 +178,7 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
       email={email}
       phone={identity.phone}
       gender={gender}
-      installments={clampInstallments(installments, ceiling)}
+      installments={chosen}
       onInstallments={setInstallments}
       onEdit={goTo}
       onSignedOut={signInAgain}

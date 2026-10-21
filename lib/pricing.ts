@@ -50,9 +50,15 @@ const singlePayment = (prices: PlanPrices, id: PlanId): boolean => id === "annua
 /** What follows the figure: a month, or one payment when the annual cannot be split. */
 const priceSuffix = (prices: PlanPrices, id: PlanId): string => (singlePayment(prices, id) ? "בתשלום אחד" : plan(id).priceSuffix);
 
+/** The figure and what it is for, apart, for a card that styles them differently. */
+export function priceParts(prices: PlanPrices, id: PlanId): { amount: string; suffix: string } {
+  return { amount: formatShekel(perPayment(prices, id)), suffix: priceSuffix(prices, id) };
+}
+
 /** The figure with "לחודש", or with "בתשלום אחד" when the annual is one payment. */
 export function priceLabel(prices: PlanPrices, id: PlanId): string {
-  return `${formatShekel(perPayment(prices, id))} ${priceSuffix(prices, id)}`;
+  const { amount, suffix } = priceParts(prices, id);
+  return `${amount} ${suffix}`;
 }
 
 /** What a year of the monthly plan costs, minus the annual plan's one charge. */

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clampInstallments, clearCheckoutDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
+  checkoutSteps, clampInstallments, clearCheckoutDraft, takeResumableDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
   readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
@@ -178,6 +178,19 @@ describe("resumableDraft", () => {
   });
 });
 
+describe("the draft a visit resumes", () => {
+  const DRAFT = '{"plan":"annual","name":"רחל כהן","email":"r@example.com","installments":6}';
+  it("keeps a draft the visit may resume, and discards one another plan's link replaces", () => {
+    const keep = memoryStorage({ "ap.checkout.draft": DRAFT });
+    expect(takeResumableDraft(undefined, keep)?.plan).toBe("annual");
+    expect(keep.getItem("ap.checkout.draft")).toBe(DRAFT);
+    const stale = memoryStorage({ "ap.checkout.draft": DRAFT });
+    expect(takeResumableDraft("monthly", stale)).toBeNull();
+    expect(stale.getItem("ap.checkout.draft")).toBeNull();
+    expect(takeResumableDraft(undefined, memoryStorage())).toBeNull();
+  });
+});
+
 describe("installments against the ceiling", () => {
   it("a resumed draft of 12 against a ceiling of 6 becomes 6; nonsense becomes 1", () => {
     expect(clampInstallments(12, 6)).toBe(6);
@@ -192,7 +205,7 @@ describe("installments against the ceiling", () => {
 describe("price copy", () => {
   it("tells the buyer when the price changed under them, and when prices cannot be shown", async () => {
     const { CHECKOUT_COPY } = await import("@/lib/payment/copy");
-    expect(CHECKOUT_COPY.errors.price_changed).toBe("המחיר עודכן. בדקו את הסכום החדש ונסו שוב.");
+    expect(CHECKOUT_COPY.errors.price_changed).toBe("המחיר או מספר התשלומים עודכנו. בדקו את הפרטים ונסו שוב.");
     expect(CHECKOUT_COPY.pricesUnavailable).toMatch(/המחירים/);
   });
 });

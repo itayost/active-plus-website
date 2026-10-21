@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Button from "@/components/ui/Button";
 import { fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
@@ -57,6 +57,8 @@ export default function CheckoutSummary({
 }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  // A refresh after price_changed: Pay waits for the new prices, so a retry never sends the old expectedTotal.
+  const [refreshing, startRefresh] = useTransition();
   // Back from Grow through the back/forward cache: the page returns as it left, mid-redirect. Make the button usable again.
   useEffect(() => onRestoredFromCache(() => setStatus({ kind: "idle" })), []);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
@@ -64,7 +66,7 @@ export default function CheckoutSummary({
   // Checkout holds installments to the ceiling; the monthly plan is never split.
   const count = annual ? installments : 1;
 
-  const busy = status.kind === "redirecting" || status.kind === "wallet";
+  const busy = status.kind === "redirecting" || status.kind === "wallet" || refreshing;
 
   const pay = async () => {
     if (busy) return;
@@ -96,7 +98,7 @@ export default function CheckoutSummary({
     }
     setStatus({ kind: "error", error: result.error });
     // Nothing was charged: the page reads web_plans fresh on every render, so one refresh shows the new price.
-    if (result.error === "price_changed") router.refresh();
+    if (result.error === "price_changed") startRefresh(() => router.refresh());
   };
 
   const rows: Row[] = [
