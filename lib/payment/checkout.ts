@@ -167,6 +167,11 @@ export function readPaymentGender(storage: Store | undefined = browserSession())
 
 const DRAFT_KEY = "ap.checkout.draft";
 
+/** An installment count held to the plan's ceiling from web_plans: what the state, the draft and the charge all use. */
+export function clampInstallments(count: number, ceiling: number): number {
+  return Number.isInteger(count) && count >= 1 ? Math.min(count, ceiling) : 1;
+}
+
 /**
  * What the buyer typed, kept in this tab until the success page: it reopens
  * the checkout (Otp's remount, Grow's cancel URL), and the success page reads

@@ -4,23 +4,11 @@ import ArticlesStrip from "@/components/articles/ArticlesStrip";
 import PaymentFlow from "@/components/payment/PaymentFlow";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadPlanPrices } from "@/lib/plan-prices";
-import { formatShekel, pricePerMonth, type PlanPrices } from "@/lib/pricing";
+import { describePlans } from "@/lib/pricing";
 
 const TITLE = "מסלולים ומחירים";
 // One web_plans read per request, shared by the metadata and the page.
 const planPrices = cache(() => loadPlanPrices());
-const INCLUDED = "שני המסלולים כוללים תוכנית אימון מותאמת אישית.";
-
-/** The description search and share previews show, written from web_plans; without prices it names no figure. */
-function describePlans(prices: PlanPrices | null): string {
-  if (!prices) return `מנוי שנתי או מנוי חודשי ללא התחייבות. ${INCLUDED}`;
-  const { annual, monthly } = prices;
-  return (
-    `מנוי שנתי ב־${formatShekel(pricePerMonth(prices, "annual"))} לחודש ` +
-    `(חיוב אחד של ${formatShekel(annual.total)}, עד ${annual.maxInstallments} תשלומים) ` +
-    `או מנוי חודשי ב־${formatShekel(monthly.total)}, ללא התחייבות. ${INCLUDED}`
-  );
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

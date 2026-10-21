@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clearCheckoutDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
+  checkoutSteps, clampInstallments, clearCheckoutDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
   readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
@@ -175,6 +175,17 @@ describe("resumableDraft", () => {
   it("no draft, nothing to resume", () => {
     expect(resumableDraft(null, "annual")).toBeNull();
     expect(resumableDraft(null, undefined)).toBeNull();
+  });
+});
+
+describe("installments against the ceiling", () => {
+  it("a resumed draft of 12 against a ceiling of 6 becomes 6; nonsense becomes 1", () => {
+    expect(clampInstallments(12, 6)).toBe(6);
+    expect(clampInstallments(3, 6)).toBe(3);
+    expect(clampInstallments(6, 6)).toBe(6);
+    expect(clampInstallments(0, 6)).toBe(1);
+    expect(clampInstallments(2.5, 6)).toBe(1);
+    expect(clampInstallments(4, 1)).toBe(1);
   });
 });
 

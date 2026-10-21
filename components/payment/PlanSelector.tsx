@@ -5,7 +5,7 @@ import Card from "@/components/ui/Card";
 import { CheckIcon } from "@/components/ui/icons";
 import { PLAN_INCLUDES, PLANS, type PlanId } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
-import { annualSavings, formatShekel, pricePerMonth, type PlanPrices } from "@/lib/pricing";
+import { annualCardCopy, formatShekel, perPayment, type PlanPrices } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 // Card for both plans (annual: Grow's wallet; monthly: its hosted page). Bit / Apple Pay / Google Pay join this list once the wallet is seen offering them.
@@ -44,6 +44,7 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
     onContinue?.();
   };
   const href = WEB_CHECKOUT_ENABLED ? undefined : STORE_FALLBACK_HREF;
+  const card = annualCardCopy(prices);
 
   // From lg the plans and "what both include" stand side by side, the list in
   // a sunken panel, instead of one 36rem column against the right edge.
@@ -61,23 +62,24 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
           <h2 id="plan-annual-name" className="sr-only">
             {ANNUAL.longName}
           </h2>
-          <span className="inline-block rounded-pill bg-cta px-3 py-1 text-[13px] font-extrabold leading-snug text-white">
-            {ANNUAL.badge}
-          </span>
-          <p className="mb-0.5 mt-3 font-display text-[38px] font-extrabold leading-tight">
-            {formatShekel(pricePerMonth(prices, "annual"))}{" "}
-            <span className="text-lead font-semibold">{ANNUAL.priceSuffix}</span>
+          {card.badge ? (
+            <span className="mb-3 inline-block rounded-pill bg-cta px-3 py-1 text-[13px] font-extrabold leading-snug text-white">
+              {card.badge}
+            </span>
+          ) : null}
+          <p className="mb-0.5 font-display text-[38px] font-extrabold leading-tight">
+            {card.amount} <span className="text-lead font-semibold">{card.suffix}</span>
           </p>
           <p className="text-base leading-normal">
-            {ANNUAL.terms.replace("{n}", String(prices.annual.maxInstallments))}
-            <br />
-            <b className="font-bold text-blue">{`חיסכון של ${formatShekel(annualSavings(prices))} לעומת המנוי החודשי`}</b>
+            {card.terms}
+            {card.saving ? (
+              <>
+                <br />
+                <b className="font-bold text-blue">{card.saving}</b>
+              </>
+            ) : null}
           </p>
-          {showMethods ? (
-            <p className="mt-3 text-base text-ink-soft">
-              {`חיוב אחד של ${formatShekel(prices.annual.total)}, אפשר לחלק עד ${prices.annual.maxInstallments} תשלומים`}
-            </p>
-          ) : null}
+          {showMethods ? <p className="mt-3 text-base text-ink-soft">{card.charge}</p> : null}
           <Button
             size="lg"
             href={href}
@@ -103,7 +105,7 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
               {MONTHLY.longName}
             </h2>
             <p className="font-display text-[22px] font-extrabold leading-tight">
-              {formatShekel(pricePerMonth(prices, "monthly"))}{" "}
+              {formatShekel(perPayment(prices, "monthly"))}{" "}
               <span className="text-base font-medium">{MONTHLY.priceSuffix}</span>
             </p>
           </div>

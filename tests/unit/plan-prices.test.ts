@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchPlanPrices, loadPlanPrices, parsePlanPrices, PLAN_PRICES_TAG } from "@/lib/plan-prices";
+import { fetchPlanPrices, loadPlanPrices, parsePlanPrices } from "@/lib/plan-prices";
 
 const ROWS = [
   { plan_type: "ANNUAL", total_nis: 828, max_installments: 12 },
@@ -39,14 +39,14 @@ describe("parsePlanPrices", () => {
 });
 
 describe("fetchPlanPrices", () => {
-  it("reads web_plans with the anon key, cached for a minute under one tag", async () => {
+  it("reads web_plans with the anon key, fresh on every request (never from Next's data cache)", async () => {
     const fetcher = ok(ROWS);
     expect(await fetchPlanPrices({ fetcher, env: ENV })).toEqual(PRICES);
     expect(fetcher).toHaveBeenCalledWith(
       "https://abcd.supabase.co/rest/v1/web_plans?select=plan_type,total_nis,max_installments",
       {
         headers: { apikey: "anon", Authorization: "Bearer anon" },
-        next: { revalidate: 60, tags: [PLAN_PRICES_TAG] },
+        cache: "no-store",
       },
     );
   });

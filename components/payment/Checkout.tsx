@@ -9,11 +9,11 @@ import { CheckIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadSession } from "@/lib/funnel/storage";
 import {
-  checkoutSteps, isEmail, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
+  checkoutSteps, clampInstallments, isEmail, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
 } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
-import { formatShekel, pricePerMonth, type PlanPrices } from "@/lib/pricing";
+import { priceLabel, type PlanPrices } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { EmailStep, NameStep } from "./CheckoutFields";
@@ -64,6 +64,8 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
   // Only the draft the checkout opened with: later renders never restart the identity load below.
   const resumed = useRef(initialDraft);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
+  // Installments only split the annual plan: web_plans' annual ceiling bounds the state, the draft and the charge.
+  const ceiling = prices.annual.maxInstallments;
 
   // First load, and again after Otp's router.push("/payment") remounts the page: resume from the draft.
   useEffect(() => {
@@ -88,9 +90,14 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
     };
   }, []);
 
+  // A resumed draft (or a refresh after price_changed) may carry more installments than web_plans now allows.
   useEffect(() => {
-    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments });
-  }, [identity, entered, plan, name, email, installments]);
+    setInstallments((count) => clampInstallments(count, ceiling));
+  }, [ceiling, installments]);
+
+  useEffect(() => {
+    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments: clampInstallments(installments, ceiling) });
+  }, [identity, entered, plan, name, email, installments, ceiling]);
 
   // After the checkout opens and after every step change, the heading takes focus (and scrolls into view, under
   // the sticky header via scroll-mt): the submit button that had focus is gone with the step it belonged to.
@@ -170,12 +177,12 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
     <CheckoutSummary
       plan={plan}
       price={prices[plan]}
-      perMonth={pricePerMonth(prices, plan)}
+      priceText={priceLabel(prices, plan)}
       name={name}
       email={email}
       phone={identity.phone}
       gender={gender}
-      installments={installments}
+      installments={clampInstallments(installments, ceiling)}
       onInstallments={setInstallments}
       onEdit={goTo}
       onSignedOut={signInAgain}
@@ -195,7 +202,7 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
             {C.heading}
           </h2>
           <p className="mt-4 flex flex-wrap items-center gap-x-3 text-lead text-ink-soft">
-            {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${formatShekel(pricePerMonth(prices, plan))} ${info.priceSuffix}`}</strong>
+            {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${priceLabel(prices, plan)}`}</strong>
             <button type="button" className={LINKISH} onClick={onChangePlan}>
               {C.changePlan}
             </button>

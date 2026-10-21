@@ -9,17 +9,16 @@ import { publicSupabaseEnv } from "@/lib/supabase/env";
  * as props.
  *
  * There is deliberately no price in the code to fall back to. When the rows
- * cannot be read (and nothing is cached), the caller shows a "prices
- * unavailable" state instead: a typed price that went stale is how the page
- * once showed one annual total while Grow charged another. /payment renders per request (it reads
- * searchParams), so the build never fetches and never fails on it.
+ * cannot be read, the caller shows a "prices unavailable" state instead: a
+ * typed price that went stale is how the page once showed one annual total
+ * while Grow charged another.
  *
- * Cached for a minute under PLAN_PRICES_TAG. If createGrowPayment answers
- * price_changed inside that minute, refreshPlanPrices (app/payment/actions.ts)
- * drops the tag so the reloaded page shows the new price.
+ * Read fresh on every request (no-store), never from Next's data cache:
+ * /payment already renders per request (it reads searchParams), so the build
+ * never fetches, and the page (app/payment/page.tsx) shares one read between
+ * its metadata and its body with React cache(). After a price_changed answer
+ * the checkout's router.refresh() therefore always sees the new row.
  */
-export const PLAN_PRICES_TAG = "web-plans";
-const REVALIDATE_SECONDS = 60;
 const SELECT = "select=plan_type,total_nis,max_installments";
 
 const PLAN_IDS: Record<string, PlanId> = { ANNUAL: "annual", MONTHLY: "monthly" };
@@ -58,7 +57,7 @@ export function parsePlanPrices(rows: unknown): PlanPrices {
   return { annual: prices.annual, monthly: prices.monthly };
 }
 
-type Fetcher = (url: string, init: RequestInit & { next?: { revalidate: number; tags: string[] } }) => Promise<Response>;
+type Fetcher = (url: string, init: RequestInit) => Promise<Response>;
 
 export type PlanPricesDeps = {
   fetcher?: Fetcher;
@@ -75,7 +74,7 @@ export async function fetchPlanPrices({
   const { url, anonKey } = env();
   const res = await fetcher(overrideUrl || `${url.replace(/\/+$/, "")}/rest/v1/web_plans?${SELECT}`, {
     headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
-    next: { revalidate: REVALIDATE_SECONDS, tags: [PLAN_PRICES_TAG] },
+    cache: "no-store",
   });
   if (!res.ok) fail(`answered ${res.status}`);
   return parsePlanPrices(await res.json());

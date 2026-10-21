@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { refreshPlanPrices } from "@/app/payment/actions";
 import Button from "@/components/ui/Button";
 import { fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
@@ -25,8 +24,8 @@ type Props = {
   plan: PlanId;
   /** The plan's web_plans row: the total charged, sent as expectedTotal, and the installment ceiling. */
   price: PlanPrice;
-  /** The "לחודש" figure, derived from the same row. */
-  perMonth: number;
+  /** The figure and what it is for (a month, or one payment), derived from the same rows. */
+  priceText: string;
   name: string;
   email: string;
   phone: string | null;
@@ -54,7 +53,7 @@ function errorText(error: PayError, gender: Answers["gender"]): string {
 }
 
 export default function CheckoutSummary({
-  plan, price, perMonth, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut,
+  plan, price, priceText, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut,
 }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
@@ -62,8 +61,8 @@ export default function CheckoutSummary({
   useEffect(() => onRestoredFromCache(() => setStatus({ kind: "idle" })), []);
   const info = PLANS.find((p) => p.id === plan) ?? PLANS[0];
   const annual = plan === "annual";
-  // A draft from before web_plans lowered the ceiling still opens: the count is held to today's ceiling.
-  const count = annual ? Math.min(installments, price.maxInstallments) : 1;
+  // Checkout holds installments to the ceiling; the monthly plan is never split.
+  const count = annual ? installments : 1;
 
   const busy = status.kind === "redirecting" || status.kind === "wallet";
 
@@ -96,16 +95,13 @@ export default function CheckoutSummary({
       return;
     }
     setStatus({ kind: "error", error: result.error });
-    if (result.error === "price_changed") {
-      // Nothing was charged: drop the cached web_plans and re-render, so the summary shows the new price before a retry.
-      await refreshPlanPrices().catch(() => undefined);
-      router.refresh();
-    }
+    // Nothing was charged: the page reads web_plans fresh on every render, so one refresh shows the new price.
+    if (result.error === "price_changed") router.refresh();
   };
 
   const rows: Row[] = [
     { label: C.rows.plan, value: info.longName },
-    { label: C.rows.price, value: `${formatShekel(perMonth)} ${info.priceSuffix}` },
+    { label: C.rows.price, value: priceText },
     { label: C.rows.total, value: formatShekel(price.total), total: true },
     { label: C.rows.name, value: name, edit: "name" },
     { label: C.rows.email, value: email, edit: "email", ltr: true },

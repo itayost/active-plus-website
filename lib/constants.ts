@@ -51,8 +51,8 @@ export const PLANS = [
     longName: "מנוי שנתי",
     months: 12,
     priceSuffix: "לחודש",
-    /** {n}: the installment ceiling from web_plans. */
-    terms: "ל-{n} תשלומים · מנוי שנתי",
+    /** After the installment count, which comes from web_plans (lib/pricing.ts annualCardCopy). */
+    terms: "מנוי שנתי",
     badge: "מנוי שנתי – החיסכון הגדול",
     cta: "לבחירת המנוי השנתי",
     image: "/img/v2/plan-annual.webp",
