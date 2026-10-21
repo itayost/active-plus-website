@@ -49,19 +49,24 @@ describe("buildCsp for the checkout (Grow's wallet SDK)", () => {
     ].join(" "));
     expect(directive(csp, "frame-src")).toBe([
       "frame-src https://sdk.meshulam.co.il https://dev.meshulam.co.il https://secure.meshulam.co.il https://sandbox.meshulam.co.il",
-      "https://pay.google.com https://pay.sandbox.google.com",
+      "https://pay.google.com https://pay.sandbox.google.com https://*.creditguard.co.il",
     ].join(" "));
     expect(directive(csp, "img-src")).toBe(
       "img-src 'self' data: blob: https://cdn.meshulam.co.il https://www.gstatic.com https://pay.google.com https://pay.sandbox.google.com",
     );
   });
   it("only https origins, never a wildcard or eval, and the rest stays as on every page", () => {
-    // Origins only; connect-src alone may name a path (Google Pay's method manifest).
+    // Origins only; connect-src alone may name a path (Google Pay's method manifest). The one wildcard is
+    // CreditGuard's card frame, whose host differs between test and production (Hyp documents *.creditguard.co.il).
     for (const [key, sources] of Object.entries(GROW_WALLET_SOURCES)) {
       const source = key === "connect" ? /^https:\/\/[a-z0-9.-]+(\/[a-z0-9-]+)?$/ : /^https:\/\/[a-z0-9.-]+$/;
-      for (const value of sources) expect(value).toMatch(source);
+      for (const value of sources) if (value !== "https://*.creditguard.co.il") expect(value).toMatch(source);
     }
-    expect(csp).not.toContain("*");
+    expect(csp.replace("https://*.creditguard.co.il", "")).not.toContain("*");
+    expect(GROW_WALLET_SOURCES.frame).toContain("https://*.creditguard.co.il");
+    for (const [key, sources] of Object.entries(GROW_WALLET_SOURCES)) {
+      if (key !== "frame") expect(sources.join(" ")).not.toContain("*");
+    }
     expect(csp).not.toContain("unsafe-eval");
     for (const name of ["default-src", "media-src", "frame-ancestors", "form-action", "base-uri", "object-src"]) {
       expect(directive(csp, name)).toBe(directive(buildCsp("https://abcd.supabase.co"), name));
