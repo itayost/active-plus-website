@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 type Props = {
   id: string;
   title: string;
-  /** Shows the "swipe for more" line under the title, below lg only. */
-  swipeHint?: boolean;
+  /** Shows the "swipe for more" line under the title, below lg only;
+      "reduced-motion" shows it only when the row there is still, not moving. */
+  swipeHint?: boolean | "reduced-motion";
   /** Small trailing link beside the title (e.g. a link to the full list). */
   action?: ReactNode;
 };
@@ -22,7 +23,11 @@ export default function SectionHeading({ id, title, swipeHint = false, action }:
           {title}
         </h2>
         {swipeHint ? (
-          <p className="mt-2 text-sm font-medium text-blue lg:hidden">החליקו הצידה לעוד ←</p>
+          <p
+            className={`mt-2 text-sm font-medium text-blue lg:hidden ${
+              swipeHint === "reduced-motion" ? "motion-safe:hidden" : ""
+            }`}
+          >החליקו הצידה לעוד ←</p>
         ) : null}
       </div>
       {action}

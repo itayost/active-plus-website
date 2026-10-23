@@ -438,6 +438,36 @@ html {
   }
 }
 
+/*
+  Marquee (components/ui/Marquee.tsx): every set slides by its own width, so
+  the loop restarts with the next set exactly where the first began. The page
+  is RTL, so the strip moves rightward and new marks come in from the left,
+  where reading goes next. About 40px a second for the seven partner marks.
+  It stops under a mouse, with keyboard focus (focus-visible, so a tap does
+  not leave it stuck) and after a tap (data-paused). Under reduced motion the
+  marquee is not rendered visible at all.
+*/
+@keyframes marquee-rtl {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.marquee-set {
+  animation: marquee-rtl 27s linear infinite;
+}
+
+.marquee:focus-visible .marquee-set,
+.marquee[data-paused] .marquee-set {
+  animation-play-state: paused;
+}
+
+@media (hover: hover) {
+  .marquee:hover .marquee-set {
+    animation-play-state: paused;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

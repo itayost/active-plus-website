@@ -143,6 +143,31 @@ test.describe("home carousels and partners", () => {
     }
   });
 
+  test("the partner marks move on their own and stop under the mouse", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const strip = page.getByRole("group", { name: "שיתופי פעולה" });
+    await strip.scrollIntoViewIfNeeded();
+    const set = strip.getByRole("list");
+    const x = () => set.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
+    const start = await x();
+    await expect.poll(x).toBeGreaterThan(start + 10);
+    await strip.hover();
+    const held = await x();
+    await page.waitForTimeout(500);
+    expect(await x()).toBeCloseTo(held, 0);
+  });
+
+  test("with reduced motion the partner marks are the still swipe row", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/");
+    const region = page.getByRole("region", { name: "שיתופי פעולה" });
+    await expect(region.getByRole("group", { name: "שיתופי פעולה" })).toBeHidden();
+    await expect(region.getByRole("list", { name: "שיתופי פעולה" })).toBeVisible();
+    await context.close();
+  });
+
   test("the hero is a still photo: no video is mounted or requested", async ({ page }) => {
     const videoRequests: string[] = [];
     page.on("request", (r) => r.url().includes("/video/") && videoRequests.push(r.url()));
