@@ -23,6 +23,7 @@ const ROW = "inline-flex min-h-12 min-w-12 items-center transition-colors hover:
 const LEGAL = [
   // Web buyers cancel here; shown only once the site sells subscriptions.
   ...(WEB_CHECKOUT_ENABLED ? [{ href: "/account/subscription", label: "ניהול מנוי" }] : []),
+  { href: "/terms", label: "תנאי שימוש" },
   { href: "/privacy-policy", label: "מדיניות פרטיות" },
   { href: "/delete-account", label: "מחיקת חשבון" },
 ];

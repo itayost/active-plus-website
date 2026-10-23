@@ -8,7 +8,7 @@ const EXCLUDED = new Set(["/questionnaire", "/payment"]);
 
 const MAIN_PAGES = new Set(["/about", "/research", "/team", "/contact", "/articles"]);
 
-const LEGAL_PAGES = new Set(["/privacy-policy", "/delete-account"]);
+const LEGAL_PAGES = new Set(["/privacy-policy", "/terms", "/delete-account"]);
 
 function priorityFor(path: string): number {
   if (path === "/") return 1;
