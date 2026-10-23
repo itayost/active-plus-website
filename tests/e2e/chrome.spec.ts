@@ -2,13 +2,14 @@ import { expect, test } from "@playwright/test";
 import { CONTACT_HOURS, CONTACT_PHONE_TEL } from "../../lib/constants";
 
 const NAV_LABELS = [
+  "עמוד בית",
   "הכירו את פעילים+",
   "המחקר והגישה המקצועית",
   "הצוות המקצועי",
   "שאלות נפוצות",
   "צור קשר",
 ];
-const NAV_HREFS = ["/about", "/research", "/team", "/#faq", "/contact"];
+const NAV_HREFS = ["/", "/about", "/research", "/team", "/#faq", "/contact"];
 
 test.describe("desktop bar", () => {
   test.use({ viewport: { width: 1440, height: 800 } });
@@ -21,7 +22,7 @@ test.describe("desktop bar", () => {
     await expect(cta).toHaveAttribute("href", "/questionnaire");
   });
 
-  test("the five menu links sit inline in the bar", async ({ page }) => {
+  test("the six menu links sit inline in the bar", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("banner").getByRole("navigation", { name: "ניווט ראשי" });
     await expect(nav.getByRole("link")).toHaveText(NAV_LABELS);
@@ -31,14 +32,15 @@ test.describe("desktop bar", () => {
   });
 });
 
-/* The bar must never wrap. The inline links, the pill and the call button
-   need about 1,148px in one row, so below 1200px the bar is the phone's. With
+/* The bar must never wrap. The six inline links (home added 2026-10-17), the
+   pill and the call button need about 1,240px in one row, so below 1260px the
+   bar is the phone's. With five links it was about 1,148px and 1200px. With
    six links (pricing, since hidden) the row needed about 1,420px and wrapped
    the pill and the call button onto a second row at 1280-1439px (worse on the
    current page, whose link was bold and wider). Every control in the bar shares one row at every width,
    on every page the menu links to. */
-const BAR_WIDTHS = [1024, 1100, 1199, 1200, 1280, 1351, 1366, 1440, 1920];
-const ROUTES_IN_MENU = ["/", ...NAV_HREFS.filter((h) => !h.includes("#"))];
+const BAR_WIDTHS = [1024, 1100, 1199, 1200, 1259, 1260, 1265, 1280, 1351, 1366, 1440, 1920];
+const ROUTES_IN_MENU = NAV_HREFS.filter((h) => !h.includes("#"));
 
 for (const width of BAR_WIDTHS) {
   test.describe(`header bar at ${width}px`, () => {
@@ -97,12 +99,12 @@ test.describe("current page link", () => {
   });
 });
 
-/* 1024-1199px is a laptop, not a phone, but five long links and the pill do
+/* 1024-1259px is a laptop, not a phone, but six long links and the pill do
    not fit there: the bar is the phone's (wordmark, menu, call) by design. */
-test.describe("laptop band below 1200px", () => {
+test.describe("laptop band below 1260px", () => {
   test.use({ viewport: { width: 1100, height: 800 } });
 
-  test("no pill or inline links; the menu opens the drawer with the five links", async ({ page }) => {
+  test("no pill or inline links; the menu opens the drawer with the six links", async ({ page }) => {
     await page.goto("/");
     const banner = page.getByRole("banner");
     await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
@@ -135,7 +137,7 @@ test.describe("phone bar", () => {
     await expect(banner.getByRole("link", { name: "בדיקת התאמה", exact: true })).toBeHidden();
   });
 
-  test("drawer lists the five menu labels in order, then the fit check and the phone", async ({ page }) => {
+  test("drawer lists the six menu labels in order, then the fit check and the phone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     await page.getByRole("banner").getByRole("button", { name: "פתיחת התפריט" }).click();
