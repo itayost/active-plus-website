@@ -175,6 +175,7 @@ test("footer links both legal pages", async ({ page }) => {
   await page.goto("/");
   const footer = page.getByRole("contentinfo");
   await expect(footer.getByRole("link", { name: "מחיקת חשבון" })).toHaveAttribute("href", "/delete-account");
+  await expect(footer.getByRole("link", { name: "תנאי שימוש" })).toHaveAttribute("href", "/terms");
   await expect(footer.getByRole("link", { name: "מדיניות פרטיות" })).toHaveAttribute("href", "/privacy-policy");
   await expect(footer.locator('a[href="https://wa.me/972506316060"]')).toBeVisible();
   await expect(footer.getByText(CONTACT_HOURS)).toBeVisible();
@@ -190,6 +191,7 @@ test("sitemap lists the delete-account page", async ({ request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
   expect(xml).toContain("/delete-account");
   expect(xml).toContain("/privacy-policy");
+  expect(xml).toContain("/terms");
 });
 
 for (const size of [

@@ -22,6 +22,7 @@ const ROUTES = [
   "/articles/body-after-50",
   "/payment",
   "/privacy-policy",
+  "/terms",
   "/delete-account",
 ];
 

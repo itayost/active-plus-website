@@ -15,5 +15,6 @@ export const SITE_ROUTES: readonly string[] = [
   "/motion-detection",
   "/progress",
   "/privacy-policy",
+  "/terms",
   "/delete-account",
 ];

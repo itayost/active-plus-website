@@ -12,11 +12,11 @@ afterEach(() => {
 });
 
 describe("routes", () => {
-  it("contains the main pages, three explainers and both legal pages", () => {
+  it("contains the main pages, three explainers and the legal pages", () => {
     expect(SITE_ROUTES).toEqual(expect.arrayContaining([
       "/", "/about", "/research", "/team", "/contact", "/questionnaire", "/payment", "/articles",
       "/personal-plan", "/motion-detection", "/progress",
-      "/delete-account", "/privacy-policy",
+      "/delete-account", "/privacy-policy", "/terms",
     ]));
   });
   it("no longer serves /how-it-works", () => {
