@@ -26,8 +26,8 @@ describe("routes", () => {
     const targets = [...NAV.map((n) => n.href.split("#")[0] || "/"), ...PROGRAM_CARDS.map((c) => c.href), FIT_CHECK.href];
     for (const href of targets) expect(SITE_ROUTES).toContain(href);
   });
-  it("the menu does not list the pricing page", () => {
-    expect(NAV.map((n) => n.href)).toEqual(["/about", "/research", "/team", "/#faq", "/contact"]);
+  it("the menu leads with the home page and does not list the pricing page", () => {
+    expect(NAV.map((n) => n.href)).toEqual(["/", "/about", "/research", "/team", "/#faq", "/contact"]);
   });
   it("the pricing page stays served for the questionnaire's hand-off, unlisted and noindex", async () => {
     expect(SITE_ROUTES).toContain("/payment");

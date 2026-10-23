@@ -21,7 +21,8 @@ export default function NotFound() {
 
         <nav aria-label="דפים באתר" className="mt-12 border-t border-hairline pt-8">
           <ul className="flex flex-wrap gap-3">
-            {NAV.map((item) => (
+            {/* Home is the button above, so it is not repeated here. */}
+            {NAV.filter((item) => item.href !== "/").map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}

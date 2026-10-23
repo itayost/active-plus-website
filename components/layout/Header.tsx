@@ -96,7 +96,7 @@ export default function Header() {
     <>
       {/* site-header is a size container. Which bar shows (inline links and
           pill, or the menu button) is decided in one place, globals.css: only
-          while the bar is at least 75rem (1200px) wide, so
+          while the bar is at least 78.75rem (1260px) wide, so
           enlarged text gets the menu button before anything is pushed off
           the screen. */}
       <header
