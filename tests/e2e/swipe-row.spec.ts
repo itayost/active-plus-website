@@ -124,8 +124,10 @@ test.describe("desktop focus", () => {
   });
 });
 
+/* Reduced motion: the partners are a still swipe row only then; otherwise
+   they are a moving marquee (harden.spec.ts). */
 test.describe("wide desktop", () => {
-  test.use({ viewport: { width: 1440, height: 900 } });
+  test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
 
   test("a row that fits whole drops its arrows; one that does not keeps them", async ({ page }) => {
     await page.goto("/");
