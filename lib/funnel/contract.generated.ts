@@ -4,15 +4,20 @@
 
 export const FUNNEL_STEPS = [
   "welcome2",
+  "goals",
   "gender",
   "dob",
+  "goalReinforcement",
   "socialProof",
   "aspiration",
+  "desiredFeeling",
+  "memoryForgetfulness",
   "activityLevel",
   "chairRise",
   "challengeArea",
   "standingComfort",
   "reinforcement2",
+  "sedentaryLifestyle",
   "frequency",
   "bodyAreas",
   "planBuilding",
@@ -44,9 +49,14 @@ export type QuestionnaireAnswers = Partial<{
   aspiration_goal: string; // aspiration (10-years): fitness / leisure / family / all (analytics only; RPC ignores)
   standing_stability: string; // standingComfort (assisted branch, influencing): stable / holds_support / seated — feeds derived functionality_level
   mobility_challenge: string; // challengeArea (independent branch): stairs / walking / floor_rise / none (analytics)
+  training_goals: string[]; // goals (multi-select): strength / weight_loss / cognition / flexibility_balance → trainee_profiles.training_goals
+  desired_feeling: string; // desired feeling (single choice): body_confidence / daily_energy / sense_of_progress / healthy_habit → trainee_profiles.desired_feeling
+  sedentary_lifestyle: string; // sedentary lifestyle (single choice): yes / no → trainee_profiles.sedentary_lifestyle
+  memory_forgetfulness: string; // memory (single choice): almost_never / sometimes / often / less_sharp → trainee_profiles.memory_forgetfulness
+  age_group: string; // age group (photo cards, the dob step): 40_49 / 50_59 / 60_69 / 70_79 / 80_plus → trainee_profiles.age_group
 }>;
 
-export const ANSWER_KEYS = ["functionality_level", "functionality_path_followup", "focus_areas", "daily_activity_level", "gender", "pain_areas", "pain_level", "training_time_of_day", "commitment_level", "date_of_birth", "primary_motivation", "single_leg_balance", "chair_rise_capability", "full_name", "training_frequency_choice", "aspiration_goal", "standing_stability", "mobility_challenge"] as const;
+export const ANSWER_KEYS = ["functionality_level", "functionality_path_followup", "focus_areas", "daily_activity_level", "gender", "pain_areas", "pain_level", "training_time_of_day", "commitment_level", "date_of_birth", "primary_motivation", "single_leg_balance", "chair_rise_capability", "full_name", "training_frequency_choice", "aspiration_goal", "standing_stability", "mobility_challenge", "training_goals", "desired_feeling", "sedentary_lifestyle", "memory_forgetfulness", "age_group"] as const;
 
 export const FUNCTIONALITY_PATHS = [
   { case: "independent", functionalityLevel: "fully_independent" },

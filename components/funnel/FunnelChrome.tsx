@@ -1,15 +1,20 @@
 import Link from "next/link";
 import { ArrowBackIcon } from "@/components/ui/icons";
 import { COPY } from "@/lib/funnel/copy";
+import type { Indicator } from "@/lib/funnel/routing";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  /** The step's dot (1-8), or null for steps without one. */
-  dot: { index: number; total: number } | null;
+  /** The step's place in its progress section, or null for screens without a bar. */
+  bar: Indicator | null;
   canGoBack: boolean;
+  /** "ביטול" shows on the first question only, as in the apps; back everywhere else. */
+  showCancel: boolean;
   /** planBuilding (and a finished sign-in) shows neither back nor cancel. */
   bare: boolean;
-  /** register's own header in place of the dots: name (50%), then phone (100%). */
+  /** The photo screens: the row sits over the photo in white. */
+  overPhoto?: boolean;
+  /** register's own header in place of the bar: name (50%), then phone (100%). */
   register?: "name" | "phone" | null;
   onBack: () => void;
 };
@@ -30,7 +35,7 @@ function RegisterBar({ sub }: { sub: "name" | "phone" }) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={value}
-        className="mt-1.5 h-2 max-w-[320px] overflow-hidden rounded-pill bg-ink/10"
+        className="mt-1.5 h-2.5 overflow-hidden rounded-pill bg-ink/10"
       >
         <i className="block h-full rounded-pill bg-green-deep forced-colors:bg-[Highlight]" style={{ width: `${value}%` }} />
       </div>
@@ -38,55 +43,61 @@ function RegisterBar({ sub }: { sub: "name" | "phone" }) {
   );
 }
 
-function Dots({ index, total }: { index: number; total: number }) {
-  const label = COPY.chrome.dots.replace("{i}", String(index)).replace("{n}", String(total));
+/** One segment per screen of the section, filled up to the current one, with the section's caption above. */
+function SectionBar({ bar }: { bar: Indicator }) {
+  const step = COPY.chrome.dots.replace("{i}", String(bar.index)).replace("{n}", String(bar.total));
   return (
-    <div role="img" aria-label={label} className="flex items-center gap-2 max-[420px]:gap-1.5">
-      {Array.from({ length: total }, (_, i) => {
-        const n = i + 1;
-        return (
+    <div role="img" aria-label={`${bar.label}, ${step}`}>
+      <span aria-hidden="true" className="block text-center text-[0.95rem] font-medium leading-[1.3] text-green-deep">
+        {bar.label}
+      </span>
+      <div aria-hidden="true" className="mt-1.5 flex gap-1.5">
+        {Array.from({ length: bar.total }, (_, i) => (
           <i
-            key={n}
+            key={i}
             className={cn(
-              "h-2.5 shrink-0 rounded-pill transition-colors duration-[var(--dur-fast)] max-[420px]:h-[9px]",
-              n === index ? "w-7 max-[420px]:w-[22px]" : "w-2.5 max-[420px]:w-[9px]",
-              n <= index ? "bg-blue-deep forced-colors:bg-[Highlight]" : "bg-ink/15",
+              "h-3 flex-1 rounded-pill transition-colors duration-[var(--dur)]",
+              i < bar.index ? "bg-green-deep forced-colors:bg-[Highlight]" : "bg-ink/[0.12]",
             )}
           />
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
 
-/** The funnel's top row: back | progress dots | cancel. */
-export default function FunnelChrome({ dot, canGoBack, bare, register = null, onBack }: Props) {
+/** The funnel's top row: back | progress | cancel. */
+export default function FunnelChrome({ bar, canGoBack, showCancel, bare, overPhoto = false, register = null, onBack }: Props) {
   const showBack = canGoBack && !bare;
   return (
-    <div className="flex min-h-12 items-center gap-4 max-[420px]:gap-2">
+    <div className={cn("flex min-h-[60px] items-center gap-3", overPhoto && "text-white")}>
       <button
         type="button"
         aria-label={COPY.chrome.back}
         onClick={onBack}
         disabled={!showBack}
         className={cn(
-          "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-pill border-2 border-ink/15 bg-surface text-ink",
-          "transition-[border-color,transform] duration-[var(--dur-fast)] ease-out-expo hover:border-ink/35 active:scale-[0.96]",
+          "inline-flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-pill",
+          "transition-[background-color,transform] duration-[var(--dur-fast)] ease-out-expo active:scale-[0.96]",
+          overPhoto ? "bg-[rgb(14_30_60/0.35)] hover:bg-[rgb(14_30_60/0.5)]" : "text-ink hover:bg-ink/5",
           !showBack && "invisible",
         )}
       >
-        <ArrowBackIcon className="h-6 w-6" />
+        <ArrowBackIcon className="h-7 w-7" />
       </button>
       <div className="min-w-0 flex-1">
-        {dot ? <Dots index={dot.index} total={dot.total} /> : register ? <RegisterBar sub={register} /> : null}
+        {bar ? <SectionBar bar={bar} /> : register ? <RegisterBar sub={register} /> : null}
       </div>
-      {bare ? null : (
+      {showCancel && !bare ? (
         <Link
           href="/"
-          className="inline-flex min-h-12 shrink-0 items-center rounded-pill px-[0.9rem] font-display text-[1.125rem] font-bold text-ink-soft transition-colors hover:bg-ink/5 hover:text-ink max-[420px]:px-2"
+          className="inline-flex min-h-[60px] shrink-0 items-center rounded-pill px-3 font-display text-[1.125rem] font-bold text-ink-soft transition-colors hover:bg-ink/5 hover:text-ink"
         >
           {COPY.chrome.cancel}
         </Link>
+      ) : (
+        // Keeps the bar centred when there is no cancel.
+        <span aria-hidden="true" className="w-[60px] shrink-0" />
       )}
     </div>
   );

@@ -12,6 +12,7 @@ import {
   firstLine,
   next,
   open,
+  pickPhoto,
   reload,
   screen,
   seed,
@@ -28,13 +29,19 @@ import { GOOD_CODE, stubSupabase } from "./supabase-stub";
   session back.
 */
 
-const THROUGH_FREQUENCY: Answers = {
+const THROUGH_MEMORY: Answers = {
+  training_goals: ["strength"],
   gender: "male",
-  date_of_birth: "1961-01-01",
-  aspiration_goal: "all",
-  daily_activity_level: "mostly_sitting",
+  age_group: "60_69",
+  desired_feeling: "daily_energy",
+  memory_forgetfulness: "sometimes",
+};
+
+const THROUGH_FREQUENCY: Answers = {
+  ...THROUGH_MEMORY,
   chair_rise_capability: "alone",
   mobility_challenge: "stairs",
+  sedentary_lifestyle: "no",
   training_frequency_choice: "almost_daily",
 };
 
@@ -43,7 +50,7 @@ test.describe("with reduced motion", () => {
 
   test("the with_handles branch walks to sign-in and saves only that branch's answer", async ({ page }) => {
     await walkToReinforcement(page, "male", "with_handles", async () => {
-      await expect(screen(page).locator("img")).toHaveAttribute("src", /social-proof-male/);
+      await expect(screen(page).locator("img")).toHaveAttribute("src", /goal-male/);
     });
     await expect(screen(page).locator("img")).toHaveAttribute("src", /reinforcement2-male/);
     await finishFromReinforcement(page);
@@ -51,20 +58,26 @@ test.describe("with reduced motion", () => {
     const { step, answers } = await stored(page);
     expect(step).toBe("register");
     expect(answers).toMatchObject({
+      training_goals: ["strength"],
       gender: "male",
+      age_group: "60_69",
+      desired_feeling: "daily_energy",
+      memory_forgetfulness: "sometimes",
+      sedentary_lifestyle: "no",
       chair_rise_capability: "with_handles",
       standing_stability: "stable",
       pain_areas: ["knees"],
       training_time_of_day: "09:00",
     });
-    expect(answers.date_of_birth).toMatch(/^\d{4}-01-01$/);
+    expect(answers).not.toHaveProperty("date_of_birth");
     expect(answers).not.toHaveProperty("mobility_challenge");
   });
 
   test("the other branch asks challengeArea, in the feminine, with the female images", async ({ page }) => {
     await walkToReinforcement(page, "female", "alone", async () => {
-      await expect(screen(page).locator("img")).toHaveAttribute("src", /social-proof-female/);
-      await expect(title(page)).toContainText("אלפי נשים");
+      await expect(screen(page).locator("img")).toHaveAttribute("src", /goal-female-walk/);
+      await expect(title(page)).toContainText(COPY.goalReinforcement.strength.lead.trim());
+      await expect(next(page)).toHaveText("המשיכי");
     });
     await expect(screen(page).locator("img")).toHaveAttribute("src", /reinforcement2-female/);
     await finishFromReinforcement(page);
@@ -77,12 +90,33 @@ test.describe("with reduced motion", () => {
   test("continue stays disabled until an answer is chosen", async ({ page }) => {
     await open(page);
     await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
-    await expectStep(page, "gender");
+    await expectStep(page, "goals");
     await expect(title(page)).toBeFocused();
     await expect(next(page)).toBeDisabled();
-    await choose(page, "זכר");
-    await expect(screen(page).getByRole("radio", { name: "זכר" })).toBeChecked();
+    await choose(page, "לרדת במשקל");
+    await expect(screen(page).getByRole("radio", { name: "לרדת במשקל" })).toBeChecked();
     await expect(next(page)).toBeEnabled();
+  });
+
+  test("the gender and age photo cards move on with one tap, the age photos following the gender", async ({ page }) => {
+    await seed(page, "gender", { training_goals: ["cognition"] });
+    await expect(next(page)).toHaveCount(0);
+    await pickPhoto(page, "נקבה");
+    await expectStep(page, "dob");
+    await expect(screen(page).getByRole("button", { name: "80+" }).locator("img")).toHaveAttribute("src", /age-female-80-plus/);
+    await pickPhoto(page, "80+");
+    await expectStep(page, "goalReinforcement");
+    await expect(screen(page).locator("img")).toHaveAttribute("src", /goal-female-chess/);
+    expect((await stored(page)).answers).toMatchObject({ gender: "female", age_group: "80_plus" });
+  });
+
+  test("goals opens empty on every visit and is the only screen with cancel", async ({ page }) => {
+    await seed(page, "gender", { training_goals: ["cognition"] });
+    await expect(page.getByRole("link", { name: COPY.chrome.cancel })).toHaveCount(0);
+    await page.getByRole("button", { name: COPY.chrome.back }).click();
+    await expectStep(page, "goals");
+    await expect(page.getByRole("link", { name: COPY.chrome.cancel })).toBeVisible();
+    await expect(screen(page).getByRole("radio", { checked: true })).toHaveCount(0);
   });
 
   test("'no pain' excludes every other body area, both ways", async ({ page }) => {
@@ -96,11 +130,13 @@ test.describe("with reduced motion", () => {
     await expect(area("ברך")).toHaveAttribute("aria-pressed", "true");
     await expect(next(page)).toBeEnabled();
 
+    // "no pain" replaces the areas and moves straight on, as in the apps.
     await none.click();
-    await expect(none).toHaveAttribute("aria-pressed", "true");
-    await expect(area("ברך")).toHaveAttribute("aria-pressed", "false");
-    await expect(area("ירך")).toHaveAttribute("aria-pressed", "false");
+    await expectStep(page, "planBuilding");
+    expect((await stored(page)).answers.pain_areas).toEqual(["none"]);
 
+    await seed(page, "bodyAreas", { ...THROUGH_FREQUENCY, pain_areas: ["none"] });
+    await expect(none).toHaveAttribute("aria-pressed", "true");
     await area("צוואר").click();
     await expect(none).toHaveAttribute("aria-pressed", "false");
     await expect(area("צוואר")).toHaveAttribute("aria-pressed", "true");
@@ -157,7 +193,7 @@ test.describe("with reduced motion", () => {
   });
 
   test("before the page's JavaScript runs, a returning visitor never sees welcome2", async ({ page }) => {
-    await seed(page, "chairRise", { gender: "male", date_of_birth: "1961-01-01", aspiration_goal: "all", daily_activity_level: "mostly_sitting" });
+    await seed(page, "chairRise", THROUGH_MEMORY);
     // Block every script file: only the inline resume check can run, as in the moment before hydration.
     await page.route("**/*.js", (route) => route.abort());
     await page.reload();
@@ -173,7 +209,7 @@ test.describe("with reduced motion", () => {
   });
 
   test("cancel leaves for the home page and keeps the answers", async ({ page }) => {
-    await seed(page, "chairRise", { gender: "male", date_of_birth: "1961-01-01", aspiration_goal: "all", daily_activity_level: "mostly_sitting" });
+    await seed(page, "goals", { gender: "male" });
     await page.getByRole("link", { name: COPY.chrome.cancel }).click();
     await expect(page).toHaveURL(/\/$/);
     expect((await stored(page)).answers.gender).toBe("male");
@@ -191,9 +227,13 @@ test.describe("with reduced motion", () => {
   });
 
   const AXE_STEPS: { step: Step; answers: Answers }[] = [
-    { step: "gender", answers: {} },
+    { step: "goals", answers: {} },
+    { step: "gender", answers: { training_goals: ["strength"] } },
+    { step: "dob", answers: { training_goals: ["strength"], gender: "female" } },
+    { step: "goalReinforcement", answers: { training_goals: ["weight_loss"], gender: "female", age_group: "60_69" } },
+    { step: "desiredFeeling", answers: THROUGH_MEMORY },
+    { step: "reinforcement2", answers: { ...THROUGH_MEMORY, chair_rise_capability: "alone", mobility_challenge: "stairs" } },
     { step: "bodyAreas", answers: THROUGH_FREQUENCY },
-    { step: "socialProof", answers: { gender: "female", date_of_birth: "1961-01-01" } },
   ];
   for (const { step, answers } of AXE_STEPS) {
     test(`${step} has no serious axe violations`, async ({ page }) => {
@@ -245,7 +285,13 @@ test.describe("a full walk with a stubbed sign-in", () => {
     const [merge] = stub.to("/rest/v1/rpc/merge_funnel_session");
     const answers = (merge.body as { p_answers: Answers }).p_answers;
     expect(answers.pain_areas).toEqual(["neck", "knees"]);
-    expect(answers.date_of_birth).toMatch(/-01-01$/);
+    expect(answers).toMatchObject({
+      training_goals: ["strength"],
+      age_group: "60_69",
+      desired_feeling: "daily_energy",
+      memory_forgetfulness: "sometimes",
+      sedentary_lifestyle: "no",
+    });
     expect(answers.training_time_of_day).toBe("09:00");
     expect(answers).not.toHaveProperty("standing_stability");
 
@@ -254,16 +300,18 @@ test.describe("a full walk with a stubbed sign-in", () => {
     expect(beacons.events.map((e) => e.step)).toEqual([
       "welcome2_view",
       "welcome2_continue",
+      "questionnaire_goals_view",
       "questionnaire_q5_view",
-      "dob_view",
-      "social_proof_view",
-      "social_proof_continue",
-      "questionnaire_aspiration_view",
-      "activity_level_view",
+      "questionnaire_age_group_view",
+      "goal_reinforcement_view",
+      "goal_reinforcement_continue",
+      "questionnaire_desired_feeling_view",
+      "questionnaire_memory_view",
       "questionnaire_chair_rise_view",
       "challenge_area_view",
       "reinforcement2_view",
       "reinforcement2_continue",
+      "questionnaire_sedentary_view",
       "training_frequency_view",
       "questionnaire_q6_view",
       "plan_build_view",
@@ -313,12 +361,7 @@ test.describe("a full walk with a stubbed sign-in", () => {
 
   test("changing the chair answer after standingComfort drops standing_stability and asks challengeArea", async ({ page }) => {
     stub = await stubSupabase(page);
-    await seed(page, "chairRise", {
-      gender: "male",
-      date_of_birth: "1961-01-01",
-      aspiration_goal: "all",
-      daily_activity_level: "mostly_sitting",
-    });
+    await seed(page, "chairRise", THROUGH_MEMORY);
     await choose(page, COPY.chairRise.options[2].masc);
     await next(page).click();
     await expectStep(page, "standingComfort");
@@ -356,8 +399,8 @@ test.describe("resume and layout", () => {
   });
 
   const LAYOUT_STEPS: Step[] = [
-    "welcome2", "gender", "dob", "socialProof", "aspiration", "activityLevel", "chairRise",
-    "challengeArea", "standingComfort", "reinforcement2", "frequency", "bodyAreas", "time", "register",
+    "welcome2", "goals", "gender", "dob", "goalReinforcement", "desiredFeeling", "memoryForgetfulness", "chairRise",
+    "challengeArea", "standingComfort", "reinforcement2", "sedentaryLifestyle", "frequency", "bodyAreas", "time", "register",
   ];
   test("no step overflows the viewport horizontally", async ({ page }) => {
     for (const step of LAYOUT_STEPS) {

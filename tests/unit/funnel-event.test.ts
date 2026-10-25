@@ -27,8 +27,13 @@ describe("event names", () => {
     });
   });
 
-  it("falls back to <snake_case_step>_view for steps the app does not name", () => {
-    expect(VIEW_EVENT.dob).toBe("dob_view");
+  it("uses the apps' names for the new questions, and <snake_case_step>_view where the app has none", () => {
+    expect(VIEW_EVENT.goals).toBe("questionnaire_goals_view");
+    expect(VIEW_EVENT.dob).toBe("questionnaire_age_group_view");
+    expect(VIEW_EVENT.goalReinforcement).toBe("goal_reinforcement_view");
+    expect(VIEW_EVENT.desiredFeeling).toBe("questionnaire_desired_feeling_view");
+    expect(VIEW_EVENT.memoryForgetfulness).toBe("questionnaire_memory_view");
+    expect(VIEW_EVENT.sedentaryLifestyle).toBe("questionnaire_sedentary_view");
     expect(VIEW_EVENT.payment).toBe("payment_view");
   });
 

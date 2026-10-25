@@ -27,7 +27,7 @@ type Props = {
 
 const SEGMENT_OPTIONS = COPY.time.periods;
 
-function SegmentScreen({ view, onSegment, onShowHours }: Pick<Props, "view" | "onSegment" | "onShowHours">) {
+function SegmentScreen({ view, gender, onSegment, onShowHours }: Pick<Props, "view" | "gender" | "onSegment" | "onShowHours">) {
   return (
     <>
       <StepTitle>
@@ -40,7 +40,7 @@ function SegmentScreen({ view, onSegment, onShowHours }: Pick<Props, "view" | "o
         value={view.segment ?? undefined}
         onChange={(value) => onSegment(value as Segment)}
       />
-      <ContinueButton disabled={!view.segment} onClick={onShowHours} />
+      <ContinueButton pinned label={g(gender, COPY.common.continue.fem, COPY.common.continue.masc)} disabled={!view.segment} onClick={onShowHours} />
     </>
   );
 }
@@ -71,7 +71,7 @@ function HourScreen({ segment, gender, saved, draft, onTime, onConfirmCustom, on
   };
 
   return (
-    <div onKeyDown={onKeyDown}>
+    <div onKeyDown={onKeyDown} className="flex flex-1 flex-col">
       <StepTitle>
         <Lines text={COPY.time.hourTitle[segment]} />
       </StepTitle>
@@ -108,7 +108,7 @@ function HourScreen({ segment, gender, saved, draft, onTime, onConfirmCustom, on
           {COPY.time.pickerConfirm}
         </Button>
       </div>
-      <ContinueButton disabled={!current} onClick={onContinue} />
+      <ContinueButton pinned label={g(gender, COPY.common.continue.fem, COPY.common.continue.masc)} disabled={!current} onClick={onContinue} />
     </div>
   );
 }
@@ -119,5 +119,5 @@ export default function TimeStep(props: Props) {
   if (view.sub === "B" && view.segment && SEGMENTS.includes(view.segment)) {
     return <HourScreen key={view.segment} segment={view.segment} {...props} />;
   }
-  return <SegmentScreen view={view} onSegment={props.onSegment} onShowHours={props.onShowHours} />;
+  return <SegmentScreen view={view} gender={props.gender} onSegment={props.onSegment} onShowHours={props.onShowHours} />;
 }

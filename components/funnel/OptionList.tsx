@@ -1,6 +1,8 @@
+import type { AnswerIconName } from "@/lib/funnel/copy";
+import AnswerIcon from "./AnswerIcon";
 import { CHOICE_LABEL, Isolated, STEP_TITLE_ID, Tick, choiceCard } from "./parts";
 
-export type Option = { value: string; label: string };
+export type Option = { value: string; label: string; icon?: AnswerIconName };
 
 type Props = {
   name: string;
@@ -12,11 +14,12 @@ type Props = {
 /**
  * Single-select answers as native radios (arrow keys, Tab and form semantics
  * from the browser), painted as 72px cards. Choosing highlights the card;
- * moving on is the "המשך" button's job, as in the app.
+ * moving on is the "המשך" button's job, as in the app. An option with an icon
+ * gets the apps' leading answer badge.
  */
 export default function OptionList({ name, options, value, onChange }: Props) {
   return (
-    <div role="radiogroup" aria-labelledby={STEP_TITLE_ID} className="mt-7 grid gap-3">
+    <div role="radiogroup" aria-labelledby={STEP_TITLE_ID} className="mt-6 grid gap-3">
       {options.map((option) => {
         const on = option.value === value;
         return (
@@ -32,6 +35,7 @@ export default function OptionList({ name, options, value, onChange }: Props) {
             <span
               className={`${choiceCard(on)} peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-[3px] peer-focus-visible:outline-blue-deep`}
             >
+              {option.icon ? <AnswerIcon name={option.icon} on={on} /> : null}
               <span className={CHOICE_LABEL}>
                 <Isolated text={option.label} />
               </span>

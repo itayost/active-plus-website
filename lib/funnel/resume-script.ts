@@ -6,7 +6,7 @@ import { STAMP, STEP, TTL } from "./storage";
  *
  * The server renders welcome2 (first visits get their content and LCP image
  * from HTML). A returning visitor with a saved step would otherwise see
- * welcome2, hear its heading and could press "בואו נתחיל" (which wipes the
+ * welcome2, hear its heading and could press "מתחילים!" (which wipes the
  * session) until hydration restores their step. This flags <html> with
  * data-funnel-resume so CSS hides welcome2 while keeping its height; Funnel
  * clears the flag once the restore has rendered. Static text only: no

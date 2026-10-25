@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { COPY } from "@/lib/funnel/copy";
 import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "@/lib/funnel/constants";
@@ -15,6 +16,7 @@ type Props = { onDone: () => void };
  * The loader between the questions and the time step: a ring filling to 100%
  * over PLAN_BUILD_MS while three lines turn green, then it moves on by itself.
  * Under reduced motion it is finished on arrival and waits for "המשך" instead.
+ * Under the checklist, a Google review, as in the apps.
  */
 export default function PlanBuilding({ onDone }: Props) {
   const [percent, setPercent] = useState(0);
@@ -51,7 +53,7 @@ export default function PlanBuilding({ onDone }: Props) {
   }, []);
 
   return (
-    <div className="rounded-card bg-surface p-[clamp(1rem,3.5vw,2.5rem)] text-center shadow-lift-2">
+    <div className="flex flex-1 flex-col pt-6 text-center">
       <div
         role="progressbar"
         aria-labelledby={STEP_TITLE_ID}
@@ -96,7 +98,28 @@ export default function PlanBuilding({ onDone }: Props) {
           );
         })}
       </ul>
-      {waitForTap ? <ContinueButton onClick={onDone} /> : null}
+      <Review />
+      {waitForTap ? <ContinueButton pinned onClick={onDone} /> : null}
     </div>
+  );
+}
+
+const R = COPY.planBuilding.review;
+
+function Review() {
+  return (
+    <figure className="mx-auto mt-8 w-full max-w-[30rem] rounded-card bg-surface p-5 text-start shadow-lift-1">
+      <figcaption className="flex items-center justify-between gap-3">
+        <span className="font-display text-[1.125rem] font-bold">{R.name}</span>
+        <span className="inline-flex items-center gap-1.5 text-ink-soft">
+          <Image src="/img/funnel/app/google-logo.png" alt="" width={20} height={20} className="h-5 w-5" />
+          <span dir="ltr">{R.source}</span>
+        </span>
+      </figcaption>
+      <p role="img" aria-label={R.stars} className="mt-1 text-[1.25rem] leading-none text-star">
+        <span aria-hidden="true">★★★★★</span>
+      </p>
+      <blockquote className="mt-3 leading-[1.55] text-ink">&ldquo;{R.text}&rdquo;</blockquote>
+    </figure>
   );
 }

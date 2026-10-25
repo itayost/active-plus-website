@@ -34,7 +34,8 @@ test("annual: closing the wallet without paying returns to the summary, with no 
   await expect.poll(() => walletSeen(page)).not.toBeNull();
   await walletEvent(page, "onWalletChange", "close");
   await expect(page.getByRole("button", { name: C.pay })).toBeEnabled();
-  await expect(page.getByRole("alert").filter({ hasText: /./ })).toHaveCount(0);
+  // Next's route announcer (role=alert) reads the page heading out on navigation; only error alerts count here.
+  await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)').filter({ hasText: /./ })).toHaveCount(0);
   await expect(page).toHaveURL(/\/payment/);
 });
 

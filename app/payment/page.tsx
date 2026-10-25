@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { cache } from "react";
-import ArticlesStrip from "@/components/articles/ArticlesStrip";
+import FullscreenColumn from "@/components/layout/FullscreenColumn";
 import PaymentFlow from "@/components/payment/PaymentFlow";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadPlanPrices } from "@/lib/plan-prices";
 import { describePlans } from "@/lib/pricing";
 
 const TITLE = "מסלולים ומחירים";
+/** The questionnaire ends here, right after the SMS code: the plan is ready, now the plan type. */
+const HEADING = "התוכנית האישית שלך מוכנה";
+const SUBHEADING = "בחרו מסלול ומתחילים להתאמן";
 // One web_plans read per request, shared by the metadata and the page.
 const planPrices = cache(() => loadPlanPrices());
 
@@ -33,7 +36,7 @@ export default async function PaymentPage({
 }) {
   const [{ plan, cancelled }, prices] = await Promise.all([searchParams, planPrices()]);
   return (
-    <>
+    <FullscreenColumn>
       <PaymentFlow
         prices={prices}
         linkPlan={parsePlan(plan)}
@@ -41,13 +44,12 @@ export default async function PaymentPage({
       >
         <h1
           id="payment-heading"
-          className="max-w-measure font-display text-[clamp(1.75rem,1.35rem+1.6vw,3rem)] font-extrabold leading-[1.15] text-blue"
+          className="font-display text-[clamp(1.75rem,1.5rem+1vw,2.25rem)] font-extrabold leading-[1.15] text-blue"
         >
-          {TITLE}
+          {HEADING}
         </h1>
+        <p className="mt-2 text-lead text-ink-soft">{SUBHEADING}</p>
       </PaymentFlow>
-
-      <ArticlesStrip />
-    </>
+    </FullscreenColumn>
   );
 }

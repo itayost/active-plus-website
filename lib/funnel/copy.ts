@@ -7,18 +7,24 @@ export const g = (gender: Answers["gender"], fem: string, masc: string): string 
 export type Gendered = { readonly fem: string; readonly masc: string };
 export type Plain = { readonly value: string; readonly label: string };
 export type GenderedOption = { readonly value: string; readonly fem: string; readonly masc: string };
+/** The answer icons the apps draw in each card's leading badge (components/funnel/AnswerIcon). */
+export type AnswerIconName = "dumbbell" | "scale" | "brain" | "stretch" | "shield" | "bolt" | "progress" | "leaf";
+export type IconOption = (Plain | GenderedOption) & { readonly icon: AnswerIconName };
+export type PhotoOption = Plain & { readonly image: string };
 
 const both = (s: string): Gendered => ({ fem: s, masc: s });
 
 /** The answer key each question step writes; checked against the contract. */
 export const COPY_KEYS = [
+  "training_goals",
   "gender",
-  "date_of_birth",
-  "aspiration_goal",
-  "daily_activity_level",
+  "age_group",
+  "desired_feeling",
+  "memory_forgetfulness",
   "chair_rise_capability",
   "mobility_challenge",
   "standing_stability",
+  "sedentary_lifestyle",
   "training_frequency_choice",
   "pain_areas",
   "training_time_of_day",
@@ -26,15 +32,27 @@ export const COPY_KEYS = [
 ] as const satisfies readonly (keyof Answers)[];
 
 export const COPY = {
+  /** The apps' entry screen (PetichaView): full photo, wordmark, one button. */
   welcome2: {
-    titleLead: "שומרים על ",
-    titleAccent: "איכות החיים",
-    body: "מחקרים מראים שתרגול יומי קצר מסייע לשמור על אנרגיה, משקל תקין וכוח בכל גיל",
-    cta: "בואו נתחיל",
+    title: "תוכנית אישית לאימון וחיזוק הגוף וחדות המחשבה",
+    body: "רק 10 דקות ביום, מכל מקום ובקצב שלך.",
+    cta: "מתחילים!",
   },
   common: {
     next: "המשך",
+    /** The apps' gendered continue ("המשיכי" / "המשך"). */
+    continue: { fem: "המשיכי", masc: "המשך" } as Gendered,
     trust: "המידע שלך בטוח ומאובטח",
+  },
+  goals: {
+    // Non-breaking spaces: the only break, when one is needed, is before "שלך?" (as in the apps).
+    title: "מה\u00A0המטרה\u00A0העיקרית שלך?",
+    options: [
+      { value: "strength", label: "לחזק את השרירים", icon: "dumbbell" },
+      { value: "weight_loss", label: "לרדת במשקל", icon: "scale" },
+      { value: "cognition", label: "לשפר את הזיכרון והריכוז", icon: "brain" },
+      { value: "flexibility_balance", label: "לשפר את הגמישות ושיווי המשקל", icon: "stretch" },
+    ] as readonly IconOption[],
   },
   /** Web-only chrome around every step (the app draws its own). */
   chrome: {
@@ -42,47 +60,81 @@ export const COPY = {
     cancel: "ביטול",
     dots: "שלב {i} מתוך {n}",
   },
+  /** Two photo cards; a tap chooses and moves on (owner, 2026-10-21). */
   gender: {
     title: "מהו המגדר שלך?",
     subtitle: "המגדר שלך משפיע על מדדים גופניים חשובים.\nאנחנו משתמשים במידע הזה כדי לספק לך תוכן מותאם אישית.",
     options: [
-      { value: "male", label: "זכר" },
-      { value: "female", label: "נקבה" },
-    ] as readonly Plain[],
+      { value: "male", label: "זכר", image: "/img/funnel/app/gender-male.webp" },
+      { value: "female", label: "נקבה", image: "/img/funnel/app/gender-female.webp" },
+    ] as readonly PhotoOption[],
   },
-  dob: {
-    title: "מה שנת הלידה שלך?",
+  /** The dob step asks an age group in the apps (AgeGroupView); the photos follow the gender. */
+  ageGroup: {
+    title: "מה הגיל שלך?",
     subtitle: "כדי להתאים לך תרגול מדויק ובטוח לגיל שלך",
-    privacy: "המידע שלך נשמר בצורה מאובטחת ולא משותף עם אף אחד",
-    footer: "לוקח כמה שניות בלבד",
-  },
-  socialProof: {
-    title: { fem: "אלפי נשים בגילאי +{band}", masc: "אלפי גברים בגילאי +{band}" } as Gendered,
-    subtitle: { fem: "כבר מרגישות את השינוי עם פעילים פלוס", masc: "כבר מרגישים את השינוי עם פעילים פלוס" } as Gendered,
-    bullets: ["תוכניות מותאמות אישית", "ליווי מקצועי", "תוצאות אמיתיות"],
-    callouts: [
-      { title: "חיזוק הגוף", body: "שיפור מסת השריר וכוח יומיומי" },
-      { title: "ניידות ואנרגיה", body: "יותר קלות בתנועה ויותר אנרגיה ביום-יום" },
-      { title: "בריאות כללית", body: "תוכניות מבוססות מדע לתוצאות לאורך זמן" },
+    options: [
+      { value: "40_49", label: "40-49", file: "40-49" },
+      { value: "50_59", label: "50-59", file: "50-59" },
+      { value: "60_69", label: "60-69", file: "60-69" },
+      { value: "70_79", label: "70-79", file: "70-79" },
+      { value: "80_plus", label: "80+", file: "80-plus" },
     ],
   },
-  aspiration: {
-    title: "בעוד 10 שנים מהיום,\nמה חשוב לך להמשיך לעשות?",
-    options: [
-      { value: "fitness", label: "לשמור על כושר וחיוניות" },
-      { value: "leisure", label: "לטייל וליהנות מהחיים" },
-      { value: "family", label: "לשחק עם המשפחה והנכדים" },
-      { value: "all", label: "כל התשובות נכונות" },
-    ] as readonly Plain[],
+  /** Echoes the chosen goal over a full-screen photo (GoalReinforcementView). */
+  goalReinforcement: {
+    weight_loss: {
+      lead: "השינוי מתחיל הרבה ",
+      accent: "לפני שרואים אותו במראה.",
+      body: "תנועה יומית עוזרת לרדת במשקל ולשמור על אנרגיה לאורך היום. מתחילים ב־10 דקות ביום ובונים הרגל שמתאים לחיים שלך.",
+      female: "goal-female-walk",
+    },
+    flexibility_balance: {
+      lead: "להמשיך לנוע בחופשיות. ",
+      accent: "בכל גיל.",
+      body: "תנועה טובה וביטחון בגוף מתחילים בתרגול נכון. רק 10 דקות ביום, בקצב שלך.",
+      female: "goal-female-stretch",
+    },
+    cognition: {
+      lead: "הגוף צריך תנועה. ",
+      accent: "גם המוח אוהב אתגר.",
+      body: "אימון שמשלב תנועה ואתגרי חשיבה, כדי להפעיל את הגוף והמחשבה יחד.",
+      female: "goal-female-chess",
+    },
+    strength: {
+      lead: "הכוח שלנו חשוב ",
+      accent: "גם בעוד 10 שנים.",
+      body: "שרירים חזקים עוזרים לנו להמשיך לעשות את הדברים שאנחנו אוהבים. מתחילים לחזק אותם כבר היום.",
+      female: "goal-female-walk",
+    },
   },
-  activityLevel: {
-    title: both("איך נראה רוב היום שלך?"),
-    subtitle: both("רמת הפעילות שלך תעזור לנו לדייק עבורך את התוכנית האישית"),
+  desiredFeeling: {
+    title: both("מה הכי חשוב לך להרגיש בעקבות האימונים?"),
+    subtitle: { fem: "בחרי את התשובה שהכי מתאימה לך.", masc: "בחר את התשובה שהכי מתאימה לך." } as Gendered,
+    cta: "ממשיכים",
     options: [
-      { value: "very_active", fem: "אני פעילה במהלך היום", masc: "אני פעיל במהלך היום" },
-      { value: "partially_active", fem: "אני פעילה בחלק מהיום", masc: "אני פעיל בחלק מהיום" },
-      { value: "mostly_sitting", fem: "אני רוב היום בישיבה", masc: "אני רוב היום בישיבה" },
-    ] as readonly GenderedOption[],
+      { value: "body_confidence", label: "יותר ביטחון בגוף שלי", icon: "shield" },
+      { value: "daily_energy", label: "יותר אנרגיה במהלך היום", icon: "bolt" },
+      { value: "sense_of_progress", fem: "להרגיש שאני מתקדמת", masc: "להרגיש שאני מתקדם", icon: "progress" },
+      { value: "healthy_habit", label: "להכניס הרגל בריא לחיים", icon: "leaf" },
+    ] as readonly IconOption[],
+  },
+  memoryForgetfulness: {
+    title: { fem: "האם במהלך היום קורה שאת שוכחת דברים?", masc: "האם במהלך היום קורה שאתה שוכח דברים?" } as Gendered,
+    subtitle: { fem: "בחרי את התשובה שהכי מתאימה לך.", masc: "בחר את התשובה שהכי מתאימה לך." } as Gendered,
+    options: [
+      { value: "almost_never", label: "כמעט אף פעם" },
+      { value: "sometimes", label: "לפעמים" },
+      { value: "often", label: "לעיתים קרובות" },
+      { value: "less_sharp", fem: "מרגישה שהזיכרון שלי פחות חד מבעבר", masc: "מרגיש שהזיכרון שלי פחות חד מבעבר" },
+    ] as readonly (Plain | GenderedOption)[],
+  },
+  sedentaryLifestyle: {
+    title: both("האם יש לך אורח חיים יושבני?"),
+    options: [
+      { value: "yes", label: "כן" },
+      { value: "no", label: "לא" },
+    ] as readonly Plain[],
   },
   chairRise: {
     title: { fem: "כשאת קמה מכיסא בבית", masc: "כשאתה קם מכיסא בבית" } as Gendered,
@@ -112,10 +164,11 @@ export const COPY = {
       { value: "seated", fem: "אני מרגישה בטוחה יותר כשאני יושבת", masc: "אני מרגיש בטוח יותר כשאני יושב" },
     ] as readonly GenderedOption[],
   },
+  /** "התאמה אישית" over a full-screen photo (Reinforcement2View, owner copy 2026-10-18). */
   reinforcement2: {
-    titleLead: "הגוף מגיב למה ",
-    titleAccent: "שמתרגלים",
-    body: "לא צריך להתאמן שעות. מחקרים מראים שכמה דקות של תנועה מותאמת אישית בכל יום עושות הבדל משמעותי",
+    titleLead: "התאמה ",
+    titleAccent: "אישית",
+    body: "התשובות שלך עוזרות לנו להתאים עבורך תוכנית מדויקת בדיוק בשבילך",
   },
   frequency: {
     title: { fem: "באיזו תדירות את מבצעת פעילות גופנית?", masc: "באיזו תדירות אתה מבצע פעילות גופנית?" } as Gendered,
@@ -142,11 +195,18 @@ export const COPY = {
   },
   planBuilding: {
     title: "בונים את התוכנית שלך",
+    // Owner copy, 2026-10-19 (PlanBuildProgressView).
     checklist: [
-      { at: 28, label: "מבינים מה הגוף שלך צריך עכשיו" },
-      { at: 56, label: "מתאימים תרגול לרמה שלך בדיוק" },
-      { at: 82, label: "בונים לך דרך פשוטה להתחיל כבר היום" },
+      { at: 28, label: "בודקים את התשובות שלך" },
+      { at: 56, label: "קובעים את התוכנית המדויקת עבורך" },
+      { at: 82, label: "מבצעים דיוקים אחרונים" },
     ],
+    review: {
+      name: "אורלי אזולאי",
+      source: "Google",
+      stars: "5 כוכבים",
+      text: "אני מאוד נהנית מפעילים+. האימונים קצרים אבל מרגישים אפקטיביים, ואחרי תקופה אני מרגישה יותר אנרגטית ויותר חדה. כיף לעשות משהו טוב בשביל עצמי כל יום.",
+    },
   },
   time: {
     periodTitle: "באיזה זמן ביום\nמתאים לך להשקיע בעצמך?",

@@ -52,7 +52,7 @@ export default function PaymentSuccess() {
   const title = gender ? gendered(gender, S.title) : S.titleNeutral;
 
   return (
-    <div className="mx-auto max-w-[56.25rem] rounded-card bg-surface p-[clamp(1.25rem,3.5vw,2.5rem)] text-center shadow-lift-2">
+    <div className="text-center">
       <span aria-hidden="true" className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-pill bg-green-deep text-white">
         <CheckIcon className="h-10 w-10" />
       </span>
@@ -68,7 +68,8 @@ export default function PaymentSuccess() {
               <strong className="block font-display text-[1.25rem] font-bold">{step.title}</strong>
               <p className="mt-1 text-ink-soft">{step.body}</p>
               {i === 0 ? (
-                <StoreButtons />
+                // The one action left: download the app (the plan is already on the account).
+                <StoreButtons className="mt-4 grid gap-3" variant="primary" size="lg" />
               ) : null}
             </div>
           </li>

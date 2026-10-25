@@ -20,15 +20,23 @@ describe("routing parity with the app's orchestrator fixtures", () => {
 });
 
 describe("indicator", () => {
-  it("shows 8 dots on the 8 question steps and nothing elsewhere", () => {
+  it("shows the apps' three sections, each restarting after a reinforcement", () => {
     const a: Answers = { chair_rise_capability: "alone" };
-    const shown = walk(a).filter((s) => indicator(s, a)).map((s) => indicator(s, a)!.index);
-    expect(shown).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(indicator("socialProof", a)).toBeNull();
+    const shown = walk(a).flatMap((s) => {
+      const bar = indicator(s, a);
+      return bar ? [`${bar.label}:${bar.index}/${bar.total}`] : [];
+    });
+    expect(shown).toEqual([
+      "נעים להכיר:1/3", "נעים להכיר:2/3", "נעים להכיר:3/3",
+      "מכירים אתכם טוב יותר:1/4", "מכירים אתכם טוב יותר:2/4", "מכירים אתכם טוב יותר:3/4", "מכירים אתכם טוב יותר:4/4",
+      "התאמה אישית:1/3", "התאמה אישית:2/3", "התאמה אישית:3/3",
+    ]);
+    expect(indicator("goalReinforcement", a)).toBeNull();
     expect(indicator("register", a)).toBeNull();
   });
-  it("puts standingComfort at dot 5 on the handles branch", () => {
-    expect(indicator("standingComfort", { chair_rise_capability: "with_handles" })).toEqual({ index: 5, total: 8 });
+  it("puts standingComfort last in the second section on the handles branch", () => {
+    expect(indicator("standingComfort", { chair_rise_capability: "with_handles" })).toMatchObject({ index: 4, total: 4 });
+    expect(indicator("challengeArea", { chair_rise_capability: "with_handles" })).toBeNull();
   });
 });
 
@@ -45,9 +53,9 @@ describe("branch hygiene", () => {
     cleanOffBranch(a);
     expect(a.standing_stability).toBe("seated");
   });
-  it("clears history on entering gender only", () => {
-    expect(clearsHistory("gender")).toBe(true);
-    expect(clearsHistory("dob")).toBe(false);
+  it("clears history on entering goals (the first question) only", () => {
+    expect(clearsHistory("goals")).toBe(true);
+    expect(clearsHistory("gender")).toBe(false);
   });
 });
 
