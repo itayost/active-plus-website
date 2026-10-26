@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import PaymentSuccess from "@/components/payment/PaymentSuccess";
-import Section from "@/components/ui/Section";
+import FullscreenColumn from "@/components/layout/FullscreenColumn";
 
 export const metadata: Metadata = {
   title: "התשלום התקבל",
@@ -9,8 +9,10 @@ export const metadata: Metadata = {
 
 export default function PaymentSuccessPage() {
   return (
-    <Section id="payment-success" tone="sunken" labelledBy="payment-success-heading" className="pt-[clamp(2.5rem,5vw,4.5rem)]">
-      <PaymentSuccess />
-    </Section>
+    <FullscreenColumn>
+      <section id="payment-success" aria-labelledby="payment-success-heading" className="gutter-x pb-10 pt-6">
+        <PaymentSuccess />
+      </section>
+    </FullscreenColumn>
   );
 }

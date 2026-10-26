@@ -1,25 +1,28 @@
 import { expect, test, type Page } from "@playwright/test";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers } from "../../lib/funnel/types";
-import { choose, codeBox, expectStep, next, open, reload, screen, seed, signIn, title } from "./funnel-helpers";
+import { choose, codeBox, expectStep, next, open, pickPhoto, reload, screen, seed, signIn, title } from "./funnel-helpers";
 import { GOOD_CODE, stubSupabase } from "./supabase-stub";
 
 /*
   The phone's back button or gesture walks the questionnaire back one screen
   at a time, the same as the funnel's own back arrow, and the two never
-  disagree about where back leads. Where the funnel's back is hidden (gender,
+  disagree about where back leads. Where the funnel's back is hidden (goals,
   the loader, a code being checked) the gesture behaves to match.
 */
 
-const TO_ACTIVITY: Answers = { gender: "male", date_of_birth: "1961-01-01", aspiration_goal: "all" };
+const TO_MEMORY: Answers = { training_goals: ["strength"], gender: "male", age_group: "60_69", desired_feeling: "daily_energy" };
+const MEMORY_ANSWER = (COPY.memoryForgetfulness.options[2] as { label: string }).label;
 
 const THROUGH_TIME: Answers = {
+  training_goals: ["strength"],
   gender: "female",
-  date_of_birth: "1958-01-01",
-  aspiration_goal: "family",
-  daily_activity_level: "partially_active",
+  age_group: "60_69",
+  desired_feeling: "daily_energy",
+  memory_forgetfulness: "sometimes",
   chair_rise_capability: "alone",
   mobility_challenge: "walking",
+  sedentary_lifestyle: "yes",
   training_frequency_choice: "three_week",
   pain_areas: ["knees"],
   training_time_of_day: "09:00",
@@ -30,22 +33,22 @@ const funnelEntry = (page: Page) => page.evaluate(() => (history.state as { apFu
 
 test.use({ reducedMotion: "reduce" });
 
-test("the phone's back from chairRise returns to activityLevel with its answer kept", async ({ page }) => {
-  await seed(page, "activityLevel", TO_ACTIVITY);
-  await choose(page, COPY.activityLevel.options[2].masc);
+test("the phone's back from chairRise returns to the memory question with its answer kept", async ({ page }) => {
+  await seed(page, "memoryForgetfulness", TO_MEMORY);
+  await choose(page, MEMORY_ANSWER);
   await next(page).click();
   await expectStep(page, "chairRise");
 
   await page.goBack();
-  await expectStep(page, "activityLevel");
+  await expectStep(page, "memoryForgetfulness");
   await expect(page).toHaveURL(/\/questionnaire$/);
   await expect(title(page)).toBeFocused();
-  await expect(screen(page).getByRole("radio", { name: COPY.activityLevel.options[2].masc })).toBeChecked();
+  await expect(screen(page).getByRole("radio", { name: MEMORY_ANSWER })).toBeChecked();
 });
 
 test("the back arrow and the phone's back stay in step, and forward cannot redo a screen", async ({ page }) => {
-  await seed(page, "activityLevel", TO_ACTIVITY);
-  await choose(page, COPY.activityLevel.options[2].masc);
+  await seed(page, "memoryForgetfulness", TO_MEMORY);
+  await choose(page, MEMORY_ANSWER);
   await next(page).click();
   await choose(page, COPY.chairRise.options[0].masc);
   await next(page).click();
@@ -54,44 +57,44 @@ test("the back arrow and the phone's back stay in step, and forward cannot redo 
   await chromeBack(page).click();
   await expectStep(page, "chairRise");
   await page.goBack();
-  await expectStep(page, "activityLevel");
+  await expectStep(page, "memoryForgetfulness");
 
   await page.goForward();
   await expect.poll(() => funnelEntry(page)).toBe(0);
-  await expectStep(page, "activityLevel");
+  await expectStep(page, "memoryForgetfulness");
   await next(page).click();
   await expectStep(page, "chairRise");
   await page.goBack();
-  await expectStep(page, "activityLevel");
+  await expectStep(page, "memoryForgetfulness");
 });
 
-test("the phone's back on gender leaves the questionnaire, as the hidden back arrow says", async ({ page }) => {
+test("the phone's back on goals leaves the questionnaire, as the hidden back arrow says", async ({ page }) => {
   await page.goto("/");
   await open(page);
   await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
-  await expectStep(page, "gender");
+  await expectStep(page, "goals");
   await expect(chromeBack(page)).toBeHidden();
 
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
 });
 
-test("after the session starts over, back from gender skips the old walk's screens", async ({ page }) => {
+test("after the session starts over, back from goals skips the old walk's screens", async ({ page }) => {
   await page.goto("/");
   await open(page);
   await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
-  await choose(page, "זכר");
+  await choose(page, "לרדת במשקל");
   await next(page).click();
+  await expectStep(page, "gender");
+  await pickPhoto(page, "זכר");
   await expectStep(page, "dob");
-  await next(page).click();
-  await expectStep(page, "socialProof");
 
   // A fresh session on the same history entry (the hand-off to /payment or an expired session).
   await page.evaluate(() => localStorage.clear());
   await reload(page);
   await expectStep(page, "welcome2");
   await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
-  await expectStep(page, "gender");
+  await expectStep(page, "goals");
 
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
@@ -176,7 +179,7 @@ test.describe("sign-in", () => {
     await expect(tab.locator("[data-funnel-root][data-ready]")).toBeAttached();
     await expectStep(tab, "welcome2"); // the hand-off cleared the session
     await screen(tab).getByRole("button", { name: COPY.welcome2.cta }).click();
-    await expectStep(tab, "gender");
+    await expectStep(tab, "goals");
 
     await tab.goBack();
     await expect(tab).toHaveURL(/\/$/);

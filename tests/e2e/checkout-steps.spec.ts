@@ -177,7 +177,7 @@ test.describe("accessibility", () => {
 
 test("the annual card shows the price, the saving and its own button; the monthly row is a real button", async ({ page }) => {
   await page.goto("/payment");
-  await expect(page.getByRole("heading", { level: 1, name: "מסלולים ומחירים" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "התוכנית האישית שלך מוכנה" })).toBeVisible();
   const annual = page.getByTestId("plan-annual");
   await expect(annual).toContainText("69 ₪");
   await expect(annual).toContainText("חיסכון של 360 ₪");

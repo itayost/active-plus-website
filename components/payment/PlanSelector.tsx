@@ -47,11 +47,10 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
   const card = annualCardCopy(prices);
   const monthly = priceParts(prices, "monthly");
 
-  // From lg the plans and "what both include" stand side by side, the list in
-  // a sunken panel, instead of one 36rem column against the right edge.
+  // One column on every screen: /payment runs full screen in a phone-width column (FullscreenColumn).
   return (
-    <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-12 xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] xl:gap-x-16">
-      <div className="mt-8 grid max-w-xl gap-4">
+    <div>
+      <div className="mt-8 grid gap-4">
         <section
           data-testid="plan-annual"
           aria-labelledby="plan-annual-name"
@@ -114,13 +113,11 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
       </div>
 
       <div
-        className={`mt-10 grid gap-8 lg:mt-8 lg:rounded-card lg:bg-sunken lg:p-10 ${
-          showMethods ? "md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:items-start lg:grid-cols-1" : ""
-        }`}
+        className="mt-10 grid gap-8"
       >
         <div>
           <h2 className="font-display text-h3 font-bold">מה כלול בשני המסלולים</h2>
-          <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+          <ul className="mt-5 grid gap-4">
             {PLAN_INCLUDES.map((item) => (
               <li key={item} className="flex items-center gap-3 text-lead font-medium">
                 <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-deep text-white">

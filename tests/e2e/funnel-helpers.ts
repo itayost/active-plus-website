@@ -10,7 +10,10 @@ import type { Answers, Step } from "../../lib/funnel/types";
 
 export const title = (page: Page) => page.locator("#funnel-step-title");
 export const screen = (page: Page) => page.locator("main section[data-step]");
-export const next = (page: Page) => screen(page).getByRole("button", { name: COPY.common.next, exact: true });
+/** The continue button in any of its labels: "המשך", the feminine "המשיכי", or desiredFeeling's "ממשיכים". */
+export const next = (page: Page) => screen(page).getByRole("button", { name: /^(המשך|המשיכי|ממשיכים)$/ });
+/** A photo card (gender, age group): a tap chooses it and moves on. */
+export const pickPhoto = (page: Page, label: string) => screen(page).getByRole("button", { name: label, exact: true }).click();
 export const choose = (page: Page, label: string) =>
   screen(page).getByRole("radiogroup").getByText(label, { exact: true }).click();
 export const firstLine = (text: string) => text.split("\n")[0];
@@ -56,33 +59,36 @@ export async function walkToReinforcement(
   page: Page,
   gender: "male" | "female",
   chair: "alone" | "with_handles",
-  onSocialProof: () => Promise<void> = async () => {},
+  onGoalReinforcement: () => Promise<void> = async () => {},
 ) {
   const fem = gender === "female";
   await open(page);
   await screen(page).getByRole("button", { name: COPY.welcome2.cta }).click();
 
-  await expectStep(page, "gender");
-  await choose(page, fem ? "נקבה" : "זכר");
+  await expectStep(page, "goals");
+  await choose(page, (COPY.goals.options[0] as { label: string }).label);
   await next(page).click();
+
+  await expectStep(page, "gender");
+  await pickPhoto(page, fem ? "נקבה" : "זכר");
 
   await expectStep(page, "dob");
+  await pickPhoto(page, "60-69");
+
+  await expectStep(page, "goalReinforcement");
+  await onGoalReinforcement();
   await next(page).click();
 
-  await expectStep(page, "socialProof");
-  await onSocialProof();
+  await expectStep(page, "desiredFeeling");
+  await choose(page, (COPY.desiredFeeling.options[1] as { label: string }).label);
   await next(page).click();
 
-  await expectStep(page, "aspiration");
-  await choose(page, COPY.aspiration.options[3].label);
-  await next(page).click();
-
-  await expectStep(page, "activityLevel");
-  await choose(page, COPY.activityLevel.options[2].masc);
+  await expectStep(page, "memoryForgetfulness");
+  await choose(page, (COPY.memoryForgetfulness.options[1] as { label: string }).label);
   await next(page).click();
 
   await expectStep(page, "chairRise");
-  await expect(page.getByRole("img", { name: "שלב 4 מתוך 8" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "מכירים אתכם טוב יותר, שלב 3 מתוך 4" })).toBeVisible();
   const chairOption = COPY.chairRise.options.find((o) => o.value === chair)!;
   await choose(page, fem ? chairOption.fem : chairOption.masc);
   await next(page).click();
@@ -101,6 +107,9 @@ export async function walkToReinforcement(
 
 /** reinforcement2 -> register's name screen. */
 export async function finishFromReinforcement(page: Page, moreAreas: string[] = []) {
+  await next(page).click();
+  await expectStep(page, "sedentaryLifestyle");
+  await choose(page, "לא");
   await next(page).click();
   await expectStep(page, "frequency");
   await choose(page, (COPY.frequency.options[0] as { label: string }).label);

@@ -3,12 +3,14 @@ import { advance, back, codeSent, initialState, restore, showHours, showPhone, t
 import type { Answers } from "@/lib/funnel/types";
 
 const ALL: Answers = {
+  training_goals: ["weight_loss"],
   gender: "male",
-  date_of_birth: "1961-01-01",
-  aspiration_goal: "all",
-  daily_activity_level: "very_active",
+  age_group: "60_69",
+  desired_feeling: "healthy_habit",
+  memory_forgetfulness: "often",
   chair_rise_capability: "alone",
   mobility_challenge: "stairs",
+  sedentary_lifestyle: "yes",
   training_frequency_choice: "none",
   pain_areas: ["knees"],
   training_time_of_day: "17:15",
@@ -26,9 +28,9 @@ describe("funnel machine", () => {
     expect(initialState()).toMatchObject({ step: "welcome2", history: [], answers: {} });
   });
 
-  it("entering gender clears the back history", () => {
+  it("entering goals (the first question) clears the back history", () => {
     const next = advance(at("welcome2", ["frequency"], {}));
-    expect(next.step).toBe("gender");
+    expect(next.step).toBe("goals");
     expect(next.history).toEqual([]);
   });
 
@@ -92,7 +94,7 @@ describe("funnel machine", () => {
   it("restores the saved step with the route behind it", () => {
     const state = restore("frequency", ALL);
     expect(state.step).toBe("frequency");
-    expect(state.history.at(-1)).toBe("reinforcement2");
+    expect(state.history.at(-1)).toBe("sedentaryLifestyle");
     expect(state.answers).toBe(ALL);
   });
 

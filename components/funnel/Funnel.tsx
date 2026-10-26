@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advance, canGoBack, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
 import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
-import { cleanOffBranch, indicator } from "@/lib/funnel/routing";
+import { cleanOffBranch, firstStep, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import type { Segment } from "@/lib/funnel/time";
 import { trackFunnelEvent } from "@/lib/funnel/track";
@@ -15,17 +15,20 @@ import { useBrowserBack } from "./useBrowserBack";
 
 /** The continue taps the app reports as their own events, by the step they leave. */
 const CONTINUE_EVENT: Partial<Record<Step, ActionEvent>> = {
-  socialProof: "social_proof_continue",
+  goalReinforcement: "goal_reinforcement_continue",
   reinforcement2: "reinforcement2_continue",
   planBuilding: "plan_build_complete",
 };
+
+/** The screens whose photo fills the screen, with the top row drawn over it. */
+const PHOTO_STEPS: ReadonlySet<Step> = new Set(["welcome2", "goalReinforcement", "reinforcement2"]);
 
 /**
  * The questionnaire's state owner. It holds the step, the back history and
  * the answers, persists them through lib/funnel/storage, and hands each step
  * its slice of state and the actions it may take. Steps are presentational.
  *
- * The server renders welcome2; on mount the saved session (if any) replaces it
+ * The server renders welcome2 (the entry screen); on mount the saved session (if any) replaces it
  * (lib/funnel/resume-script hides welcome2 from a returning visitor until then),
  * and the root gets data-ready.
  */
@@ -148,25 +151,36 @@ export default function Funnel() {
   const onBack = useCallback(() => browser.goBack(state), [state, browser]);
 
   const { step } = state;
+  const photo = PHOTO_STEPS.has(step);
+  const chrome = (
+    <FunnelChrome
+      bar={indicator(step, state.answers)}
+      canGoBack={!complete && !busy && canGoBack(state)}
+      showCancel={step === firstStep()}
+      bare={step === "planBuilding" || complete}
+      overPhoto={photo}
+      register={step === "register" ? state.register.sub : null}
+      onBack={onBack}
+    />
+  );
+  /*
+    Full screen on every device, like the apps: no site header or footer
+    (SiteChrome), one column the width of a large phone, centred on desktop,
+    filling the viewport's height so the continue button sits at the bottom.
+  */
   return (
-    <div
-      data-funnel-root=""
-      data-ready={restored === null ? undefined : ""}
-      className="bg-sunken pb-[clamp(3.5rem,7vw,6rem)] pt-[clamp(1.25rem,3vw,2.5rem)]"
-    >
-      <div className="mx-auto max-w-[860px] gutter-x">
-        <FunnelChrome
-          dot={indicator(step, state.answers)}
-          canGoBack={!complete && !busy && canGoBack(state)}
-          bare={step === "planBuilding" || complete}
-          register={step === "register" ? state.register.sub : null}
-          onBack={onBack}
-        />
+    <div data-funnel-root="" data-ready={restored === null ? undefined : ""} className="flex min-h-[100dvh] justify-center bg-sunken">
+      <div className="relative flex w-full max-w-[560px] flex-col bg-sunken md:shadow-lift-2">
+        {photo ? (
+          <div className="absolute inset-x-0 top-0 z-20 px-2 pt-[max(0.5rem,env(safe-area-inset-top))]">{chrome}</div>
+        ) : (
+          <div className="px-2 pt-[max(0.5rem,env(safe-area-inset-top))]">{chrome}</div>
+        )}
         <section
           key={`${step}-${state.time.sub}-${state.register.sub}`}
           aria-labelledby={STEP_TITLE_ID}
           data-step={step}
-          className="mt-[clamp(1.5rem,3vw,2.25rem)]"
+          className={photo ? "flex flex-1 flex-col" : "gutter-x flex flex-1 flex-col pt-4"}
         >
           {renderStep(state, actions, sessionId)}
         </section>

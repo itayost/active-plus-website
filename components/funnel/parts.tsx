@@ -82,7 +82,7 @@ export function AccentTitle({ lead, accent }: { lead: string; accent: string }) 
 
 export function Subtitle({ text, className = "" }: { text: string; className?: string }) {
   return (
-    <p className={cn("mt-3 max-w-measure text-lead text-ink-soft", className)}>
+    <p className={cn("mt-3 max-w-measure text-[1.125rem] font-semibold leading-[1.5] text-ink/90", className)}>
       <Lines text={text} />
     </p>
   );
@@ -93,15 +93,28 @@ export function ContinueButton({
   disabled = false,
   label = COPY.common.next,
   type = "button",
+  pinned = false,
 }: {
   onClick?: () => void;
   disabled?: boolean;
   label?: string;
   /** "submit" inside a form, so Enter in the field sends it too. */
   type?: "button" | "submit";
+  /**
+   * Pinned to the bottom of the screen, as the apps' footer button is: always in
+   * reach, never scrolled away. The question screens opt in; forms keep it under their field.
+   */
+  pinned?: boolean;
 }) {
   return (
-    <div className="mt-7 grid gap-3">
+    <div
+      className={cn(
+        "grid gap-3",
+        pinned
+          ? "sticky bottom-0 z-10 mt-auto bg-[linear-gradient(to_top,var(--surface-sunken)_75%,transparent)] pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-6"
+          : "mt-7",
+      )}
+    >
       <Button size="lg" type={type} className="w-full flex-wrap gap-y-1" disabled={disabled} onClick={onClick}>
         {label}
       </Button>

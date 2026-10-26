@@ -3,6 +3,7 @@ import { Heebo } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import SiteChrome from "@/components/layout/SiteChrome";
 import { SITE_NAME_FULL, SITE_URL } from "@/lib/constants";
 
 /*
@@ -76,9 +77,13 @@ export default function RootLayout({
         >
           דילוג לתוכן הראשי
         </a>
-        <Header />
+        <SiteChrome>
+          <Header />
+        </SiteChrome>
         <main id="main">{children}</main>
-        <Footer />
+        <SiteChrome>
+          <Footer />
+        </SiteChrome>
       </body>
     </html>
   );

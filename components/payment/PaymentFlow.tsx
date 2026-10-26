@@ -24,7 +24,7 @@ type Props = {
   children?: ReactNode;
 };
 
-const PLANS_TOP = "pt-[clamp(2.5rem,5vw,4.5rem)]";
+const PLANS_TOP = "pt-6";
 
 type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
 

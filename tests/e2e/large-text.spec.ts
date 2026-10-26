@@ -20,7 +20,6 @@ const ROUTES = [
   "/team",
   "/contact",
   "/articles/body-after-50",
-  "/payment",
   "/privacy-policy",
   "/terms",
   "/delete-account",
@@ -86,6 +85,18 @@ test.describe("200% text on a 390px phone", () => {
       }
       // The compact bar: under 15% of the screen, where it was 209px (25%).
       expect((await banner.boundingBox())!.height).toBeLessThanOrEqual(844 * 0.15);
+    });
+  }
+
+  for (const route of ["/questionnaire", "/payment", "/payment/success"]) {
+    test(`${route} reflows at 200% text, full screen without the site header and footer`, async ({ page }) => {
+      await withRootText(page, 200);
+      await page.goto(route);
+      const result = await page.evaluate(overflowing, 390);
+      expect(result.offenders).toEqual([]);
+      expect(result.scrollWidth).toBeLessThanOrEqual(390);
+      await expect(page.getByRole("banner")).toHaveCount(0);
+      await expect(page.getByRole("contentinfo")).toHaveCount(0);
     });
   }
 

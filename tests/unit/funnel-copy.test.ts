@@ -14,8 +14,21 @@ describe("copy", () => {
     expect(values(COPY.frequency.options)).toEqual(["almost_daily", "three_week", "one_two_week", "none"]);
   });
   it("gender options", () => expect(values(COPY.gender.options)).toEqual(["male", "female"]));
-  it("aspiration options", () => expect(values(COPY.aspiration.options)).toEqual(["fitness", "leisure", "family", "all"]));
-  it("activityLevel options", () => expect(values(COPY.activityLevel.options)).toEqual(["very_active", "partially_active", "mostly_sitting"]));
+  it("goals options (training_goals)", () =>
+    expect(values(COPY.goals.options)).toEqual(["strength", "weight_loss", "cognition", "flexibility_balance"]));
+  it("age group options (age_group)", () =>
+    expect(values(COPY.ageGroup.options)).toEqual(["40_49", "50_59", "60_69", "70_79", "80_plus"]));
+  it("desiredFeeling options", () =>
+    expect(values(COPY.desiredFeeling.options)).toEqual(["body_confidence", "daily_energy", "sense_of_progress", "healthy_habit"]));
+  it("memoryForgetfulness options", () =>
+    expect(values(COPY.memoryForgetfulness.options)).toEqual(["almost_never", "sometimes", "often", "less_sharp"]));
+  it("sedentaryLifestyle options", () => expect(values(COPY.sedentaryLifestyle.options)).toEqual(["yes", "no"]));
+  it("a goal reinforcement for every goal", () =>
+    expect(Object.keys(COPY.goalReinforcement).sort()).toEqual(values(COPY.goals.options).sort()));
+  it("the memory question is gendered in its title (owner, 2026-10-22)", () => {
+    expect(COPY.memoryForgetfulness.title.fem).toBe("האם במהלך היום קורה שאת שוכחת דברים?");
+    expect(COPY.memoryForgetfulness.title.masc).toBe("האם במהלך היום קורה שאתה שוכח דברים?");
+  });
   it("chairRise options", () => expect(values(COPY.chairRise.options)).toEqual(["alone", "with_support", "with_handles"]));
   it("challengeArea options", () => expect(values(COPY.challengeArea.options)).toEqual(["stairs", "walking", "floor_rise", "none"]));
   it("standingComfort options", () => expect(values(COPY.standingComfort.options)).toEqual(["stable", "holds_support", "seated"]));

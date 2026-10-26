@@ -4,7 +4,7 @@ import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "../../lib/constants";
 import { OTP_LENGTH, RESEND_SECONDS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers } from "../../lib/funnel/types";
-import { expectStep, hasAuthCookie, screen, seed, settle, stored, title } from "./funnel-helpers";
+import { expectStep, screen, seed, settle, stored, title } from "./funnel-helpers";
 import { ACCESS_TOKEN, GOOD_CODE, stubSupabase, type StubOptions } from "./supabase-stub";
 
 /*
@@ -18,13 +18,15 @@ const O = COPY.otp;
 
 /** Every question answered (female, chair "alone"), plus a stale answer from the other branch. */
 const ANSWERED: Answers = {
+  training_goals: ["strength"],
   gender: "female",
-  date_of_birth: "1958-01-01",
-  aspiration_goal: "family",
-  daily_activity_level: "partially_active",
+  age_group: "60_69",
+  desired_feeling: "daily_energy",
+  memory_forgetfulness: "sometimes",
   chair_rise_capability: "alone",
   mobility_challenge: "walking",
   standing_stability: "seated",
+  sedentary_lifestyle: "yes",
   training_frequency_choice: "three_week",
   pain_areas: ["knees"],
   training_time_of_day: "09:00",
@@ -288,7 +290,7 @@ test("while the code is checked, back, 'ערוך מספר' and resend are inert"
   expect(stub.to("/auth/v1/otp")).toHaveLength(1);
 });
 
-test("while the code is sent, back is hidden, and cancelling then leaves the visitor off otp", async ({ page }) => {
+test("while the code is sent, back is hidden, and leaving then keeps the visitor off otp", async ({ page }) => {
   const stub = await start(page);
   const beacons: string[] = [];
   await page.route("**/api/funnel-event", (route) => {
@@ -302,11 +304,10 @@ test("while the code is sent, back is hidden, and cancelling then leaves the vis
   await expect.poll(() => stub.to("/auth/v1/otp").length).toBe(1);
   await expect(back(page)).toBeHidden();
 
-  await page.getByRole("link", { name: COPY.chrome.cancel }).click();
+  // No cancel past the first question (as in the apps): the visitor leaves by going elsewhere.
+  await page.goto("/");
   await expect(page).toHaveURL(/\/$/);
-  const answered = page.waitForResponse((r) => r.url().endsWith("/auth/v1/otp"));
   release();
-  await answered;
   await settle(page);
   expect((await stored(page)).step).toBe("register");
   expect(beacons.join("\n")).not.toContain("register_submit");
@@ -318,14 +319,10 @@ test("a verify that answers after the visitor has left does not merge or move th
   const release = stub.hold("/auth/v1/verify");
   await codeInput(page).fill(GOOD_CODE);
   await expect.poll(() => stub.to("/auth/v1/verify").length).toBe(1);
-  await page.getByRole("link", { name: COPY.chrome.cancel }).click();
+  // No cancel past the first question (as in the apps): the visitor leaves by going elsewhere.
+  await page.goto("/");
   await expect(page).toHaveURL(/\/$/);
-
-  const answered = page.waitForResponse((r) => r.url().endsWith("/auth/v1/verify"));
   release();
-  await answered;
-  // The client has read the reply once it stores the session; whatever the funnel would do next starts there.
-  await expect.poll(() => hasAuthCookie(page)).toBe(true);
   await settle(page);
   await expect(page).toHaveURL(/\/$/);
   expect(stub.calls.filter((c) => c.path.startsWith("/rest/") || c.path === "/auth/v1/user")).toEqual([]);

@@ -33,3 +33,27 @@ describe("payload", () => {
     expect(buildMergePayload({ gender: "male", full_name: "", pain_areas: [] })).toEqual({ gender: "male" });
   });
 });
+
+describe("buildMergePayload with the apps' new questions", () => {
+  it("sends the goal list, age group, feeling, memory and sedentary answers as they are", () => {
+    const payload = buildMergePayload({
+      training_goals: ["cognition"],
+      age_group: "70_79",
+      desired_feeling: "daily_energy",
+      memory_forgetfulness: "less_sharp",
+      sedentary_lifestyle: "yes",
+      chair_rise_capability: "alone",
+    });
+    expect(payload).toEqual({
+      training_goals: ["cognition"],
+      age_group: "70_79",
+      desired_feeling: "daily_energy",
+      memory_forgetfulness: "less_sharp",
+      sedentary_lifestyle: "yes",
+      chair_rise_capability: "alone",
+    });
+  });
+  it("drops an empty goal list", () => {
+    expect(buildMergePayload({ training_goals: [] })).toEqual({});
+  });
+});

@@ -9,15 +9,21 @@ import type { Step } from "./types";
  */
 export const VIEW_EVENT: Record<Step, string> = {
   welcome2: "welcome2_view",
+  goals: "questionnaire_goals_view",
   gender: "questionnaire_q5_view",
-  dob: "dob_view",
+  // The apps ask an age group at the dob step now (AgeGroupView).
+  dob: "questionnaire_age_group_view",
+  goalReinforcement: "goal_reinforcement_view",
   socialProof: "social_proof_view",
   aspiration: "questionnaire_aspiration_view",
+  desiredFeeling: "questionnaire_desired_feeling_view",
+  memoryForgetfulness: "questionnaire_memory_view",
   activityLevel: "activity_level_view",
   chairRise: "questionnaire_chair_rise_view",
   challengeArea: "challenge_area_view",
   standingComfort: "standing_comfort_view",
   reinforcement2: "reinforcement2_view",
+  sedentaryLifestyle: "questionnaire_sedentary_view",
   frequency: "training_frequency_view",
   bodyAreas: "questionnaire_q6_view",
   planBuilding: "plan_build_view",
@@ -31,6 +37,7 @@ export const VIEW_EVENT: Record<Step, string> = {
 export const ACTION_EVENTS = [
   "welcome2_continue",
   "social_proof_continue",
+  "goal_reinforcement_continue",
   "reinforcement2_continue",
   "plan_build_complete",
   "register_name_submit",

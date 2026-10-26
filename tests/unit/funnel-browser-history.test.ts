@@ -4,12 +4,14 @@ import { advance, codeSent, initialState, restore, showHours, showPhone, type Fu
 import type { Answers } from "@/lib/funnel/types";
 
 const ALL: Answers = {
+  training_goals: ["cognition"],
   gender: "female",
-  date_of_birth: "1958-01-01",
-  aspiration_goal: "family",
-  daily_activity_level: "partially_active",
+  age_group: "60_69",
+  desired_feeling: "body_confidence",
+  memory_forgetfulness: "sometimes",
   chair_rise_capability: "alone",
   mobility_challenge: "walking",
+  sedentary_lifestyle: "no",
   training_frequency_choice: "three_week",
   pain_areas: ["knees"],
   training_time_of_day: "09:00",
@@ -58,7 +60,7 @@ describe("history entries", () => {
 });
 
 describe("backDepth", () => {
-  it("counts the backs left: none on welcome2 and gender", () => {
+  it("counts the backs left: none on welcome2 and goals", () => {
     expect(backDepth(initialState())).toBe(0);
     expect(backDepth(advance(initialState()))).toBe(0);
   });
@@ -74,12 +76,13 @@ describe("backDepth", () => {
   });
 
   it("matches a restored visitor's back stack", () => {
-    expect(backDepth(restore("chairRise", ALL))).toBe(5); // gender, dob, socialProof, aspiration, activityLevel
+    // goals, gender, dob, goalReinforcement, desiredFeeling, memoryForgetfulness
+    expect(backDepth(restore("chairRise", ALL))).toBe(6);
   });
 });
 
 describe("pushesEntry", () => {
-  it("adds one entry per forward move, none for welcome2 -> gender or the loader -> time", () => {
+  it("adds one entry per forward move, none for welcome2 -> goals or the loader -> time", () => {
     const states = walk();
     const kept: string[] = [];
     for (let i = 1; i < states.length; i++) {
@@ -88,7 +91,7 @@ describe("pushesEntry", () => {
       expect(pushesEntry(states[i - 1], states[i])).toBe(grew === 1);
       if (grew === 0) kept.push(`${states[i - 1].step}->${states[i].step}`);
     }
-    expect(kept).toEqual(["welcome2->gender", "planBuilding->time"]);
+    expect(kept).toEqual(["welcome2->goals", "planBuilding->time"]);
   });
 });
 
@@ -113,9 +116,9 @@ describe("planPop", () => {
   it("goes back one screen per entry", () => {
     const plan = planPop(here, { idx: 2, base: 0 }, chair, false);
     expect(plan).toMatchObject({ kind: "back", entry: { idx: 2, base: 0 } });
-    expect(plan.kind === "back" && plan.state.step).toBe("activityLevel");
+    expect(plan.kind === "back" && plan.state.step).toBe("memoryForgetfulness");
     const two = planPop(here, { idx: 1, base: 0 }, chair, false);
-    expect(two.kind === "back" && two.state.step).toBe("aspiration");
+    expect(two.kind === "back" && two.state.step).toBe("desiredFeeling");
   });
 
   it("leaves to the page before the funnel when there is nothing left to go back to", () => {

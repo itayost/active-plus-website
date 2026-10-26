@@ -10,8 +10,12 @@ describe("contract", () => {
 
   it("ANSWER_KEYS includes required answer keys", () => {
     const requiredKeys = [
+      "training_goals",
       "gender",
-      "date_of_birth",
+      "age_group",
+      "desired_feeling",
+      "memory_forgetfulness",
+      "sedentary_lifestyle",
       "chair_rise_capability",
       "pain_areas",
       "training_time_of_day",

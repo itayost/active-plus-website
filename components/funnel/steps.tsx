@@ -1,19 +1,18 @@
 import type { ReactElement } from "react";
-import { birthYears, defaultBirthYear, yearOf } from "@/lib/funnel/age";
-import { COPY, g, type Gendered, type GenderedOption, type Plain } from "@/lib/funnel/copy";
+import { COPY, g, type Gendered, type GenderedOption, type IconOption, type Plain } from "@/lib/funnel/copy";
 import type { FunnelState } from "@/lib/funnel/machine";
-import { dobFromYear, toggleBodyArea } from "@/lib/funnel/payload";
+import { toggleBodyArea } from "@/lib/funnel/payload";
 import type { Segment } from "@/lib/funnel/time";
 import type { Answers, Step } from "@/lib/funnel/types";
 import BodyAreas from "./BodyAreas";
-import { Reinforcement2, SocialProof, Welcome2 } from "./Interstitial";
-import OptionList from "./OptionList";
+import { GoalReinforcement, Reinforcement2, Welcome2 } from "./Interstitial";
+import OptionList, { type Option } from "./OptionList";
 import Otp from "./Otp";
 import { ContinueButton, FootNote, Lines, StepTitle, Subtitle } from "./parts";
+import PhotoChoice from "./PhotoChoice";
 import PlanBuilding from "./PlanBuilding";
 import Register from "./Register";
 import TimeStep from "./TimeStep";
-import YearSelect from "./YearSelect";
 
 /** What a step can ask of the funnel. The funnel owns all state; steps only render it. */
 export type StepActions = {
@@ -23,7 +22,7 @@ export type StepActions = {
   answer: (patch: Answers) => void;
   /** Move on without answering (interstitials, the loader). */
   advance: () => void;
-  /** welcome2's start: a fresh session, then gender. */
+  /** welcome2's start: a fresh session, then the first question. */
   start: () => void;
   setSegment: (segment: Segment) => void;
   showHours: () => void;
@@ -44,77 +43,111 @@ type Question = {
   key: keyof Answers;
   title: Text;
   subtitle?: Text;
-  options: readonly (Plain | GenderedOption)[];
-  lockFoot?: boolean;
+  options: readonly (Plain | GenderedOption | IconOption)[];
+  /** The continue button's label; the apps' gendered "המשיכי / המשך" when absent. */
+  cta?: Text;
+  /** The answer is stored as a one-element array (training_goals). */
+  asList?: boolean;
 };
 
 const QUESTIONS: Partial<Record<Step, Question>> = {
-  gender: { key: "gender", ...COPY.gender, lockFoot: true },
-  aspiration: { key: "aspiration_goal", ...COPY.aspiration },
-  activityLevel: { key: "daily_activity_level", ...COPY.activityLevel },
+  goals: { key: "training_goals", ...COPY.goals, cta: COPY.common.next, asList: true },
+  desiredFeeling: { key: "desired_feeling", ...COPY.desiredFeeling },
+  memoryForgetfulness: { key: "memory_forgetfulness", ...COPY.memoryForgetfulness },
   chairRise: { key: "chair_rise_capability", ...COPY.chairRise },
   challengeArea: { key: "mobility_challenge", ...COPY.challengeArea },
   standingComfort: { key: "standing_stability", ...COPY.standingComfort },
+  sedentaryLifestyle: { key: "sedentary_lifestyle", ...COPY.sedentaryLifestyle },
   frequency: { key: "training_frequency_choice", ...COPY.frequency },
 };
 
 type Gender = Answers["gender"];
 const text = (t: Text, gender: Gender) => (typeof t === "string" ? t : g(gender, t.fem, t.masc));
-const optionLabel = (o: Plain | GenderedOption, gender: Gender) =>
-  "label" in o ? o.label : g(gender, o.fem, o.masc);
+const optionOf = (o: Plain | GenderedOption | IconOption, gender: Gender): Option => ({
+  value: o.value,
+  label: "label" in o ? o.label : g(gender, o.fem, o.masc),
+  ...("icon" in o ? { icon: o.icon } : {}),
+});
+const continueLabel = (gender: Gender) => g(gender, COPY.common.continue.fem, COPY.common.continue.masc);
 
 function QuestionStep({ question, state, actions }: { question: Question; state: FunnelState; actions: StepActions }) {
   const gender = state.answers.gender;
-  const value = (state.draft[question.key] ?? state.answers[question.key]) as string | undefined;
-  const options = question.options.map((o) => ({ value: o.value, label: optionLabel(o, gender) }));
+  const saved = state.answers[question.key];
+  const draft = state.draft[question.key];
+  // goals always opens empty, as in the apps (a fresh pick on every visit).
+  const value = (Array.isArray(draft) ? draft[0] : draft) ?? (question.asList ? undefined : (saved as string | undefined));
+  const options = question.options.map((o) => optionOf(o, gender));
+  const pick = (v: string) => ({ [question.key]: question.asList ? [v] : v }) as Answers;
   return (
     <>
       <StepTitle>
         <Lines text={text(question.title, gender)} />
       </StepTitle>
       {question.subtitle ? <Subtitle text={text(question.subtitle, gender)} /> : null}
-      <OptionList
-        name={question.key}
-        options={options}
-        value={value}
-        onChange={(v) => actions.setDraft({ [question.key]: v })}
+      <OptionList name={question.key} options={options} value={value} onChange={(v) => actions.setDraft(pick(v))} />
+      <ContinueButton
+        pinned
+        label={question.cta ? text(question.cta, gender) : continueLabel(gender)}
+        disabled={!value}
+        onClick={() => value && actions.answer(pick(value))}
       />
-      <ContinueButton disabled={!value} onClick={() => actions.answer({ [question.key]: value })} />
-      {question.lockFoot ? <FootNote text={COPY.common.trust} lock /> : null}
     </>
   );
 }
 
-function DobStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
-  const currentYear = new Date().getFullYear();
-  const year = yearOf(state.draft.date_of_birth ?? state.answers.date_of_birth) ?? defaultBirthYear(currentYear);
+function GenderStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
   return (
     <>
-      <StepTitle>{COPY.dob.title}</StepTitle>
-      <Subtitle text={COPY.dob.subtitle} />
-      <YearSelect
-        years={birthYears(currentYear)}
-        value={year}
-        onChange={(y) => actions.setDraft({ date_of_birth: dobFromYear(y) })}
+      <StepTitle>{COPY.gender.title}</StepTitle>
+      <Subtitle text={COPY.gender.subtitle} />
+      <PhotoChoice
+        options={COPY.gender.options}
+        value={state.answers.gender}
+        aspect="portrait"
+        onChoose={(gender) => actions.answer({ gender })}
       />
-      <p className="mt-4 text-ink-soft">{COPY.dob.privacy}</p>
-      <ContinueButton onClick={() => actions.answer({ date_of_birth: dobFromYear(year) })} />
-      <FootNote text={COPY.dob.footer} />
+      <FootNote text={COPY.common.trust} lock />
+    </>
+  );
+}
+
+function AgeGroupStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
+  const set = state.answers.gender === "male" ? "male" : "female";
+  const options = COPY.ageGroup.options.map((o) => ({ value: o.value, label: o.label, image: `/img/funnel/app/age-${set}-${o.file}.webp` }));
+  return (
+    <>
+      <StepTitle>{COPY.ageGroup.title}</StepTitle>
+      <Subtitle text={COPY.ageGroup.subtitle} />
+      <PhotoChoice
+        options={options}
+        value={state.answers.age_group}
+        aspect="landscape"
+        onChoose={(age_group) => actions.answer({ age_group })}
+      />
+      <FootNote text={COPY.common.trust} lock />
     </>
   );
 }
 
 function BodyAreasStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
+  const gender = state.answers.gender;
   const selected = state.draft.pain_areas ?? state.answers.pain_areas ?? [];
+  const toggle = (area: string) => {
+    const next = toggleBodyArea(selected, area);
+    // "no pain" is the commonest answer: a tap on it moves straight on (owner, 2026-10-21).
+    if (area === "none" && next.includes("none")) actions.answer({ pain_areas: next });
+    else actions.setDraft({ pain_areas: next });
+  };
   return (
     <>
       <StepTitle>{COPY.bodyAreas.title}</StepTitle>
-      <BodyAreas
-        options={COPY.bodyAreas.options}
-        selected={selected}
-        onToggle={(area) => actions.setDraft({ pain_areas: toggleBodyArea(selected, area) })}
+      <BodyAreas options={COPY.bodyAreas.options} selected={selected} gender={gender} onToggle={toggle} />
+      <ContinueButton
+        pinned
+        label={continueLabel(gender)}
+        disabled={selected.length === 0}
+        onClick={() => actions.answer({ pain_areas: selected })}
       />
-      <ContinueButton disabled={selected.length === 0} onClick={() => actions.answer({ pain_areas: selected })} />
     </>
   );
 }
@@ -129,10 +162,12 @@ export function renderStep(state: FunnelState, actions: StepActions, sessionId: 
   switch (step) {
     case "welcome2":
       return <Welcome2 onContinue={actions.start} />;
+    case "gender":
+      return <GenderStep state={state} actions={actions} />;
     case "dob":
-      return <DobStep state={state} actions={actions} />;
-    case "socialProof":
-      return <SocialProof gender={gender} dob={answers.date_of_birth} onContinue={actions.advance} />;
+      return <AgeGroupStep state={state} actions={actions} />;
+    case "goalReinforcement":
+      return <GoalReinforcement gender={gender} goal={answers.training_goals?.[0]} onContinue={actions.advance} />;
     case "reinforcement2":
       return <Reinforcement2 gender={gender} onContinue={actions.advance} />;
     case "bodyAreas":
