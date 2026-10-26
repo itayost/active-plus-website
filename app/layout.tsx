@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SiteChrome from "@/components/layout/SiteChrome";
 import { SITE_NAME_FULL, SITE_URL } from "@/lib/constants";
+import { HOME_META } from "@/content/home";
 
 /*
  * `subsets` only decides which files next/font preloads; the stylesheet still
@@ -42,11 +43,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME_FULL} | אימון גוף ומוח בו־זמנית לגילאי 55+`,
+    default: HOME_META.title,
     template: `%s | ${SITE_NAME_FULL}`,
   },
-  description:
-    "תוכנית אישית לאימון הגוף וחדות המחשבה. רק 10 דקות ביום כדי להישאר פעילים, חדים ובטוחים יותר.",
+  description: HOME_META.description,
   openGraph: {
     type: "website",
     locale: "he_IL",

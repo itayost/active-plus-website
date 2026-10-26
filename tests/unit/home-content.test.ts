@@ -5,6 +5,7 @@ import {
   FAQ,
   FAQ_HEADING,
   HERO,
+  HOME_META,
   LEAD_HEADING,
   PARTNERS,
   PARTNERS_HEADING,
@@ -42,6 +43,10 @@ describe("home content", () => {
       expect(t.quote.length).toBeGreaterThan(40);
     }
   });
+  it("has the client's Google title and description, verbatim", () => {
+    expect(HOME_META.title).toBe("פעילים + | פלטפורמה לאימון הגוף וחדות המחשבה.");
+    expect(HOME_META.description).toBe("רק 10 דקות ביום כדי לשמור על גוף חזק ובריא ויכולות ריכוז וחשיבה.");
+  });
   it("has the bottom-half headings", () => {
     expect(TESTIMONIALS_HEADING).toBe("מה אומרים הלקוחות שלנו");
     expect(VIDEOS_HEADING).toBe("סרטוני ממליצים");
@@ -75,7 +80,7 @@ describe("home content", () => {
     }
   });
   it("contains no RTL control characters left over from the PDF", () => {
-    const all = JSON.stringify({ FAQ, TESTIMONIALS, WORLD, HERO });
+    const all = JSON.stringify({ FAQ, TESTIMONIALS, WORLD, HERO, HOME_META });
     expect(all).not.toMatch(/[​‎‏‪-‮]/);
   });
 });
