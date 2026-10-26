@@ -8,6 +8,15 @@ export type Testimonial = {
   quote: string;
 };
 
+/**
+ * The home page's Google title and description, verbatim from the client
+ * (issue #16), spacing and final period included. The root layout's defaults.
+ */
+export const HOME_META = {
+  title: "פעילים + | פלטפורמה לאימון הגוף וחדות המחשבה.",
+  description: "רק 10 דקות ביום כדי לשמור על גוף חזק ובריא ויכולות ריכוז וחשיבה.",
+};
+
 /** Hero copy, verbatim from the handoff prototype. */
 export const HERO = {
   titleLead: "תוכנית אישית",
