@@ -165,8 +165,10 @@ html {
 @media (min-width: 1024px), (max-height: 560px) and (orientation: landscape) {
   .hero-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: 1fr auto;
-    grid-template-areas: "text media" "cta media";
+    /* The photo sets the height; the two empty 1fr rows share what is left,
+       so the copy and its action sit centred against it (#23). */
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas: ". media" "text media" "cta media" ". media";
     column-gap: 2.5rem;
     align-items: start;
   }
@@ -179,8 +181,6 @@ html {
     border-radius: 22px;
     align-self: center;
   }
-
-  .hero-text { align-self: end; }
 }
 
 /*
