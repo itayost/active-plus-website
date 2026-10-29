@@ -25,10 +25,11 @@ describe("research", () => {
 });
 
 describe("team", () => {
-  it("lists the four members in order with portraits that exist", () => {
-    expect(TEAM.map((m) => m.name)).toEqual(["מידד גולן", "גדי בן שטרית", "ד״ר ענת קרן", "דניאל שפיר"]);
+  it("lists the five members in order with portraits that exist", () => {
+    expect(TEAM.map((m) => m.name)).toEqual(["מידד גולן", "איתי אוסטרייך", "גדי בן שטרית", "ד״ר ענת קרן", "דניאל שפיר"]);
     expect(TEAM.map((m) => m.role)).toEqual([
       "מייסד ומנכ״ל פעילים +",
+      "CTO | מנהל הטכנולוגיה הראשי",
       "פיזיותרפיסט מוסמך – כוח ושיווי משקל",
       "ריפוי בעיסוק | תפקוד וקוגניציה",
       "שיקום נוירולוגי | מאמן כושר ובריאות מוסמך",

@@ -2,6 +2,8 @@ export type TeamMember = {
   name: string;
   role: string;
   photo: string;
+  /** Optional one-line description under the role. */
+  bio?: string;
 };
 
 export type QA = { q: string; a: string };
@@ -58,6 +60,12 @@ export const RESEARCH = {
 
 export const TEAM: TeamMember[] = [
   { name: "מידד גולן", role: "מייסד ומנכ״ל פעילים +", photo: "/img/v2/team-meidad.webp" },
+  {
+    name: "איתי אוסטרייך",
+    role: "CTO | מנהל הטכנולוגיה הראשי",
+    bio: "מוביל את הפיתוח הטכנולוגי של פעילים+, מערכות התוכנה והבינה המלאכותית.",
+    photo: "/img/v2/team-itay.webp",
+  },
   { name: "גדי בן שטרית", role: "פיזיותרפיסט מוסמך – כוח ושיווי משקל", photo: "/img/v2/team-gadi.webp" },
   { name: "ד״ר ענת קרן", role: "ריפוי בעיסוק | תפקוד וקוגניציה", photo: "/img/v2/team-anat.webp" },
   { name: "דניאל שפיר", role: "שיקום נוירולוגי | מאמן כושר ובריאות מוסמך", photo: "/img/v2/team-daniel.webp" },
