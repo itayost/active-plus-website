@@ -14,8 +14,15 @@ export const screen = (page: Page) => page.locator("main section[data-step]");
 export const next = (page: Page) => screen(page).getByRole("button", { name: /^(המשך|המשיכי|ממשיכים)$/ });
 /** A photo card (gender, age group): a tap chooses it and moves on. */
 export const pickPhoto = (page: Page, label: string) => screen(page).getByRole("button", { name: label, exact: true }).click();
+/**
+ * Selects an answer without a tap (a bare click event, no pointer), so the
+ * question waits for "המשך" as a keyboard user's does. A real tap moves on by
+ * itself (AUTO_ADVANCE_MS); `tap` below covers that.
+ */
 export const choose = (page: Page, label: string) =>
-  screen(page).getByRole("radiogroup").getByText(label, { exact: true }).click();
+  screen(page).getByRole("radiogroup").getByText(label, { exact: true }).dispatchEvent("click");
+/** A real tap on an answer: it is chosen, then the next screen opens by itself. */
+export const tap = (page: Page, label: string) => screen(page).getByRole("radiogroup").getByText(label, { exact: true }).click();
 export const firstLine = (text: string) => text.split("\n")[0];
 
 /** The funnel marks itself ready once the saved session (if any) has been restored. */

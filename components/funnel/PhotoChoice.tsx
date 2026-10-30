@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { SIZES } from "@/lib/funnel/images";
 import { cn } from "@/lib/utils";
 import { STEP_TITLE_ID } from "./parts";
 
@@ -51,7 +52,7 @@ export default function PhotoChoice({ options, value, aspect, onChoose }: Props)
             )}
           >
             <span className={cn("relative block w-full", aspect === "portrait" ? "aspect-[3/4]" : "aspect-[1.6]")}>
-              <Image src={option.image} alt="" fill sizes="(min-width: 560px) 260px, 45vw" className="object-cover object-top" />
+              <Image src={option.image} alt="" fill sizes={SIZES.card} className="object-cover object-top" />
             </span>
             <span className="mt-2.5 block text-center font-display text-[1.25rem] font-bold leading-[1.3]">
               <bdi dir="ltr">{option.label}</bdi>

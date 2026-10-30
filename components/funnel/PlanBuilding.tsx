@@ -4,13 +4,18 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { COPY } from "@/lib/funnel/copy";
 import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "@/lib/funnel/constants";
+import { planChecklist } from "@/lib/funnel/plan-lines";
 import { cn } from "@/lib/utils";
 import { ContinueButton, StepTitle, STEP_TITLE_ID, Tick } from "./parts";
 
 const RADIUS = 52;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-type Props = { onDone: () => void };
+type Props = {
+  /** The body areas answered just before: the checklist names them. */
+  painAreas?: readonly string[];
+  onDone: () => void;
+};
 
 /**
  * The loader between the questions and the time step: a ring filling to 100%
@@ -18,7 +23,7 @@ type Props = { onDone: () => void };
  * Under reduced motion it is finished on arrival and waits for "המשך" instead.
  * Under the checklist, a Google review, as in the apps.
  */
-export default function PlanBuilding({ onDone }: Props) {
+export default function PlanBuilding({ painAreas, onDone }: Props) {
   const [percent, setPercent] = useState(0);
   const [waitForTap, setWaitForTap] = useState(false);
   // The run starts once per visit to the step; a new onDone identity must not restart it.
@@ -82,7 +87,7 @@ export default function PlanBuilding({ onDone }: Props) {
       </div>
       <StepTitle>{COPY.planBuilding.title}</StepTitle>
       <ul className="mx-auto mt-7 grid max-w-[30rem] gap-4 text-start">
-        {COPY.planBuilding.checklist.map((item) => {
+        {planChecklist(painAreas).map((item) => {
           const on = percent >= item.at;
           return (
             <li
