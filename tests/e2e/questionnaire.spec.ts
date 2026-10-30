@@ -18,6 +18,7 @@ import {
   seed,
   signIn,
   stored,
+  tap,
   title,
   walkToReinforcement,
 } from "./funnel-helpers";
@@ -96,6 +97,24 @@ test.describe("with reduced motion", () => {
     await choose(page, "לרדת במשקל");
     await expect(screen(page).getByRole("radio", { name: "לרדת במשקל" })).toBeChecked();
     await expect(next(page)).toBeEnabled();
+  });
+
+  test("a tapped answer is saved and moves on by itself; another tap in the beat changes it", async ({ page }) => {
+    await seed(page, "frequency", THROUGH_FREQUENCY);
+    await tap(page, "כמעט כל יום");
+    await tap(page, "כ־3 פעמים בשבוע");
+    await expectStep(page, "bodyAreas");
+    expect((await stored(page)).answers).toMatchObject({ training_frequency_choice: "three_week" });
+  });
+
+  test("an arrow key only moves the selection: the question waits for continue", async ({ page }) => {
+    await seed(page, "frequency", THROUGH_FREQUENCY);
+    await screen(page).getByRole("radio", { checked: true }).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.waitForTimeout(800);
+    await expectStep(page, "frequency");
+    await next(page).click();
+    await expectStep(page, "bodyAreas");
   });
 
   test("the gender and age photo cards move on with one tap, the age photos following the gender", async ({ page }) => {
