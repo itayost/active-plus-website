@@ -43,7 +43,11 @@ function RegisterBar({ sub }: { sub: "name" | "phone" }) {
   );
 }
 
-/** One segment per screen of the section, filled up to the current one, with the section's caption above. */
+/**
+ * One segment per screen of the section, filled up to the current one, with
+ * the section's caption above. The segment just reached fills from the right
+ * on every arrival (keyed by the step), so each answer visibly moves the bar.
+ */
 function SectionBar({ bar }: { bar: Indicator }) {
   const step = COPY.chrome.dots.replace("{i}", String(bar.index)).replace("{n}", String(bar.total));
   return (
@@ -53,13 +57,14 @@ function SectionBar({ bar }: { bar: Indicator }) {
       </span>
       <div aria-hidden="true" className="mt-1.5 flex gap-1.5">
         {Array.from({ length: bar.total }, (_, i) => (
-          <i
-            key={i}
-            className={cn(
-              "h-3 flex-1 rounded-pill transition-colors duration-[var(--dur)]",
-              i < bar.index ? "bg-green-deep forced-colors:bg-[Highlight]" : "bg-ink/[0.12]",
-            )}
-          />
+          <i key={i} className="h-3 flex-1 overflow-hidden rounded-pill bg-ink/[0.12]">
+            {i < bar.index ? (
+              <i
+                key={i === bar.index - 1 ? `${bar.label}-${bar.index}` : "done"}
+                className={cn("block h-full rounded-pill bg-green-deep forced-colors:bg-[Highlight]", i === bar.index - 1 && "funnel-fill")}
+              />
+            ) : null}
+          </i>
         ))}
       </div>
     </div>

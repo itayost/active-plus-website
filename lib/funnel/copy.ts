@@ -201,6 +201,18 @@ export const COPY = {
       { at: 56, label: "קובעים את התוכנית המדויקת עבורך" },
       { at: 82, label: "מבצעים דיוקים אחרונים" },
     ],
+    /** The middle line when areas hurt: the answers visibly shape the plan (requestWorkout filters by pain_areas). */
+    painLine: "מתאימים תרגילים ששומרים על {areas}",
+    painMany: "האזורים שציינת",
+    painAreas: {
+      neck: "הצוואר",
+      shoulders_neck: "הכתף",
+      elbows: "המרפק",
+      lower_back: "הגב התחתון",
+      hips: "הירך",
+      knees: "הברך",
+      ankle: "הקרסול",
+    } as Readonly<Record<string, string>>,
     review: {
       name: "אורלי אזולאי",
       source: "Google",

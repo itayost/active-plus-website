@@ -10,5 +10,12 @@ export const DEFAULT_AGE = 65;
 /** socialProof shows the age floored to this step, or the fallback without a DOB. */
 export const AGE_BAND_STEP = 5;
 export const AGE_BAND_FALLBACK = 50;
+/**
+ * A tapped single-choice answer stays highlighted this long, then the next
+ * screen opens by itself: long enough to see the choice land (and tap another
+ * to change it), short enough to feel instant. "המשך" stays for keyboards and
+ * for a returning visitor whose answer is already chosen.
+ */
+export const AUTO_ADVANCE_MS = 450;
 /** Pause on 100% before the loader moves on by itself. */
 export const PLAN_BUILD_HOLD_MS = 500;

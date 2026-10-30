@@ -1,5 +1,7 @@
-import type { ReactElement } from "react";
+import { useEffect, useRef, type ReactElement } from "react";
+import { AUTO_ADVANCE_MS } from "@/lib/funnel/constants";
 import { COPY, g, type Gendered, type GenderedOption, type IconOption, type Plain } from "@/lib/funnel/copy";
+import { ageImage } from "@/lib/funnel/images";
 import type { FunnelState } from "@/lib/funnel/machine";
 import { toggleBodyArea } from "@/lib/funnel/payload";
 import type { Segment } from "@/lib/funnel/time";
@@ -78,18 +80,34 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
   const value = (Array.isArray(draft) ? draft[0] : draft) ?? (question.asList ? undefined : (saved as string | undefined));
   const options = question.options.map((o) => optionOf(o, gender));
   const pick = (v: string) => ({ [question.key]: question.asList ? [v] : v }) as Answers;
+  // A tap moves on after a short beat; another tap meanwhile restarts it with the new answer.
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const onPick = (v: string) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => actions.answer(pick(v)), AUTO_ADVANCE_MS);
+  };
   return (
     <>
       <StepTitle>
         <Lines text={text(question.title, gender)} />
       </StepTitle>
       {question.subtitle ? <Subtitle text={text(question.subtitle, gender)} /> : null}
-      <OptionList name={question.key} options={options} value={value} onChange={(v) => actions.setDraft(pick(v))} />
+      <OptionList
+        name={question.key}
+        options={options}
+        value={value}
+        onChange={(v) => actions.setDraft(pick(v))}
+        onPick={onPick}
+      />
       <ContinueButton
         pinned
         label={question.cta ? text(question.cta, gender) : continueLabel(gender)}
         disabled={!value}
-        onClick={() => value && actions.answer(pick(value))}
+        onClick={() => {
+          clearTimeout(timer.current);
+          if (value) actions.answer(pick(value));
+        }}
       />
     </>
   );
@@ -112,8 +130,7 @@ function GenderStep({ state, actions }: { state: FunnelState; actions: StepActio
 }
 
 function AgeGroupStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
-  const set = state.answers.gender === "male" ? "male" : "female";
-  const options = COPY.ageGroup.options.map((o) => ({ value: o.value, label: o.label, image: `/img/funnel/app/age-${set}-${o.file}.webp` }));
+  const options = COPY.ageGroup.options.map((o) => ({ value: o.value, label: o.label, image: ageImage(state.answers.gender, o.file) }));
   return (
     <>
       <StepTitle>{COPY.ageGroup.title}</StepTitle>
@@ -173,7 +190,7 @@ export function renderStep(state: FunnelState, actions: StepActions, sessionId: 
     case "bodyAreas":
       return <BodyAreasStep state={state} actions={actions} />;
     case "planBuilding":
-      return <PlanBuilding onDone={actions.advance} />;
+      return <PlanBuilding painAreas={answers.pain_areas} onDone={actions.advance} />;
     case "time":
       return (
         <TimeStep
