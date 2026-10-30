@@ -28,7 +28,7 @@ function PrivacySection({ title, children }: PrivacySectionProps) {
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: ינואר 2025" />
+      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: אוקטובר 2026" />
       <div className="bg-surface py-[var(--section-y)]">
         <Shell width="narrow">
 
@@ -45,6 +45,7 @@ export default function PrivacyPolicyPage() {
           <li>מידע בריאותי: גובה, משקל, מגבלות רפואיות (בהסכמתך)</li>
           <li>נתוני שימוש: היסטוריית אימונים, התקדמות, העדפות</li>
           <li>מידע טכני: סוג המכשיר, גרסת מערכת ההפעלה</li>
+          <li>מיקום (מאמנים בלבד): מיקום הטלפון בזמן נסיעה לאימון בבית מתאמן</li>
         </ul>
       </PrivacySection>
 
@@ -66,7 +67,19 @@ export default function PrivacyPolicyPage() {
         </p>
       </PrivacySection>
 
-      <PrivacySection title="5. אבטחת מידע">
+      <PrivacySection title="5. מיקום מאמנים בדרך לאימון">
+        <p>
+          כשמאמן/ת יוצא/ת לאימון בבית מתאמן, האפליקציה משתפת את מיקום הטלפון של
+          המאמן/ת עם המשרד, ועם המתאמן כשהמאמן/ת מתקרב/ת, כדי לדעת מתי
+          יגיע/תגיע. השיתוף מתחיל ביציאה לדרך ונעצר בהגעה לכתובת. מחוץ לנסיעה
+          לאימון המיקום לא נאסף. נקודות המיקום נשמרות 30 יום ואז נמחקות; סיכום
+          הנסיעה (שעת יציאה, שעת הגעה ואיחור) נשמר לצורך דוחות דייקנות. לחישוב
+          זמן ההגעה ולהצגת המפה אנחנו משתמשים בשירותי Google Maps Platform.
+          מיקום המתאמנים אינו נאסף. אפשר לבטל את ההסכמה בכל זמן מהפרופיל.
+        </p>
+      </PrivacySection>
+
+      <PrivacySection title="6. אבטחת מידע">
         <p>
           אנו מיישמים אמצעי אבטחה מתקדמים להגנה על המידע שלך, כולל הצפנת נתונים,
           גישה מוגבלת ומעקב אחר פעילות חשודה. עם זאת, אין שיטת אבטחה מושלמת
@@ -74,7 +87,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </PrivacySection>
 
-      <PrivacySection title="6. הזכויות שלך">
+      <PrivacySection title="7. הזכויות שלך">
         <p className="mb-2">יש לך זכות:</p>
         <ul>
           <li>לגשת למידע האישי שלך</li>
@@ -85,7 +98,7 @@ export default function PrivacyPolicyPage() {
         </ul>
       </PrivacySection>
 
-      <PrivacySection title="7. שמירת מידע">
+      <PrivacySection title="8. שמירת מידע">
         <p>
           אנו שומרים את המידע שלך כל עוד החשבון שלך פעיל או כנדרש לספק לך
           שירותים. לאחר מחיקת החשבון, המידע יימחק תוך 30 יום, למעט מידע שנדרש
@@ -93,21 +106,21 @@ export default function PrivacyPolicyPage() {
         </p>
       </PrivacySection>
 
-      <PrivacySection title="8. עוגיות (Cookies)">
+      <PrivacySection title="9. עוגיות (Cookies)">
         <p>
           האפליקציה משתמשת בעוגיות וטכנולוגיות דומות לשיפור חווית המשתמש ולאיסוף
           נתונים סטטיסטיים. ניתן לשלוט בהגדרות אלו דרך הגדרות המכשיר.
         </p>
       </PrivacySection>
 
-      <PrivacySection title="9. שינויים במדיניות">
+      <PrivacySection title="10. שינויים במדיניות">
         <p>
           אנו עשויים לעדכן מדיניות זו מעת לעת. שינויים מהותיים יפורסמו באפליקציה
           ותישלח הודעה למשתמשים.
         </p>
       </PrivacySection>
 
-      <PrivacySection title="10. יצירת קשר">
+      <PrivacySection title="11. יצירת קשר">
         <p>
           לשאלות בנוגע לפרטיות, ניתן לפנות אלינו:
           <br />
