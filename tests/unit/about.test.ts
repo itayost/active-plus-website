@@ -25,16 +25,21 @@ describe("research", () => {
 });
 
 describe("team", () => {
-  it("lists the five members in order with portraits that exist", () => {
-    expect(TEAM.map((m) => m.name)).toEqual(["מידד גולן", "איתי אוסטרייך", "גדי בן שטרית", "ד״ר ענת קרן", "דניאל שפיר"]);
+  it("lists the five members in the phone order with portraits that exist", () => {
+    expect(TEAM.map((m) => m.name)).toEqual(["מידד גולן", "ד״ר ענת קרן", "גדי בן שטרית", "דניאל שפיר", "איתי אוסטרייך"]);
     expect(TEAM.map((m) => m.role)).toEqual([
       "מייסד ומנכ״ל פעילים +",
-      "CTO | מנהל הטכנולוגיה הראשי",
-      "פיזיותרפיסט מוסמך – כוח ושיווי משקל",
       "ריפוי בעיסוק | תפקוד וקוגניציה",
+      "פיזיותרפיסט מוסמך – כוח ושיווי משקל",
       "שיקום נוירולוגי | מאמן כושר ובריאות מוסמך",
+      "CTO | מנהל הטכנולוגיה הראשי",
     ]);
     for (const m of TEAM) expect(existsSync(join(process.cwd(), "public", m.photo))).toBe(true);
+  });
+
+  it("puts Meidad in the middle of the desktop top row, Itay and Daniel below", () => {
+    const desktop = [...TEAM].sort((a, b) => a.desktopOrder - b.desktopOrder).map((m) => m.name);
+    expect(desktop).toEqual(["גדי בן שטרית", "מידד גולן", "ד״ר ענת קרן", "איתי אוסטרייך", "דניאל שפיר"]);
   });
 });
 

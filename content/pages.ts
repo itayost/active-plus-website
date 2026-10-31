@@ -4,6 +4,9 @@ export type TeamMember = {
   photo: string;
   /** Optional one-line description under the role. */
   bio?: string;
+  /** Place in the desktop cards (3 + 2, in reading order). The array order is
+   *  the phone and tablet order. */
+  desktopOrder: 1 | 2 | 3 | 4 | 5;
 };
 
 export type QA = { q: string; a: string };
@@ -59,16 +62,17 @@ export const RESEARCH = {
 };
 
 export const TEAM: TeamMember[] = [
-  { name: "מידד גולן", role: "מייסד ומנכ״ל פעילים +", photo: "/img/v2/team-meidad.webp" },
+  { name: "מידד גולן", role: "מייסד ומנכ״ל פעילים +", photo: "/img/v2/team-meidad.webp", desktopOrder: 2 },
+  { name: "ד״ר ענת קרן", role: "ריפוי בעיסוק | תפקוד וקוגניציה", photo: "/img/v2/team-anat.webp", desktopOrder: 3 },
+  { name: "גדי בן שטרית", role: "פיזיותרפיסט מוסמך – כוח ושיווי משקל", photo: "/img/v2/team-gadi.webp", desktopOrder: 1 },
+  { name: "דניאל שפיר", role: "שיקום נוירולוגי | מאמן כושר ובריאות מוסמך", photo: "/img/v2/team-daniel.webp", desktopOrder: 5 },
   {
     name: "איתי אוסטרייך",
     role: "CTO | מנהל הטכנולוגיה הראשי",
     bio: "מוביל את הפיתוח הטכנולוגי של פעילים+, מערכות התוכנה והבינה המלאכותית.",
     photo: "/img/v2/team-itay.webp",
+    desktopOrder: 4,
   },
-  { name: "גדי בן שטרית", role: "פיזיותרפיסט מוסמך – כוח ושיווי משקל", photo: "/img/v2/team-gadi.webp" },
-  { name: "ד״ר ענת קרן", role: "ריפוי בעיסוק | תפקוד וקוגניציה", photo: "/img/v2/team-anat.webp" },
-  { name: "דניאל שפיר", role: "שיקום נוירולוגי | מאמן כושר ובריאות מוסמך", photo: "/img/v2/team-daniel.webp" },
 ];
 
 export const CONTACT = { title: "רוצה לדבר איתנו?", lede: "נשמח לשמוע ממך." };

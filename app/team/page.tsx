@@ -8,17 +8,21 @@ export const metadata: Metadata = {
   description: "הצוות שמאחורי פעילים+: פיזיותרפיה, ריפוי בעיסוק, שיקום נוירולוגי ואימון.",
 };
 
+// Literal classes so Tailwind keeps them.
+const LG_ORDER = { 1: "lg:order-1", 2: "lg:order-2", 3: "lg:order-3", 4: "lg:order-4", 5: "lg:order-5" } as const;
+
 export default function TeamPage() {
   return (
     <InnerPage title="הצוות המקצועי" wide>
       {/* The prototype's list rows on a phone, two columns of rows on a
           tablet, and from lg portrait cards three to a row, a short last
-          row centred. */}
+          row centred. Phones and tablets follow the array; the desktop
+          cards follow desktopOrder. */}
       <ul className="m-0 grid list-none p-0 sm:grid-cols-2 sm:gap-x-10 lg:flex lg:flex-wrap lg:justify-center lg:gap-6">
         {TEAM.map((m) => (
           <li
             key={m.name}
-            className="flex items-center gap-3.5 border-b border-divider py-3.5 sm:gap-5 lg:basis-[calc((100%-3rem)/3)] lg:flex-col lg:gap-4 lg:rounded-card lg:border lg:border-hairline lg:bg-surface lg:px-6 lg:pb-8 lg:pt-9 lg:text-center lg:shadow-card"
+            className={`${LG_ORDER[m.desktopOrder]} flex items-center gap-3.5 border-b border-divider py-3.5 sm:gap-5 lg:basis-[calc((100%-3rem)/3)] lg:flex-col lg:gap-4 lg:rounded-card lg:border lg:border-hairline lg:bg-surface lg:px-6 lg:pb-8 lg:pt-9 lg:text-center lg:shadow-card`}
           >
             <Image
               src={m.photo}
