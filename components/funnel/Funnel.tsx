@@ -46,17 +46,18 @@ export default function Funnel() {
   const [complete, setComplete] = useState(false);
   // A code is being sent or checked, or the answers merged: back would strand that work.
   const [busy, setBusy] = useState(false);
-  // Which way the last move went, so the new screen slides in from the side it came from.
-  const [enter, setEnter] = useState<"forward" | "back">("forward");
-  const forwardMove = useRef(false);
+  // Which way the last move went, so the new screen slides in from the side it came from; null before any move.
+  const [enter, setEnter] = useState<"forward" | "back" | null>(null);
 
-  /** Shows a screen and saves where the visitor is; the browser history is the caller's business. */
-  const show = useCallback((next: FunnelState) => {
+  /**
+   * Shows a screen and saves where the visitor is; the browser history is the caller's business.
+   * Only go() moves forward: every other caller (the browser's back, the back arrow) goes back.
+   */
+  const show = useCallback((next: FunnelState, direction: "forward" | "back" = "back") => {
     setState(next);
     saveStep(next.step);
     setMoves((n) => n + 1);
-    setEnter(forwardMove.current ? "forward" : "back");
-    forwardMove.current = false;
+    setEnter(direction);
   }, []);
 
   const browser = useBrowserBack({ state, blocked: busy || complete || state.step === "planBuilding", show });
@@ -109,8 +110,7 @@ export default function Funnel() {
   const go = useCallback(
     (next: FunnelState) => {
       browser.forward(state, next);
-      forwardMove.current = true;
-      show(next);
+      show(next, "forward");
     },
     [state, browser, show],
   );
@@ -191,7 +191,7 @@ export default function Funnel() {
           aria-labelledby={STEP_TITLE_ID}
           data-step={step}
           // No slide on the first paint: welcome2 (or a restored step) is simply there.
-          data-enter={moves === 0 ? undefined : enter}
+          data-enter={enter ?? undefined}
           className={photo ? "flex flex-1 flex-col" : "gutter-x flex flex-1 flex-col pt-4"}
         >
           {renderStep(state, actions, sessionId)}

@@ -14,9 +14,9 @@ function joinHebrew(items: readonly string[]): string {
  * line names them, so the plan is seen being built from their own answers;
  * otherwise it is the owner's copy unchanged.
  */
-export function planChecklist(painAreas: readonly string[] | undefined): { at: number; label: string }[] {
+export function planChecklist(painAreas: readonly string[] | undefined): readonly { at: number; label: string }[] {
   const named = (painAreas ?? []).map((a) => P.painAreas[a]).filter((a): a is string => Boolean(a));
-  if (named.length === 0) return P.checklist.map((l) => ({ ...l }));
+  if (named.length === 0) return P.checklist;
   const areas = named.length > MAX_NAMED ? P.painMany : joinHebrew(named);
-  return P.checklist.map((l, i) => (i === 1 ? { at: l.at, label: P.painLine.replace("{areas}", areas) } : { ...l }));
+  return P.checklist.map((l, i) => (i === 1 ? { ...l, label: P.painLine.replace("{areas}", areas) } : l));
 }

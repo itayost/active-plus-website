@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { BODY_MODEL, SIZES } from "@/lib/funnel/images";
+import { bodyModel, SIZES } from "@/lib/funnel/images";
 import type { Answers } from "@/lib/funnel/types";
 import { cn } from "@/lib/utils";
 import type { Option } from "./OptionList";
@@ -33,7 +33,7 @@ const GLOWS: Record<string, { male: readonly Point[]; female: readonly Point[]; 
 
 function Figure({ gender, selected }: { gender: Answers["gender"]; selected: readonly string[] }) {
   const key = gender === "female" ? "female" : "male";
-  const model = BODY_MODEL[key];
+  const model = bodyModel(gender);
   return (
     <div aria-hidden="true" className="relative mx-auto w-full max-w-[150px] self-center" style={{ aspectRatio: `${model.width} / ${model.height}` }}>
       <Image src={model.src} alt="" fill sizes={SIZES.body} className="object-contain" />

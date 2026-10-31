@@ -10,7 +10,10 @@ import type { Answers, Step } from "./types";
  * half a second or more on a phone; warming the next screens removes that.
  */
 
-export const IMG = "/img/funnel/app";
+const IMG = "/img/funnel/app";
+
+/** The landing screen's photo. */
+export const HERO = `${IMG}/entry-hero.webp`;
 
 /** next/image `sizes` per kind of photo; the screens pass the same string. */
 export const SIZES = {
@@ -22,12 +25,12 @@ export const SIZES = {
   body: "150px",
 } as const;
 
-export type FunnelImage = { src: string; sizes: string };
+type FunnelImage = { src: string; sizes: string };
 
 type Gender = Answers["gender"];
-type GoalKey = keyof typeof COPY.goalReinforcement;
+export type GoalKey = keyof typeof COPY.goalReinforcement;
 
-const isGoal = (goal: string | undefined): goal is GoalKey =>
+export const isGoal = (goal: string | undefined): goal is GoalKey =>
   goal !== undefined && Object.prototype.hasOwnProperty.call(COPY.goalReinforcement, goal);
 
 /** The goal screen's photo: the goal's own for a woman, one photo for a man (strength when no goal was saved). */
@@ -41,10 +44,13 @@ export const reinforcement2Image = (gender: Gender) =>
 
 export const ageImage = (gender: Gender, file: string) => `${IMG}/age-${gender === "male" ? "male" : "female"}-${file}.webp`;
 
-export const BODY_MODEL = {
+const BODY_MODEL = {
   male: { src: `${IMG}/body-male.webp`, width: 274, height: 878 },
   female: { src: `${IMG}/body-female.webp`, width: 295, height: 876 },
 } as const;
+
+/** The body figure on bodyAreas: the woman's for a woman, the man's otherwise. */
+export const bodyModel = (gender: Gender) => BODY_MODEL[gender === "female" ? "female" : "male"];
 
 const many = (sizes: string, srcs: readonly string[]): FunnelImage[] => srcs.map((src) => ({ src, sizes }));
 
@@ -57,7 +63,7 @@ export function stepImages(step: Step, answers: Answers): FunnelImage[] {
   const gender = answers.gender;
   switch (step) {
     case "welcome2":
-      return many(SIZES.screen, [`${IMG}/entry-hero.webp`]);
+      return many(SIZES.screen, [HERO]);
     case "gender":
       return many(SIZES.card, COPY.gender.options.map((o) => o.image));
     case "dob": {
@@ -69,7 +75,7 @@ export function stepImages(step: Step, answers: Answers): FunnelImage[] {
     case "reinforcement2":
       return gender ? many(SIZES.screen, [reinforcement2Image(gender)]) : [];
     case "bodyAreas":
-      return gender ? many(SIZES.body, [BODY_MODEL[gender === "female" ? "female" : "male"].src]) : [];
+      return gender ? many(SIZES.body, [bodyModel(gender).src]) : [];
     default:
       return [];
   }
