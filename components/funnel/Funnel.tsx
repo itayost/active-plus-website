@@ -12,6 +12,7 @@ import FunnelChrome from "./FunnelChrome";
 import { STEP_TITLE_ID } from "./parts";
 import { renderStep, type StepActions } from "./steps";
 import { useBrowserBack } from "./useBrowserBack";
+import { usePreloadImages } from "./usePreloadImages";
 
 /** The continue taps the app reports as their own events, by the step they leave. */
 const CONTINUE_EVENT: Partial<Record<Step, ActionEvent>> = {
@@ -45,12 +46,18 @@ export default function Funnel() {
   const [complete, setComplete] = useState(false);
   // A code is being sent or checked, or the answers merged: back would strand that work.
   const [busy, setBusy] = useState(false);
+  // Which way the last move went, so the new screen slides in from the side it came from; null before any move.
+  const [enter, setEnter] = useState<"forward" | "back" | null>(null);
 
-  /** Shows a screen and saves where the visitor is; the browser history is the caller's business. */
-  const show = useCallback((next: FunnelState) => {
+  /**
+   * Shows a screen and saves where the visitor is; the browser history is the caller's business.
+   * Only go() moves forward: every other caller (the browser's back, the back arrow) goes back.
+   */
+  const show = useCallback((next: FunnelState, direction: "forward" | "back" = "back") => {
     setState(next);
     saveStep(next.step);
     setMoves((n) => n + 1);
+    setEnter(direction);
   }, []);
 
   const browser = useBrowserBack({ state, blocked: busy || complete || state.step === "planBuilding", show });
@@ -73,6 +80,9 @@ export default function Funnel() {
     delete document.documentElement.dataset.funnelResume;
     if (restored !== "welcome2") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
   }, [restored]);
+
+  // The next screens' photos load while this one is read (after the restore, so a returning visitor warms their own step's next).
+  usePreloadImages(state.step, state.answers, restored !== null);
 
   const track = useCallback(
     (event: FunnelEventName) => {
@@ -100,7 +110,7 @@ export default function Funnel() {
   const go = useCallback(
     (next: FunnelState) => {
       browser.forward(state, next);
-      show(next);
+      show(next, "forward");
     },
     [state, browser, show],
   );
@@ -170,7 +180,7 @@ export default function Funnel() {
   */
   return (
     <div data-funnel-root="" data-ready={restored === null ? undefined : ""} className="flex min-h-[100dvh] justify-center bg-sunken">
-      <div className="relative flex w-full max-w-[560px] flex-col bg-sunken md:shadow-lift-2">
+      <div className="relative flex w-full max-w-[560px] flex-col overflow-x-clip bg-sunken md:shadow-lift-2">
         {photo ? (
           <div className="absolute inset-x-0 top-0 z-20 px-2 pt-[max(0.5rem,env(safe-area-inset-top))]">{chrome}</div>
         ) : (
@@ -180,6 +190,8 @@ export default function Funnel() {
           key={`${step}-${state.time.sub}-${state.register.sub}`}
           aria-labelledby={STEP_TITLE_ID}
           data-step={step}
+          // No slide on the first paint: welcome2 (or a restored step) is simply there.
+          data-enter={enter ?? undefined}
           className={photo ? "flex flex-1 flex-col" : "gutter-x flex flex-1 flex-col pt-4"}
         >
           {renderStep(state, actions, sessionId)}

@@ -439,6 +439,71 @@ html {
 }
 
 /*
+  Questionnaire motion (components/funnel). A new screen slides in from where
+  reading goes: forward comes from the left (RTL), back from the right. A
+  picked answer gives one short pop, and the progress segment just reached
+  fills from the right. Under reduced motion all three are off (the rule at
+  the end of this file shortens every animation to nothing).
+*/
+@keyframes funnel-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--funnel-from));
+  }
+}
+
+@keyframes funnel-pop {
+  40% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes funnel-tick {
+  from {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes funnel-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/*
+  backwards, not both: a transform animation that keeps filling after it ends
+  makes the screen the containing block of its position:fixed children, so the
+  otp "finishing" overlay would cover the screen's box instead of the viewport.
+*/
+[data-funnel-root] [data-enter] {
+  animation: funnel-in 280ms var(--ease-out-expo) backwards;
+}
+
+[data-funnel-root] [data-enter="forward"] {
+  --funnel-from: -28px;
+}
+
+[data-funnel-root] [data-enter="back"] {
+  --funnel-from: 28px;
+}
+
+.funnel-pop {
+  animation: funnel-pop 280ms var(--ease-out-expo);
+}
+
+.funnel-tick {
+  animation: funnel-tick 320ms var(--ease-out-expo);
+}
+
+.funnel-fill {
+  transform-origin: right;
+  animation: funnel-fill 420ms var(--ease-out-expo) both;
+}
+
+/*
   Marquee (components/ui/Marquee.tsx): every set slides by its own width, so
   the loop restarts with the next set exactly where the first began. The page
   is RTL, so the strip moves rightward and new marks come in from the left,

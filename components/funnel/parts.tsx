@@ -163,7 +163,18 @@ export function FootNote({ text, lock = false }: { text: string; lock?: boolean 
 }
 
 /** The circular (or, for chips, rounded-square) check every choice card carries. */
-export function Tick({ on, shape = "round", tone = "blue" }: { on: boolean; shape?: "round" | "square"; tone?: "blue" | "green" }) {
+export function Tick({
+  on,
+  shape = "round",
+  tone = "blue",
+  pop = false,
+}: {
+  on: boolean;
+  shape?: "round" | "square";
+  tone?: "blue" | "green";
+  /** Just picked: the check springs in once. */
+  pop?: boolean;
+}) {
   const filled = tone === "green" ? "border-green-deep bg-green-deep" : "border-blue-deep bg-blue-deep";
   return (
     <span
@@ -172,6 +183,7 @@ export function Tick({ on, shape = "round", tone = "blue" }: { on: boolean; shap
         "inline-flex shrink-0 items-center justify-center border-2 text-white",
         shape === "round" ? "h-8 w-8 rounded-pill" : "h-7 w-7 rounded-[9px]",
         on ? filled : "border-ink/20 bg-surface",
+        on && pop && "funnel-tick",
       )}
     >
       <CheckIcon className={cn("h-[18px] w-[18px]", on ? "opacity-100" : "opacity-0")} />

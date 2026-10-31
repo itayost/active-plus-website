@@ -1,10 +1,9 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { COPY, g } from "@/lib/funnel/copy";
+import { goalImage, HERO, isGoal, reinforcement2Image, SIZES } from "@/lib/funnel/images";
 import type { Answers } from "@/lib/funnel/types";
 import { ContinueButton, STEP_TITLE_ID } from "./parts";
-
-const IMG = "/img/funnel/app";
 
 type Gender = Answers["gender"];
 
@@ -32,7 +31,7 @@ function PhotoScreen({
         alt=""
         fill
         priority={priority}
-        sizes="(min-width: 560px) 560px, 100vw"
+        sizes={SIZES.screen}
         className="-z-10 object-cover"
         style={{ objectPosition: `${focusX}% 30%` }}
       />
@@ -63,7 +62,7 @@ const PHOTO_BODY = "mx-auto mt-4 max-w-[30rem] text-[1.25rem] font-bold leading-
 /** The website's entry screen, as the apps open: wordmark, promise, one button. */
 export function Welcome2({ onContinue }: { onContinue: () => void }) {
   return (
-    <PhotoScreen image={`${IMG}/entry-hero.webp`} priority>
+    <PhotoScreen image={HERO} priority>
       <p aria-label="פעילים פלוס" className="font-display text-[2.75rem] font-extrabold leading-none">
         פעילים<span className="text-[#8be0a4]">+</span>
       </p>
@@ -80,18 +79,14 @@ export function Welcome2({ onContinue }: { onContinue: () => void }) {
   );
 }
 
-type GoalKey = keyof typeof COPY.goalReinforcement;
-
-const isGoal = (goal: string | undefined): goal is GoalKey =>
-  goal !== undefined && Object.prototype.hasOwnProperty.call(COPY.goalReinforcement, goal);
+const STRETCH = goalImage("female", "flexibility_balance");
 
 /** Right after the age question: echoes the goal picked first (strength when none was saved). */
 export function GoalReinforcement({ gender, goal, onContinue }: { gender: Gender; goal: string | undefined; onContinue: () => void }) {
   const copy = COPY.goalReinforcement[isGoal(goal) ? goal : "strength"];
-  const female = gender === "female";
-  const image = female ? copy.female : "goal-male";
+  const image = goalImage(gender, goal);
   return (
-    <PhotoScreen image={`${IMG}/${image}.webp`} focusX={female && image === "goal-female-stretch" ? 60 : 50}>
+    <PhotoScreen image={image} focusX={image === STRETCH ? 60 : 50}>
       <PhotoTitle lead={copy.lead} accent={copy.accent} />
       <p className={PHOTO_BODY}>{copy.body}</p>
       <ContinueButton label={g(gender, COPY.common.continue.fem, COPY.common.continue.masc)} onClick={onContinue} />
@@ -101,9 +96,8 @@ export function GoalReinforcement({ gender, goal, onContinue }: { gender: Gender
 
 /** "התאמה אישית", between the second and third parts of the questionnaire. */
 export function Reinforcement2({ gender, onContinue }: { gender: Gender; onContinue: () => void }) {
-  const image = gender === "female" ? "reinforcement2-female" : "reinforcement2-male";
   return (
-    <PhotoScreen image={`${IMG}/${image}.webp`}>
+    <PhotoScreen image={reinforcement2Image(gender)}>
       <PhotoTitle lead={COPY.reinforcement2.titleLead} accent={COPY.reinforcement2.titleAccent} />
       <p className={PHOTO_BODY}>{COPY.reinforcement2.body}</p>
       <ContinueButton label={g(gender, COPY.common.continue.fem, COPY.common.continue.masc)} onClick={onContinue} />

@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "../../lib/funnel/constants";
+import { AUTO_ADVANCE_MS, PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers, Step } from "../../lib/funnel/types";
 import {
@@ -18,6 +18,7 @@ import {
   seed,
   signIn,
   stored,
+  tap,
   title,
   walkToReinforcement,
 } from "./funnel-helpers";
@@ -28,6 +29,13 @@ import { GOOD_CODE, stubSupabase } from "./supabase-stub";
   signin.spec.ts), so these tests drive the real page and read the stored
   session back.
 */
+
+/** seed(), then the page's clock stops, so the tap-to-continue beat runs only on clock.runFor. */
+async function seedOnPausedClock(page: Page, step: Step, answers: Answers) {
+  await page.clock.install();
+  await seed(page, step, answers);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+}
 
 const THROUGH_MEMORY: Answers = {
   training_goals: ["strength"],
@@ -96,6 +104,37 @@ test.describe("with reduced motion", () => {
     await choose(page, "לרדת במשקל");
     await expect(screen(page).getByRole("radio", { name: "לרדת במשקל" })).toBeChecked();
     await expect(next(page)).toBeEnabled();
+  });
+
+  test("a tapped answer is saved and moves on by itself; another tap in the beat changes it", async ({ page }) => {
+    await seedOnPausedClock(page, "frequency", THROUGH_FREQUENCY);
+    await tap(page, "כמעט כל יום");
+    await tap(page, "כ־3 פעמים בשבוע");
+    await expectStep(page, "frequency");
+    await page.clock.runFor(AUTO_ADVANCE_MS);
+    await expectStep(page, "bodyAreas");
+    expect((await stored(page)).answers).toMatchObject({ training_frequency_choice: "three_week" });
+  });
+
+  test("an arrow key only moves the selection: the question waits for continue", async ({ page }) => {
+    await seedOnPausedClock(page, "frequency", THROUGH_FREQUENCY);
+    await screen(page).getByRole("radio", { checked: true }).focus();
+    await page.keyboard.press("ArrowDown");
+    await page.clock.runFor(AUTO_ADVANCE_MS * 2);
+    await expectStep(page, "frequency");
+    await next(page).click();
+    await expectStep(page, "bodyAreas");
+  });
+
+  test("an arrow key during the beat cancels the tap: the answer on screen is never replaced", async ({ page }) => {
+    await seedOnPausedClock(page, "frequency", THROUGH_FREQUENCY);
+    await tap(page, "כמעט כל יום");
+    const tapped = screen(page).getByRole("radio", { name: "כמעט כל יום", exact: true });
+    await tapped.focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(tapped).not.toBeChecked();
+    await page.clock.runFor(AUTO_ADVANCE_MS * 2);
+    await expectStep(page, "frequency");
   });
 
   test("the gender and age photo cards move on with one tap, the age photos following the gender", async ({ page }) => {

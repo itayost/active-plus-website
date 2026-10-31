@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { bodyModel, SIZES } from "@/lib/funnel/images";
 import type { Answers } from "@/lib/funnel/types";
 import { cn } from "@/lib/utils";
 import type { Option } from "./OptionList";
@@ -30,17 +31,12 @@ const GLOWS: Record<string, { male: readonly Point[]; female: readonly Point[]; 
   ankle: { male: [[0.27, 0.878], [0.679, 0.878]], female: [[0.38, 0.875], [0.736, 0.875]] },
 };
 
-const MODEL = {
-  male: { src: "/img/funnel/app/body-male.webp", width: 274, height: 878 },
-  female: { src: "/img/funnel/app/body-female.webp", width: 295, height: 876 },
-} as const;
-
 function Figure({ gender, selected }: { gender: Answers["gender"]; selected: readonly string[] }) {
   const key = gender === "female" ? "female" : "male";
-  const model = MODEL[key];
+  const model = bodyModel(gender);
   return (
     <div aria-hidden="true" className="relative mx-auto w-full max-w-[150px] self-center" style={{ aspectRatio: `${model.width} / ${model.height}` }}>
-      <Image src={model.src} alt="" fill sizes="150px" className="object-contain" />
+      <Image src={model.src} alt="" fill sizes={SIZES.body} className="object-contain" />
       {Object.entries(GLOWS).flatMap(([area, glow]) =>
         glow[key].map(([x, y], i) => (
           <span
