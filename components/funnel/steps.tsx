@@ -80,11 +80,14 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
   const value = (Array.isArray(draft) ? draft[0] : draft) ?? (question.asList ? undefined : (saved as string | undefined));
   const options = question.options.map((o) => optionOf(o, gender));
   const pick = (v: string) => ({ [question.key]: question.asList ? [v] : v }) as Answers;
-  // A tap moves on after a short beat; another tap meanwhile restarts it with the new answer.
+  // A tap moves on after a short beat; another tap meanwhile restarts it with the new answer,
+  // and an arrow key meanwhile cancels it, so what moves on is always the answer on screen.
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const tapped = useRef<string | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
   const onPick = (v: string) => {
     clearTimeout(timer.current);
+    tapped.current = v;
     timer.current = setTimeout(() => actions.answer(pick(v)), AUTO_ADVANCE_MS);
   };
   return (
@@ -97,17 +100,17 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
         name={question.key}
         options={options}
         value={value}
-        onChange={(v) => actions.setDraft(pick(v))}
+        onChange={(v) => {
+          if (v !== tapped.current) clearTimeout(timer.current);
+          actions.setDraft(pick(v));
+        }}
         onPick={onPick}
       />
       <ContinueButton
         pinned
         label={question.cta ? text(question.cta, gender) : continueLabel(gender)}
         disabled={!value}
-        onClick={() => {
-          clearTimeout(timer.current);
-          if (value) actions.answer(pick(value));
-        }}
+        onClick={() => value && actions.answer(pick(value))}
       />
     </>
   );

@@ -38,10 +38,10 @@ export default function OptionList({ name, options, value, onChange, onPick }: P
           <label
             key={option.value}
             className="relative block cursor-pointer"
-            onPointerUp={(e) => {
-              // A tap that ends on the card, not a scroll that started on it.
-              if (e.pointerType === "mouse" && e.button !== 0) return;
-              onPick?.(option.value);
+            onClick={(e) => {
+              // A real tap or click (detail > 0). The click an arrow key or Space sends the radio has
+              // detail 0, and a drag or scroll that ends on the card sends no click here at all.
+              if (e.detail > 0) onPick?.(option.value);
             }}
           >
             <input

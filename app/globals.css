@@ -445,17 +445,10 @@ html {
   fills from the right. Under reduced motion all three are off (the rule at
   the end of this file shortens every animation to nothing).
 */
-@keyframes funnel-in-forward {
+@keyframes funnel-in {
   from {
     opacity: 0;
-    transform: translateX(-28px);
-  }
-}
-
-@keyframes funnel-in-back {
-  from {
-    opacity: 0;
-    transform: translateX(28px);
+    transform: translateX(var(--funnel-from));
   }
 }
 
@@ -480,12 +473,21 @@ html {
   }
 }
 
+/*
+  backwards, not both: a transform animation that keeps filling after it ends
+  makes the screen the containing block of its position:fixed children, so the
+  otp "finishing" overlay would cover the screen's box instead of the viewport.
+*/
+[data-funnel-root] [data-enter] {
+  animation: funnel-in 280ms var(--ease-out-expo) backwards;
+}
+
 [data-funnel-root] [data-enter="forward"] {
-  animation: funnel-in-forward 280ms var(--ease-out-expo) both;
+  --funnel-from: -28px;
 }
 
 [data-funnel-root] [data-enter="back"] {
-  animation: funnel-in-back 280ms var(--ease-out-expo) both;
+  --funnel-from: 28px;
 }
 
 .funnel-pop {
