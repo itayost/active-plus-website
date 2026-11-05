@@ -149,8 +149,7 @@ test.describe("accessibility", () => {
   };
 
   test("every checkout step, the error and the success page have no serious axe violations", async ({ page }) => {
-    // Polled: after Otp's router.push("/payment") Next drops and re-adds <title> while the navigation commits,
-    // and a single axe run can land in that gap (document-title). A lasting violation still fails at the timeout.
+    // Polled so a transient state between steps does not fail the run. A lasting violation still fails at the timeout.
     await stubSupabase(page, SIGN_UP_STUB);
     await stubFunctions(page, { status: 409, body: { code: "already_subscribed" } });
     await openCheckout(page);

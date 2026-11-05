@@ -36,7 +36,9 @@ describe("buildCsp", () => {
 describe("buildCsp for the checkout (Grow's wallet SDK)", () => {
   const csp = buildCsp("https://abcd.supabase.co", { growWallet: true });
   it("adds Grow's CDN script, stylesheet and fonts, its API and card frame, and Google Pay", () => {
-    expect(directive(csp, "script-src")).toBe("script-src 'self' 'unsafe-inline' https://cdn.meshulam.co.il https://pay.google.com");
+    expect(directive(csp, "script-src")).toBe(
+      "script-src 'self' 'unsafe-inline' https://cdn.meshulam.co.il https://pay.google.com https://meshulam.co.il/_media/js/apple_pay_sdk/sdk.min.js",
+    );
     expect(directive(csp, "style-src")).toBe("style-src 'self' 'unsafe-inline' https://cdn.meshulam.co.il");
     expect(directive(csp, "font-src")).toBe("font-src 'self' https://cdn.meshulam.co.il");
     // Google Pay's method manifest is at google.com/pay, which redirects to www.google.com/pay; blocked,
@@ -55,13 +57,9 @@ describe("buildCsp for the checkout (Grow's wallet SDK)", () => {
       "img-src 'self' data: blob: https://cdn.meshulam.co.il https://www.gstatic.com https://pay.google.com https://pay.sandbox.google.com",
     );
   });
-  it("only https origins, never a wildcard or eval, and the rest stays as on every page", () => {
-    // Origins only; connect-src alone may name a path (Google Pay's method manifest). The one wildcard is
-    // CreditGuard's card frame, whose host differs between test and production (Hyp documents *.creditguard.co.il).
-    for (const [key, sources] of Object.entries(GROW_WALLET_SOURCES)) {
-      const source = key === "connect" ? /^https:\/\/[a-z0-9.-]+(\/[a-z0-9-]+)?$/ : /^https:\/\/[a-z0-9.-]+$/;
-      for (const value of sources) if (value !== "https://*.creditguard.co.il") expect(value).toMatch(source);
-    }
+  it("never a wildcard or eval, and the rest stays as on every page", () => {
+    // The one wildcard is CreditGuard's card frame, whose host differs between test and production (Hyp documents
+    // *.creditguard.co.il). The test above pins every source exactly.
     expect(csp.replace("https://*.creditguard.co.il", "")).not.toContain("*");
     expect(GROW_WALLET_SOURCES.frame).toContain("https://*.creditguard.co.il");
     for (const [key, sources] of Object.entries(GROW_WALLET_SOURCES)) {

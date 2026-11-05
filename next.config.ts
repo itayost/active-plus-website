@@ -37,9 +37,10 @@ const nextConfig: NextConfig = {
         ],
       },
       // Checkout only: Grow's wallet SDK opens over this page (its CDN, API and
-      // card frame, and Google Pay). The Payment Request API is delegated to
-      // Google Pay and Grow's frames, which may offer it. A later rule wins
-      // for the same header key.
+      // card frame, and Google Pay), and Grow's Apple Pay script loads here. The
+      // Payment Request API is delegated to Google Pay and Grow's frames, which
+      // may offer it. A later rule wins for the same header key. These apply
+      // only when /payment is a document load (lib/funnel/constants.ts).
       {
         source: "/payment",
         headers: [permissions(`(self ${GROW_WALLET_SOURCES.frame.map((origin) => `"${origin}"`).join(" ")})`), ...csp(true)],

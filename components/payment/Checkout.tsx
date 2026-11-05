@@ -68,7 +68,7 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
   // resumed draft or a refresh after price_changed may carry more): it is what shows, what is saved and what is charged.
   const chosen = clampInstallments(installments, prices.annual.maxInstallments);
 
-  // First load, and again after Otp's router.push("/payment") remounts the page: resume from the draft.
+  // On load: resume from the draft.
   useEffect(() => {
     let alive = true;
     void loadIdentity().then((loaded) => {

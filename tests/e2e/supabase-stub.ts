@@ -1,4 +1,5 @@
 import type { Page, Request, Route } from "@playwright/test";
+import { GROW_APPLE_PAY_SDK_URL } from "../../lib/security/csp";
 
 /** A host that never resolves: what the service-role client gets, so an e2e run can never write to a real project. */
 export const E2E_DEAD_SUPABASE_URL = "https://stub.supabase.invalid";
@@ -98,7 +99,8 @@ const nth = (list: number[], n: number) => list[Math.min(n, list.length - 1)];
 /**
  * Answers Supabase auth and REST calls and returns every call it saw, in
  * order. Any request to a host other than localhost or the stub is aborted
- * and recorded in `foreign`.
+ * and recorded in `foreign`, except the script every /payment load asks Grow
+ * for, which gets an empty answer.
  */
 export async function stubSupabase(page: Page, options: StubOptions = {}) {
   const { profileName = null, otpStatuses = [200], otpErrorCode = "sms_send_failed", mergeStatuses = [200], profileAfterMerge, fillError } = options;
@@ -110,7 +112,9 @@ export async function stubSupabase(page: Page, options: StubOptions = {}) {
 
   // Registered first, so it runs last: everything the Supabase route below does not take.
   await page.route("**/*", (route) => {
-    const { hostname } = new URL(route.request().url());
+    const url = route.request().url();
+    if (url === GROW_APPLE_PAY_SDK_URL) return route.fulfill({ status: 200, contentType: "application/javascript", body: "" });
+    const { hostname } = new URL(url);
     if (ALLOWED.has(hostname)) return route.fallback();
     foreign.push(hostname);
     return route.abort();

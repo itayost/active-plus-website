@@ -1,13 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ChangeEvent, type Ref } from "react";
 import Button from "@/components/ui/Button";
 import { ArrowIcon, CheckIcon, LockIcon, PhoneIcon } from "@/components/ui/icons";
 import PhoneNumber from "@/components/ui/PhoneNumber";
 import { useAlive } from "@/components/ui/useAlive";
 import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
-import { OTP_LENGTH, RESEND_SECONDS } from "@/lib/funnel/constants";
+import { OTP_LENGTH, PAYMENT_PATH, RESEND_SECONDS } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
 import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
 import { codeDigits, sendCode, VERIFY_MESSAGE, verifyCode } from "@/lib/funnel/signin";
@@ -23,7 +22,6 @@ const CODE_ID = "funnel-otp";
 const CODE_ERROR_ID = "funnel-otp-error";
 const RESEND_ERROR_ID = "funnel-otp-resend-error";
 const TICK_MS = 1000;
-const PAYMENT = "/payment";
 
 const C = COPY.otp;
 
@@ -94,15 +92,14 @@ type Props = {
   /** The funnel's session id (read once there): the merge and the events carry it. */
   sessionId: string;
   onEditPhone: () => void;
-  /** Signed in and merged: the funnel hides back and cancel. */
-  onComplete: () => void;
+  /** Signed in and merged. For a new user the "finishing" overlay stays up, so the caller must move on. */
+  onComplete: (kind: "new" | "existing") => void;
   /** True while a code is being checked or the answers merged: the funnel's back is hidden. */
   onBusy: (busy: boolean) => void;
 };
 
-/** otp: verify the SMS code, then merge the answers and hand off to /payment. */
+/** otp: verify the SMS code, merge the answers, then tell the caller. */
 export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete, onBusy }: Props) {
-  const router = useRouter();
   const e164 = toE164(phone);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -148,13 +145,11 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
     if (result.kind === "noProfile") return setPhase("noProfile");
     if (result.kind === "error") return setPhase("failed");
     handOffToPayment(answers.gender);
-    onComplete();
+    onComplete(result.kind);
     if (result.kind === "existing") {
       setName(result.name);
       setPhase("existing");
-      return;
     }
-    router.push(PAYMENT); // the overlay stays up until /payment renders
   };
 
   const verify = async (token: string) => {
@@ -231,7 +226,7 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
         </span>
         <StepTitle size="interstitial">{C.welcomeBack.replace("{name}", name)}</StepTitle>
         <div className="mx-auto mt-7 grid max-w-[28rem]">
-          <Button href={PAYMENT} size="lg" className="w-full flex-wrap gap-y-1">
+          <Button href={PAYMENT_PATH} fullPageLoad size="lg" className="w-full flex-wrap gap-y-1">
             {C.toPayment}
             <ArrowIcon className="h-5 w-5" />
           </Button>

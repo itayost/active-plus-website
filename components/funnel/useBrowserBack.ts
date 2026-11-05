@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { planPop, pushesEntry, readEntry, withEntry, type Entry } from "@/lib/funnel/browser-history";
 import { back, canGoBack, type FunnelState } from "@/lib/funnel/machine";
@@ -19,7 +18,6 @@ type Options = {
  * history state, so Next's keys stay on it.
  */
 export function useBrowserBack({ state, blocked, show }: Options) {
-  const router = useRouter();
   // The funnel's entry the browser is on; null until the restore has tagged one.
   const position = useRef<Entry | null>(null);
   // What a popstate acts on: the screen and lock as last rendered.
@@ -42,12 +40,13 @@ export function useBrowserBack({ state, blocked, show }: Options) {
       // The browser is on the landed entry now, whatever happens next.
       position.current = readEntry(event.state);
       if (plan.kind === "leave") window.history.go(plan.delta);
-      else if (plan.kind === "exit") router.replace("/");
+      // A document load: Next's own popstate listener may run after this one, and its restore drops a router.replace.
+      else if (plan.kind === "exit") window.location.replace("/");
       else show(plan.state);
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [show, router]);
+  }, [show]);
 
   /**
    * On restore: tag the entry the funnel opened on (never push). One kept from before a reload keeps

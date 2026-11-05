@@ -84,7 +84,7 @@ function StoreFlow({ prices, linkPlan, children }: Priced) {
 
 /**
  * Flag on: a plan's button selects it and opens the checkout under the plans; a checkout draft
- * in sessionStorage (Otp's remount, Grow's cancel URL) reopens it directly,
+ * in sessionStorage (a reload, Grow's cancel URL) reopens it directly,
  * unless an explicit ?plan= link asks for another plan: the link wins and
  * that draft is discarded. Choosing a plan keeps ?plan= in step, so a reload
  * resumes the checkout the buyer was in.

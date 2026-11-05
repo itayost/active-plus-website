@@ -49,6 +49,8 @@ const SHARED =
 type Props = {
   children: ReactNode;
   href?: string;
+  /** An internal href loads as a new document, not a client navigation. */
+  fullPageLoad?: boolean;
   variant?: Variant;
   size?: Size;
   className?: string;
@@ -62,6 +64,7 @@ type Props = {
 export default function Button({
   children,
   href,
+  fullPageLoad,
   variant = "primary",
   size = "md",
   className = "",
@@ -91,10 +94,11 @@ export default function Button({
         </a>
       );
     }
+    const Anchor = fullPageLoad ? "a" : Link;
     return (
-      <Link href={href} className={classes} aria-describedby={ariaDescribedBy}>
+      <Anchor href={href} className={classes} aria-describedby={ariaDescribedBy}>
         {children}
-      </Link>
+      </Anchor>
     );
   }
 
