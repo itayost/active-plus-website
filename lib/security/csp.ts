@@ -27,6 +27,14 @@ function originOf(url: string | undefined): string | null {
 }
 
 /**
+ * Grow's Apple Pay script, which Grow requires in the head of the page where
+ * payment starts. It relays Apple Pay for a Grow page inside an iframe; the
+ * wallet (mp.min.js 1.4.1) opens its ApplePaySession itself and does not call
+ * it.
+ */
+export const GROW_APPLE_PAY_SDK_URL = "https://meshulam.co.il/_media/js/apple_pay_sdk/sdk.min.js";
+
+/**
  * What Grow's wallet SDK loads, read from its scripts (gs.min.js, the runtime
  * mp.min.js and its config/params.json), for both its DEV and PRODUCTION
  * environments: the loader, runtime, stylesheet and fonts on the CDN; its API
@@ -45,7 +53,7 @@ const GOOGLE_PAY = ["https://pay.google.com", "https://pay.sandbox.google.com"] 
 const GOOGLE_PAY_MANIFEST = ["https://google.com/pay", "https://www.google.com/pay"] as const;
 const CREDITGUARD_FRAME = "https://*.creditguard.co.il";
 export const GROW_WALLET_SOURCES = {
-  script: [GROW_CDN, GOOGLE_PAY[0]],
+  script: [GROW_CDN, GOOGLE_PAY[0], GROW_APPLE_PAY_SDK_URL],
   style: [GROW_CDN],
   font: [GROW_CDN],
   img: [GROW_CDN, "https://www.gstatic.com", ...GOOGLE_PAY],

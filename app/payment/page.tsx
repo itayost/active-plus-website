@@ -5,6 +5,7 @@ import PaymentFlow from "@/components/payment/PaymentFlow";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadPlanPrices } from "@/lib/plan-prices";
 import { describePlans } from "@/lib/pricing";
+import { GROW_APPLE_PAY_SDK_URL } from "@/lib/security/csp";
 
 const TITLE = "מסלולים ומחירים";
 /** The questionnaire ends here, right after the SMS code: the plan is ready, now the plan type. */
@@ -37,6 +38,8 @@ export default async function PaymentPage({
   const [{ plan, cancelled }, prices] = await Promise.all([searchParams, planPrices()]);
   return (
     <FullscreenColumn>
+      {/* React moves an async script into the head, where Grow requires it. */}
+      <script src={GROW_APPLE_PAY_SDK_URL} async />
       <PaymentFlow
         prices={prices}
         linkPlan={parsePlan(plan)}
