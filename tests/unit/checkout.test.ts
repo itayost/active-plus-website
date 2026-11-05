@@ -165,7 +165,7 @@ describe("back/forward cache", () => {
 // /code-review: a stored draft overrode an explicit ?plan= link.
 describe("resumableDraft", () => {
   const draft = { plan: "monthly" as const, name: "רחל כהן", email: "r@example.com", installments: 1 };
-  it("a link without a plan (Otp's remount, Grow's cancel URL) resumes the draft", () => {
+  it("a link without a plan (a reload, Grow's cancel URL) resumes the draft", () => {
     expect(resumableDraft(draft, undefined)).toEqual(draft);
   });
   it("a link to the draft's own plan resumes it; a link to another plan wins", () => {

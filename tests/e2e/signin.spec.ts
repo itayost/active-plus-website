@@ -4,6 +4,7 @@ import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "../../lib/constants";
 import { OTP_LENGTH, RESEND_SECONDS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers } from "../../lib/funnel/types";
+import { GROW_APPLE_PAY_SDK_URL } from "../../lib/security/csp";
 import { expectStep, screen, seed, settle, stored, title } from "./funnel-helpers";
 import { ACCESS_TOKEN, GOOD_CODE, stubSupabase, type StubOptions } from "./supabase-stub";
 
@@ -36,6 +37,11 @@ const back = (page: Page) => page.getByRole("button", { name: COPY.chrome.back }
 const nameInput = (page: Page) => screen(page).getByRole("textbox", { name: R.nameTitle.fem });
 const phoneInput = (page: Page) => screen(page).getByLabel(R.phoneLabel, { exact: true });
 const codeInput = (page: Page) => screen(page).getByLabel(O.codeLabel.replace("{n}", String(OTP_LENGTH)));
+/** Resolves with /payment's CSP once it loads as a document, and never on a client navigation. */
+const paymentDocumentCsp = (page: Page) =>
+  page
+    .waitForResponse((res) => new URL(res.url()).pathname === "/payment" && res.request().resourceType() === "document")
+    .then((res) => res.headers()["content-security-policy"]);
 
 let stub: Awaited<ReturnType<typeof stubSupabase>> | null = null;
 
@@ -167,8 +173,10 @@ test("a new user's answers are merged with the session id, then on to /payment",
   const stub = await start(page);
   const sessionId = await page.evaluate(() => localStorage.getItem("ap.funnel.session_id"));
   await toOtp(page);
+  const paymentCsp = paymentDocumentCsp(page);
   await codeInput(page).fill(GOOD_CODE);
   await expect(page).toHaveURL(/\/payment$/);
+  expect(await paymentCsp).toContain(GROW_APPLE_PAY_SDK_URL);
 
   const [merge] = stub.to("/rest/v1/rpc/merge_funnel_session");
   expect(merge.authorization).toBe(`Bearer ${ACCESS_TOKEN}`);
@@ -201,8 +209,10 @@ test("an existing user only gets missing answers filled, keeps their name, and i
   expect(fill.body).toHaveProperty("p_answers.gender", "female");
   expect(stub.to("/rest/v1/rpc/merge_funnel_session")).toHaveLength(0);
 
+  const paymentCsp = paymentDocumentCsp(page);
   await screen(page).getByRole("link", { name: O.toPayment }).click();
   await expect(page).toHaveURL(/\/payment$/);
+  expect(await paymentCsp).toContain(GROW_APPLE_PAY_SDK_URL);
 });
 
 test("a failed merge offers 'נסו שוב', which retries the merge only", async ({ page }) => {

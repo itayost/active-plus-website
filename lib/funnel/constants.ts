@@ -1,3 +1,8 @@
+/**
+ * Where the funnel hands off. Always a document load, never a client navigation: /payment's CSP and
+ * Permissions-Policy, which Grow's wallet needs, apply only to a document.
+ */
+export const PAYMENT_PATH = "/payment";
 export const OTP_LENGTH = 6;
 export const RESEND_SECONDS = 12;
 export const SESSION_TTL_DAYS = 30;
