@@ -38,9 +38,18 @@ describe("terms of use", () => {
     ]);
   });
 
-  it("keeps all 14 sections of the approved text", () => {
+  it("keeps every section of the approved text, in order", () => {
     expect(termsSections(priceTokens(null)).map((s) => s.title.split(".")[0])).toEqual(
-      Array.from({ length: 14 }, (_, i) => String(i + 1)),
+      ["1", "2", "3", "4", "5", "5א", "6", "7", "8", "9", "10", "11", "12", "13", "14"],
     );
+  });
+
+  it("states the supply policy and the company's liability, which Grow's review requires", () => {
+    const sections = termsSections(priceTokens(null));
+    const paragraphs = (prefix: string) =>
+      sections.find((s) => s.title.startsWith(prefix))!.blocks.flatMap((b) => (b.kind === "paragraph" ? b.lines : []));
+    expect(sections.map((s) => s.title)).toEqual(expect.arrayContaining(["5א. אספקת השירות", "9. אחריות והגבלת אחריות"]));
+    expect(paragraphs("5א.").map((line) => line.split(" ")[0])).toEqual(["5א.1.", "5א.2.", "5א.3.", "5א.4."]);
+    expect(paragraphs("9.").map((line) => line.split(" ")[0])).toEqual(["9.1.", "9.2.", "9.3.", "9.4.", "9.5.", "9.6."]);
   });
 });
