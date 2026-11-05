@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { CHECKOUT_COPY as C } from "../../lib/payment/copy";
-import { GROW_URL, openCheckout, signUp, SIGN_UP_STUB, stubFunctions, walletEvent, walletSeen } from "./checkout-helpers";
+import { GROW_URL, openCheckout, pay, SIGN_UP_STUB, signUp, stubFunctions, walletEvent, walletSeen } from "./checkout-helpers";
 import { stubSupabase } from "./supabase-stub";
 
 /* Grow's success URL (flag on): the welcome, the invoice email from the draft, the next steps. */
@@ -22,7 +22,7 @@ test("after the wallet's success, the success page reads the invoice email once 
   await stubFunctions(page);
   await openCheckout(page);
   await signUp(page, "רחל כהן", "rachel@example.com");
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect.poll(() => walletSeen(page)).not.toBeNull();
   await walletEvent(page, "onSuccess", { status: 1 });
   await page.waitForURL("**/payment/success");
@@ -35,7 +35,7 @@ test("the success page reads the invoice email once from the draft stored before
   await stubFunctions(page);
   await openCheckout(page, "monthly");
   await signUp(page, "רחל כהן", "rachel@example.com");
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await page.waitForURL(GROW_URL);
   // Only the draft carries the address now: seeing it on the success page shows it was stored before the redirect.
   await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");

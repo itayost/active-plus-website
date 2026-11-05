@@ -86,8 +86,23 @@ export async function openCheckout(page: Page, plan: "annual" | "monthly" = "ann
   await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
 }
 
+/** The details step: the name's first word, then the rest. */
+export async function fillName(page: Page, name = "רחל כהן") {
+  const [first, ...rest] = name.split(" ");
+  await page.getByLabel(C.firstName).fill(first);
+  await page.getByLabel(C.lastName).fill(rest.join(" "));
+}
+
+export const termsBox = (page: Page) => page.getByRole("checkbox", { name: C.termsLink });
+
+/** The summary's pay button, with the terms accepted as a buyer must. */
+export async function pay(page: Page) {
+  await termsBox(page).check();
+  await page.getByRole("button", { name: C.pay }).click();
+}
+
 export async function signUp(page: Page, name = "רחל כהן", email = "r@example.com") {
-  await page.getByLabel(C.nameTitle).fill(name);
+  await fillName(page, name);
   await page.getByRole("button", { name: C.next }).click();
   await page.getByLabel(C.emailTitle).fill(email);
   await page.getByRole("button", { name: C.next }).click();

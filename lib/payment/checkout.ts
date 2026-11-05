@@ -26,6 +26,14 @@ export function isFullName(value: string): boolean {
   return safe.split(/\s+/).filter((word) => /\p{L}/u.test(word)).length >= 2;
 }
 
+/** The details step's two name fields, from the one name the checkout keeps: its first word, then the rest. */
+export function splitFullName(value: string): { first: string; last: string } {
+  const [first = "", ...rest] = value.trim().split(/\s+/);
+  return { first, last: rest.join(" ") };
+}
+
+export const joinFullName = (first: string, last: string): string => `${first} ${last}`.trim().replace(/\s+/g, " ");
+
 const EMAIL_MAX = 254;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export const isEmail = (value: string): boolean => value.trim().length <= EMAIL_MAX && EMAIL_RE.test(value.trim());

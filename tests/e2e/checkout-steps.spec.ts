@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { OTP_LENGTH } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import { CHECKOUT_COPY as C } from "../../lib/payment/copy";
-import { openCheckout, PLAN_CTA, signUp, SIGN_UP_STUB, stubFunctions } from "./checkout-helpers";
+import { fillName, openCheckout, pay, PLAN_CTA, SIGN_UP_STUB, signUp, stubFunctions } from "./checkout-helpers";
 import { stubSupabase } from "./supabase-stub";
 
 /* The checkout steps (flag on): identity, invoice email, phone, the stored draft and ?plan= links, focus, axe. */
@@ -21,13 +21,28 @@ test("a signed-in buyer with a full profile name only gives the email", async ({
   await expect(page.getByText("050-1234567")).toBeVisible();
 });
 
+test("the details step asks for a first and last name and shows the country, and the summary repeats them", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  const sent = await stubFunctions(page);
+  await openCheckout(page);
+  await expect(page.getByLabel(C.rows.country)).toHaveValue(C.country);
+  await expect(page.getByLabel(C.rows.country)).not.toBeEditable();
+  await signUp(page, "אנה מריה כהן");
+  await expect(page.getByRole("definition").filter({ hasText: "אנה מריה כהן" })).toBeVisible();
+  await expect(page.getByRole("definition").filter({ hasText: C.country })).toBeVisible();
+  await pay(page);
+  await expect.poll(() => sent.length).toBe(1);
+  expect(sent[0]).toMatchObject({ fullName: "אנה מריה כהן" });
+});
+
 test("a one-word name is refused before anything is sent", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
-  await page.getByLabel(C.nameTitle).fill("רחל");
+  await page.getByLabel(C.firstName).fill("רחל");
   await page.getByRole("button", { name: C.next }).click();
   await expect(page.getByRole("alert").filter({ hasText: C.nameError })).toBeVisible();
+  await expect(page.getByLabel(C.lastName)).toBeFocused();
 });
 
 test("editing the email from the summary after verifying returns to the summary without a new code", async ({ page }) => {
@@ -52,7 +67,7 @@ test("opening the checkout and every step move focus to its heading, in view und
   const heading = page.getByRole("heading", { name: C.heading });
   await expect(heading).toBeFocused();
   await expect(heading).toBeInViewport();
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await page.getByRole("button", { name: C.next }).click();
   await expect(page.getByLabel(C.emailTitle)).toBeVisible();
   await expect(heading).toBeFocused();
@@ -69,7 +84,7 @@ test("a ?plan= link for another plan wins over a stored draft, and the draft is 
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page, "annual");
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await expect.poll(() => draft(page)).toContain('"plan":"annual"');
   await page.goto("/payment?plan=monthly");
   await expect(planButton(page, "monthly")).toBeVisible();
@@ -82,7 +97,7 @@ test("a ?plan= link for another plan wins over a stored draft, and the draft is 
   await expect(page.getByText(`${C.chosenPlan} מנוי חודשי`)).toBeVisible();
   await expect(planButton(page, "monthly")).toHaveAttribute("aria-pressed", "true");
   await expect(planButton(page, "annual")).toHaveAttribute("aria-pressed", "false");
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
 });
 
@@ -90,7 +105,7 @@ test("a ?plan= link for the draft's own plan, or no plan in the link, resumes th
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page, "monthly");
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
   for (const url of ["/payment?plan=monthly", "/payment"]) {
     await page.goto(url);
@@ -105,7 +120,7 @@ test("choosing another plan keeps the link in step, so a reload resumes the chec
   await page.goto("/payment?plan=annual");
   await planButton(page, "monthly").click();
   await expect(page).toHaveURL(/plan=monthly/);
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await expect.poll(() => draft(page)).toContain('"plan":"monthly"');
   await page.reload();
   await expect(page.getByRole("heading", { name: C.heading })).toBeVisible();
@@ -116,9 +131,9 @@ test("opening the checkout stores nothing; typing starts the draft", async ({ pa
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
-  await expect(page.getByLabel(C.nameTitle)).toBeVisible();
+  await expect(page.getByLabel(C.firstName)).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toBeNull();
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toContain("רחל כהן");
 });
 
@@ -126,7 +141,7 @@ test("the phone number step goes back to the email; the code step does not offer
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
-  await page.getByLabel(C.nameTitle).fill("רחל כהן");
+  await fillName(page);
   await page.getByRole("button", { name: C.next }).click();
   await page.getByLabel(C.emailTitle).fill("r@example.com");
   await page.getByRole("button", { name: C.next }).click();
@@ -158,7 +173,7 @@ test.describe("accessibility", () => {
     await expect.poll(() => serious(page)).toEqual([]);
     await signUp(page);
     await expect.poll(() => serious(page)).toEqual([]);
-    await page.getByRole("button", { name: C.pay }).click();
+    await pay(page);
     await expect(page.getByRole("alert").filter({ hasText: C.errors.already_subscribed })).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);
     await page.evaluate(() => sessionStorage.removeItem("ap.checkout.draft"));
