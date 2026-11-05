@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { COPY } from "../../lib/funnel/copy";
 import { CHECKOUT_COPY as C } from "../../lib/payment/copy";
-import { GROW_URL, openCheckout, signUp, SIGN_UP_STUB, stubFunctions, walletEvent, walletSeen } from "./checkout-helpers";
+import { GROW_URL, openCheckout, pay, signUp, SIGN_UP_STUB, stubFunctions, termsBox, walletEvent, walletSeen } from "./checkout-helpers";
 import { watchCsp } from "./csp-helpers";
 import { stubSupabase } from "./supabase-stub";
 
@@ -15,7 +15,7 @@ test("signed out, annual in 6 installments: verifies the phone, opens Grow's wal
   await signUp(page);
   await page.getByLabel(C.rows.installments).selectOption("6");
   await expect(page.getByText("כל תשלום: 138 ₪")).toBeVisible();
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect(page.getByRole("button", { name: C.openingWallet })).toBeDisabled();
   await expect.poll(() => walletSeen(page)).toEqual(["DEV", 1, ["e2e-auth-code"]]);
   expect(sent).toEqual([{ plan: "ANNUAL", installments: 6, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 828 }]);
@@ -25,12 +25,33 @@ test("signed out, annual in 6 installments: verifies the phone, opens Grow's wal
   await page.waitForURL("**/payment/success");
 });
 
+test("the terms must be accepted before paying: nothing is sent, and the link opens them in a new tab", async ({ page }) => {
+  await stubSupabase(page, SIGN_UP_STUB);
+  const sent = await stubFunctions(page);
+  await openCheckout(page);
+  await signUp(page);
+  const link = page.getByRole("link", { name: C.termsLink });
+  await expect(link).toHaveAttribute("href", "/terms");
+  await expect(link).toHaveAttribute("target", "_blank");
+
+  await page.getByRole("button", { name: C.pay }).click();
+  const required = page.getByRole("alert").filter({ hasText: C.termsRequired });
+  await expect(required).toBeVisible();
+  await expect(termsBox(page)).toBeFocused();
+  expect(sent).toEqual([]);
+
+  await termsBox(page).check();
+  await expect(required).toHaveCount(0);
+  await page.getByRole("button", { name: C.pay }).click();
+  await expect.poll(() => sent.length).toBe(1);
+});
+
 test("annual: closing the wallet without paying returns to the summary, with no error", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect.poll(() => walletSeen(page)).not.toBeNull();
   await walletEvent(page, "onWalletChange", "close");
   await expect(page.getByRole("button", { name: C.pay })).toBeEnabled();
@@ -44,7 +65,7 @@ test("annual: a declined payment is reported once the buyer closes the wallet", 
   await stubFunctions(page);
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect.poll(() => walletSeen(page)).not.toBeNull();
   await walletEvent(page, "onFailure", { status: 0, message: "declined" });
   await walletEvent(page, "onWalletChange", "close");
@@ -58,7 +79,7 @@ test("annual: Grow's SDK not loading is reported, and nothing else happens", asy
   await page.route("https://cdn.meshulam.co.il/**", (route) => route.abort());
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect(page.getByRole("alert").filter({ hasText: C.errors.processor_error })).toBeVisible();
   await expect(page).toHaveURL(/\/payment/);
 });
@@ -68,7 +89,9 @@ test("no card-token consent is offered: the checkout never asks Grow to keep the
   await stubFunctions(page);
   await openCheckout(page);
   await signUp(page);
-  await expect(page.getByRole("checkbox")).toHaveCount(0);
+  // The terms are the one thing the buyer is asked to accept.
+  await expect(page.getByRole("checkbox")).toHaveCount(1);
+  await expect(termsBox(page)).toHaveCount(1);
 });
 
 test("monthly: no installments, standing-order terms, hands off to Grow's hosted page", async ({ page }) => {
@@ -78,7 +101,7 @@ test("monthly: no installments, standing-order terms, hands off to Grow's hosted
   await signUp(page);
   await expect(page.getByLabel(C.rows.installments)).toHaveCount(0);
   await expect(page.getByText("חיוב חודשי של 99 ₪ בהוראת קבע")).toBeVisible();
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await page.waitForURL(GROW_URL);
   expect(sent).toEqual([{ plan: "MONTHLY", installments: 1, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 99 }]);
 });
@@ -88,7 +111,7 @@ test("already subscribed: explains, offers the apps, stays on the site", async (
   await stubFunctions(page, { status: 409, body: { code: "already_subscribed" } });
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect(page.getByRole("alert").filter({ hasText: C.errors.already_subscribed })).toBeVisible();
   await expect(page.getByRole("link", { name: "App Store" }).first()).toBeVisible();
   await expect(page).toHaveURL(/\/payment/);
@@ -99,7 +122,7 @@ test("the price changed since the page loaded: says so, charges nothing, and the
   const sent = await stubFunctions(page, { status: 409, body: { code: "price_changed" } });
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect(page.getByRole("alert").filter({ hasText: C.errors.price_changed })).toBeVisible();
   await expect(page.getByRole("button", { name: C.pay })).toBeEnabled();
   await expect(page).toHaveURL(/\/payment/);
@@ -111,7 +134,7 @@ test("keys not set yet: the dormant answer sends buyers to the apps", async ({ p
   await stubFunctions(page, { status: 503, body: { code: "not_configured" } });
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect(page.getByRole("alert").filter({ hasText: C.errors.not_configured })).toBeVisible();
 });
 
@@ -130,7 +153,7 @@ test("a session without a usable phone is sent back to verify it (400 on the pho
   await stubFunctions(page, { status: 400, body: { code: "invalid_input", field: "phone" } });
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: C.pay }).click();
+  await pay(page);
   await expect(page.getByLabel(COPY.register.phoneLabel, { exact: true })).toBeVisible();
   await expect(page).toHaveURL(/\/payment/);
 });

@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Button from "@/components/ui/Button";
-import { fieldClass, LINKISH } from "@/components/funnel/parts";
+import { FieldError, fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
@@ -18,6 +19,8 @@ import { STEP_QUESTION } from "./CheckoutFields";
 import StoreButtons from "./StoreButtons";
 
 const INSTALLMENTS_ID = "checkout-installments";
+const TERMS_ERROR_ID = "checkout-terms-error";
+const TERMS_PATH = "/terms";
 const SUCCESS_PATH = "/payment/success";
 
 type Props = {
@@ -57,6 +60,9 @@ export default function CheckoutSummary({
 }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsMissing, setTermsMissing] = useState(false);
+  const termsBox = useRef<HTMLInputElement>(null);
   // A refresh after price_changed: Pay waits for the new prices, so a retry never sends the old expectedTotal.
   const [refreshing, startRefresh] = useTransition();
   // Back from Grow through the back/forward cache: the page returns as it left, mid-redirect. Make the button usable again.
@@ -70,6 +76,11 @@ export default function CheckoutSummary({
 
   const pay = async () => {
     if (busy) return;
+    if (!termsAccepted) {
+      setTermsMissing(true);
+      termsBox.current?.focus();
+      return;
+    }
     setStatus({ kind: annual ? "wallet" : "redirecting" });
     const supabase = await loadBrowserSupabase();
     const result = supabase
@@ -108,6 +119,7 @@ export default function CheckoutSummary({
     { label: C.rows.name, value: name, edit: "name" },
     { label: C.rows.email, value: email, edit: "email", ltr: true },
     ...(phone ? [{ label: C.rows.phone, value: formatLocal(phone), ltr: true }] : []),
+    { label: C.rows.country, value: C.country },
   ];
 
   return (
@@ -159,6 +171,31 @@ export default function CheckoutSummary({
       ) : (
         <p className="mt-6 text-lead">{C.monthlyTerms.replace("{amount}", formatShekel(price.total))}</p>
       )}
+
+      <div className="mt-6">
+        <label className="flex min-h-12 items-center gap-3 text-lead">
+          <input
+            ref={termsBox}
+            type="checkbox"
+            checked={termsAccepted}
+            aria-describedby={termsMissing ? TERMS_ERROR_ID : undefined}
+            aria-invalid={termsMissing ? true : undefined}
+            onChange={(event) => {
+              setTermsAccepted(event.target.checked);
+              if (event.target.checked) setTermsMissing(false);
+            }}
+            className="h-8 w-8 shrink-0 rounded-[8px] border-2 border-[#CFCFCF] accent-[var(--green-deep)]"
+          />
+          <span className="min-w-0 [overflow-wrap:anywhere]">
+            {C.termsBefore}
+            <Link href={TERMS_PATH} target="_blank" rel="noopener noreferrer" className={cn(LINKISH, "flex")}>
+              {C.termsLink}
+              <span className="sr-only"> {C.termsNewTab}</span>
+            </Link>
+          </span>
+        </label>
+        <FieldError id={TERMS_ERROR_ID} text={termsMissing ? C.termsRequired : ""} />
+      </div>
 
       {status.kind === "error" ? (
         <div role="alert" className="mt-6 rounded-field bg-danger/10 px-4 py-3 font-medium text-danger">

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clampInstallments, clearCheckoutDraft, takeResumableDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, readCheckoutDraft,
+  checkoutSteps, clampInstallments, clearCheckoutDraft, takeResumableDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, joinFullName, readCheckoutDraft, splitFullName,
   readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
@@ -207,5 +207,19 @@ describe("price copy", () => {
     const { CHECKOUT_COPY } = await import("@/lib/payment/copy");
     expect(CHECKOUT_COPY.errors.price_changed).toBe("המחיר או מספר התשלומים עודכנו. בדקו את הפרטים ונסו שוב.");
     expect(CHECKOUT_COPY.pricesUnavailable).toMatch(/המחירים/);
+  });
+});
+
+describe("the details step's two name fields", () => {
+  it("splits the one name the checkout keeps into its first word and the rest", () => {
+    expect(splitFullName("רחל כהן")).toEqual({ first: "רחל", last: "כהן" });
+    expect(splitFullName("  אנה   מריה כהן ")).toEqual({ first: "אנה", last: "מריה כהן" });
+    expect(splitFullName("רחל")).toEqual({ first: "רחל", last: "" });
+    expect(splitFullName("")).toEqual({ first: "", last: "" });
+  });
+  it("joins them back, tidying the spaces, and the result passes the backend's rule", () => {
+    expect(joinFullName(" אנה מריה ", " כהן ")).toBe("אנה מריה כהן");
+    expect(joinFullName("רחל", "")).toBe("רחל");
+    expect(isFullName(joinFullName("רחל", "כהן"))).toBe(true);
   });
 });
