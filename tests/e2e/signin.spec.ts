@@ -5,7 +5,7 @@ import { OTP_LENGTH, RESEND_SECONDS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers } from "../../lib/funnel/types";
 import { GROW_APPLE_PAY_SDK_URL } from "../../lib/security/csp";
-import { expectStep, screen, seed, settle, stored, title } from "./funnel-helpers";
+import { captureEvents, expectStep, screen, seed, settle, stored, title } from "./funnel-helpers";
 import { ACCESS_TOKEN, GOOD_CODE, stubSupabase, type StubOptions } from "./supabase-stub";
 
 /*
@@ -171,12 +171,18 @@ test("'ערוך מספר' goes back to the phone screen with the number filled i
 
 test("a new user's answers are merged with the session id, then on to /payment", async ({ page }) => {
   const stub = await start(page);
+  const beacons = await captureEvents(page);
   const sessionId = await page.evaluate(() => localStorage.getItem("ap.funnel.session_id"));
   await toOtp(page);
   const paymentCsp = paymentDocumentCsp(page);
   await codeInput(page).fill(GOOD_CODE);
   await expect(page).toHaveURL(/\/payment$/);
   expect(await paymentCsp).toContain(GROW_APPLE_PAY_SDK_URL);
+  // /payment reports its view under the session that led there, and only once it has, the storage is checked
+  // below: reporting it must not leave a funnel session behind.
+  await expect
+    .poll(() => beacons.events.filter((e) => e.step === "payment_view").map((e) => e.sessionId))
+    .toEqual([sessionId]);
 
   const [merge] = stub.to("/rest/v1/rpc/merge_funnel_session");
   expect(merge.authorization).toBe(`Bearer ${ACCESS_TOKEN}`);

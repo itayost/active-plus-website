@@ -145,7 +145,7 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
     const result: FinishResult = raw.kind === "existing" && firstWasNew.current ? { kind: "new" } : raw;
     if (result.kind === "noProfile") return setPhase("noProfile");
     if (result.kind === "error") return setPhase("failed");
-    handOffToPayment(answers.gender);
+    handOffToPayment(answers.gender, sessionId);
     if (result.kind === "new") {
       // A new account only: an existing user signing in again is not a registration. The funnel leaves for
       // /payment right after, so the move waits (at most TAG_WAIT_MS) for the tags to send it; the

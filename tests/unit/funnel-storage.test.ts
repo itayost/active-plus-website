@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 import { webcrypto } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { GENDER_FOR_PAYMENT, handOffToPayment, loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
+import {
+  GENDER_FOR_PAYMENT, handOffToPayment, loadSession, loadStep, paymentSessionId, resetSession, saveAnswers, saveStep, SESSION_FOR_PAYMENT,
+} from "@/lib/funnel/storage";
 
 const DAY = 86_400_000;
 
@@ -136,8 +138,38 @@ describe("funnel storage", () => {
     it("still clears the session when sessionStorage is blocked", () => {
       vi.spyOn(sessionStorage, "setItem").mockImplementation(() => { throw new Error("blocked"); });
       saveStep("otp");
-      expect(() => handOffToPayment("male")).not.toThrow();
+      expect(() => handOffToPayment("male", loadSession().id)).not.toThrow();
       expect(loadStep()).toBeNull();
+    });
+  });
+
+  describe("the payment page's session id", () => {
+    it("is the session handed over in this tab, and stores nothing", () => {
+      const { id } = loadSession();
+      handOffToPayment("female", id);
+      expect(sessionStorage.getItem(SESSION_FOR_PAYMENT)).toBe(id);
+      expect(paymentSessionId()).toBe(id);
+      expect(localStorage.getItem("ap.funnel.session_id")).toBeNull();
+    });
+    it("is a questionnaire session still in progress, read without changing it", () => {
+      const { id } = loadSession();
+      expect(paymentSessionId()).toBe(id);
+      expect(loadSession().id).toBe(id);
+    });
+    it("is a fresh id that is never saved when there is neither", () => {
+      const first = paymentSessionId();
+      expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+      expect(localStorage.length).toBe(0);
+      expect(sessionStorage.length).toBe(0);
+      expect(paymentSessionId()).not.toBe(first);
+    });
+    it("ignores a handed-over value that is not a session id", () => {
+      sessionStorage.setItem(SESSION_FOR_PAYMENT, "not-an-id");
+      expect(paymentSessionId()).not.toBe("not-an-id");
+    });
+    it("survives blocked storage", () => {
+      vi.spyOn(sessionStorage, "getItem").mockImplementation(() => { throw new Error("blocked"); });
+      expect(paymentSessionId()).toMatch(/^[0-9a-f-]{36}$/);
     });
   });
 });

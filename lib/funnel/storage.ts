@@ -105,18 +105,49 @@ export function loadStep(now = Date.now()): Step | null {
 /** sessionStorage key the payment page reads for its gendered wording. */
 export const GENDER_FOR_PAYMENT = "ap.funnel.gender";
 
+/** sessionStorage key: the funnel session the payment page reports its view under. */
+export const SESSION_FOR_PAYMENT = "ap.funnel.payment_session";
+
+function setForPayment(key: string, value: string | undefined): void {
+  if (!value) return;
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    // Blocked storage: the payment page falls back (neutral wording, its own analytics id).
+  }
+}
+
 /**
  * After a successful merge: the answers now live on the profile, so the local
  * session is cleared, but the gender is kept for the payment page (the app's
- * paywall lost it to exactly this reset).
+ * paywall lost it to exactly this reset), and so is the session id, so the
+ * page's payment_view joins the walk that led to it. Both stay in this tab only.
  */
-export function handOffToPayment(gender: Answers["gender"]): void {
-  if (gender) {
-    try {
-      sessionStorage.setItem(GENDER_FOR_PAYMENT, gender);
-    } catch {
-      // Blocked storage: the payment page falls back to its neutral wording.
-    }
-  }
+export function handOffToPayment(gender: Answers["gender"], sessionId?: string): void {
+  setForPayment(GENDER_FOR_PAYMENT, gender);
+  setForPayment(SESSION_FOR_PAYMENT, sessionId);
   resetSession();
+}
+
+const SESSION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The id /payment reports payment_view under, read without storing anything:
+ * the session handed over in this tab, else a questionnaire session still in
+ * progress (a visitor who opened /payment from a link mid-walk), else a fresh
+ * id that is never saved. The page must not leave a funnel session behind:
+ * handOffToPayment has just cleared it.
+ */
+export function paymentSessionId(now = Date.now()): string {
+  let handedOver: string | null = null;
+  try {
+    handedOver = sessionStorage.getItem(SESSION_FOR_PAYMENT);
+  } catch {
+    // Blocked storage: fall through.
+  }
+  if (handedOver && SESSION_ID.test(handedOver)) return handedOver.toLowerCase();
+  expireIfStale(now);
+  const inProgress = safeGet(ID);
+  if (inProgress && SESSION_ID.test(inProgress)) return inProgress.toLowerCase();
+  return newSessionId();
 }

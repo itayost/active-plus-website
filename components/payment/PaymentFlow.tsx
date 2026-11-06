@@ -7,7 +7,7 @@ import Section from "@/components/ui/Section";
 import { clearPendingPurchase } from "@/lib/analytics/pending-purchase";
 import type { PlanId } from "@/lib/constants";
 import { VIEW_EVENT } from "@/lib/funnel/events";
-import { loadSession } from "@/lib/funnel/storage";
+import { paymentSessionId } from "@/lib/funnel/storage";
 import { trackFunnelEvent } from "@/lib/funnel/track";
 import { takeResumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
@@ -58,7 +58,8 @@ function usePaymentView(cancelled: boolean) {
       clearPendingPurchase();
       return;
     }
-    trackFunnelEvent(loadSession().id, VIEW_EVENT.payment);
+    // Never loadSession(): it would mint and store a funnel session right after handOffToPayment cleared it.
+    trackFunnelEvent(paymentSessionId(), VIEW_EVENT.payment);
   }, [cancelled]);
 }
 
