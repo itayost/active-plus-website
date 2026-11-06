@@ -85,6 +85,7 @@ export default function Button({
           className={classes}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={onClick}
         >
           {children}
           {/* Every external Button leaves the site in a new tab. A sighted
@@ -96,7 +97,7 @@ export default function Button({
     }
     const Anchor = fullPageLoad ? "a" : Link;
     return (
-      <Anchor href={href} className={classes} aria-describedby={ariaDescribedBy}>
+      <Anchor href={href} className={classes} aria-describedby={ariaDescribedBy} onClick={onClick}>
         {children}
       </Anchor>
     );

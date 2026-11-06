@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LINKISH } from "@/components/ui/linkish";
 import { CheckIcon } from "@/components/ui/icons";
+import { takePendingPurchase } from "@/lib/analytics/pending-purchase";
+import { purchaseEvent, pushTag } from "@/lib/analytics/tags";
 import type { Answers } from "@/lib/funnel/types";
 import { clearCheckoutDraft, readCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
@@ -42,7 +44,14 @@ export default function PaymentSuccess() {
         },
         { stopped: () => !alive },
       );
-      if (alive) setState(result === "active" ? "active" : "pending");
+      if (!alive) return;
+      if (result === "active") {
+        // Reported only once the server has the subscription active, and taken once: a reload reports nothing.
+        // Still pending, it stays stored, so a reload that then finds the subscription active reports it.
+        const purchase = takePendingPurchase();
+        if (purchase) pushTag(purchaseEvent(purchase));
+      }
+      setState(result === "active" ? "active" : "pending");
     })();
     return () => {
       alive = false;

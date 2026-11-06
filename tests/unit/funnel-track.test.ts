@@ -33,3 +33,15 @@ describe("trackFunnelEvent", () => {
     expect(() => trackFunnelEvent(SESSION, "otp_view")).not.toThrow();
   });
 });
+
+describe("trackFunnelEvent and the GTM dataLayer", () => {
+  it("pushes the funnel moment as a tag event, without the session or data", () => {
+    const win: { dataLayer?: unknown[] } = {};
+    vi.stubGlobal("window", win);
+    vi.stubGlobal("navigator", { sendBeacon: () => true });
+    trackFunnelEvent(SESSION, "payment_view", { plan: "annual" });
+    trackFunnelEvent(SESSION, "otp_resend_tap");
+    expect(win.dataLayer).toEqual([{ event: "begin_checkout" }]);
+    expect(JSON.stringify(win.dataLayer)).not.toContain(SESSION);
+  });
+});

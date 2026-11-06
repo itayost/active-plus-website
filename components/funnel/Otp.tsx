@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import { ArrowIcon, CheckIcon, LockIcon, PhoneIcon } from "@/components/ui/icons";
 import PhoneNumber from "@/components/ui/PhoneNumber";
 import { useAlive } from "@/components/ui/useAlive";
+import { pushTagThen } from "@/lib/analytics/tags";
 import { CONTACT_PHONE, CONTACT_PHONE_TEL } from "@/lib/constants";
 import { OTP_LENGTH, PAYMENT_PATH, RESEND_SECONDS } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
@@ -145,6 +146,15 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
     if (result.kind === "noProfile") return setPhase("noProfile");
     if (result.kind === "error") return setPhase("failed");
     handOffToPayment(answers.gender);
+    if (result.kind === "new") {
+      // A new account only: an existing user signing in again is not a registration. The funnel leaves for
+      // /payment right after, so the move waits (at most TAG_WAIT_MS) for the tags to send it; the
+      // finishing screen stays up meanwhile.
+      pushTagThen({ event: "sign_up", method: "phone" }, () => {
+        if (alive.current) onComplete("new");
+      });
+      return;
+    }
     onComplete(result.kind);
     if (result.kind === "existing") {
       setName(result.name);
