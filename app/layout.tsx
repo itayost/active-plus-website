@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SiteChrome from "@/components/layout/SiteChrome";
+import CookieConsent from "@/components/consent/CookieConsent";
+import { gtmId } from "@/lib/analytics/gtm";
 import { SITE_NAME_FULL, SITE_URL } from "@/lib/constants";
 import { HOME_META } from "@/content/home";
 
@@ -65,6 +67,9 @@ export const metadata: Metadata = {
   },
 };
 
+/** The GTM container (NEXT_PUBLIC_GTM_ID). Unset: no cookie notice and no tags. */
+const GTM_ID = gtmId();
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -77,6 +82,7 @@ export default function RootLayout({
         >
           דילוג לתוכן הראשי
         </a>
+        {GTM_ID ? <CookieConsent gtmId={GTM_ID} /> : null}
         <SiteChrome>
           <Header />
         </SiteChrome>

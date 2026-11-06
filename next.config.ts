@@ -3,12 +3,15 @@ import { LEGACY_REDIRECTS } from "./lib/redirects";
 import { HOST_REDIRECTS } from "./lib/domains";
 import { MEDIA_CACHE_RULES } from "./lib/cache-headers";
 import { buildCsp, GROW_WALLET_SOURCES } from "./lib/security/csp";
+import { gtmId } from "./lib/analytics/gtm";
 
 // Production builds only (next build / next start, which is also what the e2e
 // serves): next dev needs eval and a websocket the policy does not allow.
 const PRODUCTION = process.env.NODE_ENV === "production";
+// The tag hosts are allowed only when the site has a GTM container (lib/analytics/gtm.ts).
+const tags = gtmId() !== null;
 const csp = (growWallet: boolean) =>
-  PRODUCTION ? [{ key: "Content-Security-Policy", value: buildCsp(process.env.NEXT_PUBLIC_SUPABASE_URL, { growWallet }) }] : [];
+  PRODUCTION ? [{ key: "Content-Security-Policy", value: buildCsp(process.env.NEXT_PUBLIC_SUPABASE_URL, { growWallet, tags }) }] : [];
 const permissions = (payment: string) => ({
   key: "Permissions-Policy",
   value: `camera=(), microphone=(), geolocation=(), payment=${payment}`,
