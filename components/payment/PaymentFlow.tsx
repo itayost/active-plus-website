@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
 import Section from "@/components/ui/Section";
+import { clearPendingPurchase } from "@/lib/analytics/pending-purchase";
 import type { PlanId } from "@/lib/constants";
+import { VIEW_EVENT } from "@/lib/funnel/events";
+import { paymentSessionId } from "@/lib/funnel/storage";
+import { trackFunnelEvent } from "@/lib/funnel/track";
 import { takeResumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
@@ -34,8 +38,29 @@ type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
  * a notice and the store fallback instead.
  */
 export default function PaymentFlow({ prices, ...props }: Props) {
+  usePaymentView(props.cancelled ?? false);
   if (!prices) return <PricesUnavailable {...props} />;
   return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
+}
+
+/**
+ * One payment_view per arrival at /payment (begin_checkout in the GTM tags). The funnel reaches this page with a
+ * document load, so the questionnaire's own tracking never saw it. A return from Grow's cancel URL is not a new
+ * arrival: nothing was charged, so the purchase that was pending is dropped instead. The ref keeps React's dev
+ * double run of effects from counting twice.
+ */
+function usePaymentView(cancelled: boolean) {
+  const done = useRef(false);
+  useEffect(() => {
+    if (done.current) return;
+    done.current = true;
+    if (cancelled) {
+      clearPendingPurchase();
+      return;
+    }
+    // Never loadSession(): it would mint and store a funnel session right after handOffToPayment cleared it.
+    trackFunnelEvent(paymentSessionId(), VIEW_EVENT.payment);
+  }, [cancelled]);
 }
 
 const NOTICE = "mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium";

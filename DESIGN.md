@@ -201,6 +201,9 @@ The drawer: six 60px rows (48px on short screens), the fit-check button, the pho
 ### Footer (`components/layout/Footer.tsx`)
 `#F7F9FC` field under a divider. Wordmark (30px), the six menu links, phone with the hours under it, WhatsApp (`https://wa.me/972506316060`), email in blue-deep, address, "מבית המרכז לשיפור התנועה בע״מ", and the legal links (privacy policy, delete account; "ניהול מנוי" only with the web checkout on). Grid areas place the blocks per breakpoint without changing reading or Tab order.
 
+### Cookie notice (`components/consent/CookieConsent.tsx`)
+A blue-wash band with a hairline under it, above the header on every page, full screen ones included, and only when the site has a GTM container (`NEXT_PUBLIC_GTM_ID`). One sentence at body size, a link to the policy's cookies section, and one primary "אישור" button (the owner's call: no reject). It sits in the flow at the top, not over the bottom of the screen, because the questionnaire's continue button is pinned to the bottom and a bar over it would hide the one thing a visitor needs. It is in the server's HTML, so it never pops in and pushes the page down; an inline script hides it before the first paint for a visitor who already accepted. About 144px on a 390px phone (the link and button share a row); no horizontal scroll at 320px with 200% text.
+
 ### Buttons (`components/ui/Button.tsx`)
 - **Primary:** CTA gradient, white 800 text, `shadow-cta`. `lg` 58px, `md` 52px. Full width on phones and tablets for the lone CTAs (`CtaBar`, the hero), auto-width centred pills from lg.
 - **Outline:** white, 2px hairline border, ink text (store buttons, "לכל המאמרים").

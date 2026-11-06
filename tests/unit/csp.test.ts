@@ -71,3 +71,41 @@ describe("buildCsp for the checkout (Grow's wallet SDK)", () => {
     }
   });
 });
+
+describe("buildCsp with a GTM container (tags)", () => {
+  const base = buildCsp("https://abcd.supabase.co");
+  const csp = buildCsp("https://abcd.supabase.co", { tags: true });
+  it("allows GTM and its preview mode, GA4, Google Ads and the Meta Pixel", () => {
+    expect(directive(csp, "script-src")).toBe(
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://tagmanager.google.com https://connect.facebook.net " +
+        "https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com",
+    );
+    expect(directive(csp, "connect-src")).toBe(
+      "connect-src 'self' https://abcd.supabase.co https://www.googletagmanager.com https://*.google-analytics.com " +
+        "https://*.analytics.google.com https://stats.g.doubleclick.net https://www.facebook.com https://connect.facebook.net " +
+        "https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://www.google.co.il " +
+        "https://pagead2.googlesyndication.com",
+    );
+    expect(directive(csp, "frame-src")).toBe("frame-src https://www.googletagmanager.com https://td.doubleclick.net https://bid.g.doubleclick.net");
+    expect(directive(csp, "img-src")).toContain("https://www.facebook.com");
+    expect(directive(csp, "style-src")).toBe("style-src 'self' 'unsafe-inline' https://tagmanager.google.com https://fonts.googleapis.com");
+    expect(directive(csp, "font-src")).toBe("font-src 'self' https://fonts.gstatic.com data:");
+  });
+  it("never eval (GTM's Custom JavaScript variables stay off), and wildcards only for GA4's regional hosts", () => {
+    expect(csp).not.toContain("unsafe-eval");
+    const wildcards = csp.match(/https:\/\/\*\.[^\s;]+/g) ?? [];
+    expect([...new Set(wildcards)].sort()).toEqual(["https://*.analytics.google.com", "https://*.google-analytics.com"]);
+  });
+  it("leaves the rest of the policy as it is without a container", () => {
+    for (const name of ["default-src", "media-src", "frame-ancestors", "form-action", "base-uri", "object-src"]) {
+      expect(directive(csp, name)).toBe(directive(base, name));
+    }
+  });
+  it("adds to the checkout's sources on /payment, each host once", () => {
+    const checkout = buildCsp("https://abcd.supabase.co", { growWallet: true, tags: true });
+    const img = directive(checkout, "img-src").split(" ");
+    expect(img.filter((source) => source === "https://www.gstatic.com")).toHaveLength(1);
+    for (const host of GROW_WALLET_SOURCES.frame) expect(directive(checkout, "frame-src")).toContain(host);
+    expect(directive(checkout, "frame-src")).toContain("https://td.doubleclick.net");
+  });
+});

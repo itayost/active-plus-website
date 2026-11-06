@@ -10,7 +10,8 @@ import {
   type FormEvent,
 } from "react";
 import { submitLead, type LeadField, type LeadResult } from "@/lib/leads";
-import { checkField, submitWithFallback } from "@/lib/lead-form";
+import { pushTag } from "@/lib/analytics/tags";
+import { checkField, LEAD_SOURCES, submitWithFallback } from "@/lib/lead-form";
 import { ArrowIcon, CheckIcon } from "@/components/ui/icons";
 import ContactFields from "./ContactFields";
 import { FieldError, fieldClass, LABEL_CLASS } from "./FieldParts";
@@ -100,6 +101,16 @@ export default function LeadForm({
   const errorId = (field: LeadField) => `${uid}-${field}-error`;
   const describedBy = (field: LeadField) =>
     invalid(field) ? errorId(field) : undefined;
+
+  // A stored lead is generate_lead in the GTM tags, once per form. Only the
+  // surface goes with it (one of LEAD_SOURCES), never a field or the topic.
+  const reported = useRef(false);
+  useEffect(() => {
+    if (state.status !== "success" || reported.current) return;
+    reported.current = true;
+    const formSource = LEAD_SOURCES.find((known) => known === source);
+    if (formSource) pushTag({ event: "generate_lead", form_source: formSource });
+  }, [state.status, source]);
 
   // After a rejected submit, move the reader to the first field that needs
   // them instead of leaving them to hunt for the red border.

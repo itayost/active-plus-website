@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import Button from "@/components/ui/Button";
 import { FieldError, fieldClass, LINKISH } from "@/components/funnel/parts";
 import { ChevronIcon, LockIcon } from "@/components/ui/icons";
+import { savePendingPurchase } from "@/lib/analytics/pending-purchase";
 import { PLANS, type PlanId } from "@/lib/constants";
 import type { Answers } from "@/lib/funnel/types";
 import { onRestoredFromCache, saveCheckoutDraft, startPayment, toWebPlan, type CheckoutStep, type StartError } from "@/lib/payment/checkout";
@@ -87,8 +88,10 @@ export default function CheckoutSummary({
       ? await startPayment(supabase, { plan: toWebPlan(plan), installments: count, fullName: name, email, expectedTotal: price.total })
       : ({ error: "network" } as const);
     if ("url" in result || "authCode" in result) {
-      // Stored before paying: the success page reads the invoice email from the draft.
+      // Stored before paying: the success page reads the invoice email from the draft,
+      // and reports the purchase to the tags with this payment's id and total.
       saveCheckoutDraft({ plan, name, email, installments });
+      savePendingPurchase({ webPaymentId: result.webPaymentId, plan, value: price.total });
     }
     if ("url" in result) {
       window.location.assign(result.url);

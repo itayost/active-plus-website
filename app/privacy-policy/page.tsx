@@ -11,12 +11,14 @@ export const metadata: Metadata = {
 
 interface PrivacySectionProps {
   title: string;
+  /** An anchor for links into the section (the cookie notice links to #cookies). */
+  id?: string;
   children: React.ReactNode;
 }
 
-function PrivacySection({ title, children }: PrivacySectionProps) {
+function PrivacySection({ title, id, children }: PrivacySectionProps) {
   return (
-    <section className="legal-section">
+    <section id={id} className="legal-section scroll-mt-28">
       <h2 className="mb-4 font-display text-h3 font-extrabold text-blue">
         {title}
       </h2>
@@ -28,7 +30,7 @@ function PrivacySection({ title, children }: PrivacySectionProps) {
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: אוקטובר 2026" />
+      <PageHero title="מדיניות פרטיות" lede="עדכון אחרון: נובמבר 2026" />
       <div className="bg-surface py-[var(--section-y)]">
         <Shell width="narrow">
 
@@ -61,9 +63,10 @@ export default function PrivacyPolicyPage() {
 
       <PrivacySection title="4. שיתוף מידע">
         <p>
-          איננו מוכרים או משתפים את המידע האישי שלך עם צדדים שלישיים למטרות
-          שיווקיות. המידע עשוי להיות משותף עם ספקי שירות הפועלים בשמנו (כגון
-          שירותי אחסון ענן) תחת הסכמי סודיות.
+          איננו מוכרים את המידע האישי שלך, ואיננו משתפים אותו עם צדדים שלישיים
+          למטרות שיווקיות, מלבד כלי המדידה והפרסום באתר המתוארים בסעיף 9,
+          שפועלים רק אחרי אישור ההודעה על העוגיות. המידע עשוי להיות משותף עם
+          ספקי שירות הפועלים בשמנו (כגון שירותי אחסון ענן) תחת הסכמי סודיות.
         </p>
       </PrivacySection>
 
@@ -106,10 +109,28 @@ export default function PrivacyPolicyPage() {
         </p>
       </PrivacySection>
 
-      <PrivacySection title="9. עוגיות (Cookies)">
+      <PrivacySection id="cookies" title="9. עוגיות (Cookies) וכלי מדידה">
         <p>
-          האפליקציה משתמשת בעוגיות וטכנולוגיות דומות לשיפור חווית המשתמש ולאיסוף
-          נתונים סטטיסטיים. ניתן לשלוט בהגדרות אלו דרך הגדרות המכשיר.
+          האתר משתמש בעוגיות ובטכנולוגיות דומות (כמו אחסון בדפדפן). חלקן נחוצות
+          לפעולת האתר: שמירת ההתקדמות בשאלון, ההתחברות והתשלום.
+        </p>
+        <p>
+          אחרי לחיצה על &quot;אישור&quot; בהודעה על העוגיות, האתר מפעיל את Google
+          Tag Manager, ודרכו כלי מדידה ופרסום של Google (כמו Google Analytics
+          ו-Google Ads) ושל Meta (Meta Pixel). הכלים האלה מקבלים מידע על השימוש
+          באתר, למשל אילו דפים נצפו, איזה שלב בשאלון הושלם, הרשמה, רכישה וסכומה,
+          ומידע טכני כמו סוג הדפדפן וכתובת ה-IP. אנו משתמשים בו כדי למדוד ולשפר
+          את הפרסום שלנו ואת האתר. איננו שולחים לכלים האלה את התשובות לשאלון,
+          מידע בריאותי, שם, טלפון או אימייל. Google ו-Meta מעבדות את המידע לפי
+          מדיניות הפרטיות שלהן.
+        </p>
+        <p>
+          אפשר למחוק עוגיות ולחסום אותן בהגדרות הדפדפן. אחרי מחיקה, ההודעה על
+          העוגיות תוצג שוב.
+        </p>
+        <p>
+          האפליקציה משתמשת בטכנולוגיות דומות לשיפור חווית המשתמש ולאיסוף נתונים
+          סטטיסטיים. ניתן לשלוט בהגדרות אלו דרך הגדרות המכשיר.
         </p>
       </PrivacySection>
 
