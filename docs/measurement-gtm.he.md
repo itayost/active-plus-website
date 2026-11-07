@@ -25,11 +25,11 @@
 | `questionnaire_complete` | סוף מסך "בונים את התוכנית" | | אירוע מותאם |
 | `sign_up` | חשבון **חדש** אומת בקוד SMS (לא מי שכבר רשום ומתחבר שוב) | `method` = `phone` | GA4 `sign_up` / Meta `CompleteRegistration` |
 | `begin_checkout` | הגעה לעמוד המסלולים והתשלום (`/payment`); חזרה מתשלום שבוטל לא נספרת | | GA4 `begin_checkout` / Meta `InitiateCheckout` |
-| `store_click` | לחיצה על App Store או Google Play | `store` = `app_store` / `google_play` | אירוע מותאם. כל עוד התשלום באתר כבוי, זו ההמרה של האתר |
+| `store_click` | לחיצה על App Store או Google Play | `store` = `app_store` / `google_play` | אירוע מותאם |
 | `purchase` | תשלום באתר שהשרת אישר שהמנוי פעיל (`/payment/success`), פעם אחת לכל תשלום | `ecommerce.transaction_id`, `ecommerce.value` (בשקלים), `ecommerce.currency` = `ILS`, `ecommerce.items` | GA4 `purchase` / Meta `Purchase` עם value ו-currency מה-ecommerce, ו-`eventID` = `transaction_id` |
 | `generate_lead` | טופס יצירת קשר נשלח ונשמר | `form_source` = `home` / `contact` | GA4 `generate_lead` / Meta `Lead` |
 
-`purchase` קיים רק כשהתשלום באתר מופעל (`NEXT_PUBLIC_WEB_CHECKOUT`). היום הוא כבוי, והרכישה עוברת באפליקציות.
+`purchase` נשלח רק כשהתשלום באתר מופעל (`NEXT_PUBLIC_WEB_CHECKOUT`). באתר החי הוא מופעל, ולכן `purchase` היא ההמרה העיקרית של האתר. רכישה באפליקציה נמדדת באפליקציה עצמה (Meta app events), לא כאן.
 
 ### מספרי המסכים ב-`funnel_step`
 
