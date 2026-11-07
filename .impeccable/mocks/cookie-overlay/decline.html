@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cookie Notice Decline</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=block" rel="stylesheet">
+<style>
+:root{
+  --surface:#fff;--sunken:#F7F9FC;--hairline:#EEF0F3;--ink:#111;--ink-soft:#3d4450;--ink-faint:#5b6470;
+  --blue:#1E6FD9;--blue-deep:#1659B3;--blue-wash:#EAF1FB;--blue-sky:#EEF5FE;
+  --green-hi:#29864E;--green-lo:#217241;--green-wash:#E8F5ED;
+  --cta:linear-gradient(180deg,var(--green-hi),var(--green-lo));
+  --shadow-card:0 10px 28px rgb(20 40 80 / .07);--shadow-cta:0 10px 22px rgb(33 114 65 / .28);
+  --shadow-float:0 18px 48px rgb(20 40 80 / .22),0 2px 8px rgb(20 40 80 / .08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+::selection{background:var(--blue-wash);color:var(--blue-deep)}
+body{font-family:Heebo,system-ui,sans-serif;background:#D9DEE6;color:var(--ink);padding:32px 16px 72px}
+h1.b{font:800 36px/1.15 Heebo;text-align:center}
+p.bs{font:500 17px/1.6 Heebo;color:#3d4450;text-align:center;max-width:980px;margin:8px auto 36px}
+.opt{max-width:1500px;margin:0 auto 56px}
+.opt h2{font:800 24px Heebo;margin-bottom:4px}
+.opt .why{font:400 16px/1.6 Heebo;color:#3d4450;max-width:900px;margin-bottom:18px}
+.row{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.lbl{font:700 14px Heebo;color:#5b6470;margin-bottom:8px;text-align:center}
+
+/* frames */
+.phone{width:390px;height:780px;border-radius:40px;overflow:hidden;position:relative;background:#fff;box-shadow:0 24px 60px rgb(20 30 50 / .25)}
+.desk{width:880px;height:560px;border-radius:16px;overflow:hidden;position:relative;background:#fff;box-shadow:0 24px 60px rgb(20 30 50 / .25)}
+.sb{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font:600 14px Heebo;direction:ltr}
+
+/* site header + hero (phone) */
+.hdr{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--hairline)}
+.wm{font:800 24px Heebo;color:var(--blue)}.wm b{color:var(--ink)}
+.disc{width:44px;height:44px;border-radius:50%;background:var(--cta);box-shadow:var(--shadow-cta);display:grid;place-items:center;color:#fff}
+.disc svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
+.discs{display:flex;gap:12px}
+.hero{background:linear-gradient(180deg,var(--blue-sky) 0%,#fff 60%);padding:24px 20px}
+.hero h3{font:800 37px/1.1 Heebo}.hero h3 span{color:var(--blue);display:block}
+.hero p{font:400 18px/1.6 Heebo;color:var(--ink-soft);margin:12px 0 18px}
+.btn{height:56px;border-radius:999px;background:var(--cta);color:#fff;font:800 18px Heebo;display:grid;place-items:center;box-shadow:var(--shadow-cta)}
+.img{height:250px;border-radius:22px;margin-top:20px;background:url(https://peilimplus.co.il/img/v2/hero-family.webp) center/cover,#cfe2d0}
+
+/* questionnaire (phone) */
+.q{background:var(--sunken);height:100%;display:flex;flex-direction:column}
+.qtop{padding:14px 20px 0;display:flex;align-items:center;gap:12px}
+.qtop .bar{flex:1;height:8px;border-radius:4px;background:#E2E6EC;overflow:hidden}
+.qtop .bar i{display:block;width:24%;height:100%;background:var(--blue);border-radius:4px}
+.qtop .x{width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:var(--shadow-card);font:700 18px Heebo;color:var(--ink-soft)}
+.qbody{padding:22px 20px;flex:1}
+.qbody h4{font:800 28px/1.2 Heebo;margin-bottom:6px}.qbody p{font:400 17px Heebo;color:var(--ink-soft);margin-bottom:18px}
+.ch{background:#fff;border:2px solid var(--hairline);border-radius:18px;height:64px;display:flex;align-items:center;padding:0 18px;font:700 18px Heebo;margin-bottom:12px}
+.ch.on{border-color:var(--green-hi);background:var(--green-wash)}
+.qcta{position:absolute;left:0;right:0;bottom:0;padding:24px 20px 28px;background:linear-gradient(to top,var(--sunken) 75%,transparent)}
+
+/* desktop page */
+.dhdr{height:66px;display:flex;align-items:center;gap:18px;white-space:nowrap;padding:0 36px;border-bottom:1px solid var(--hairline);font:500 16px Heebo;color:var(--ink-soft)}
+.dhdr .wm{font-size:22px;margin-inline-end:12px}.dhdr .cur{background:var(--blue-wash);color:var(--blue-deep);border-radius:999px;padding:8px 14px}
+.dhdr .sp{flex:1}.dhdr .pill{height:46px;border-radius:999px;background:var(--cta);color:#fff;font:800 17px Heebo;padding:0 22px;display:grid;place-items:center;box-shadow:var(--shadow-cta)}
+.dhero{display:flex;gap:40px;padding:40px 36px;background:linear-gradient(180deg,var(--blue-sky) 0%,#fff 60%);height:494px}
+.dhero .t{flex:1;padding-top:70px}.dhero h3{font:800 50px/1.1 Heebo}.dhero h3 span{color:var(--blue);display:block}
+.dhero p{font:400 20px Heebo;color:var(--ink-soft);margin:14px 0 22px}
+.dhero .btn{width:280px}
+.dhero .img{flex:1;height:auto;margin:0}
+
+/* scrim for phone overlays (none: overlay does not block the page) */
+/* ---------- A: floating card ---------- */
+.ca{position:absolute;left:12px;right:12px;bottom:16px;background:#fff;border-radius:22px;box-shadow:var(--shadow-float);border:1px solid var(--hairline);padding:18px 18px 16px;z-index:5}
+.ca p{font:500 17px/1.55 Heebo;color:var(--ink)}
+.ca .acts{display:flex;align-items:center;gap:16px;margin-top:12px}
+.ca .acts .btn{flex:1;height:52px;font-size:18px}
+.lnk{font:600 17px Heebo;color:var(--blue-deep);text-decoration:underline;text-underline-offset:4px;white-space:nowrap}
+.ca .ic{width:36px;height:36px;border-radius:12px;background:var(--blue-wash);display:grid;place-items:center;float:right;margin-inline-end:12px}
+.ca .ic svg{width:20px;height:20px;stroke:var(--blue);fill:none;stroke-width:2}
+.desk .ca{right:auto;left:28px;bottom:28px;width:400px}
+.phone .ca.lift{bottom:112px}
+
+/* ---------- B: top drop under the header ---------- */
+.cb{position:absolute;left:12px;right:12px;top:116px;background:#fff;border-radius:18px;box-shadow:var(--shadow-float);border:1px solid var(--hairline);padding:14px 16px;display:flex;flex-direction:column;gap:10px;z-index:5}
+.cb p{font:500 17px/1.5 Heebo}
+.cb .acts{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cb .acts .btn{height:48px;padding:0 28px;font-size:17px}
+.desk .cb{left:auto;right:36px;top:80px;width:440px}
+.phone .cb.q{top:104px}
+
+/* ---------- C: bottom sheet docked to the edge ---------- */
+.cc{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 34px rgb(20 40 80 / .16);padding:12px 20px 26px;z-index:5}
+.cc .grab{width:44px;height:5px;border-radius:3px;background:#DADFE6;margin:0 auto 12px}
+.cc p{font:500 17px/1.55 Heebo}
+.cc .acts{display:flex;align-items:center;gap:16px;margin-top:12px}
+.cc .acts .btn{flex:1;height:52px}
+.desk .cc{border-radius:0;padding:16px 36px;display:flex;align-items:center;gap:24px}
+.desk .cc .grab{display:none}.desk .cc p{flex:1}.desk .cc .acts{margin:0}.desk .cc .acts .btn{width:180px;flex:none}
+.phone .cc.above{bottom:96px;border-radius:22px;left:12px;right:12px;box-shadow:var(--shadow-float)}
+
+
+.ca .acts{gap:12px}
+.ghost{height:52px;border-radius:999px;background:#fff;border:2px solid var(--hairline);color:var(--ink-soft);font:700 17px Heebo;display:grid;place-items:center;padding:0 18px;white-space:nowrap}
+.txt{font:600 17px Heebo;color:var(--ink-soft);text-decoration:underline;text-underline-offset:4px;padding:0 6px;min-height:48px;display:grid;place-items:center;white-space:nowrap}
+.ca .pol{display:inline;font:600 17px Heebo;color:var(--blue-deep);text-decoration:underline;text-underline-offset:4px}
+.ca.v2 .acts .btn{flex:1}
+.note{max-width:1100px;margin:8px auto 0;font:500 16px/1.7 Heebo;color:#2b3340}
+.note b{font-weight:800}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="call" viewBox="0 0 24 24"><path d="M6 3h3l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2"/></symbol>
+  <symbol id="cookie" viewBox="0 0 24 24"><path d="M21 12.5A9 9 0 1 1 11.5 3a3 3 0 0 0 3.5 3.5 3 3 0 0 0 3.5 3.5 3 3 0 0 0 2.5 2.5Z"/><path d="M8.5 9.5h.01M14.5 14.5h.01M9 15h.01"/></symbol>
+</svg>
+
+<h1 class="b">הודעת העוגיות: אישור או דחייה</h1>
+<p class="bs">אפשרות א׳ (כרטיס צף בתחתית) עם כפתור דחייה. בכל העמודים הכרטיס באותו מקום, וגם בשאלון: שם הוא מכסה את "המשך" עד שבוחרים. "אישור" הוא הכפתור הירוק והבולט; הדחייה פחות מושכת, אבל גלויה ובלחיצה אחת. הקישור למדיניות עובר לתוך המשפט, כדי שלשורת הכפתורים יישארו רק שתי הבחירות.</p>
+<div id="opts"></div>
+<p class="note"><b>בשתי הגרסאות:</b> "לא, תודה" נשמר לשנה כמו אישור, ואז ההודעה לא חוזרת. אחרי דחייה לא נטען שום תג (GTM, פיקסל, Google Ads), והאתר עובד כרגיל. בלי רקע כהה: אפשר לגלול ולקרוא את העמוד לפני שבוחרים.</p>
+<script>
+const svg=id=>`<svg><use href="#${id}"/></svg>`;
+const TEXT='אנחנו משתמשים בעוגיות (Cookies) כדי לשפר את האתר ולמדוד את הפרסום שלנו.';
+const phoneHome=`<div class="sb"><span>9:41</span><span>●●●</span></div>
+<div class="hdr"><div class="wm">פעילים<b>+</b></div><div class="discs"><div class="disc">${svg('menu')}</div><div class="disc">${svg('call')}</div></div></div>
+<div class="hero"><h3>תוכנית אישית<span>לאימון וחיזוק הגוף וחדות המחשבה</span></h3><p>רק 10 דקות ביום מהבית ובקצב שלך</p><div class="btn">לתוכנית אישית לחצו כאן</div><div class="img"></div></div>`;
+const phoneQ=`<div class="q"><div class="sb"><span>9:41</span><span>●●●</span></div>
+<div class="qtop"><div class="x">✕</div><div class="bar"><i></i></div></div>
+<div class="qbody"><h4>מה המטרה העיקרית שלך?</h4><p>אפשר לבחור יותר מאחת</p>
+<div class="ch on">לשמור על זיכרון חד</div><div class="ch">יציבות ושיווי משקל</div><div class="ch">להרגיש חזק יותר</div><div class="ch">להישאר עצמאי</div></div>
+<div class="qcta"><div class="btn">המשך</div></div></div>`;
+const desk=`<div class="dhdr"><div class="wm">פעילים<b>+</b></div><span class="cur">עמוד בית</span><span>הכירו את פעילים+</span><span>הצוות המקצועי</span><div class="sp"></div><div class="pill">בדיקת התאמה</div><div class="disc">${svg('call')}</div></div>
+<div class="dhero"><div class="t"><h3>תוכנית אישית<span>לאימון וחיזוק הגוף וחדות המחשבה</span></h3><p>רק 10 דקות ביום מהבית ובקצב שלך</p><div class="btn">לתוכנית אישית לחצו כאן</div></div><div class="img"></div></div>`;
+
+const card=(kind,extra='')=>`<div class="ca ${extra}"><p>${TEXT.replace('.','')} (<a class="pol">מדיניות הפרטיות</a>).</p><div class="acts">${kind==='ghost'?'<div class="ghost">לא, תודה</div>':'<a class="txt">לא, תודה</a>'}<div class="btn">אישור</div></div></div>`;
+const options=[
+ {k:'1',t:'דחייה ככפתור משני (מומלץ)',w:'"לא, תודה" ככפתור לבן עם מסגרת אפורה, כמו כפתורי החנויות באתר. ברור שאפשר ללחוץ עליו, אבל הירוק הוא שתופס את העין.',kind:'ghost'},
+ {k:'2',t:'דחייה כקישור טקסט',w:'"לא, תודה" כטקסט אפור עם קו תחתון. עוד פחות בולט. לקהל 55+ קישור קטן קשה יותר לזהות וללחוץ, ומדריכי הפרטיות מזהירים שדחייה מוסתרת נחשבת לחץ ומחלישה את ההסכמה.',kind:'txt'},
+];
+document.getElementById('opts').innerHTML=options.map(o=>`
+<section class="opt"><h2>${o.k}. ${o.t}</h2><p class="why">${o.w}</p>
+<div class="row">
+ <div><div class="lbl">טלפון, עמוד הבית</div><div class="phone">${phoneHome}${card(o.kind)}</div></div>
+ <div><div class="lbl">טלפון, השאלון (מכסה את "המשך")</div><div class="phone">${phoneQ}${card(o.kind)}</div></div>
+ <div><div class="lbl">דסקטופ</div><div class="desk">${desk}${card(o.kind)}</div></div>
+</div></section>`).join('');
+</script>
+</body>
+</html>

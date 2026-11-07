@@ -554,9 +554,10 @@ html {
   visibility: hidden;
 }
 
-/* The cookie notice is in every page's HTML; a visitor who already accepted
-   is flagged before the first paint (lib/consent, CONSENT_SCRIPT), so the
-   notice never shows to them, not even for a frame before hydration. */
-[data-consent="accepted"] [data-cookie-notice] {
+/* The cookie notice is in every page's HTML; a visitor who already chose
+   (accepted or declined) is flagged before the first paint (lib/consent,
+   CONSENT_SCRIPT), so the notice never shows to them, not even for a frame
+   before hydration. */
+[data-consent] [data-cookie-notice] {
   display: none;
 }
