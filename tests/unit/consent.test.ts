@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { CONSENT_KEY, CONSENT_SCRIPT, CONSENT_TTL_MS, hasConsent, saveConsent } from "@/lib/consent";
+import {
+  CONSENT_KEY,
+  CONSENT_SCRIPT,
+  CONSENT_TTL_MS,
+  DECLINE_KEY,
+  hasConsent,
+  hasDeclined,
+  saveConsent,
+  saveDecline,
+} from "@/lib/consent";
 
 const NOW = Date.UTC(2026, 10, 6, 10);
 
@@ -62,6 +71,22 @@ function run(stored: Record<string, string>, now = NOW, throws = false): string 
   return dataset.consent;
 }
 
+describe("hasDeclined / saveDecline", () => {
+  it("records a decline for a year without counting as consent", () => {
+    const store = memoryStore();
+    expect(hasDeclined(NOW, store)).toBe(false);
+    saveDecline(NOW, store);
+    expect(store.data[DECLINE_KEY]).toBe(String(NOW));
+    expect(hasDeclined(NOW + 1000, store)).toBe(true);
+    expect(hasConsent(NOW + 1000, store)).toBe(false);
+    expect(hasDeclined(NOW + CONSENT_TTL_MS, store)).toBe(false);
+  });
+  it("never throws on blocked storage", () => {
+    expect(hasDeclined(NOW, blocked)).toBe(false);
+    expect(() => saveDecline(NOW, blocked)).not.toThrow();
+  });
+});
+
 describe("consent script", () => {
   it("flags a visitor who accepted within the year, so CSS hides the notice before the first paint", () => {
     expect(run({ [CONSENT_KEY]: String(NOW - 1000) })).toBe("accepted");
@@ -76,6 +101,13 @@ describe("consent script", () => {
       const stored = { [CONSENT_KEY]: String(at) };
       expect(run(stored) === "accepted").toBe(hasConsent(NOW, memoryStore(stored)));
     }
+  });
+  it("flags a visitor who declined within the year as declined", () => {
+    expect(run({ [DECLINE_KEY]: String(NOW - 1000) })).toBe("declined");
+    expect(run({ [DECLINE_KEY]: String(NOW - CONSENT_TTL_MS) })).toBeUndefined();
+  });
+  it("lets an acceptance win over a decline", () => {
+    expect(run({ [CONSENT_KEY]: String(NOW - 1000), [DECLINE_KEY]: String(NOW - 500) })).toBe("accepted");
   });
   it("survives blocked storage", () => {
     expect(run({ [CONSENT_KEY]: String(NOW) }, NOW, true)).toBeUndefined();
