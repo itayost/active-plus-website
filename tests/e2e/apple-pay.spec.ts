@@ -5,9 +5,11 @@ import { stubSupabase } from "./supabase-stub";
 
 const ASSOCIATION_PATH = "/.well-known/apple-developer-merchantid-domain-association";
 
-test("serves the Apple Pay domain file directly, with no redirect", async ({ request }) => {
+test("serves the Apple Pay domain file directly, with no redirect, as text a browser shows", async ({ request }) => {
   const res = await request.get(ASSOCIATION_PATH, { maxRedirects: 0 });
   expect(res.status()).toBe(200);
+  // Grow's review opens it in a browser: application/octet-stream (with nosniff) downloads instead.
+  expect(res.headers()["content-type"]).toBe("text/plain; charset=utf-8");
   expect(await res.text()).toBe(await readFile(`public${ASSOCIATION_PATH}`, "utf8"));
 });
 
