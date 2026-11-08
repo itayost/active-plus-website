@@ -48,6 +48,13 @@ const nextConfig: NextConfig = {
         source: "/payment",
         headers: [permissions(`(self ${GROW_WALLET_SOURCES.frame.map((origin) => `"${origin}"`).join(" ")})`), ...csp(true)],
       },
+      // Apple's domain file has no extension, so it would go out as
+      // application/octet-stream and, with nosniff, browsers download it. Grow
+      // checks it in a browser, so it is served as the text it is.
+      {
+        source: "/.well-known/apple-developer-merchantid-domain-association",
+        headers: [{ key: "Content-Type", value: "text/plain; charset=utf-8" }],
+      },
       ...MEDIA_CACHE_RULES,
     ];
   },
