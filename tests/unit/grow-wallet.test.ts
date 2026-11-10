@@ -4,9 +4,9 @@ import { GROW_SDK_URL, openGrowWallet, prepareGrowWallet, resetGrowWallet, type 
 type Events = Record<string, (payload?: unknown) => void>;
 
 /** A window whose script tag "loads" Grow's SDK; the SDK records init and render and exposes its events. */
-function fakeGrow(options: { loads?: boolean; runtime?: boolean } = {}) {
+function fakeGrow(options: { loads?: boolean; runtime?: boolean; notReady?: number } = {}) {
   const { loads = true } = options;
-  const state = { runtime: options.runtime ?? true };
+  const state = { runtime: options.runtime ?? true, notReady: options.notReady ?? 0 };
   const appended: { src: string }[] = [];
   const inits: { environment: string; version: number }[] = [];
   const rendered: string[] = [];
@@ -25,7 +25,14 @@ function fakeGrow(options: { loads?: boolean; runtime?: boolean } = {}) {
                 events = config.events;
                 if (state.runtime) win.growRuntime = {};
               },
-              renderPaymentOptions: (code: string) => void rendered.push(code),
+              renderPaymentOptions: (code: string) => {
+                rendered.push(code);
+                // Grow's runtime answers this while its own files are still loading.
+                if (state.notReady > 0) {
+                  state.notReady -= 1;
+                  events.onError?.("Wallet not initialized");
+                }
+              },
             };
             script.onload();
           });
@@ -118,6 +125,27 @@ describe("openGrowWallet", () => {
     const { grow, outcome } = await opened();
     grow.fire(event, { status: 0 });
     expect(await outcome).toBe(expected);
+  });
+  it("asks again while Grow is still loading its files, then opens", async () => {
+    const grow = fakeGrow({ notReady: 3 });
+    const outcome = openGrowWallet("auth-1", "DEV", {}, grow.deps);
+    await tick();
+    await tick();
+    expect(grow.rendered).toEqual(["auth-1", "auth-1", "auth-1", "auth-1"]);
+    grow.fire("onWalletChange", "open");
+    grow.fire("onSuccess");
+    expect(await outcome).toBe("success");
+  });
+  it("gives up as an error when Grow is still not ready after the wait", async () => {
+    const grow = fakeGrow({ notReady: Number.POSITIVE_INFINITY });
+    expect(await openGrowWallet("auth-1", "DEV", {}, grow.deps)).toBe("error");
+    expect(grow.rendered.length).toBeGreaterThan(10);
+  });
+  it("any other error before the wallet opens is not retried", async () => {
+    const { grow, outcome } = await opened();
+    grow.fire("onError", "Invalid authCode");
+    expect(await outcome).toBe("error");
+    expect(grow.rendered).toEqual(["auth-1"]);
   });
   it("is an error when the SDK cannot be loaded, and nothing is rendered", async () => {
     const grow = fakeGrow({ loads: false });

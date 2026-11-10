@@ -19,6 +19,14 @@ const READY_TIMEOUT_MS = 15_000;
  * after the page has given up on it.
  */
 const OPEN_TIMEOUT_MS = 5 * 60_000;
+/**
+ * Grow's runtime fetches its own files (stylesheet, layout, config) after it
+ * arrives, and until they are in, renderPaymentOptions answers onError with
+ * this text and draws nothing. The first click on a page always got it
+ * (2026-11-10), so the wallet asks again until Grow is ready.
+ */
+const NOT_READY = "Wallet not initialized";
+const RENDER_RETRY_MS = 300;
 
 export type WalletEnvironment = "DEV" | "PRODUCTION";
 export const isWalletEnvironment = (value: unknown): value is WalletEnvironment => value === "DEV" || value === "PRODUCTION";
@@ -49,7 +57,7 @@ const browserDeps = (): WalletDeps => ({
 // One SDK per page: the script, its init and the wallet now on screen.
 let scriptLoad: Promise<boolean> | null = null;
 let initialized: WalletEnvironment | null = null;
-let listener: ((event: WalletEvent) => void) | null = null;
+let listener: ((event: WalletEvent, payload?: unknown) => void) | null = null;
 
 /** Test hook: forget the loaded script and the init. */
 export function resetGrowWallet(): void {
@@ -85,7 +93,7 @@ const EVENTS: Record<string, WalletEvent> = {
 /** The events go to whichever wallet is on screen; init is called once, since a second call drops them. */
 function sdkEvents(): SdkEvents {
   const events: SdkEvents = Object.fromEntries(
-    Object.entries(EVENTS).map(([name, event]) => [name, () => listener?.(event)]),
+    Object.entries(EVENTS).map(([name, event]) => [name, (payload?: unknown) => listener?.(event, payload)]),
   );
   events.onWalletChange = (state) => listener?.(state === "open" ? "open" : "close");
   return events;
@@ -129,6 +137,7 @@ export async function openGrowWallet(
   if (!(await prepareGrowWallet(environment, deps))) return "error";
   const sdk = deps.win.growPayment;
   if (!sdk) return "error";
+  const readyBy = deps.now() + READY_TIMEOUT_MS;
   return new Promise<WalletOutcome>((resolve) => {
     let open = false;
     let last: WalletOutcome | null = null;
@@ -139,8 +148,21 @@ export async function openGrowWallet(
       if (listener === onEvent) listener = null;
       resolve(outcome);
     };
-    const onEvent = (event: WalletEvent) => {
+    const render = () => {
+      try {
+        sdk.renderPaymentOptions(authCode);
+      } catch {
+        settle("error");
+      }
+    };
+    const onEvent = (event: WalletEvent, payload?: unknown) => {
       if (event === "success") return settle("success");
+      if (event === "error" && !open && payload === NOT_READY && deps.now() < readyBy) {
+        void deps.sleep(RENDER_RETRY_MS).then(() => {
+          if (!done && !open) render();
+        });
+        return;
+      }
       if (event === "open") {
         open = true;
         options.onOpen?.();
@@ -156,10 +178,6 @@ export async function openGrowWallet(
     void deps.sleep(OPEN_TIMEOUT_MS).then(() => {
       if (!open) settle("error");
     });
-    try {
-      sdk.renderPaymentOptions(authCode);
-    } catch {
-      settle("error");
-    }
+    render();
   });
 }
