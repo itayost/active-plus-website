@@ -12,16 +12,15 @@ export const title = (page: Page) => page.locator("#funnel-step-title");
 export const screen = (page: Page) => page.locator("main section[data-step]");
 /** The continue button in any of its labels: "המשך", the feminine "המשיכי", or desiredFeeling's "ממשיכים". */
 export const next = (page: Page) => screen(page).getByRole("button", { name: /^(המשך|המשיכי|ממשיכים)$/ });
-/** A photo card (gender, age group): a tap chooses it and moves on. */
+/** A photo card (gender, age group): a tap only chooses it; "המשך" moves on. */
 export const pickPhoto = (page: Page, label: string) => screen(page).getByRole("button", { name: label, exact: true }).click();
 /**
- * Selects an answer from the keyboard (Space on its radio), so the question
- * waits for "המשך". A real tap moves on by itself (AUTO_ADVANCE_MS); `tap`
- * below covers that.
+ * Selects an answer from the keyboard (Space on its radio). Either way, by key
+ * or by `tap` below, the question waits for "המשך".
  */
 export const choose = (page: Page, label: string) =>
   screen(page).getByRole("radio", { name: label, exact: true }).press("Space");
-/** A real tap on an answer: it is chosen, then the next screen opens by itself. */
+/** A real tap on an answer: it is chosen and the question waits for "המשך". */
 export const tap = (page: Page, label: string) => screen(page).getByRole("radiogroup").getByText(label, { exact: true }).click();
 export const firstLine = (text: string) => text.split("\n")[0];
 
@@ -78,9 +77,11 @@ export async function walkToReinforcement(
 
   await expectStep(page, "gender");
   await pickPhoto(page, fem ? "נקבה" : "זכר");
+  await next(page).click();
 
   await expectStep(page, "dob");
   await pickPhoto(page, "60-69");
+  await next(page).click();
 
   await expectStep(page, "goalReinforcement");
   await onGoalReinforcement();
