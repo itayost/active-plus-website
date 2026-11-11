@@ -9,7 +9,8 @@
   soft-shadowed and hairline-bordered rather than colour fields.
 */
 :root {
-  color-scheme: light;
+  /* "only" keeps a phone's forced dark mode off the page (see layout.tsx). */
+  color-scheme: only light;
 
   /* Ground */
   --surface: #ffffff;
