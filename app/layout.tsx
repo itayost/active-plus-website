@@ -40,6 +40,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: "#ffffff",
+  // The site has one look, light. Without "only", Samsung Internet's and
+  // Chrome's forced dark mode repaint it, and the green buttons turn near
+  // black (owner, 2026-11-11).
+  colorScheme: "only light",
 };
 
 export const metadata: Metadata = {
