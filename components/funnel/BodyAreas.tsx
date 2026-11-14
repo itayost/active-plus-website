@@ -38,7 +38,7 @@ function Figure({ gender, selected }: { gender: Answers["gender"]; selected: rea
   return (
     <div
       aria-hidden="true"
-      className="relative col-start-2 row-span-4 row-start-1 h-[calc(var(--body-chip)*4+1.5rem)] self-center"
+      className="relative col-start-2 row-span-7 row-start-1 h-[calc(var(--body-chip)*7+2.25rem)] self-center"
       style={{ aspectRatio: `${model.width} / ${model.height}` }}
     >
       <Image src={model.src} alt="" fill sizes={SIZES.body} className="object-contain" />
@@ -61,46 +61,36 @@ function Figure({ gender, selected }: { gender: Answers["gender"]; selected: rea
   );
 }
 
-/** The areas beside the figure's start side (head to lower back); the rest go beside its end side, level with the legs. */
-const UPPER = 4;
-
 /**
- * The apps' body-areas screen as a body map: the areas flank a body figure
- * where each chosen area glows softly, head to lower back on one side and hip
- * to ankle on the other, with the exclusive "no pain" answer full width below.
- * Several areas may be chosen (owner, 2026-10-19). It fits one phone screen
- * with no scrolling, 360x640 included (owner, 2026-11-14): every answer is 60px
- * tall, 72px on a taller screen.
+ * The apps' body-areas screen: the areas in one column beside a body figure
+ * where each chosen area glows softly (owner, 2026-11-14: "הכל בטור אחד"), and
+ * the exclusive "no pain" answer full width below. Several areas may be chosen
+ * (owner, 2026-10-19). An answer's height follows the screen's, 56px to 72px,
+ * so the page fits with no scrolling on a phone 768px tall or more.
  */
 export default function BodyAreas({ options, selected, gender, onToggle }: Props) {
   const areas = options.filter((o) => o.value !== NONE);
   const none = options.find((o) => o.value === NONE);
-  const press = (value: string) => () => {
-    tapHaptic();
-    onToggle(value);
-  };
-  const area = (option: Option, column: string, row: number) => {
+  const chip = (option: Option, row: number) => {
     const on = selected.includes(option.value);
     return (
       <button
         key={option.value}
         type="button"
         aria-pressed={on}
-        onClick={press(option.value)}
+        onClick={() => {
+          tapHaptic();
+          onToggle(option.value);
+        }}
         style={{ gridRow: row }}
         className={cn(
           choiceCard(on),
-          column,
-          "relative min-h-[var(--body-chip)] cursor-pointer justify-center px-2 py-1 text-center max-[420px]:px-2 max-[420px]:py-1",
+          "min-h-[var(--body-chip)] cursor-pointer py-1 max-[420px]:py-1",
+          option.value === NONE ? "col-span-full" : "col-start-1",
         )}
       >
-        <span className={cn(CHOICE_LABEL, "flex-none")}>{option.label}</span>
-        {/* The tick of a chosen area sits on the card's corner: there is no room beside the name. */}
-        {on ? (
-          <span className="absolute -end-2 -top-2">
-            <Tick on shape="square" />
-          </span>
-        ) : null}
+        <span className={CHOICE_LABEL}>{option.label}</span>
+        <Tick on={on} shape="square" />
       </button>
     );
   };
@@ -108,22 +98,12 @@ export default function BodyAreas({ options, selected, gender, onToggle }: Props
     <div
       role="group"
       aria-labelledby={STEP_TITLE_ID}
-      className="mt-5 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-x-2 gap-y-2 [--body-chip:60px] [@media(min-height:760px)]:[--body-chip:72px]"
+      // 320px: the header, title, gaps and the pinned button; 8 rows share the rest. Fits from a 768px-tall screen; a smaller one scrolls a little rather than go under 56px.
+      className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 [--body-chip:clamp(56px,calc((100vh-320px)/8),72px)] supports-[height:100dvh]:[--body-chip:clamp(56px,calc((100dvh-320px)/8),72px)]"
     >
-      {areas.slice(0, UPPER).map((o, i) => area(o, "col-start-1", i + 1))}
+      {areas.map((o, i) => chip(o, i + 1))}
       <Figure gender={gender} selected={selected} />
-      {areas.slice(UPPER).map((o, i) => area(o, "col-start-3", i + 1 + UPPER - (areas.length - UPPER)))}
-      {none ? (
-        <button
-          type="button"
-          aria-pressed={selected.includes(NONE)}
-          onClick={press(NONE)}
-          className={cn(choiceCard(selected.includes(NONE)), "col-span-full row-start-5 mt-1 min-h-[var(--body-chip)] cursor-pointer py-2 max-[420px]:py-2")}
-        >
-          <span className={CHOICE_LABEL}>{none.label}</span>
-          <Tick on={selected.includes(NONE)} shape="square" />
-        </button>
-      ) : null}
+      {none ? chip(none, areas.length + 1) : null}
     </div>
   );
 }
