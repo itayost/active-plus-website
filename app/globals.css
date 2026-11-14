@@ -284,6 +284,20 @@ summary,
   -webkit-tap-highlight-color: rgb(30 111 217 / 0.14);
 }
 
+/* The questionnaire runs like an app (owner, 2026-11-14): no rubber-band past
+   the edges showing white, no grey flash on a tap (every card and button draws
+   its own pressed state), and no long-press callout or text selection on the
+   answers. Fields stay selectable. Pinch-zoom is untouched (see app/layout). */
+html:has([data-funnel-root]) {
+  overscroll-behavior: none;
+  background: var(--surface-sunken);
+}
+[data-funnel-root] :is(a, button, label, summary, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
 body {
   background: var(--surface);
   color: var(--ink);

@@ -6,7 +6,8 @@ export const PAYMENT_PATH = "/payment";
 export const OTP_LENGTH = 6;
 export const RESEND_SECONDS = 12;
 export const SESSION_TTL_DAYS = 30;
-export const PLAN_BUILD_MS = 6000;
+/** The plan-building ring's run; its uneven curve is lib/funnel/plan-build (owner, 2026-11-14: slower). */
+export const PLAN_BUILD_MS = 9000;
 
 /** Birth-year picker, mirroring the app: ages 30 to 100, pre-selected at 65. */
 export const MIN_AGE = 30;
