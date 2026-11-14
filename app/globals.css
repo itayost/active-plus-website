@@ -345,6 +345,13 @@ h3 {
   outline-offset: 3px;
 }
 
+/* A title focused by script (tabindex="-1", each funnel step and notice) moves
+   screen readers to it; it is not a control, so it draws no ring. Safari
+   counts that script focus as visible and framed the funnel question in blue. */
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
 ::selection {
   background: var(--blue-wash);
   color: var(--ink);
