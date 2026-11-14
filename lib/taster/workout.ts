@@ -21,6 +21,8 @@ export type TasterWorkout = {
   /** The scheduled_workouts row requestWorkout opened; null only in the preview demo. */
   scheduledWorkoutId: string | null;
   exercises: TasterExercise[];
+  /** 1 easy, 2 medium, 3 hard: the home card's "רמת קושי". The free workout is always 1. */
+  difficulty: number;
 };
 
 export type WorkoutReply =
@@ -63,8 +65,13 @@ export function parseWorkoutReply(body: unknown): WorkoutReply {
   const list = Array.isArray(body.workout.exercises) ? body.workout.exercises : [];
   const exercises = list.map(toExercise).filter((e): e is TasterExercise => e !== null);
   if (!scheduledWorkoutId || exercises.length === 0) return { kind: "error" };
-  return { kind: "ready", workout: { scheduledWorkoutId, exercises } };
+  const level = body.workout.difficulty;
+  const difficulty = level === 2 || level === 3 ? level : 1;
+  return { kind: "ready", workout: { scheduledWorkoutId, exercises, difficulty } };
 }
+
+/** The home card's difficulty word and filled bars (HeroPreviewMeta on iOS). */
+export const DIFFICULTY_LABEL: Record<number, string> = { 1: "קל", 2: "בינוני", 3: "מתקדם" };
 
 /** Whole minutes for the intro line ("כ-4 דקות"), never below one. */
 export function totalMinutes(exercises: readonly TasterExercise[]): number {

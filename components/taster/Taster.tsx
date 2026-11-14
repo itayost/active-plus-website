@@ -10,6 +10,8 @@ import { DEMO_WORKOUT, demoAllowed } from "@/lib/taster/demo";
 import { musicFor, TASTER_MUSIC } from "@/lib/taster/music";
 import { timerAt, type TimerState } from "@/lib/taster/timer";
 import type { TasterWorkout } from "@/lib/taster/workout";
+import { g } from "@/lib/funnel/copy";
+import { readPaymentGender } from "@/lib/payment/checkout";
 import { TasterBetween, TasterExitDialog } from "./TasterOverlays";
 import TasterPlayer from "./TasterPlayer";
 import { TASTER_TITLE_ID, TasterEnd, TasterError, TasterIntro, TasterLoading } from "./TasterScreens";
@@ -227,6 +229,8 @@ export default function Taster() {
   };
 
   const exercises = workout?.exercises ?? [];
+  // The app's "מוכנה לתרגול" / "מוכן לתרגול", by the gender the questionnaire handed over.
+  const readyLine = g(stage === "intro" ? readPaymentGender() : undefined, "מוכנה לתרגול", "מוכן לתרגול");
   const inPlayer = stage === "playing" || stage === "between";
 
   return (
@@ -242,7 +246,7 @@ export default function Taster() {
       {stage === "loading" && <TasterLoading />}
       {stage === "saving" && <TasterLoading />}
       {stage === "error" && <TasterError onRetry={() => void load()} onSkip={toPlans} />}
-      {stage === "intro" && <TasterIntro exercises={exercises} onStart={start} onSkip={toPlans} />}
+      {stage === "intro" && workout && <TasterIntro workout={workout} readyLine={readyLine} onStart={start} onSkip={toPlans} />}
       {stage === "end" && <TasterEnd name={name} played={result.played} minutes={result.minutes} onContinue={toPlans} />}
 
       <TasterPlayer

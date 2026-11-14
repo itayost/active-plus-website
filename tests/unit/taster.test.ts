@@ -31,6 +31,7 @@ describe("parseWorkoutReply", () => {
       kind: "ready",
       workout: {
         scheduledWorkoutId: "sw-1",
+        difficulty: 1,
         exercises: [
           {
             id: "ex-1",
@@ -44,6 +45,12 @@ describe("parseWorkoutReply", () => {
         ],
       },
     });
+  });
+  it("reads the workout's difficulty, easy when unknown", () => {
+    const hard = parseWorkoutReply(reply([exercise()], { workout: { exercises: [exercise()], difficulty: 3 } }));
+    expect(hard.kind === "ready" && hard.workout.difficulty).toBe(3);
+    const odd = parseWorkoutReply(reply([exercise()], { workout: { exercises: [exercise()], difficulty: 9 } }));
+    expect(odd.kind === "ready" && odd.workout.difficulty).toBe(1);
   });
   it("falls back to the main clip and the default length", () => {
     const parsed = parseWorkoutReply(reply([exercise({ video_url_portrait: null, duration: null, duration_seconds: null, intro_seconds: null })]));

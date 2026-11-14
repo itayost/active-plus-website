@@ -27,6 +27,7 @@ const clip = (id: string, file: string, name: string, durationSeconds: number, i
 
 export const DEMO_WORKOUT: TasterWorkout = {
   scheduledWorkoutId: null,
+  difficulty: 1,
   exercises: [
     clip("83b212f6-9650-47f0-9d81-4f8dfbef63e7", "1790576816685-opt.mp4", "הליכה עם תנועות ידיים", 52, 10, 11),
     clip("ca2b64dc-758f-4051-bb6a-db3dca8eef22", "1785942562849-opt.mp4", "הרחקה ופשיטת ירך בעמידה", 50, 9, 11),
