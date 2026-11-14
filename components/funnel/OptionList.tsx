@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { AnswerIconName } from "@/lib/funnel/copy";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import AnswerIcon from "./AnswerIcon";
 import { CHOICE_LABEL, Isolated, STEP_TITLE_ID, Tick, choiceCard } from "./parts";
@@ -13,20 +14,15 @@ type Props = {
   options: readonly Option[];
   value: string | undefined;
   onChange: (value: string) => void;
-  /**
-   * A tap or click on an answer (not an arrow key, which only moves the
-   * selection): the question moves on by itself after a short beat.
-   */
-  onPick?: (value: string) => void;
 };
 
 /**
  * Single-select answers as native radios (arrow keys, Tab and form semantics
  * from the browser), painted as 72px cards. Choosing highlights the card with
- * a short pop; a tap then moves on by itself (onPick), while "המשך" stays for
- * keyboards. An option with an icon gets the apps' leading answer badge.
+ * a short pop and nothing more: the step's "המשך" moves on (owner,
+ * 2026-11-10). An option with an icon gets the apps' leading answer badge.
  */
-export default function OptionList({ name, options, value, onChange, onPick }: Props) {
+export default function OptionList({ name, options, value, onChange }: Props) {
   // The answer picked on this visit: only it pops, never one restored on arrival.
   const [picked, setPicked] = useState<string | null>(null);
   return (
@@ -35,15 +31,7 @@ export default function OptionList({ name, options, value, onChange, onPick }: P
         const on = option.value === value;
         const pop = on && picked === option.value;
         return (
-          <label
-            key={option.value}
-            className="relative block cursor-pointer"
-            onClick={(e) => {
-              // A real tap or click (detail > 0). The click an arrow key or Space sends the radio has
-              // detail 0, and a drag or scroll that ends on the card sends no click here at all.
-              if (e.detail > 0) onPick?.(option.value);
-            }}
-          >
+          <label key={option.value} className="relative block cursor-pointer">
             <input
               type="radio"
               name={name}
@@ -51,6 +39,7 @@ export default function OptionList({ name, options, value, onChange, onPick }: P
               checked={on}
               onChange={() => {
                 setPicked(option.value);
+                tapHaptic();
                 onChange(option.value);
               }}
               className="peer sr-only"

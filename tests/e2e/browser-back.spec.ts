@@ -87,6 +87,7 @@ test("after the session starts over, back from goals skips the old walk's screen
   await next(page).click();
   await expectStep(page, "gender");
   await pickPhoto(page, "זכר");
+  await next(page).click();
   await expectStep(page, "dob");
 
   // A fresh session on the same history entry (the hand-off to /payment or an expired session).

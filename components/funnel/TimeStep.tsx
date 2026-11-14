@@ -6,6 +6,7 @@ import { COPY, g } from "@/lib/funnel/copy";
 import { defaultSlot, segmentOf, slotsFor, SEGMENTS, type Segment } from "@/lib/funnel/time";
 import type { TimeView } from "@/lib/funnel/machine";
 import type { Answers } from "@/lib/funnel/types";
+import { tapHaptic } from "@/lib/haptics";
 import OptionList from "./OptionList";
 import { ContinueButton, Lines, StepTitle, Subtitle } from "./parts";
 import { NativeSelect } from "./YearSelect";
@@ -104,7 +105,11 @@ function HourScreen({ segment, gender, saved, draft, onTime, onConfirmCustom, on
           options={slotsFor(segment)}
           onChange={setPending}
         />
-        <Button size="lg" className="mt-4 w-full" onClick={() => onConfirmCustom(pending)}>
+        <Button size="lg" className="mt-4 w-full" onClick={() => {
+            tapHaptic();
+            onConfirmCustom(pending);
+          }}
+        >
           {COPY.time.pickerConfirm}
         </Button>
       </div>
