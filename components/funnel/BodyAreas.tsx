@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { bodyModel, SIZES } from "@/lib/funnel/images";
 import type { Answers } from "@/lib/funnel/types";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import type { Option } from "./OptionList";
 import { CHOICE_LABEL, STEP_TITLE_ID, Tick, choiceCard } from "./parts";
@@ -71,7 +72,10 @@ export default function BodyAreas({ options, selected, gender, onToggle }: Props
         key={option.value}
         type="button"
         aria-pressed={on}
-        onClick={() => onToggle(option.value)}
+        onClick={() => {
+          tapHaptic();
+          onToggle(option.value);
+        }}
         className={cn(choiceCard(on), "min-h-[56px] cursor-pointer py-2.5 max-[420px]:py-2", option.value === NONE && "col-span-full")}
       >
         <span className={CHOICE_LABEL}>{option.label}</span>

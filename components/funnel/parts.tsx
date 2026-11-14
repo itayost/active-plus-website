@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Button from "@/components/ui/Button";
 import { CheckIcon, LockIcon } from "@/components/ui/icons";
 import { COPY } from "@/lib/funnel/copy";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
 export { LINKISH, LINKISH_DISABLED } from "@/components/ui/linkish";
@@ -115,7 +116,13 @@ export function ContinueButton({
           : "mt-7",
       )}
     >
-      <Button size="lg" type={type} className="w-full flex-wrap gap-y-1" disabled={disabled} onClick={onClick}>
+      <Button size="lg" type={type} className="w-full flex-wrap gap-y-1"
+        disabled={disabled}
+        onClick={() => {
+          tapHaptic();
+          onClick?.();
+        }}
+      >
         {label}
       </Button>
     </div>

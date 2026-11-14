@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { SIZES } from "@/lib/funnel/images";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { STEP_TITLE_ID } from "./parts";
 
@@ -32,7 +33,10 @@ export default function PhotoChoice({ options, value, aspect, onChoose }: Props)
             key={option.value}
             type="button"
             aria-pressed={on}
-            onClick={() => onChoose(option.value)}
+            onClick={() => {
+              tapHaptic();
+              onChoose(option.value);
+            }}
             className={cn(
               "flex flex-col overflow-hidden rounded-card border-2 bg-surface pb-3 text-ink shadow-lift-1",
               "transition-[border-color,background-color,transform] duration-[var(--dur-fast)] ease-out-expo active:scale-[0.98]",

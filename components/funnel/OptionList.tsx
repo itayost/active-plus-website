@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { AnswerIconName } from "@/lib/funnel/copy";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import AnswerIcon from "./AnswerIcon";
 import { CHOICE_LABEL, Isolated, STEP_TITLE_ID, Tick, choiceCard } from "./parts";
@@ -38,6 +39,7 @@ export default function OptionList({ name, options, value, onChange }: Props) {
               checked={on}
               onChange={() => {
                 setPicked(option.value);
+                tapHaptic();
                 onChange(option.value);
               }}
               className="peer sr-only"
