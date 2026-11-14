@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Button from "@/components/ui/Button";
 import { CheckIcon, LockIcon } from "@/components/ui/icons";
 import { COPY } from "@/lib/funnel/copy";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
 export { LINKISH, LINKISH_DISABLED } from "@/components/ui/linkish";
@@ -115,7 +116,13 @@ export function ContinueButton({
           : "mt-7",
       )}
     >
-      <Button size="lg" type={type} className="w-full flex-wrap gap-y-1" disabled={disabled} onClick={onClick}>
+      <Button size="lg" type={type} className="w-full flex-wrap gap-y-1"
+        disabled={disabled}
+        onClick={() => {
+          tapHaptic();
+          onClick?.();
+        }}
+      >
         {label}
       </Button>
     </div>
@@ -128,7 +135,8 @@ export const fieldClass = (invalid: boolean) =>
     "min-h-[60px] w-full min-w-0 rounded-field border-2 bg-white px-4 py-3.5 text-lead text-ink caret-blue-deep",
     "placeholder:text-ink-faint transition-colors duration-[var(--dur-fast)] focus:outline-none",
     // An invalid field stays red while focused, so the error is never hidden by the focus colour.
-    invalid ? "border-danger" : "border-hairline hover:border-ink/25 focus:border-blue-deep",
+    // The resting border is #7A828D, 3.9:1 on white: a field seniors can see without focus (owner, 2026-11-14).
+    invalid ? "border-danger" : "border-[#7A828D] hover:border-ink/60 focus:border-blue-deep",
   );
 
 /** The message under a field: mounted only with text, so role="alert" announces it once. */

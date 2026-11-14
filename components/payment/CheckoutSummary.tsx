@@ -17,6 +17,7 @@ import { formatShekel, installmentAmount, type PlanPrice } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
 import { STEP_QUESTION } from "./CheckoutFields";
+import { SecurePanel } from "./PaymentMethods";
 import StoreButtons from "./StoreButtons";
 
 const INSTALLMENTS_ID = "checkout-installments";
@@ -187,7 +188,7 @@ export default function CheckoutSummary({
               setTermsAccepted(event.target.checked);
               if (event.target.checked) setTermsMissing(false);
             }}
-            className="h-8 w-8 shrink-0 rounded-[8px] border-2 border-[#CFCFCF] accent-[var(--green-deep)]"
+            className="h-8 w-8 shrink-0 rounded-[8px] border-2 border-[#7A828D] accent-[var(--green-deep)]"
           />
           <span className="min-w-0 [overflow-wrap:anywhere]">
             {C.termsBefore}
@@ -210,13 +211,11 @@ export default function CheckoutSummary({
       ) : null}
 
       <div className="mt-7 grid gap-3">
-        <Button size="lg" className="w-full" onClick={() => void pay()} disabled={busy}>
+        <Button size="lg" className="w-full gap-2" onClick={() => void pay()} disabled={busy}>
+          <LockIcon className="h-[22px] w-[22px] shrink-0" />
           {status.kind === "redirecting" ? C.paying : status.kind === "wallet" ? C.openingWallet : C.pay}
         </Button>
-        <p className="flex items-center justify-center gap-2 text-center text-ink-soft">
-          <LockIcon className="h-5 w-5 shrink-0" />
-          {C.secureNote}
-        </p>
+        <SecurePanel plan={plan} />
       </div>
     </div>
   );

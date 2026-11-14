@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { bodyModel, SIZES } from "@/lib/funnel/images";
 import type { Answers } from "@/lib/funnel/types";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import type { Option } from "./OptionList";
 import { CHOICE_LABEL, STEP_TITLE_ID, Tick, choiceCard } from "./parts";
@@ -35,7 +36,11 @@ function Figure({ gender, selected }: { gender: Answers["gender"]; selected: rea
   const key = gender === "female" ? "female" : "male";
   const model = bodyModel(gender);
   return (
-    <div aria-hidden="true" className="relative mx-auto w-full max-w-[150px] self-center" style={{ aspectRatio: `${model.width} / ${model.height}` }}>
+    <div
+      aria-hidden="true"
+      className="relative col-start-2 row-span-7 row-start-1 h-[calc(var(--body-chip)*7+2.25rem)] self-center"
+      style={{ aspectRatio: `${model.width} / ${model.height}` }}
+    >
       <Image src={model.src} alt="" fill sizes={SIZES.body} className="object-contain" />
       {Object.entries(GLOWS).flatMap(([area, glow]) =>
         glow[key].map(([x, y], i) => (
@@ -57,22 +62,32 @@ function Figure({ gender, selected }: { gender: Answers["gender"]; selected: rea
 }
 
 /**
- * The apps' body-areas screen: a column of area toggles beside a body figure
- * where each chosen area glows softly, and the exclusive "no pain" answer full
- * width below. Several areas may be chosen (owner, 2026-10-19).
+ * The apps' body-areas screen: the areas in one column beside a body figure
+ * where each chosen area glows softly (owner, 2026-11-14: "הכל בטור אחד"), and
+ * the exclusive "no pain" answer full width below. Several areas may be chosen
+ * (owner, 2026-10-19). An answer's height follows the screen's, 48px to 72px,
+ * so the page fits with no scrolling on a phone 704px tall or more.
  */
 export default function BodyAreas({ options, selected, gender, onToggle }: Props) {
   const areas = options.filter((o) => o.value !== NONE);
   const none = options.find((o) => o.value === NONE);
-  const chip = (option: Option) => {
+  const chip = (option: Option, row: number) => {
     const on = selected.includes(option.value);
     return (
       <button
         key={option.value}
         type="button"
         aria-pressed={on}
-        onClick={() => onToggle(option.value)}
-        className={cn(choiceCard(on), "min-h-[56px] cursor-pointer py-2.5 max-[420px]:py-2", option.value === NONE && "col-span-full")}
+        onClick={() => {
+          tapHaptic();
+          onToggle(option.value);
+        }}
+        style={{ gridRow: row }}
+        className={cn(
+          choiceCard(on),
+          "min-h-[var(--body-chip)] cursor-pointer py-1 max-[420px]:py-1",
+          option.value === NONE ? "col-span-full" : "col-start-1",
+        )}
       >
         <span className={CHOICE_LABEL}>{option.label}</span>
         <Tick on={on} shape="square" />
@@ -80,10 +95,15 @@ export default function BodyAreas({ options, selected, gender, onToggle }: Props
     );
   };
   return (
-    <div role="group" aria-labelledby={STEP_TITLE_ID} className="mt-5 grid grid-cols-[minmax(0,1fr)_minmax(0,0.75fr)] gap-x-4 gap-y-2">
-      <div className="grid gap-2">{areas.map(chip)}</div>
+    <div
+      role="group"
+      aria-labelledby={STEP_TITLE_ID}
+      // 320px: the header, title, gaps and the pinned button; 8 rows share the rest. Fits from a 704px-tall screen; a smaller one scrolls a little rather than go under 48px.
+      className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 [--body-chip:clamp(48px,calc((100vh-320px)/8),72px)] supports-[height:100dvh]:[--body-chip:clamp(48px,calc((100dvh-320px)/8),72px)]"
+    >
+      {areas.map((o, i) => chip(o, i + 1))}
       <Figure gender={gender} selected={selected} />
-      {none ? chip(none) : null}
+      {none ? chip(none, areas.length + 1) : null}
     </div>
   );
 }

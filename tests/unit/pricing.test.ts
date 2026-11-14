@@ -71,6 +71,18 @@ describe("the annual card", () => {
   });
 });
 
+describe("the advertised figure", () => {
+  it("rounds the annual split to a whole shekel, as the apps do: 709 / 12 shows 59", () => {
+    expect(priceParts(withAnnual(709, 12), "annual")).toEqual({ amount: "59 ₪", suffix: "לחודש" });
+    expect(annualCardCopy(withAnnual(709, 12)).amount).toBe("59 ₪");
+  });
+  it("never rounds what is charged", () => {
+    expect(perPayment(withAnnual(709, 12), "annual")).toBe(59.08);
+    expect(annualCardCopy(withAnnual(709, 12)).charge).toBe("חיוב אחד של 709 ₪, אפשר לחלק עד 12 תשלומים");
+    expect(priceParts(withAnnual(709, 1), "annual").amount).toBe("709 ₪");
+  });
+});
+
 describe("the /payment description", () => {
   it("is written from the prices", () => {
     expect(describePlans(PRICES)).toBe(

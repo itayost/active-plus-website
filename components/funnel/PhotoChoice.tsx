@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 import { SIZES } from "@/lib/funnel/images";
+import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import { STEP_TITLE_ID } from "./parts";
 
@@ -13,38 +13,30 @@ type Props = {
   value: string | undefined;
   /** Photo box shape (width / height): the gender portraits stand, the age photos lie down. */
   aspect: "portrait" | "landscape";
+  /** A tap selects the card; the step's "המשך" moves on (owner, 2026-11-10). */
   onChoose: (value: string) => void;
 };
 
-/** How long the highlight shows before moving on, as in the apps (0.15s). */
-const ADVANCE_MS = 150;
-
 /**
- * Photo cards, two per row (an odd last card keeps a card's width). As in the
- * apps there is no "המשך": a tap highlights the card, then moves on. A second
- * tap while moving on is ignored, so one tap can never advance twice.
+ * Photo cards, two per row (an odd last card keeps a card's width). A tap
+ * highlights the card and nothing more: another tap changes the choice, and
+ * the step's continue button moves on.
  */
 export default function PhotoChoice({ options, value, aspect, onChoose }: Props) {
-  const [picked, setPicked] = useState<string | undefined>(value);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  const choose = (next: string) => {
-    if (timer.current) return;
-    setPicked(next);
-    timer.current = setTimeout(() => onChoose(next), ADVANCE_MS);
-  };
 
   return (
     <div role="group" aria-labelledby={STEP_TITLE_ID} className="mt-6 grid grid-cols-2 gap-3">
       {options.map((option) => {
-        const on = option.value === picked;
+        const on = option.value === value;
         return (
           <button
             key={option.value}
             type="button"
             aria-pressed={on}
-            onClick={() => choose(option.value)}
+            onClick={() => {
+              tapHaptic();
+              onChoose(option.value);
+            }}
             className={cn(
               "flex flex-col overflow-hidden rounded-card border-2 bg-surface pb-3 text-ink shadow-lift-1",
               "transition-[border-color,background-color,transform] duration-[var(--dur-fast)] ease-out-expo active:scale-[0.98]",

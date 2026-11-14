@@ -39,6 +39,10 @@ export const CHECKOUT_COPY = {
   pay: "לתשלום מאובטח",
   paying: "מעבירים לעמוד התשלום המאובטח של Grow",
   openingWallet: "פותחים את חלון התשלום המאובטח של Grow",
+  secureTitle: "תשלום מאובטח",
+  /** Under the monthly plan's price (owner, 2026-11-14). */
+  cancelAnytime: "אפשר לבטל בכל עת",
+  methodsLabel: "אמצעי תשלום",
   secureNote: "התשלום מתבצע במערכת המאובטחת של Grow (משולם). פרטי הכרטיס לא עוברים דרך האתר ולא נשמרים בו.",
   cancelled: "התשלום לא הושלם ולא חויב דבר. אפשר לנסות שוב.",
   pricesUnavailable: "המחירים לא זמינים כרגע. אפשר לנסות שוב בעוד כמה דקות, או לרכוש מנוי באפליקציה.",

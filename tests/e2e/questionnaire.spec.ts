@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { AUTO_ADVANCE_MS, PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "../../lib/funnel/constants";
+import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "../../lib/funnel/constants";
 import { COPY } from "../../lib/funnel/copy";
 import type { Answers, Step } from "../../lib/funnel/types";
 import {
@@ -106,12 +106,14 @@ test.describe("with reduced motion", () => {
     await expect(next(page)).toBeEnabled();
   });
 
-  test("a tapped answer is saved and moves on by itself; another tap in the beat changes it", async ({ page }) => {
+  test("a tapped answer only selects it: another tap changes it, and continue moves on", async ({ page }) => {
     await seedOnPausedClock(page, "frequency", THROUGH_FREQUENCY);
     await tap(page, "כמעט כל יום");
     await tap(page, "כ־3 פעמים בשבוע");
+    await page.clock.runFor(5_000);
     await expectStep(page, "frequency");
-    await page.clock.runFor(AUTO_ADVANCE_MS);
+    await expect(screen(page).getByRole("radio", { name: "כ־3 פעמים בשבוע", exact: true })).toBeChecked();
+    await next(page).click();
     await expectStep(page, "bodyAreas");
     expect((await stored(page)).answers).toMatchObject({ training_frequency_choice: "three_week" });
   });
@@ -120,30 +122,27 @@ test.describe("with reduced motion", () => {
     await seedOnPausedClock(page, "frequency", THROUGH_FREQUENCY);
     await screen(page).getByRole("radio", { checked: true }).focus();
     await page.keyboard.press("ArrowDown");
-    await page.clock.runFor(AUTO_ADVANCE_MS * 2);
+    await page.clock.runFor(5_000);
     await expectStep(page, "frequency");
     await next(page).click();
     await expectStep(page, "bodyAreas");
   });
 
-  test("an arrow key during the beat cancels the tap: the answer on screen is never replaced", async ({ page }) => {
-    await seedOnPausedClock(page, "frequency", THROUGH_FREQUENCY);
-    await tap(page, "כמעט כל יום");
-    const tapped = screen(page).getByRole("radio", { name: "כמעט כל יום", exact: true });
-    await tapped.focus();
-    await page.keyboard.press("ArrowDown");
-    await expect(tapped).not.toBeChecked();
-    await page.clock.runFor(AUTO_ADVANCE_MS * 2);
-    await expectStep(page, "frequency");
-  });
-
-  test("the gender and age photo cards move on with one tap, the age photos following the gender", async ({ page }) => {
+  test("the gender and age photo cards wait for continue, the age photos following the gender", async ({ page }) => {
     await seed(page, "gender", { training_goals: ["cognition"] });
-    await expect(next(page)).toHaveCount(0);
+    await expect(next(page)).toBeDisabled();
+    await pickPhoto(page, "זכר");
     await pickPhoto(page, "נקבה");
+    await expectStep(page, "gender");
+    await expect(screen(page).getByRole("button", { name: "נקבה", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(screen(page).getByRole("button", { name: "זכר", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await next(page).click();
     await expectStep(page, "dob");
     await expect(screen(page).getByRole("button", { name: "80+" }).locator("img")).toHaveAttribute("src", /age-female-80-plus/);
+    await expect(next(page)).toBeDisabled();
     await pickPhoto(page, "80+");
+    await expectStep(page, "dob");
+    await next(page).click();
     await expectStep(page, "goalReinforcement");
     await expect(screen(page).locator("img")).toHaveAttribute("src", /goal-female-chess/);
     expect((await stored(page)).answers).toMatchObject({ gender: "female", age_group: "80_plus" });
@@ -169,8 +168,12 @@ test.describe("with reduced motion", () => {
     await expect(area("ברך")).toHaveAttribute("aria-pressed", "true");
     await expect(next(page)).toBeEnabled();
 
-    // "no pain" replaces the areas and moves straight on, as in the apps.
+    // "no pain" replaces the areas and waits for continue like every answer.
     await none.click();
+    await expect(none).toHaveAttribute("aria-pressed", "true");
+    await expect(area("ברך")).toHaveAttribute("aria-pressed", "false");
+    await expectStep(page, "bodyAreas");
+    await next(page).click();
     await expectStep(page, "planBuilding");
     expect((await stored(page)).answers.pain_areas).toEqual(["none"]);
 

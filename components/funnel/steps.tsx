@@ -1,5 +1,5 @@
-import { useEffect, useRef, type ReactElement } from "react";
-import { AUTO_ADVANCE_MS, PAYMENT_PATH } from "@/lib/funnel/constants";
+import type { ReactElement } from "react";
+import { PAYMENT_PATH } from "@/lib/funnel/constants";
 import { COPY, g, type Gendered, type GenderedOption, type IconOption, type Plain } from "@/lib/funnel/copy";
 import { ageImage } from "@/lib/funnel/images";
 import type { FunnelState } from "@/lib/funnel/machine";
@@ -80,16 +80,6 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
   const value = (Array.isArray(draft) ? draft[0] : draft) ?? (question.asList ? undefined : (saved as string | undefined));
   const options = question.options.map((o) => optionOf(o, gender));
   const pick = (v: string) => ({ [question.key]: question.asList ? [v] : v }) as Answers;
-  // A tap moves on after a short beat; another tap meanwhile restarts it with the new answer,
-  // and an arrow key meanwhile cancels it, so what moves on is always the answer on screen.
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const tapped = useRef<string | undefined>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const onPick = (v: string) => {
-    clearTimeout(timer.current);
-    tapped.current = v;
-    timer.current = setTimeout(() => actions.answer(pick(v)), AUTO_ADVANCE_MS);
-  };
   return (
     <>
       <StepTitle>
@@ -100,11 +90,7 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
         name={question.key}
         options={options}
         value={value}
-        onChange={(v) => {
-          if (v !== tapped.current) clearTimeout(timer.current);
-          actions.setDraft(pick(v));
-        }}
-        onPick={onPick}
+        onChange={(v) => actions.setDraft(pick(v))}
       />
       <ContinueButton
         pinned
@@ -117,34 +103,48 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
 }
 
 function GenderStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
+  const gender = state.draft.gender ?? state.answers.gender;
   return (
     <>
       <StepTitle>{COPY.gender.title}</StepTitle>
       <Subtitle text={COPY.gender.subtitle} />
       <PhotoChoice
         options={COPY.gender.options}
-        value={state.answers.gender}
+        value={gender}
         aspect="portrait"
-        onChoose={(gender) => actions.answer({ gender })}
+        onChoose={(value) => actions.setDraft({ gender: value as Gender })}
       />
       <FootNote text={COPY.common.trust} lock />
+      <ContinueButton
+        pinned
+        label={continueLabel(gender)}
+        disabled={!gender}
+        onClick={() => gender && actions.answer({ gender })}
+      />
     </>
   );
 }
 
 function AgeGroupStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
   const options = COPY.ageGroup.options.map((o) => ({ value: o.value, label: o.label, image: ageImage(state.answers.gender, o.file) }));
+  const ageGroup = state.draft.age_group ?? state.answers.age_group;
   return (
     <>
       <StepTitle>{COPY.ageGroup.title}</StepTitle>
       <Subtitle text={COPY.ageGroup.subtitle} />
       <PhotoChoice
         options={options}
-        value={state.answers.age_group}
+        value={ageGroup}
         aspect="landscape"
-        onChoose={(age_group) => actions.answer({ age_group })}
+        onChoose={(age_group) => actions.setDraft({ age_group })}
       />
       <FootNote text={COPY.common.trust} lock />
+      <ContinueButton
+        pinned
+        label={continueLabel(state.answers.gender)}
+        disabled={!ageGroup}
+        onClick={() => ageGroup && actions.answer({ age_group: ageGroup })}
+      />
     </>
   );
 }
@@ -152,12 +152,8 @@ function AgeGroupStep({ state, actions }: { state: FunnelState; actions: StepAct
 function BodyAreasStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
   const gender = state.answers.gender;
   const selected = state.draft.pain_areas ?? state.answers.pain_areas ?? [];
-  const toggle = (area: string) => {
-    const next = toggleBodyArea(selected, area);
-    // "no pain" is the commonest answer: a tap on it moves straight on (owner, 2026-10-21).
-    if (area === "none" && next.includes("none")) actions.answer({ pain_areas: next });
-    else actions.setDraft({ pain_areas: next });
-  };
+  // Every tap only selects, "no pain" included; the button moves on (owner, 2026-11-10).
+  const toggle = (area: string) => actions.setDraft({ pain_areas: toggleBodyArea(selected, area) });
   return (
     <>
       <StepTitle>{COPY.bodyAreas.title}</StepTitle>

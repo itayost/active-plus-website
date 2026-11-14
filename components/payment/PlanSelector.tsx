@@ -2,14 +2,14 @@
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import { CheckIcon } from "@/components/ui/icons";
+import { CheckIcon, LockIcon } from "@/components/ui/icons";
 import { PLAN_INCLUDES, PLANS, type PlanId } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
+import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { annualCardCopy, priceParts, type PlanPrices } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+import { PaymentLogos } from "./PaymentMethods";
 
-// Card for both plans (annual: Grow's wallet; monthly: its hosted page). Bit / Apple Pay / Google Pay join this list once the wallet is seen offering them.
-const PAYMENT_METHODS = ["Visa", "Mastercard"] as const;
 const [ANNUAL, MONTHLY] = PLANS;
 const STORE_FALLBACK_HREF = "#store-fallback";
 
@@ -90,6 +90,18 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
           >
             {ANNUAL.cta}
           </Button>
+          {showMethods ? (
+            <>
+              <p id="payment-methods-label" className="sr-only">
+                {C.methodsLabel}
+              </p>
+              <PaymentLogos labelledBy="payment-methods-label" className="mt-4" />
+              <p className="mt-3 flex items-center justify-center gap-2 font-bold text-green-lo">
+                <LockIcon className="h-5 w-5 shrink-0" />
+                {C.secureTitle} · Grow
+              </p>
+            </>
+          ) : null}
         </section>
 
         <Card
@@ -106,6 +118,10 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
             </h2>
             <p className="font-display text-[22px] font-extrabold leading-tight">
               {monthly.amount} <span className="text-base font-medium">{monthly.suffix}</span>
+            </p>
+            <p className="mt-1 flex items-center gap-1.5 text-base font-bold text-green-lo">
+              <CheckIcon className="h-[18px] w-[18px] shrink-0" />
+              {C.cancelAnytime}
             </p>
           </div>
           <MonthlyChoice href={href} onClick={href ? undefined : choose("monthly")} pressed={checkoutOpen ? selected === "monthly" : undefined} />
@@ -129,27 +145,6 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
           </ul>
         </div>
 
-        {showMethods ? (
-          <div>
-            <p id="payment-methods-label" className="text-base text-ink-soft">
-              אמצעי תשלום
-            </p>
-            <ul
-              aria-labelledby="payment-methods-label"
-              dir="ltr"
-              className="mt-3 flex flex-wrap gap-2"
-            >
-              {PAYMENT_METHODS.map((method) => (
-                <li
-                  key={method}
-                  className="inline-flex min-h-[40px] items-center rounded-pill border-2 border-hairline bg-surface px-4 font-display text-base font-bold text-ink-soft"
-                >
-                  {method}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
       </div>
     </div>
   );

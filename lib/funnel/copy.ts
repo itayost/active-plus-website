@@ -60,7 +60,7 @@ export const COPY = {
     cancel: "ביטול",
     dots: "שלב {i} מתוך {n}",
   },
-  /** Two photo cards; a tap chooses and moves on (owner, 2026-10-21). */
+  /** Two photo cards; a tap chooses, "המשך" moves on (owner, 2026-11-10). */
   gender: {
     title: "מהו המגדר שלך?",
     subtitle: "המגדר שלך משפיע על מדדים גופניים חשובים.\nאנחנו משתמשים במידע הזה כדי לספק לך תוכן מותאם אישית.",
