@@ -41,8 +41,6 @@ export const CHECKOUT_COPY = {
   openingWallet: "פותחים את חלון התשלום המאובטח של Grow",
   secureTitle: "תשלום מאובטח",
   methodsLabel: "אמצעי תשלום",
-  /** Under the plans: Bit and PayBox come with the annual plan's wallet only. */
-  methodsAnnualOnly: "במנוי השנתי אפשר לשלם גם בביט או בפייבוקס",
   secureNote: "התשלום מתבצע במערכת המאובטחת של Grow (משולם). פרטי הכרטיס לא עוברים דרך האתר ולא נשמרים בו.",
   cancelled: "התשלום לא הושלם ולא חויב דבר. אפשר לנסות שוב.",
   pricesUnavailable: "המחירים לא זמינים כרגע. אפשר לנסות שוב בעוד כמה דקות, או לרכוש מנוי באפליקציה.",

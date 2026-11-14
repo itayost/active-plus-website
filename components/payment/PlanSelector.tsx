@@ -91,10 +91,16 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
             {ANNUAL.cta}
           </Button>
           {showMethods ? (
-            <p className="mt-3 flex items-center justify-center gap-2 font-bold text-green-lo">
-              <LockIcon className="h-5 w-5 shrink-0" />
-              {C.secureTitle} · Grow
-            </p>
+            <>
+              <p id="payment-methods-label" className="sr-only">
+                {C.methodsLabel}
+              </p>
+              <PaymentLogos labelledBy="payment-methods-label" className="mt-4" />
+              <p className="mt-3 flex items-center justify-center gap-2 font-bold text-green-lo">
+                <LockIcon className="h-5 w-5 shrink-0" />
+                {C.secureTitle} · Grow
+              </p>
+            </>
           ) : null}
         </section>
 
@@ -135,15 +141,6 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
           </ul>
         </div>
 
-        {showMethods ? (
-          <div>
-            <p id="payment-methods-label" className="font-display text-lead font-bold">
-              {C.methodsLabel}
-            </p>
-            <PaymentLogos labelledBy="payment-methods-label" className="mt-3" />
-            <p className="mt-2 text-base text-ink-soft">{C.methodsAnnualOnly}</p>
-          </div>
-        ) : null}
       </div>
     </div>
   );
