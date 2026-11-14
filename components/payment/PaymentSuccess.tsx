@@ -69,9 +69,10 @@ export default function PaymentSuccess() {
       <div className="relative isolate overflow-hidden rounded-b-[2rem] bg-green-deep text-white">
         <Image src={hero} alt="" fill priority sizes="(max-width: 560px) 100vw, 560px" className="-z-10 object-cover object-top opacity-60" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-green-deep/50 to-green-deep" />
-        <div className="gutter-x flex min-h-[23rem] flex-col items-center justify-end pb-8 pt-16 text-center">
-          <span aria-hidden="true" className="success-pop mb-5 flex h-20 w-20 items-center justify-center rounded-pill bg-white text-green-deep shadow-lift-2">
-            <CheckIcon className="h-10 w-10" />
+        <div className="gutter-x flex min-h-[26rem] flex-col items-center justify-end pb-10 pt-16 text-center">
+          <span className="success-pop mb-4 inline-flex items-center gap-2 rounded-pill bg-white px-4 py-1.5 font-display text-[1rem] font-bold text-green-deep shadow-lift-2">
+            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+            {S.paidChip}
           </span>
           <h1 id="payment-success-heading" className="font-display text-[clamp(1.9rem,1.4rem+1.7vw,3.2rem)] font-extrabold leading-[1.1]">{title}</h1>
           <p className="mt-3 font-display text-[1.35rem] font-bold">{S.tagline}</p>
