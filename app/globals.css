@@ -347,7 +347,9 @@ h3 {
 
 /* A title focused by script (tabindex="-1", each funnel step and notice) moves
    screen readers to it; it is not a control, so it draws no ring. Safari
-   counts that script focus as visible and framed the funnel question in blue. */
+   counts that script focus as visible and framed the funnel question in blue;
+   :focus too, for browsers whose own ring follows plain focus. */
+[tabindex="-1"]:focus,
 [tabindex="-1"]:focus-visible {
   outline: none;
 }
