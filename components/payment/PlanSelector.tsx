@@ -119,6 +119,10 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
             <p className="font-display text-[22px] font-extrabold leading-tight">
               {monthly.amount} <span className="text-base font-medium">{monthly.suffix}</span>
             </p>
+            <p className="mt-1 flex items-center gap-1.5 text-base font-bold text-green-lo">
+              <CheckIcon className="h-[18px] w-[18px] shrink-0" />
+              {C.cancelAnytime}
+            </p>
           </div>
           <MonthlyChoice href={href} onClick={href ? undefined : choose("monthly")} pressed={checkoutOpen ? selected === "monthly" : undefined} />
         </Card>

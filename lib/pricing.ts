@@ -50,9 +50,18 @@ const singlePayment = (prices: PlanPrices, id: PlanId): boolean => id === "annua
 /** What follows the figure: a month, or one payment when the annual cannot be split. */
 const priceSuffix = (prices: PlanPrices, id: PlanId): string => (singlePayment(prices, id) ? "בתשלום אחד" : plan(id).priceSuffix);
 
+/**
+ * The figure a plan is advertised at: the annual plan's split rounded to a
+ * whole shekel, as the apps show it (709 / 12 -> 59; owner, 2026-11-14). What
+ * is charged is never rounded: the total and each installment stay exact.
+ */
+export function shownPrice(prices: PlanPrices, id: PlanId): number {
+  return id === "annual" && !singlePayment(prices, id) ? Math.round(perPayment(prices, id)) : perPayment(prices, id);
+}
+
 /** The figure and what it is for, apart, for a card that styles them differently. */
 export function priceParts(prices: PlanPrices, id: PlanId): { amount: string; suffix: string } {
-  return { amount: formatShekel(perPayment(prices, id)), suffix: priceSuffix(prices, id) };
+  return { amount: formatShekel(shownPrice(prices, id)), suffix: priceSuffix(prices, id) };
 }
 
 /** The figure with "לחודש", or with "בתשלום אחד" when the annual is one payment. */
@@ -82,7 +91,7 @@ export function annualCardCopy(prices: PlanPrices): AnnualCard {
   const saving = annualSavings(prices);
   const single = maxInstallments === 1;
   return {
-    amount: formatShekel(perPayment(prices, "annual")),
+    amount: formatShekel(shownPrice(prices, "annual")),
     suffix: priceSuffix(prices, "annual"),
     terms: `${single ? "תשלום אחד" : `ל-${maxInstallments} תשלומים`} · ${plan("annual").terms}`,
     charge: `חיוב אחד של ${formatShekel(total)}${single ? "" : `, אפשר לחלק עד ${maxInstallments} תשלומים`}`,
