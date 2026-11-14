@@ -34,9 +34,11 @@ export const initialState = (): FunnelState => ({
   register: { sub: "name", phone: "" },
 });
 
+// The part of the day opens unchosen (owner, 2026-11-14: nothing preselected, back or
+// forward); the hours screen keeps its part, which it needs to list the hours.
 const timeView = (sub: TimeView["sub"], answers: Answers): TimeView => {
   const segment = segmentOf(answers.training_time_of_day);
-  return { sub: sub === "B" && segment ? "B" : "A", segment };
+  return sub === "B" && segment ? { sub: "B", segment } : { sub: "A", segment: null };
 };
 
 function moveTo(state: FunnelState, target: Step, answers: Answers): FunnelState {
@@ -87,7 +89,7 @@ export const canGoBack = (state: FunnelState): boolean =>
 
 export function back(state: FunnelState): FunnelState {
   if (state.step === "time" && state.time.sub === "B") {
-    return { ...state, draft: {}, time: { ...state.time, sub: "A" } };
+    return { ...state, draft: {}, time: { sub: "A", segment: null } };
   }
   if (state.step === "register" && state.register.sub === "phone") {
     return { ...state, draft: {}, register: { ...state.register, sub: "name" } };

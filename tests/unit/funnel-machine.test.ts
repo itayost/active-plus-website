@@ -57,7 +57,8 @@ describe("funnel machine", () => {
     const time = advance(loader);
     expect(time.step).toBe("time");
     expect(time.history).toEqual(["frequency", "bodyAreas"]);
-    expect(time.time).toEqual({ sub: "A", segment: "afternoon" });
+    // Nothing preselected, even with a saved time (owner, 2026-11-14).
+    expect(time.time).toEqual({ sub: "A", segment: null });
   });
 
   it("back from the time segment screen goes to bodyAreas, never the loader", () => {
@@ -71,7 +72,7 @@ describe("funnel machine", () => {
     expect(hours.time).toEqual({ sub: "B", segment: "morning" });
     const prev = back(hours);
     expect(prev.step).toBe("time");
-    expect(prev.time).toEqual({ sub: "A", segment: "morning" });
+    expect(prev.time).toEqual({ sub: "A", segment: null });
     expect(prev.history).toEqual(["bodyAreas"]);
   });
 
@@ -99,7 +100,7 @@ describe("funnel machine", () => {
   });
 
   it("restores time on its segment screen", () => {
-    expect(restore("time", ALL).time).toEqual({ sub: "A", segment: "afternoon" });
+    expect(restore("time", ALL).time).toEqual({ sub: "A", segment: null });
   });
 
   describe("register and otp", () => {

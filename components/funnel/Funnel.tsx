@@ -10,6 +10,7 @@ import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers, Step } from "@/lib/funnel/types";
 import FunnelChrome from "./FunnelChrome";
 import { STEP_TITLE_ID } from "./parts";
+import { isPressable, tapHaptic } from "@/lib/haptics";
 import { renderStep, type StepActions } from "./steps";
 import { useBrowserBack } from "./useBrowserBack";
 import { usePreloadImages } from "./usePreloadImages";
@@ -179,7 +180,15 @@ export default function Funnel() {
     filling the viewport's height so the continue button sits at the bottom.
   */
   return (
-    <div data-funnel-root="" data-ready={restored === null ? undefined : ""} className="flex min-h-[100dvh] justify-center bg-sunken">
+    <div
+      data-funnel-root=""
+      data-ready={restored === null ? undefined : ""}
+      className="flex min-h-[100dvh] justify-center bg-sunken"
+      // A light tap on every press in the questionnaire, back and cancel included (owner, 2026-11-14).
+      onClickCapture={(e) => {
+        if (isPressable(e.target)) tapHaptic();
+      }}
+    >
       <div className="relative flex w-full max-w-[560px] flex-col overflow-x-clip bg-sunken md:shadow-lift-2">
         {photo ? (
           <div className="absolute inset-x-0 top-0 z-20 px-2 pt-[max(0.5rem,env(safe-area-inset-top))]">{chrome}</div>
