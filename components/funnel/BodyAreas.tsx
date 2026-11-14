@@ -65,8 +65,8 @@ function Figure({ gender, selected }: { gender: Answers["gender"]; selected: rea
  * The apps' body-areas screen: the areas in one column beside a body figure
  * where each chosen area glows softly (owner, 2026-11-14: "הכל בטור אחד"), and
  * the exclusive "no pain" answer full width below. Several areas may be chosen
- * (owner, 2026-10-19). An answer's height follows the screen's, 56px to 72px,
- * so the page fits with no scrolling on a phone 768px tall or more.
+ * (owner, 2026-10-19). An answer's height follows the screen's, 48px to 72px,
+ * so the page fits with no scrolling on a phone 704px tall or more.
  */
 export default function BodyAreas({ options, selected, gender, onToggle }: Props) {
   const areas = options.filter((o) => o.value !== NONE);
@@ -98,8 +98,8 @@ export default function BodyAreas({ options, selected, gender, onToggle }: Props
     <div
       role="group"
       aria-labelledby={STEP_TITLE_ID}
-      // 320px: the header, title, gaps and the pinned button; 8 rows share the rest. Fits from a 768px-tall screen; a smaller one scrolls a little rather than go under 56px.
-      className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 [--body-chip:clamp(56px,calc((100vh-320px)/8),72px)] supports-[height:100dvh]:[--body-chip:clamp(56px,calc((100dvh-320px)/8),72px)]"
+      // 320px: the header, title, gaps and the pinned button; 8 rows share the rest. Fits from a 704px-tall screen; a smaller one scrolls a little rather than go under 48px.
+      className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 [--body-chip:clamp(48px,calc((100vh-320px)/8),72px)] supports-[height:100dvh]:[--body-chip:clamp(48px,calc((100dvh-320px)/8),72px)]"
     >
       {areas.map((o, i) => chip(o, i + 1))}
       <Figure gender={gender} selected={selected} />
