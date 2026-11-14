@@ -121,9 +121,10 @@ export function buildCsp(supabaseUrl: string | undefined, options: { growWallet?
     ["default-src", ["'self'"]],
     ["script-src", ["'self'", "'unsafe-inline'", ...extra("script")]],
     ["style-src", ["'self'", "'unsafe-inline'", ...extra("style")]],
-    ["img-src", ["'self'", "data:", "blob:", ...extra("img")]],
+    // Supabase storage serves the taster's exercise clips and thumbnails (/taster); blob: is a clip downloaded ahead.
+    ["img-src", ["'self'", "data:", "blob:", ...(supabase ? [supabase] : []), ...extra("img")]],
     ["font-src", ["'self'", ...extra("font")]],
-    ["media-src", ["'self'"]],
+    ["media-src", ["'self'", "blob:", ...(supabase ? [supabase] : [])]],
     ["connect-src", ["'self'", ...(supabase ? [supabase] : []), ...extra("connect")]],
     ["frame-src", frames.length > 0 ? frames : ["'none'"]],
     ["frame-ancestors", ["'none'"]],

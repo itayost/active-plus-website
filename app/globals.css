@@ -597,3 +597,16 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .success-pop { animation: none; }
 }
+
+/* The taster's praise and end check: a short pop in (components/taster). */
+@keyframes taster-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.taster-pop {
+  animation: taster-pop var(--dur-slow) var(--ease-out-expo) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .taster-pop { animation: none; }
+}
