@@ -640,3 +640,32 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .plan-draw, .plan-fade { animation: none; }
 }
+
+/* The plan-building loader (components/funnel/PlanBuilding): a breathing glow,
+   a sparkling tip, a turning arc on the line in progress, a pop at 100%. */
+@keyframes plan-glow {
+  from { opacity: 0.55; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1.06); }
+}
+.plan-glow {
+  animation: plan-glow 1.1s ease-in-out infinite alternate;
+}
+@keyframes plan-spark {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+.plan-spark {
+  animation: plan-spark 0.5s ease-in-out infinite alternate;
+}
+@keyframes plan-working {
+  to { transform: rotate(360deg); }
+}
+.plan-working {
+  animation: plan-working 0.9s linear infinite;
+}
+.plan-ready {
+  animation: success-pop 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-glow, .plan-spark, .plan-working, .plan-ready { animation: none; }
+}

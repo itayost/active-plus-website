@@ -195,6 +195,8 @@ export const COPY = {
   },
   planBuilding: {
     title: "בונים את התוכנית שלך",
+    /** At 100%, a moment before moving on (owner, 2026-11-15: "יותר חי ויותר מרגש"). */
+    ready: "התוכנית שלך מוכנה!",
     // Owner copy, 2026-10-19 (PlanBuildProgressView).
     checklist: [
       { at: 28, label: "בודקים את התשובות שלך" },
@@ -262,12 +264,13 @@ export const COPY = {
     namePlaceholder: "הקלידו את שמכם",
     nameCta: "הבא",
     nameError: "השם חייב להכיל לפחות 2 תווים",
-    phoneTitle: "נשלח לך קוד",
-    phoneSubtitle: "להמשך מהיר ובטוח",
+    // Owner, 2026-11-15: "יותר ממיר ומשכנע לשים את מספר הטלפון". The phone opens the plan just built.
+    phoneTitle: "התוכנית האישית שלך מוכנה",
+    phoneSubtitle: "נשלח לך קוד ב-SMS, ותוכנית 28 הימים שלך תיפתח מיד",
     phoneLabel: "מספר טלפון",
     phonePlaceholder: { fem: "הקלידי מספר טלפון", masc: "הקלידו מספר טלפון" } as Gendered,
-    phoneSecure: "הפרטים שלך מאובטחים",
-    phoneCta: "שלחו לי קוד",
+    phoneSecure: "הפרטים שלך מאובטחים, בלי ספאם",
+    phoneCta: "לתוכנית שלי",
     phoneFooter: "לוקח פחות מדקה • ללא התחייבות",
     /*
       The spec's consent line, split so its two documents can be links:
@@ -277,12 +280,22 @@ export const COPY = {
     */
     consent: {
       lead: {
-        fem: "בלחיצה על \"שלחו לי קוד\" אני מאשרת את",
-        masc: "בלחיצה על \"שלחו לי קוד\" אני מאשר את",
+        fem: "בלחיצה על \"לתוכנית שלי\" אני מאשרת את",
+        masc: "בלחיצה על \"לתוכנית שלי\" אני מאשר את",
       } as Gendered,
       terms: "תנאי השימוש",
       and: "ו",
       privacy: "מדיניות הפרטיות",
+    },
+    /** The same phone screen on the site's sign-in for existing accounts (components/account), which builds no plan. */
+    signIn: {
+      title: "נשלח לך קוד",
+      subtitle: "להמשך מהיר ובטוח",
+      cta: "שלחו לי קוד",
+      consentLead: {
+        fem: "בלחיצה על \"שלחו לי קוד\" אני מאשרת את",
+        masc: "בלחיצה על \"שלחו לי קוד\" אני מאשר את",
+      } as Gendered,
     },
     phoneError: "מספר טלפון לא תקין",
     /** Task 5 brief: signInWithOtp refused or failed. */

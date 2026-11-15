@@ -1,23 +1,32 @@
 /**
- * How full the plan-building ring is over time (owner, 2026-11-14): slower, and
- * never at an even pace, so it feels like a plan is being put together. Bursts,
- * each eased, with short holds between them, ending at 100% on PLAN_BUILD_MS.
- * Each pair is [ms since the start, percent]; equal percents are a hold.
+ * How full the plan-building ring is over time (owner, 2026-11-14: slower and
+ * uneven; 2026-11-15: "תחושה שבונים בשבילי תוכנית ומקדישים מחשבה"). One phase
+ * per checklist line (28, 56, 82): a quick start, a slow crawl, a pause just
+ * short of the line as if weighing it, then a step past it as the line turns
+ * green. A last pause near the top, then 100% on PLAN_BUILD_MS.
+ * Each pair is [ms since the start, percent]; close percents are a pause.
  */
 export const PLAN_BUILD_CURVE: readonly (readonly [number, number])[] = [
   [0, 0],
-  [900, 11],
-  [1500, 13],
-  [2500, 29],
-  [3200, 34],
-  [3900, 35],
-  [5000, 54],
-  [5800, 66],
-  [6600, 68],
-  [7500, 84],
-  [8300, 93],
-  [8700, 96],
-  [9000, 100],
+  // Reading the answers.
+  [1200, 17],
+  [2600, 24],
+  [3400, 25],
+  [3800, 30],
+  // Choosing the exercises.
+  [5000, 43],
+  [6500, 51],
+  [7300, 52],
+  [7700, 58],
+  // The last adjustments.
+  [8900, 70],
+  [10000, 77],
+  [10800, 78],
+  [11200, 84],
+  // Putting it together.
+  [12000, 95],
+  [12500, 97],
+  [12800, 100],
 ];
 
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);

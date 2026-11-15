@@ -190,7 +190,10 @@ export default function Funnel() {
       }}
     >
       <div className="relative flex w-full max-w-[560px] flex-col overflow-x-clip bg-sunken md:shadow-lift-2">
-        {photo ? (
+        {step === "planBuilding" ? (
+          // No back or cancel here, so no empty row either: the loader fits one screen (owner, 2026-11-15).
+          <div className="pt-[max(0.5rem,env(safe-area-inset-top))]" />
+        ) : photo ? (
           <div className="absolute inset-x-0 top-0 z-20 px-2 pt-[max(0.5rem,env(safe-area-inset-top))]">{chrome}</div>
         ) : (
           <div className="px-2 pt-[max(0.5rem,env(safe-area-inset-top))]">{chrome}</div>

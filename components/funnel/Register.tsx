@@ -118,13 +118,17 @@ export function PhoneStep({ gender, initialPhone, onSent, onBusy, existingOnly =
   };
 
   const [lead, rest] = C.phoneFooter.split(" • ");
+  // The questionnaire sells the plan just built; the account sign-in only sends a code.
+  const T = existingOnly
+    ? C.signIn
+    : { title: C.phoneTitle, subtitle: C.phoneSubtitle, cta: C.phoneCta, consentLead: C.consent.lead };
   return (
     <form noValidate onSubmit={submit} aria-busy={sending || undefined}>
       <StepIcon>
         <PhoneIcon />
       </StepIcon>
-      <StepTitle>{C.phoneTitle}</StepTitle>
-      <Subtitle text={C.phoneSubtitle} />
+      <StepTitle>{T.title}</StepTitle>
+      <Subtitle text={T.subtitle} />
       <div className="mt-7">
         <label htmlFor={PHONE_ID} className="mb-2 block font-display font-bold">
           {C.phoneLabel}
@@ -150,7 +154,7 @@ export function PhoneStep({ gender, initialPhone, onSent, onBusy, existingOnly =
         <FieldError id={PHONE_ERROR_ID} text={error} />
       </div>
       {/* Disabled while sending, label kept: the press visibly took, and a second tap cannot send twice. */}
-      <ContinueButton type="submit" label={C.phoneCta} disabled={sending} />
+      <ContinueButton type="submit" label={T.cta} disabled={sending} />
       <p className="mt-4 text-center text-ink-soft">
         {lead}
         <span aria-hidden="true" className="mx-2.5 inline-block h-[5px] w-[5px] rounded-pill bg-current align-middle" />
@@ -161,7 +165,7 @@ export function PhoneStep({ gender, initialPhone, onSent, onBusy, existingOnly =
         its terms in an in-app sheet, so there is nothing to link to yet.
       */}
       <p className="mt-3 text-center text-ink-soft">
-        {g(gender, C.consent.lead.fem, C.consent.lead.masc)} {C.consent.terms} {C.consent.and}
+        {g(gender, T.consentLead.fem, T.consentLead.masc)} {C.consent.terms} {C.consent.and}
         <Link href="/privacy-policy" className="font-bold text-green-deep underline underline-offset-[3px]">
           {C.consent.privacy}
         </Link>
