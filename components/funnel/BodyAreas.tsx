@@ -5,6 +5,7 @@ import { tapHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 import type { Option } from "./OptionList";
 import { CHOICE_LABEL, STEP_TITLE_ID, Tick, choiceCard } from "./parts";
+import MuscleMark, { muscleBox, type MuscleArea } from "./MuscleMark";
 
 type Props = {
   options: readonly Option[];
@@ -32,9 +33,26 @@ const GLOWS: Record<string, { male: readonly Point[]; female: readonly Point[]; 
   ankle: { male: [[0.27, 0.878], [0.679, 0.878]], female: [[0.38, 0.875], [0.736, 0.875]] },
 };
 
+/*
+  A chosen area shows its muscle in red, anatomy-chart style (owner,
+  2026-11-15), centred on the apps' points (BodyAreasMap); a paired joint gets
+  one per side, mirrored. The marks sit in a layer masked by the figure's solid
+  outline (scripts/build-body-masks.mjs), so no red spills past the body.
+*/
+
 function Figure({ gender, selected }: { gender: Answers["gender"]; selected: readonly string[] }) {
   const key = gender === "female" ? "female" : "male";
   const model = bodyModel(gender);
+  const mask = {
+    maskImage: `url(${model.mask})`,
+    WebkitMaskImage: `url(${model.mask})`,
+    maskSize: "contain",
+    WebkitMaskSize: "contain",
+    maskRepeat: "no-repeat",
+    WebkitMaskRepeat: "no-repeat",
+    maskPosition: "center",
+    WebkitMaskPosition: "center",
+  } as const;
   return (
     <div
       aria-hidden="true"
@@ -42,28 +60,38 @@ function Figure({ gender, selected }: { gender: Answers["gender"]; selected: rea
       style={{ aspectRatio: `${model.width} / ${model.height}` }}
     >
       <Image src={model.src} alt="" fill sizes={SIZES.body} className="object-contain" />
-      {Object.entries(GLOWS).flatMap(([area, glow]) =>
-        glow[key].map(([x, y], i) => (
-          <span
-            key={`${area}-${i}`}
-            className={cn(
-              "absolute -translate-x-1/2 -translate-y-1/2 rounded-pill bg-[radial-gradient(circle,rgb(230_57_70/0.75)_0%,rgb(230_57_70/0.35)_45%,transparent_70%)]",
-              "transition-opacity duration-[var(--dur)]",
-              glow.wide ? "h-6 w-14" : "h-8 w-8",
-              // The gentle breathing runs only on a chosen area: animate-pulse drives opacity itself.
-              selected.includes(area) ? "opacity-100 motion-safe:animate-pulse" : "opacity-0",
-            )}
-            style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
-          />
-        )),
-      )}
+      <div className="absolute inset-0" style={mask}>
+        {Object.entries(GLOWS).flatMap(([area, glow]) =>
+          glow[key].map(([x, y], i) => (
+            <span
+              key={`${area}-${i}`}
+              className={cn(
+                "absolute -translate-x-1/2 transition-opacity duration-[250ms] ease-in-out",
+                // The neck's V hangs from the point down to the collarbones; every other mark centres on it.
+                area === "neck" ? "-translate-y-[20%]" : "-translate-y-1/2",
+                selected.includes(area) ? "opacity-100" : "opacity-0",
+              )}
+              style={{
+                left: `${x * 100}%`,
+                top: `${y * 100}%`,
+                width: `${muscleBox(area as MuscleArea).width * 100}%`,
+                aspectRatio: `1 / ${muscleBox(area as MuscleArea).ratio}`,
+              }}
+            >
+              <span className="block size-full motion-safe:animate-[pain-breathe_1.1s_ease-in-out_infinite_alternate]">
+                <MuscleMark area={area as MuscleArea} mirror={glow[key].length > 1 && i === 0} />
+              </span>
+            </span>
+          )),
+        )}
+      </div>
     </div>
   );
 }
 
 /**
  * The apps' body-areas screen: the areas in one column beside a body figure
- * where each chosen area glows softly (owner, 2026-11-14: "הכל בטור אחד"), and
+ * where each chosen area is marked in anatomy red (owner, 2026-11-14: "הכל בטור אחד"), and
  * the exclusive "no pain" answer full width below. Several areas may be chosen
  * (owner, 2026-10-19). An answer's height follows the screen's, 48px to 72px,
  * so the page fits with no scrolling on a phone 704px tall or more.

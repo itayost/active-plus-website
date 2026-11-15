@@ -490,6 +490,16 @@ html {
   }
 }
 
+/* The muscle mark on the body figure breathes gently, 1.1 s each way like the apps' glow. */
+@keyframes pain-breathe {
+  from {
+    transform: scale(0.97);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
 @keyframes funnel-fill {
   from {
     transform: scaleX(0);
