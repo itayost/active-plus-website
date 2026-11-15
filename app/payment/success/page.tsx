@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function PaymentSuccessPage() {
   return (
     <FullscreenColumn>
-      <section id="payment-success" aria-labelledby="payment-success-heading" className="gutter-x pb-10 pt-6">
+      <section id="payment-success" aria-labelledby="payment-success-heading">
         <PaymentSuccess />
       </section>
     </FullscreenColumn>

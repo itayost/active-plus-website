@@ -61,6 +61,12 @@ export const CHECKOUT_COPY = {
   success: {
     title: { fem: "ברוכה הבאה לפעילים+", masc: "ברוך הבא לפעילים+" },
     titleNeutral: "ברוכים הבאים לפעילים+",
+    paidChip: "נרשמת בהצלחה",
+    tagline: "התוכנית האישית שלך מוכנה, ואפשר להתחיל כבר היום",
+    nowTitle: "עכשיו נשאר צעד אחד",
+    nowBody: "מורידים את האפליקציה ונכנסים עם אותו מספר טלפון. 10 דקות ביום, מהבית ובקצב שלך.",
+    insideTitle: "מה מחכה לך באפליקציה",
+    closing: "האימון הראשון מחכה. מתחילים עוד היום?",
     checking: "בודקים את המנוי",
     // The invoice is issued by the webhook, which may still be running when this page shows.
     received: "התשלום התקבל, והחשבונית תישלח ל־{email}.",

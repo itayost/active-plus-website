@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { COPY } from "@/lib/funnel/copy";
 import { PLAN_BUILD_HOLD_MS, PLAN_BUILD_MS } from "@/lib/funnel/constants";
+import { planBuildPercent } from "@/lib/funnel/plan-build";
 import { planChecklist } from "@/lib/funnel/plan-lines";
 import { cn } from "@/lib/utils";
 import { ContinueButton, StepTitle, STEP_TITLE_ID, Tick } from "./parts";
@@ -19,7 +20,8 @@ type Props = {
 
 /**
  * The loader between the questions and the time step: a ring filling to 100%
- * over PLAN_BUILD_MS while three lines turn green, then it moves on by itself.
+ * over PLAN_BUILD_MS, in uneven bursts (planBuildPercent), while three lines turn
+ * green, then it moves on by itself.
  * Under reduced motion it is finished on arrival and waits for "המשך" instead.
  * Under the checklist, a Google review, as in the apps.
  */
@@ -42,9 +44,9 @@ export default function PlanBuilding({ painAreas, onDone }: Props) {
     let hold: ReturnType<typeof setTimeout> | undefined;
     const start = performance.now();
     const tick = (now: number) => {
-      const progress = Math.min(1, (now - start) / PLAN_BUILD_MS);
-      setPercent(Math.round(progress * 100));
-      if (progress < 1) {
+      const elapsed = now - start;
+      setPercent(planBuildPercent(elapsed));
+      if (elapsed < PLAN_BUILD_MS) {
         frame = requestAnimationFrame(tick);
         return;
       }

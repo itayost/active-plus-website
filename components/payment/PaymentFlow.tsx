@@ -30,6 +30,9 @@ type Props = {
 
 const PLANS_TOP = "pt-6";
 
+/** The history entry the checkout screen pushes, so the back button returns to the plans. */
+const CHECKOUT_STATE = "activePlusCheckout";
+
 type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
 
 /**
@@ -108,12 +111,12 @@ function StoreFlow({ prices, linkPlan, children }: Priced) {
 }
 
 /**
- * Flag on: a plan's button selects it and opens the checkout under the plans; a checkout draft
- * in sessionStorage (a reload, Grow's cancel URL) reopens it directly,
- * unless an explicit ?plan= link asks for another plan: the link wins and
- * that draft is discarded. Choosing a plan keeps ?plan= in step, so a reload
+ * Flag on: a plan's button selects it and opens the checkout as its own screen, the plans gone
+ * (owner, 2026-11-14: a page of its own, never a scroll down). The phone's back button and
+ * "החלפת מסלול" return to the plans. A checkout draft in sessionStorage (a reload, Grow's cancel
+ * URL) reopens the checkout directly, unless an explicit ?plan= link asks for another plan: the
+ * link wins and that draft is discarded. Choosing a plan keeps ?plan= in step, so a reload
  * resumes the checkout the buyer was in.
- * The checkout is its own sunken section under the plans, as in the mockup.
  */
 function WebCheckoutFlow({ prices, linkPlan, cancelled = false, children }: Priced) {
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(linkPlan ?? "annual");
@@ -144,43 +147,62 @@ function WebCheckoutFlow({ prices, linkPlan, cancelled = false, children }: Pric
     setStage("checkout");
   }, [linkPlan]);
 
+  // The phone's back button on the checkout screen returns to the plans, as a page would.
+  useEffect(() => {
+    const onPop = () => setStage(window.history.state?.[CHECKOUT_STATE] ? "checkout" : "plans");
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Each screen opens at its top.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [stage]);
+
   const selectPlan = (plan: PlanId) => {
     setSelectedPlan(plan);
     // A link that named a plan now names this one: a reload must not discard the checkout for the old link.
     const url = new URL(window.location.href);
     if (!url.searchParams.has("plan")) return;
     url.searchParams.set("plan", plan);
-    window.history.replaceState(null, "", url);
+    window.history.replaceState(window.history.state, "", url);
+  };
+
+  const openCheckout = () => {
+    window.history.pushState({ ...window.history.state, [CHECKOUT_STATE]: true }, "", window.location.href);
+    setStage("checkout");
   };
 
   const changePlan = () => {
-    const checked = document.querySelector<HTMLElement>('#plans [aria-pressed="true"]');
-    checked?.scrollIntoView({ block: "center" });
-    checked?.focus();
+    if (window.history.state?.[CHECKOUT_STATE]) {
+      window.history.back();
+      return;
+    }
+    setStage("plans");
   };
 
-  const checkoutOpen = stage === "checkout";
-
-  return (
-    <>
-      <Section id="plans" labelledBy="payment-heading" className={checkoutOpen ? PLANS_TOP : `${PLANS_TOP} pb-0`}>
-        {children}
-        <CancelledNotice cancelled={cancelled} />
-        <PlanSelector
-          prices={prices}
-          selected={selectedPlan}
-          onSelect={selectPlan}
-          onContinue={checkoutOpen ? undefined : () => setStage("checkout")}
-          checkoutOpen={checkoutOpen}
-        />
-      </Section>
-      {checkoutOpen ? (
-        CheckoutView ? (
+  if (stage === "checkout") {
+    return (
+      <>
+        {cancelled ? (
+          <div className="gutter-x pt-6">
+            <CancelledNotice cancelled />
+          </div>
+        ) : null}
+        {CheckoutView ? (
           <CheckoutView plan={selectedPlan} prices={prices} initialDraft={draft} onChangePlan={changePlan} />
         ) : (
           <CheckoutLoading />
-        )
-      ) : null}
-    </>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <Section id="plans" labelledBy="payment-heading" className={`${PLANS_TOP} pb-0`}>
+      {children}
+      <CancelledNotice cancelled={cancelled} />
+      <PlanSelector prices={prices} selected={selectedPlan} onSelect={selectPlan} onContinue={openCheckout} />
+    </Section>
   );
 }

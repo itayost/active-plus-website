@@ -74,10 +74,10 @@ const continueLabel = (gender: Gender) => g(gender, COPY.common.continue.fem, CO
 
 function QuestionStep({ question, state, actions }: { question: Question; state: FunnelState; actions: StepActions }) {
   const gender = state.answers.gender;
-  const saved = state.answers[question.key];
   const draft = state.draft[question.key];
-  // goals always opens empty, as in the apps (a fresh pick on every visit).
-  const value = (Array.isArray(draft) ? draft[0] : draft) ?? (question.asList ? undefined : (saved as string | undefined));
+  // Every answer screen opens with nothing chosen, back or forward (owner, 2026-11-14):
+  // only this visit's tap is shown, never the answer saved before.
+  const value = Array.isArray(draft) ? draft[0] : draft;
   const options = question.options.map((o) => optionOf(o, gender));
   const pick = (v: string) => ({ [question.key]: question.asList ? [v] : v }) as Answers;
   return (
@@ -103,7 +103,7 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
 }
 
 function GenderStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
-  const gender = state.draft.gender ?? state.answers.gender;
+  const gender = state.draft.gender;
   return (
     <>
       <StepTitle>{COPY.gender.title}</StepTitle>
@@ -117,7 +117,7 @@ function GenderStep({ state, actions }: { state: FunnelState; actions: StepActio
       <FootNote text={COPY.common.trust} lock />
       <ContinueButton
         pinned
-        label={continueLabel(gender)}
+        label={continueLabel(gender ?? state.answers.gender)}
         disabled={!gender}
         onClick={() => gender && actions.answer({ gender })}
       />
@@ -127,7 +127,7 @@ function GenderStep({ state, actions }: { state: FunnelState; actions: StepActio
 
 function AgeGroupStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
   const options = COPY.ageGroup.options.map((o) => ({ value: o.value, label: o.label, image: ageImage(state.answers.gender, o.file) }));
-  const ageGroup = state.draft.age_group ?? state.answers.age_group;
+  const ageGroup = state.draft.age_group;
   return (
     <>
       <StepTitle>{COPY.ageGroup.title}</StepTitle>
@@ -151,7 +151,7 @@ function AgeGroupStep({ state, actions }: { state: FunnelState; actions: StepAct
 
 function BodyAreasStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
   const gender = state.answers.gender;
-  const selected = state.draft.pain_areas ?? state.answers.pain_areas ?? [];
+  const selected = state.draft.pain_areas ?? [];
   // Every tap only selects, "no pain" included; the button moves on (owner, 2026-11-10).
   const toggle = (area: string) => actions.setDraft({ pain_areas: toggleBodyArea(selected, area) });
   return (
@@ -195,14 +195,14 @@ export function renderStep(state: FunnelState, actions: StepActions, sessionId: 
         <TimeStep
           view={state.time}
           gender={gender}
-          saved={answers.training_time_of_day}
+          saved={undefined}
           draft={state.draft.training_time_of_day}
           onSegment={actions.setSegment}
           onShowHours={actions.showHours}
           onTime={(t) => actions.setDraft({ training_time_of_day: t })}
           onConfirmCustom={(t) => actions.answer({ training_time_of_day: t })}
           onContinue={() => {
-            const time = state.draft.training_time_of_day ?? answers.training_time_of_day;
+            const time = state.draft.training_time_of_day;
             if (time) actions.answer({ training_time_of_day: time });
           }}
         />

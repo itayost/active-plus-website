@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LINKISH } from "@/components/ui/linkish";
@@ -8,6 +9,7 @@ import { takePendingPurchase } from "@/lib/analytics/pending-purchase";
 import { purchaseEvent, pushTag } from "@/lib/analytics/tags";
 import type { Answers } from "@/lib/funnel/types";
 import { clearCheckoutDraft, readCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
+import { PROGRAM_CARDS } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
@@ -59,37 +61,76 @@ export default function PaymentSuccess() {
   }, []);
 
   const title = gender ? gendered(gender, S.title) : S.titleNeutral;
+  const hero = gender === "male" ? "/img/funnel/app/goal-male.webp" : "/img/funnel/app/goal-female-walk.webp";
 
   return (
-    <div className="text-center">
-      <span aria-hidden="true" className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-pill bg-green-deep text-white">
-        <CheckIcon className="h-10 w-10" />
-      </span>
-      <h1 id="payment-success-heading" className="font-display text-[clamp(1.6rem,1.1rem+1.7vw,3.2rem)] font-extrabold leading-[1.1]">{title}</h1>
-      <p role="status" className="mx-auto mt-4 max-w-measure text-lead">
-        <Message state={state} email={email} />
-      </p>
-      <ol className="mt-8 grid gap-4 text-start">
-        {S.steps.map((step, i) => (
-          <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-5">
-            <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">{i + 1}</span>
-            <div>
-              <strong className="block font-display text-[1.25rem] font-bold">{step.title}</strong>
-              <p className="mt-1 text-ink-soft">{step.body}</p>
-              {i === 0 ? (
-                // The one action left: download the app (the plan is already on the account).
-                <StoreButtons className="mt-4 grid gap-3" variant="primary" size="lg" />
-              ) : null}
+    <div>
+      {/* A welcome that fills the screen (owner, 2026-11-14): a photo of someone training, the greeting over it. */}
+      <div className="relative isolate overflow-hidden rounded-b-[2rem] bg-green-deep text-white">
+        <Image src={hero} alt="" fill priority sizes="(max-width: 560px) 100vw, 560px" className="-z-10 object-cover object-top opacity-60" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-green-deep/50 to-green-deep" />
+        <div className="gutter-x flex min-h-[26rem] flex-col items-center justify-end pb-10 pt-16 text-center">
+          <span className="success-pop mb-4 inline-flex items-center gap-2 rounded-pill bg-white px-4 py-1.5 font-display text-[1rem] font-bold text-green-deep shadow-lift-2">
+            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+            {S.paidChip}
+          </span>
+          <h1 id="payment-success-heading" className="font-display text-[clamp(1.9rem,1.4rem+1.7vw,3.2rem)] font-extrabold leading-[1.1]">{title}</h1>
+          <p className="mt-3 font-display text-[1.35rem] font-bold">{S.tagline}</p>
+          <p role="status" className="mx-auto mt-3 max-w-measure text-[1.05rem] text-white/90">
+            <Message state={state} email={email} />
+          </p>
+        </div>
+      </div>
+
+      <div className="gutter-x pb-10">
+        <div className="-mt-6 rounded-tile bg-surface p-5 shadow-lift-2">
+          <p className="font-display text-[1.3rem] font-extrabold">{S.nowTitle}</p>
+          <p className="mt-1 text-ink-soft">{S.nowBody}</p>
+          {/* The one action left: download the app (the plan is already on the account). */}
+          <StoreButtons className="mt-4 grid gap-3" variant="primary" size="lg" />
+        </div>
+
+        <ol className="mt-6 grid gap-3 text-start">
+          {S.steps.map((step, i) => (
+            <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-4">
+              <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">{i + 1}</span>
+              <div>
+                <strong className="block font-display text-[1.2rem] font-bold">{step.title}</strong>
+                <p className="mt-1 text-ink-soft">{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <h2 className="mt-10 font-display text-[1.5rem] font-extrabold">{S.insideTitle}</h2>
+        <div className="mt-4 grid gap-4">
+          {PROGRAM_CARDS.map((card) => (
+            <div key={card.id} className="overflow-hidden rounded-tile bg-surface shadow-card">
+              <div className="relative h-40">
+                <Image src={card.image} alt={card.alt} fill sizes="(max-width: 560px) 100vw, 560px" className="object-cover" style={{ objectPosition: card.focus }} />
+              </div>
+              <div className="p-4">
+                <strong className="block font-display text-[1.2rem] font-bold">{card.title}</strong>
+                <p className="mt-1 text-ink-soft">{card.body}</p>
+              </div>
             </div>
-          </li>
-        ))}
-      </ol>
-      {WEB_CHECKOUT_ENABLED ? (
-        // Not prefetched: the account page is per-session, so a prefetch only costs a request.
-        <Link href="/account/subscription" prefetch={false} className={`mt-6 ${LINKISH}`}>
-          {S.manage}
-        </Link>
-      ) : null}
+          ))}
+        </div>
+
+        <div className="mt-8 rounded-tile bg-green-wash p-5 text-center">
+          <p className="font-display text-[1.25rem] font-extrabold text-green-deep">{S.closing}</p>
+          <StoreButtons className="mt-4 grid gap-3" variant="primary" size="lg" />
+        </div>
+
+        {WEB_CHECKOUT_ENABLED ? (
+          // Not prefetched: the account page is per-session, so a prefetch only costs a request.
+          <div className="mt-6 text-center">
+            <Link href="/account/subscription" prefetch={false} className={LINKISH}>
+              {S.manage}
+            </Link>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
