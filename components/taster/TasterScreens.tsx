@@ -37,7 +37,7 @@ export function TasterLoading() {
     <Column>
       <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center" role="status">
         <span className="h-14 w-14 animate-spin rounded-full border-[5px] border-blue-wash border-t-blue motion-reduce:animate-none" aria-hidden />
-        <p className="text-lead font-bold text-ink-soft">מכינים את האימון הראשון שלכם...</p>
+        <p className="text-lead font-bold text-ink-soft">מכינים את האימון הראשון שלך...</p>
       </div>
     </Column>
   );
@@ -64,7 +64,7 @@ export function TasterIntro({
         <CheckIcon className="h-8 w-8" />
       </span>
       <Title className="mt-4">התוכנית שלך מוכנה!</Title>
-      <p className="mt-2 text-lead text-ink-soft">האימון הראשון כבר מחכה, בדיוק כמו באפליקציה. כדאי להגביר את הקול ולעמוד ליד כיסא יציב.</p>
+      <p className="mt-2 text-lead text-ink-soft">האימון הראשון כבר מחכה, בדיוק כמו באפליקציה. כדאי להגביר את הקול ולפנות קצת מקום סביבך.</p>
 
       <div className="mt-6">
         <TasterHomeCard workout={workout} readyLine={readyLine} onStart={onStart} />
@@ -79,12 +79,30 @@ export function TasterIntro({
   );
 }
 
+/** The home tab once the free workout is behind them: the app's done card, then the offer. */
+export function TasterUsedHome({ onPlans }: { onPlans: () => void }) {
+  return (
+    <>
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-cta text-white shadow-cta">
+        <CheckIcon className="h-8 w-8" />
+      </span>
+      <Title className="mt-4">כל הכבוד!</Title>
+      <p className="mt-2 text-lead text-ink-soft">את האימון הראשון כבר עשית. מכאן ממשיכים בתוכנית: אימון חדש כל יום, אתגרים ומשחקי זיכרון.</p>
+      <div className="mt-6">
+        <Button size="lg" className={BIG} onClick={onPlans}>
+          ממשיכים בתוכנית
+        </Button>
+      </div>
+    </>
+  );
+}
+
 export function TasterError({ onRetry, onSkip }: { onRetry: () => void; onSkip: () => void }) {
   return (
     <Column>
       <div className="flex flex-1 flex-col justify-center">
         <Title>לא הצלחנו לטעון את האימון</Title>
-        <p className="mt-3 text-lead text-ink-soft">כנראה החיבור לאינטרנט. אפשר לנסות שוב, או להמשיך לבחירת מסלול.</p>
+        <p className="mt-3 text-lead text-ink-soft">כנראה בגלל החיבור לאינטרנט. אפשר לנסות שוב, או להמשיך לבחירת מסלול.</p>
       </div>
       <div className="flex flex-col gap-2 pt-6">
         <Button size="lg" className={BIG} onClick={onRetry}>
@@ -116,7 +134,7 @@ export function TasterEnd({
           <CheckIcon className="h-12 w-12" />
         </span>
         <Title className="mt-5">{name ? `כל הכבוד, ${name}!` : "כל הכבוד!"}</Title>
-        <p className="mt-2 text-lead text-ink-soft">סיימתם את האימון הראשון שלכם</p>
+        <p className="mt-2 text-lead text-ink-soft">סיימת את האימון הראשון שלך</p>
         <div className="mt-5 flex gap-3">
           <Stat value={played} label="תרגילים" />
           <Stat value={minutes} label={minutes === 1 ? "דקה" : "דקות"} />
@@ -127,7 +145,7 @@ export function TasterEnd({
         <p className="font-display text-[1.75rem] font-extrabold leading-tight text-green-deep">התוכנית שלך מוכנה!</p>
         <p className="mt-1 text-[1.0625rem] font-bold text-ink-soft">זו הייתה רק טעימה. בתוכנית המלאה:</p>
         <ul className="mt-3 flex flex-col gap-2.5 text-[1.0625rem] font-bold">
-          {["אימון חדש כל יום, מותאם בדיוק לכם", "מתקדמים בקצב שלכם, מהבית", "תרגילי זיכרון ומשחקים לחיזוק הראש"].map((line) => (
+          {["אימון חדש כל יום, מותאם בדיוק לך", "מתקדמים בקצב שלך, מהבית", "משחקי זיכרון שמחדדים את הראש"].map((line) => (
             <li key={line} className="flex items-start gap-2.5">
               <CheckIcon className="mt-0.5 h-6 w-6 text-green-deep" />
               {line}

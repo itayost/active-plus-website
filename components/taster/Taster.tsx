@@ -17,9 +17,9 @@ import { readPaymentGender } from "@/lib/payment/checkout";
 import { TasterBetween, TasterExitDialog } from "./TasterOverlays";
 import AppShell from "./AppShell";
 import TasterPlayer from "./TasterPlayer";
-import { TASTER_TITLE_ID, TasterEnd, TasterError, TasterIntro, TasterLoading } from "./TasterScreens";
+import { TASTER_TITLE_ID, TasterEnd, TasterError, TasterIntro, TasterLoading, TasterUsedHome } from "./TasterScreens";
 
-type Stage = "loading" | "error" | "intro" | "playing" | "between" | "saving" | "end";
+type Stage = "loading" | "error" | "intro" | "used" | "playing" | "between" | "saving" | "end";
 
 /** The breath between two exercises, counted down on screen. */
 export const BETWEEN_SECONDS = 6;
@@ -88,7 +88,8 @@ export default function Taster() {
     void loadChallenges(signedIn).then(setChallenges);
     void loadFunctionalityLevel(signedIn).then((level) => setMusicSrc(musicFor(level)));
     const reply = await requestTasterWorkout(signedIn);
-    if (reply.kind === "used") return toPlans();
+    // The free workout was done already (here or in the app): the app, all locked, and the offer.
+    if (reply.kind === "used") return setStage("used");
     if (reply.kind === "error") return setStage("error");
     if (reply.workout.scheduledWorkoutId) recorder.current = progressRecorder(signedIn, reply.workout.scheduledWorkoutId);
     show(reply.workout);
@@ -255,6 +256,7 @@ export default function Taster() {
       {stage === "loading" && <TasterLoading />}
       {stage === "saving" && <TasterLoading />}
       {stage === "error" && <TasterError onRetry={() => void load()} onSkip={toPlans} />}
+      {stage === "used" && <AppShell home={<TasterUsedHome onPlans={toPlans} />} challenges={challenges} name={name} onPlans={toPlans} />}
       {stage === "intro" && workout && (
         <AppShell
           home={<TasterIntro workout={workout} readyLine={readyLine} onStart={start} onSkip={toPlans} />}

@@ -610,3 +610,19 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .taster-pop { animation: none; }
 }
+
+/* The 28-day plan's graph: the lines draw in, then the goal marker pops (components/plan). */
+@keyframes plan-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.plan-draw {
+  stroke-dasharray: 1;
+  animation: plan-draw 1.6s var(--ease-out-expo) 0.3s both;
+}
+.plan-pop {
+  animation: taster-pop var(--dur-slow) var(--ease-out-expo) 1.7s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-draw, .plan-pop { animation: none; }
+}

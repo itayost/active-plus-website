@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { TASTER_PATH } from "@/lib/funnel/constants";
+import { MY_PLAN_PATH } from "@/lib/funnel/constants";
 import { COPY, g, type Gendered, type GenderedOption, type IconOption, type Plain } from "@/lib/funnel/copy";
 import { ageImage } from "@/lib/funnel/images";
 import type { FunnelState } from "@/lib/funnel/machine";
@@ -216,9 +216,9 @@ export function renderStep(state: FunnelState, actions: StepActions, sessionId: 
           onEditPhone={actions.editPhone}
           onComplete={(kind) => {
             actions.complete();
-            // A new account plays the free first workout, then the plans; an existing user gets the
-            // welcome-back screen and its link instead.
-            if (kind === "new") window.location.assign(TASTER_PATH);
+            // A new account sees its 28-day plan, then the plans (whose X leads to the free first
+            // workout); an existing user gets the welcome-back screen and its link instead.
+            if (kind === "new") window.location.assign(MY_PLAN_PATH);
           }}
           onBusy={actions.setBusy}
         />

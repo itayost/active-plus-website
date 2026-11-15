@@ -104,7 +104,7 @@ function LockedSheet({ onPlans, onClose }: { onPlans: () => void; onClose: () =>
         <h2 id="locked-title" className="mt-4 font-display text-[1.75rem] font-extrabold leading-tight">
           פתוח למנויים
         </h2>
-        <p className="mt-2 text-lead text-ink-soft">עם מנוי נפתחים כל האתגרים, משחקי הזיכרון ואימון חדש כל יום, מותאם בדיוק לכם.</p>
+        <p className="mt-2 text-lead text-ink-soft">עם מנוי נפתחים כל האתגרים, משחקי הזיכרון ואימון חדש כל יום, מותאם בדיוק לך.</p>
         <div className="mt-6 flex flex-col gap-2">
           <Button size="lg" className={BIG} onClick={onPlans}>
             לבחירת מסלול

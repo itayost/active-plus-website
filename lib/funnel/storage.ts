@@ -123,10 +123,53 @@ function setForPayment(key: string, value: string | undefined): void {
  * paywall lost it to exactly this reset), and so is the session id, so the
  * page's payment_view joins the walk that led to it. Both stay in this tab only.
  */
-export function handOffToPayment(gender: Answers["gender"], sessionId?: string): void {
+export function handOffToPayment(gender: Answers["gender"], sessionId?: string, answers?: Answers): void {
   setForPayment(GENDER_FOR_PAYMENT, gender);
   setForPayment(SESSION_FOR_PAYMENT, sessionId);
+  if (answers) setForPayment(PLAN_FOR_PAYMENT, JSON.stringify(planInputsOf(answers)));
   resetSession();
+}
+
+/**
+ * sessionStorage key: the few answers the 28-day plan page (/my-plan) is drawn from,
+ * kept in this tab after the reset. Its presence also tells /payment that the visitor
+ * came from the questionnaire, so its X leads to the taster.
+ */
+export const PLAN_FOR_PAYMENT = "ap.funnel.plan";
+
+export type PlanInputs = {
+  goal?: string;
+  feeling?: string;
+  frequency?: string;
+  memory?: string;
+  firstName?: string;
+};
+
+export function planInputsOf(answers: Answers): PlanInputs {
+  const firstName = answers.full_name?.trim().split(/\s+/)[0];
+  return {
+    goal: answers.training_goals?.[0],
+    feeling: answers.desired_feeling,
+    frequency: answers.training_frequency_choice,
+    memory: answers.memory_forgetfulness,
+    ...(firstName ? { firstName } : {}),
+  };
+}
+
+/** The plan answers handed over in this tab; null when there are none (not from the questionnaire). */
+export function readPlanInputs(): PlanInputs | null {
+  try {
+    const raw = sessionStorage.getItem(PLAN_FOR_PAYMENT);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const pick = (k: string) => {
+      const v = (parsed as Record<string, unknown>)[k];
+      return typeof v === "string" && v ? v : undefined;
+    };
+    return { goal: pick("goal"), feeling: pick("feeling"), frequency: pick("frequency"), memory: pick("memory"), firstName: pick("firstName") };
+  } catch {
+    return null;
+  }
 }
 
 const SESSION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

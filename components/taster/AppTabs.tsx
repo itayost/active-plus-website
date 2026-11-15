@@ -161,10 +161,10 @@ function GameList({ onLocked }: { onLocked: () => void }) {
 export function ProgressTab({ onStart }: { onStart: () => void }) {
   return (
     <div>
-      <Header title="התקדמות" subtitle="האימונים, הרצף והשיאים שלכם" />
+      <Header title="התקדמות" subtitle="האימונים, הרצף והשיאים שלך" />
       <div className={cn(CARD, "rounded-[24px] p-6 text-center")}>
         <p className="font-display text-[1.5rem] font-extrabold">עוד אין כאן אימונים</p>
-        <p className={cn("mt-2 text-[1.0625rem]", MUTED)}>אחרי האימון הראשון תראו כאן כמה התאמנתם, את הרצף ואת ההתקדמות שלכם.</p>
+        <p className={cn("mt-2 text-[1.0625rem]", MUTED)}>אחרי האימון הראשון יופיעו כאן האימונים, הרצף וההתקדמות שלך.</p>
         <div className="mt-5">
           <Button size="lg" className={BIG} onClick={onStart}>
             <PlayIcon className="h-5 w-5" />
@@ -180,9 +180,9 @@ export function ProgressTab({ onStart }: { onStart: () => void }) {
 export function ProfileTab({ name, onPlans }: { name: string | null; onPlans: () => void }) {
   return (
     <div>
-      <Header title="פרופיל" subtitle={name ? `שלום, ${name}` : "החשבון שלכם"} />
+      <Header title="פרופיל" subtitle={name ? `שלום, ${name}` : "החשבון שלך"} />
       <div className={cn(CARD, "rounded-[24px] p-5")}>
-        <p className={cn("text-[0.875rem]", MUTED)}>המנוי שלכם</p>
+        <p className={cn("text-[0.875rem]", MUTED)}>המנוי שלך</p>
         <p className="mt-1 font-display text-[1.5rem] font-extrabold">עדיין אין מנוי</p>
         <p className={cn("mt-2 text-[1.0625rem]", MUTED)}>מנוי פותח את כל האתגרים, משחקי הזיכרון ואימון חדש כל יום.</p>
         <div className="mt-5">

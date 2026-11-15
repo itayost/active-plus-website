@@ -42,4 +42,4 @@ export async function middleware(request: NextRequest) {
 }
 
 // Scoped matcher: never runs on static assets or other pages.
-export const config = { matcher: ["/questionnaire", "/taster", "/payment/:path*", "/account/:path*", "/api/checkout/:path*", "/api/grow/notify"] };
+export const config = { matcher: ["/questionnaire", "/my-plan", "/taster", "/payment/:path*", "/account/:path*", "/api/checkout/:path*", "/api/grow/notify"] };
