@@ -5,28 +5,30 @@ export const TAP_MS = 12;
 const SAME_TAP_MS = 60;
 
 let lastTap = 0;
-let iosSwitch: HTMLLabelElement | null = null;
 
 /**
  * iPhone Safari has no Vibration API, but since iOS 18 toggling a switch input
- * (`<input type="checkbox" switch>`) plays the system's light tap. A hidden one,
- * clicked through its label inside the user's own tap, gives every tap that feel.
- * Older iPhones ignore the attribute: a plain hidden checkbox, no tap, no harm.
+ * (`<input type="checkbox" switch>`) plays the system's light tap. A fresh one,
+ * never shown, is clicked through its label inside the user's own tap and taken
+ * away again (owner, 2026-11-15: no tap on his iPhone with one hidden switch
+ * kept off-screen). The phone's "System Haptics" setting must be on. Older
+ * iPhones ignore the attribute: a plain checkbox, no tap, no harm.
  */
-function iosSwitchLabel(): HTMLLabelElement | null {
-  if (iosSwitch) return iosSwitch;
-  if (typeof document === "undefined") return null;
+function iosSwitchTap(): void {
+  if (typeof document === "undefined") return;
   const label = document.createElement("label");
   label.setAttribute("aria-hidden", "true");
-  label.style.cssText = "position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9999px;top:0";
+  label.style.display = "none";
   const input = document.createElement("input");
   input.type = "checkbox";
   input.setAttribute("switch", "");
-  input.tabIndex = -1;
   label.appendChild(input);
-  document.body.appendChild(label);
-  iosSwitch = label;
-  return label;
+  document.head.appendChild(label);
+  try {
+    label.click();
+  } finally {
+    label.remove();
+  }
 }
 
 /**
@@ -44,7 +46,7 @@ export function tapHaptic(): void {
       navigator.vibrate(TAP_MS);
       return;
     }
-    iosSwitchLabel()?.click();
+    iosSwitchTap();
   } catch {
     // A browser that refuses (a blocked frame, a policy) only loses the tap.
   }
