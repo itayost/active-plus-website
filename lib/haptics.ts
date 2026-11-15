@@ -1,5 +1,8 @@
-/** One short tap, long enough to feel on an Android phone and too short to be a buzz. */
-export const TAP_MS = 12;
+/**
+ * One short tap. 12 ms was too short to feel on an Android phone (owner,
+ * 2026-11-15); many motors need about 30 ms to spin up. Still too short to be a buzz.
+ */
+export const TAP_MS = 30;
 
 /** Two calls closer than this are one tap (a card and its continue, a capture and a handler). */
 const SAME_TAP_MS = 60;

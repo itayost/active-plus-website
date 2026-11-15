@@ -58,6 +58,21 @@ export default function HapticsTest() {
         <input type="checkbox" {...{ switch: "" }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
       </label>
 
+      <h2 className="pt-2 text-xl font-bold">אנדרואיד</h2>
+      {[12, 30, 60].map((ms) => (
+        <button
+          key={ms}
+          type="button"
+          className={box}
+          onClick={() => {
+            const ok = typeof navigator.vibrate === "function" ? navigator.vibrate(ms) : false;
+            note(`רטט ${ms} ${ok ? "נשלח" : "נחסם"}`);
+          }}
+        >
+          רטט {ms} מילישניות
+        </button>
+      ))}
+
       <div className="rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
         <p>נלחץ: {log.join(" · ") || "עוד כלום"}</p>
         <p className="mt-2 break-all" dir="ltr">{info}</p>

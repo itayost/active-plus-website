@@ -5,13 +5,13 @@ import { TAP_MS, tapHaptic } from "@/lib/haptics";
 describe("tapHaptic", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("vibrates once, briefly", () => {
+  it("vibrates once, long enough to feel and too short to buzz", () => {
     const vibrate = vi.fn(() => true);
     vi.stubGlobal("navigator", { vibrate });
     tapHaptic();
     expect(vibrate).toHaveBeenCalledWith(TAP_MS);
-    expect(TAP_MS).toBeGreaterThanOrEqual(10);
-    expect(TAP_MS).toBeLessThanOrEqual(15);
+    expect(TAP_MS).toBeGreaterThanOrEqual(25);
+    expect(TAP_MS).toBeLessThanOrEqual(40);
   });
 
   it("does nothing where there is no Vibration API (iOS Safari)", () => {
