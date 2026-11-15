@@ -87,7 +87,7 @@ export default function PaymentSuccess() {
           <p className="font-display text-[1.3rem] font-extrabold">{S.nowTitle}</p>
           <p className="mt-1 text-ink-soft">{S.nowBody}</p>
           {/* The one action left: download the app (the plan is already on the account). */}
-          <StoreButtons className="mt-4 grid gap-3" variant="primary" size="lg" />
+          <StoreButtons className="mt-4 flex flex-wrap gap-3" size="lg" />
         </div>
 
         <ol className="mt-6 grid gap-3 text-start">
@@ -119,7 +119,7 @@ export default function PaymentSuccess() {
 
         <div className="mt-8 rounded-tile bg-green-wash p-5 text-center">
           <p className="font-display text-[1.25rem] font-extrabold text-green-deep">{S.closing}</p>
-          <StoreButtons className="mt-4 grid gap-3" variant="primary" size="lg" />
+          <StoreButtons className="mt-4 flex flex-wrap gap-3" size="lg" />
         </div>
 
         {WEB_CHECKOUT_ENABLED ? (
