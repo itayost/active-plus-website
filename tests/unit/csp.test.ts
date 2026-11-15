@@ -25,11 +25,12 @@ describe("buildCsp", () => {
     expect(directive(csp, "object-src")).toBe("object-src 'none'");
     expect(directive(csp, "base-uri")).toBe("base-uri 'self'");
   });
-  it("keeps fonts, media and images first-party", () => {
+  it("keeps fonts first-party, and lets media and images come from Supabase storage only", () => {
     const csp = buildCsp("https://abcd.supabase.co");
     expect(directive(csp, "font-src")).toBe("font-src 'self'");
-    expect(directive(csp, "media-src")).toBe("media-src 'self'");
-    expect(directive(csp, "img-src")).toBe("img-src 'self' data: blob:");
+    expect(directive(csp, "media-src")).toBe("media-src 'self' blob: https://abcd.supabase.co");
+    expect(directive(csp, "img-src")).toBe("img-src 'self' data: blob: https://abcd.supabase.co");
+    expect(directive(buildCsp(undefined), "media-src")).toBe("media-src 'self' blob:");
   });
 });
 
@@ -54,7 +55,7 @@ describe("buildCsp for the checkout (Grow's wallet SDK)", () => {
       "https://pay.google.com https://pay.sandbox.google.com https://*.creditguard.co.il",
     ].join(" "));
     expect(directive(csp, "img-src")).toBe(
-      "img-src 'self' data: blob: https://cdn.meshulam.co.il https://www.gstatic.com https://pay.google.com https://pay.sandbox.google.com",
+      "img-src 'self' data: blob: https://abcd.supabase.co https://cdn.meshulam.co.il https://www.gstatic.com https://pay.google.com https://pay.sandbox.google.com",
     );
   });
   it("never a wildcard or eval, and the rest stays as on every page", () => {

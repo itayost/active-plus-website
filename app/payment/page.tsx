@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import FullscreenColumn from "@/components/layout/FullscreenColumn";
+import CloseToTaster from "@/components/payment/CloseToTaster";
 import PaymentFlow from "@/components/payment/PaymentFlow";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadPlanPrices } from "@/lib/plan-prices";
@@ -37,7 +38,7 @@ export default async function PaymentPage({
 }) {
   const [{ plan, cancelled }, prices] = await Promise.all([searchParams, planPrices()]);
   return (
-    <FullscreenColumn>
+    <FullscreenColumn corner={<CloseToTaster />}>
       {/* React moves an async script into the head, where Grow requires it. */}
       <script src={GROW_APPLE_PAY_SDK_URL} async />
       <PaymentFlow

@@ -5,6 +5,7 @@ describe("isFullscreenPath", () => {
   it("runs the questionnaire and the purchase after it full screen", () => {
     expect(isFullscreenPath("/questionnaire")).toBe(true);
     expect(isFullscreenPath("/payment")).toBe(true);
+    expect(isFullscreenPath("/taster")).toBe(true);
     expect(isFullscreenPath("/payment/success")).toBe(true);
     expect(isFullscreenPath("/questionnaire/")).toBe(true);
   });

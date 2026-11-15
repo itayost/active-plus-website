@@ -36,7 +36,7 @@ export default async function DownloadPage({ searchParams }: Props) {
         <p className="mt-5 max-w-measure text-lead text-ink-soft">
           האפליקציה זמינה ל-iPhone ולאנדרואיד. בחרו את החנות של הטלפון שלכם.
         </p>
-        <StoreButtons className="mt-9 flex flex-wrap gap-4" variant="primary" size="lg" />
+        <StoreButtons className="mt-9 flex flex-wrap gap-4" size="lg" />
       </Shell>
     </section>
   );
