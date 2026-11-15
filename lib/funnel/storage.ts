@@ -142,6 +142,8 @@ export type PlanInputs = {
   feeling?: string;
   frequency?: string;
   memory?: string;
+  chairRise?: string;
+  mobility?: string;
   firstName?: string;
 };
 
@@ -152,6 +154,8 @@ export function planInputsOf(answers: Answers): PlanInputs {
     feeling: answers.desired_feeling,
     frequency: answers.training_frequency_choice,
     memory: answers.memory_forgetfulness,
+    chairRise: answers.chair_rise_capability,
+    mobility: answers.mobility_challenge,
     ...(firstName ? { firstName } : {}),
   };
 }
@@ -166,7 +170,7 @@ export function readPlanInputs(): PlanInputs | null {
       const v = (parsed as Record<string, unknown>)[k];
       return typeof v === "string" && v ? v : undefined;
     };
-    return { goal: pick("goal"), feeling: pick("feeling"), frequency: pick("frequency"), memory: pick("memory"), firstName: pick("firstName") };
+    return { goal: pick("goal"), feeling: pick("feeling"), frequency: pick("frequency"), memory: pick("memory"), chairRise: pick("chairRise"), mobility: pick("mobility"), firstName: pick("firstName") };
   } catch {
     return null;
   }
