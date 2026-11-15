@@ -45,8 +45,9 @@ export const reinforcement2Image = (gender: Gender) =>
 export const ageImage = (gender: Gender, file: string) => `${IMG}/age-${gender === "male" ? "male" : "female"}-${file}.webp`;
 
 const BODY_MODEL = {
-  male: { src: `${IMG}/body-male.webp`, width: 274, height: 878 },
-  female: { src: `${IMG}/body-female.webp`, width: 295, height: 876 },
+  // mask: the solid outline the red marks are clipped to (scripts/build-body-masks.mjs).
+  male: { src: `${IMG}/body-male.webp`, mask: `${IMG}/body-male-mask.png`, width: 274, height: 878 },
+  female: { src: `${IMG}/body-female.webp`, mask: `${IMG}/body-female-mask.png`, width: 295, height: 876 },
 } as const;
 
 /** The body figure on bodyAreas: the woman's for a woman, the man's otherwise. */
