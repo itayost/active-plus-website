@@ -21,7 +21,7 @@ test("subscription page: a monthly web subscriber signs in and cancels after con
   });
   await page.goto("/account/subscription");
   await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-  await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+  await page.getByRole("button", { name: COPY.register.phoneCta }).click();
   await page.getByLabel("הקוד שקיבלת ב־SMS").fill(GOOD_CODE);
   await page.getByRole("button", { name: "אימות" }).click();
   await page.getByRole("button", { name: "ביטול המנוי" }).click();
@@ -67,7 +67,7 @@ async function stubCancel(page: Page, reply: Reply = { status: 200, body: { stat
 async function signInToAccount(page: Page) {
   await page.goto("/account/subscription");
   await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-  await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+  await page.getByRole("button", { name: COPY.register.phoneCta }).click();
   await page.getByLabel(A.codeLabel).fill(GOOD_CODE);
   await page.getByRole("button", { name: A.verify }).click();
 }
@@ -89,7 +89,7 @@ test.describe("subscription page", () => {
     await stubCancel(page);
     await page.goto("/account/subscription");
     await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-    await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+    await page.getByRole("button", { name: COPY.register.phoneCta }).click();
     await expect(page.getByLabel(A.codeLabel)).toBeFocused();
     await page.getByLabel(A.codeLabel).fill(GOOD_CODE);
     await page.getByRole("button", { name: A.verify }).click();
@@ -193,7 +193,7 @@ test.describe("subscription page", () => {
       await stubFunctions(page, OK, subscription());
       await page.goto("/account/subscription");
       await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-      await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+      await page.getByRole("button", { name: COPY.register.phoneCta }).click();
       const code = page.getByLabel(A.codeLabel);
       await expect(code).toBeFocused();
       await expect(code).toHaveAccessibleDescription(A.codeHint);
@@ -261,7 +261,7 @@ test.describe("subscription page", () => {
     await stubFunctions(page, OK, subscription());
     await page.goto("/account/subscription");
     await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-    await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+    await page.getByRole("button", { name: COPY.register.phoneCta }).click();
     await page.getByLabel(A.codeLabel).fill("000000");
     await page.getByRole("button", { name: A.verify }).click();
     await expect(page.getByRole("alert").filter({ hasText: COPY.otp.wrongCode })).toBeVisible();
@@ -288,7 +288,7 @@ test.describe("subscription page", () => {
     await expect(page).toHaveURL(/\/account\/subscription$/);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-    await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+    await page.getByRole("button", { name: COPY.register.phoneCta }).click();
     await page.getByLabel(A.codeLabel).fill(GOOD_CODE);
     await page.getByRole("button", { name: A.verify }).click();
     await expect(page.getByRole("heading", { name: A.plans.MONTHLY })).toBeVisible();
@@ -312,7 +312,7 @@ test.describe("subscription page", () => {
     await expect(page.getByLabel(COPY.register.phoneLabel, { exact: true })).toBeVisible();
     expect(await serious()).toEqual([]);
     await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
-    await page.getByRole("button", { name: COPY.register.signIn.cta }).click();
+    await page.getByRole("button", { name: COPY.register.phoneCta }).click();
     await expect(page.getByLabel(A.codeLabel)).toBeVisible();
     expect(await serious()).toEqual([]);
     await page.getByLabel(A.codeLabel).fill(GOOD_CODE);

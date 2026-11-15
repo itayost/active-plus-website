@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAlive } from "@/components/ui/useAlive";
-import { LockIcon, PhoneIcon } from "@/components/ui/icons";
+import { CheckIcon, LockIcon, PhoneIcon } from "@/components/ui/icons";
 import { COPY, g } from "@/lib/funnel/copy";
 import type { RegisterView } from "@/lib/funnel/machine";
 import { sendCode } from "@/lib/funnel/signin";
@@ -20,6 +20,17 @@ const PHONE_SECURE_ID = "funnel-phone-secure";
 const PHONE_ERROR_ID = "funnel-phone-error";
 
 const C = COPY.register;
+
+/** The dots around the phone screen's check: where each settles (from the centre), its colour, size and delay. */
+const CONFETTI = [
+  { x: "-3.4rem", y: "-1.6rem", color: "#F5B301", size: 10, delay: "120ms" },
+  { x: "3.3rem", y: "-1.9rem", color: "#1E6FD9", size: 8, delay: "180ms" },
+  { x: "-3.9rem", y: "1.3rem", color: "#F28B6B", size: 7, delay: "240ms" },
+  { x: "3.7rem", y: "1.1rem", color: "#2E9E5B", size: 10, delay: "150ms" },
+  { x: "-1.6rem", y: "-3rem", color: "#2E9E5B", size: 6, delay: "300ms" },
+  { x: "1.9rem", y: "-3.1rem", color: "#F28B6B", size: 8, delay: "210ms" },
+  { x: "0.4rem", y: "3.1rem", color: "#F5B301", size: 6, delay: "270ms" },
+] as const;
 
 type NameProps = {
   gender: Answers["gender"];
@@ -118,54 +129,105 @@ export function PhoneStep({ gender, initialPhone, onSent, onBusy, existingOnly =
   };
 
   const [lead, rest] = C.phoneFooter.split(" • ");
-  // The questionnaire sells the plan just built; the account sign-in only sends a code.
-  const T = existingOnly
-    ? C.signIn
-    : { title: C.phoneTitle, subtitle: C.phoneSubtitle, cta: C.phoneCta, consentLead: C.consent.lead };
+  const field = (
+    <input
+      ref={input}
+      id={PHONE_ID}
+      name="phone"
+      type="tel"
+      inputMode="tel"
+      autoComplete="tel"
+      placeholder={g(gender, C.phonePlaceholder.fem, C.phonePlaceholder.masc)}
+      aria-describedby={error ? `${PHONE_SECURE_ID} ${PHONE_ERROR_ID}` : PHONE_SECURE_ID}
+      aria-invalid={error ? true : undefined}
+      value={phone}
+      onChange={(event) => setPhone(event.target.value)}
+      className={fieldClass(Boolean(error))}
+    />
+  );
   return (
     <form noValidate onSubmit={submit} aria-busy={sending || undefined}>
-      <StepIcon>
-        <PhoneIcon />
-      </StepIcon>
-      <StepTitle>{T.title}</StepTitle>
-      <Subtitle text={T.subtitle} />
-      <div className="mt-7">
-        <label htmlFor={PHONE_ID} className="mb-2 block font-display font-bold">
-          {C.phoneLabel}
-        </label>
-        <input
-          ref={input}
-          id={PHONE_ID}
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder={g(gender, C.phonePlaceholder.fem, C.phonePlaceholder.masc)}
-          aria-describedby={error ? `${PHONE_SECURE_ID} ${PHONE_ERROR_ID}` : PHONE_SECURE_ID}
-          aria-invalid={error ? true : undefined}
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          className={fieldClass(Boolean(error))}
-        />
-        <p id={PHONE_SECURE_ID} className="mt-3 flex items-center gap-2 text-ink-soft">
-          <LockIcon className="h-5 w-5 shrink-0" />
-          {C.phoneSecure}
-        </p>
-        <FieldError id={PHONE_ERROR_ID} text={error} />
-      </div>
+      {existingOnly ? (
+        <>
+          <StepIcon>
+            <PhoneIcon />
+          </StepIcon>
+          <StepTitle>{C.signIn.title}</StepTitle>
+          <Subtitle text={C.signIn.subtitle} />
+          <div className="mt-7">
+            <label htmlFor={PHONE_ID} className="mb-2 block font-display font-bold">
+              {C.phoneLabel}
+            </label>
+            {field}
+            <p id={PHONE_SECURE_ID} className="mt-3 flex items-center gap-2 text-ink-soft">
+              <LockIcon className="h-5 w-5 shrink-0" />
+              {C.phoneSecure}
+            </p>
+            <FieldError id={PHONE_ERROR_ID} text={error} />
+          </div>
+        </>
+      ) : (
+        // The questionnaire's last screen picks up where the loader ended: the plan is
+        // ready, one field opens it (owner, 2026-11-15: less text, a moment, every word exact).
+        <>
+          <div className="mt-2 flex flex-col items-center text-center">
+            <span aria-hidden="true" className="relative mb-5 inline-flex h-[4.5rem] w-[4.5rem]">
+              <span className="plan-glow absolute inset-[-30%] rounded-pill bg-green/25 blur-xl" />
+              {/* A few happy bits of colour burst around the check (owner, 2026-11-15: "צבעים שמחים"). */}
+              {CONFETTI.map((c) => (
+                <span
+                  key={c.color + c.x}
+                  className="phone-confetti absolute left-1/2 top-1/2 rounded-pill"
+                  style={{
+                    width: c.size,
+                    height: c.size,
+                    background: c.color,
+                    ["--x" as string]: c.x,
+                    ["--y" as string]: c.y,
+                    animationDelay: c.delay,
+                  }}
+                />
+              ))}
+              <span className="success-pop relative inline-flex h-full w-full items-center justify-center rounded-pill bg-gradient-to-br from-[#4CC27E] to-green-deep text-white shadow-lift-1">
+                <CheckIcon className="h-9 w-9" />
+              </span>
+            </span>
+            <StepTitle>{C.phoneTitle}</StepTitle>
+            <Subtitle text={C.phoneSubtitle} className="mx-auto" />
+          </div>
+          <div className="mt-7">
+            <label htmlFor={PHONE_ID} className="sr-only">
+              {C.phoneLabel}
+            </label>
+            {field}
+            <p id={PHONE_SECURE_ID} className="mt-3 flex items-center justify-center gap-2 text-ink-soft">
+              <LockIcon className="h-[18px] w-[18px] shrink-0 text-green-deep" />
+              {C.phoneTrust.map((item, i) => (
+                <span key={item} className="inline-flex items-center gap-2">
+                  {i > 0 ? <span aria-hidden="true" className="h-[4px] w-[4px] rounded-pill bg-current" /> : null}
+                  {item}
+                </span>
+              ))}
+            </p>
+            <FieldError id={PHONE_ERROR_ID} text={error} />
+          </div>
+        </>
+      )}
       {/* Disabled while sending, label kept: the press visibly took, and a second tap cannot send twice. */}
-      <ContinueButton type="submit" label={T.cta} disabled={sending} />
-      <p className="mt-4 text-center text-ink-soft">
-        {lead}
-        <span aria-hidden="true" className="mx-2.5 inline-block h-[5px] w-[5px] rounded-pill bg-current align-middle" />
-        {rest}
-      </p>
+      <ContinueButton type="submit" label={C.phoneCta} disabled={sending} />
+      {existingOnly ? (
+        <p className="mt-4 text-center text-ink-soft">
+          {lead}
+          <span aria-hidden="true" className="mx-2.5 inline-block h-[5px] w-[5px] rounded-pill bg-current align-middle" />
+          {rest}
+        </p>
+      ) : null}
       {/*
         "תנאי השימוש" is plain text: the site has no terms page and the app shows
         its terms in an in-app sheet, so there is nothing to link to yet.
       */}
-      <p className="mt-3 text-center text-ink-soft">
-        {g(gender, T.consentLead.fem, T.consentLead.masc)} {C.consent.terms} {C.consent.and}
+      <p className={existingOnly ? "mt-3 text-center text-ink-soft" : "mt-4 text-center text-[0.875rem] leading-[1.5] text-ink-soft"}>
+        {g(gender, C.consent.lead.fem, C.consent.lead.masc)} {C.consent.terms} {C.consent.and}
         <Link href="/privacy-policy" className="font-bold text-green-deep underline underline-offset-[3px]">
           {C.consent.privacy}
         </Link>
