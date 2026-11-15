@@ -160,3 +160,29 @@ describe("musicFor (the apps' music by level)", () => {
     expect(musicFor(null)).toBe(TASTER_MUSIC.seated);
   });
 });
+
+describe("parseChallenges (getChallenges, shown locked)", () => {
+  it("keeps what the locked cards need", async () => {
+    const { parseChallenges } = await import("@/lib/taster/catalog");
+    const body = {
+      challenges: [
+        { id: "c1", title: "אתגר הגוף החזק", subtitle: "28 ימים", durationDays: 28, coverImageUrl: "https://x/c.jpg", priceIls: 49 },
+        { id: "c2", title: "", durationDays: 7 },
+        { id: "c3", title: "בלי ימים", durationDays: 0 },
+      ],
+    };
+    expect(parseChallenges(body)).toEqual([{ id: "c1", title: "אתגר הגוף החזק", subtitle: "28 ימים", durationDays: 28, coverImageUrl: "https://x/c.jpg" }]);
+  });
+  it("is an empty list on anything unexpected", async () => {
+    const { parseChallenges } = await import("@/lib/taster/catalog");
+    expect(parseChallenges(null)).toEqual([]);
+    expect(parseChallenges({ challenges: "x" })).toEqual([]);
+  });
+  it("lists the app's eight games, silver coins first, no real face", async () => {
+    const { TASTER_GAMES, PROGRAM_COVER } = await import("@/lib/taster/catalog");
+    expect(TASTER_GAMES.map((g) => g.title)[0]).toBe("מטבעות הכסף");
+    expect(TASTER_GAMES).toHaveLength(8);
+    expect(TASTER_GAMES.every((g) => !g.picture.includes("MemoryFace"))).toBe(true);
+    expect(PROGRAM_COVER).toHaveLength(5);
+  });
+});

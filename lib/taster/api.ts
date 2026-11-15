@@ -3,6 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logAuthFailure } from "@/lib/funnel/log";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
+import { parseChallenges, type TasterChallenge } from "./catalog";
 import { completionUpdate } from "./completion";
 import { parseWorkoutReply, type WorkoutReply } from "./workout";
 
@@ -33,6 +34,16 @@ export async function requestTasterWorkout(session: TasterSession): Promise<Work
   } catch (caught) {
     logAuthFailure("taster:request", caught);
     return { kind: "error" };
+  }
+}
+
+/** The live challenge list, shown locked on the site; empty on any failure. */
+export async function loadChallenges(session: TasterSession): Promise<TasterChallenge[]> {
+  try {
+    const { data, error } = await session.supabase.functions.invoke("getChallenges", { body: {} });
+    return error ? [] : parseChallenges(data);
+  } catch {
+    return [];
   }
 }
 

@@ -3,16 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PAYMENT_PATH } from "@/lib/funnel/constants";
 import { isPressable, tapHaptic } from "@/lib/haptics";
-import { loadFirstName, loadFunctionalityLevel, loadTasterSession, progressRecorder, requestTasterWorkout, saveCompletion, type TasterSession } from "@/lib/taster/api";
+import { loadChallenges, loadFirstName, loadFunctionalityLevel, loadTasterSession, progressRecorder, requestTasterWorkout, saveCompletion, type TasterSession } from "@/lib/taster/api";
 import { clipLoader } from "@/lib/taster/clips";
 import { completionUpdate } from "@/lib/taster/completion";
+import type { TasterChallenge } from "@/lib/taster/catalog";
 import { DEMO_WORKOUT, demoAllowed } from "@/lib/taster/demo";
+import { DEMO_CHALLENGES } from "@/lib/taster/demo-catalog";
 import { musicFor, TASTER_MUSIC } from "@/lib/taster/music";
 import { timerAt, type TimerState } from "@/lib/taster/timer";
 import type { TasterWorkout } from "@/lib/taster/workout";
 import { g } from "@/lib/funnel/copy";
 import { readPaymentGender } from "@/lib/payment/checkout";
 import { TasterBetween, TasterExitDialog } from "./TasterOverlays";
+import AppShell from "./AppShell";
 import TasterPlayer from "./TasterPlayer";
 import { TASTER_TITLE_ID, TasterEnd, TasterError, TasterIntro, TasterLoading } from "./TasterScreens";
 
@@ -48,6 +51,7 @@ export default function Taster() {
   const [name, setName] = useState<string | null>(null);
   const [result, setResult] = useState({ played: 0, minutes: 1 });
   const [musicSrc, setMusicSrc] = useState<string | null>(null);
+  const [challenges, setChallenges] = useState<TasterChallenge[]>([]);
 
   const video = useRef<HTMLVideoElement>(null);
   const music = useRef<HTMLAudioElement>(null);
@@ -74,12 +78,14 @@ export default function Taster() {
     };
     if (demoAllowed(window.location.hostname, window.location.search)) {
       setMusicSrc(TASTER_MUSIC.independent);
+      setChallenges(DEMO_CHALLENGES);
       return show(DEMO_WORKOUT);
     }
     const signedIn = await loadTasterSession();
     if (!signedIn) return toPlans();
     session.current = signedIn;
     void loadFirstName(signedIn).then(setName);
+    void loadChallenges(signedIn).then(setChallenges);
     void loadFunctionalityLevel(signedIn).then((level) => setMusicSrc(musicFor(level)));
     const reply = await requestTasterWorkout(signedIn);
     if (reply.kind === "used") return toPlans();
@@ -168,7 +174,10 @@ export default function Taster() {
   // The breath counts itself down and starts the next exercise.
   useEffect(() => {
     if (stage !== "between" || exitOpen) return;
-    if (betweenLeft <= 0) return playClip(index + 1);
+    if (betweenLeft <= 0) {
+      playClip(index + 1);
+      return;
+    }
     const id = window.setTimeout(() => setBetweenLeft((s) => s - 1), 1000);
     return () => window.clearTimeout(id);
   }, [stage, betweenLeft, exitOpen, index, playClip]);
@@ -246,7 +255,14 @@ export default function Taster() {
       {stage === "loading" && <TasterLoading />}
       {stage === "saving" && <TasterLoading />}
       {stage === "error" && <TasterError onRetry={() => void load()} onSkip={toPlans} />}
-      {stage === "intro" && workout && <TasterIntro workout={workout} readyLine={readyLine} onStart={start} onSkip={toPlans} />}
+      {stage === "intro" && workout && (
+        <AppShell
+          home={<TasterIntro workout={workout} readyLine={readyLine} onStart={start} onSkip={toPlans} />}
+          challenges={challenges}
+          name={name}
+          onPlans={toPlans}
+        />
+      )}
       {stage === "end" && <TasterEnd name={name} played={result.played} minutes={result.minutes} onContinue={toPlans} />}
 
       <TasterPlayer

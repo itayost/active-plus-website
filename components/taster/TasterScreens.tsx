@@ -59,7 +59,7 @@ export function TasterIntro({
   onSkip: () => void;
 }) {
   return (
-    <Column>
+    <>
       <span className="taster-pop flex h-16 w-16 items-center justify-center rounded-full bg-cta text-white shadow-cta">
         <CheckIcon className="h-8 w-8" />
       </span>
@@ -70,12 +70,12 @@ export function TasterIntro({
         <TasterHomeCard workout={workout} readyLine={readyLine} onStart={onStart} />
       </div>
 
-      <div className="mt-auto pt-6">
+      <div className="mt-auto pt-4">
         <Button variant="ghost" className="min-h-[60px] w-full" onClick={onSkip}>
           דילוג לבחירת מסלול
         </Button>
       </div>
-    </Column>
+    </>
   );
 }
 
