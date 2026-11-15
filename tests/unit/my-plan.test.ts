@@ -3,10 +3,10 @@ import { planInputsOf } from "@/lib/funnel/storage";
 import { curve, curveAt, PLAN_LINES, smoothPath, targetDate } from "@/lib/plan/twenty-eight";
 
 describe("the plan's two goals", () => {
-  it("are the owner's two boxes, in the chart's colours", () => {
-    expect(PLAN_LINES.map((l) => [l.label, l.color])).toEqual([
-      ["חיזוק שרירים", "#2E7D32"],
-      ["שיפור הזיכרון", "#1E6FD9"],
+  it("are the owner's two boxes, each with its icon", () => {
+    expect(PLAN_LINES.map((l) => [l.label, l.icon])).toEqual([
+      ["חיזוק שרירים", "dumbbell"],
+      ["שיפור הזיכרון", "brain"],
     ]);
   });
 });

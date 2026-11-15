@@ -6,13 +6,15 @@
  */
 export const PLAN_DAYS = 28;
 
-export const BODY_COLOR = "#2E7D32";
-export const MEMORY_COLOR = "#1E6FD9";
-
-/** The two boxes, also the chart's legend (owner, 2026-11-15: the general areas read better than specific results). */
+/**
+ * The two boxes, also the chart's legend (owner, 2026-11-15: the general areas read
+ * better than specific results). Each goal has its own family of colours, so the box,
+ * its icon and its line read as one: `color` the line, `light` where the line starts,
+ * `deep` the text, `tint` the box.
+ */
 export const PLAN_LINES = [
-  { label: "חיזוק שרירים", color: BODY_COLOR },
-  { label: "שיפור הזיכרון", color: MEMORY_COLOR },
+  { label: "חיזוק שרירים", icon: "dumbbell", color: "#2E9E5B", light: "#7DD3A0", deep: "#1F6B3D", tint: "#E3F4E9" },
+  { label: "שיפור הזיכרון", icon: "brain", color: "#2F7BE5", light: "#8DBBF5", deep: "#1A56B0", tint: "#E6F0FC" },
 ] as const;
 
 /** The target date, 28 days from `now`, as Israel reads it: "13 בדצמבר", or "13.12" for the chart's axis. */
