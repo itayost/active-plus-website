@@ -145,7 +145,7 @@ export function TasterEnd({
         <p className="font-display text-[1.75rem] font-extrabold leading-tight text-green-deep">התוכנית שלך מוכנה!</p>
         <p className="mt-1 text-[1.0625rem] font-bold text-ink-soft">זו הייתה רק טעימה. בתוכנית המלאה:</p>
         <ul className="mt-3 flex flex-col gap-2.5 text-[1.0625rem] font-bold">
-          {["אימון חדש כל יום, מותאם בדיוק לך", "מתקדמים בקצב שלך, מהבית", "משחקי זיכרון שמחדדים את הראש"].map((line) => (
+          {["אימון חדש כל יום, מותאם בדיוק לך", "מתקדמים בקצב שלך, מהבית", "משחקים שמחדדים את הזיכרון והריכוז"].map((line) => (
             <li key={line} className="flex items-start gap-2.5">
               <CheckIcon className="mt-0.5 h-6 w-6 text-green-deep" />
               {line}

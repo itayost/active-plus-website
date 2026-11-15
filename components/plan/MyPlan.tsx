@@ -53,7 +53,7 @@ export default function MyPlan() {
         <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[0.9375rem] font-bold leading-tight">
           <Fact>{`${plan.workoutsPerWeek} אימונים בשבוע`}</Fact>
           <Fact>מהבית, בזמן שלך</Fact>
-          <Fact>גוף + ראש</Fact>
+          <Fact>גוף + זיכרון</Fact>
         </div>
 
         <ProgressGraph lines={plan.lines} />
@@ -88,7 +88,7 @@ export default function MyPlan() {
                 {week.body}
               </p>
               <p className="mt-1 text-[1.0625rem]">
-                <span className="font-bold text-[#1E6FD9]">ראש: </span>
+                <span className="font-bold text-[#1E6FD9]">זיכרון: </span>
                 {week.mind}
               </p>
             </li>
