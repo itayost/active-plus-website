@@ -4,10 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import PlanSelector from "@/components/payment/PlanSelector";
 import StoreButtons from "@/components/payment/StoreButtons";
 import StoreFallback from "@/components/payment/StoreFallback";
-import Image from "next/image";
 import { CheckIcon } from "@/components/ui/icons";
-import type { Answers } from "@/lib/funnel/types";
-import { readPaymentGender } from "@/lib/payment/checkout";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
 import Section from "@/components/ui/Section";
 import { clearPendingPurchase } from "@/lib/analytics/pending-purchase";
@@ -104,19 +101,15 @@ function useActiveSubscription(): boolean {
 
 /**
  * Already subscribed: nothing to buy and no prices (owner, 2026-11-16), only the app to download.
- * Dressed like the purchase-success page he approved: the welcome over a training photo, then the
- * one action, then the three steps.
+ * Laid out like the purchase-success page: a green welcome (no photo), then the one action, then the
+ * three steps.
  */
 function AlreadySubscribed() {
-  const [gender, setGender] = useState<Answers["gender"]>(undefined);
-  useEffect(() => setGender(readPaymentGender()), []);
-  const hero = gender === "male" ? "/img/funnel/app/goal-male.webp" : "/img/funnel/app/goal-female-walk.webp";
   return (
     <section id="plans" aria-labelledby="payment-subscribed-heading">
-      <div className="relative isolate overflow-hidden rounded-b-[2rem] bg-green-deep text-white">
-        <Image src={hero} alt="" fill priority sizes="(max-width: 560px) 100vw, 560px" className="-z-10 object-cover object-top opacity-60" />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-green-deep/50 to-green-deep" />
-        <div className="gutter-x flex min-h-[24rem] flex-col items-center justify-end pb-10 pt-16 text-center">
+      {/* No photo (owner, 2026-11-16): a green welcome only. */}
+      <div className="rounded-b-[2rem] bg-gradient-to-b from-[#2E9E5B] to-green-deep text-white">
+        <div className="gutter-x flex min-h-[17rem] flex-col items-center justify-end pb-10 pt-14 text-center">
           <span className="success-pop mb-4 inline-flex items-center gap-2 rounded-pill bg-white px-4 py-1.5 font-display text-[1rem] font-bold text-green-deep shadow-lift-2">
             <CheckIcon className="h-5 w-5" aria-hidden="true" />
             {C.subscribed.chip}

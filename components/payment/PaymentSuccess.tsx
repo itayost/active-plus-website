@@ -61,15 +61,12 @@ export default function PaymentSuccess() {
   }, []);
 
   const title = gender ? gendered(gender, S.title) : S.titleNeutral;
-  const hero = gender === "male" ? "/img/funnel/app/goal-male.webp" : "/img/funnel/app/goal-female-walk.webp";
 
   return (
     <div>
-      {/* A welcome that fills the screen (owner, 2026-11-14): a photo of someone training, the greeting over it. */}
-      <div className="relative isolate overflow-hidden rounded-b-[2rem] bg-green-deep text-white">
-        <Image src={hero} alt="" fill priority sizes="(max-width: 560px) 100vw, 560px" className="-z-10 object-cover object-top opacity-60" />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-green-deep/50 to-green-deep" />
-        <div className="gutter-x flex min-h-[26rem] flex-col items-center justify-end pb-10 pt-16 text-center">
+      {/* The welcome on green, no photo (owner, 2026-11-16; it had one from 2026-11-14). */}
+      <div className="rounded-b-[2rem] bg-gradient-to-b from-[#2E9E5B] to-green-deep text-white">
+        <div className="gutter-x flex min-h-[19rem] flex-col items-center justify-end pb-10 pt-14 text-center">
           <span className="success-pop mb-4 inline-flex items-center gap-2 rounded-pill bg-white px-4 py-1.5 font-display text-[1rem] font-bold text-green-deep shadow-lift-2">
             <CheckIcon className="h-5 w-5" aria-hidden="true" />
             {S.paidChip}

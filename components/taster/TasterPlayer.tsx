@@ -38,10 +38,11 @@ const TasterPlayer = forwardRef<HTMLVideoElement, Props>(function TasterPlayer(
   const label = TIMER_LABEL[timer.phase];
   return (
     <div className={cn("fixed inset-0 z-30 flex justify-center bg-black", !visible && "invisible")} aria-hidden={!visible}>
-      <div className="relative h-full w-full max-w-[560px]">
+      <div className="relative h-full w-full">
         <video
           ref={video}
-          className="absolute inset-0 h-full w-full object-cover"
+          // Fills a phone; on a wide screen the whole clip shows, black at its sides.
+          className="absolute inset-0 h-full w-full object-cover landscape:object-contain"
           playsInline
           preload="auto"
           disablePictureInPicture
