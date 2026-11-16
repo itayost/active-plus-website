@@ -116,6 +116,9 @@
   var RECONNECT_MS = 4000;
   var DONE_SCREEN_MS = 20000;
   var PAIRED_RECHECK_MS = 5 * 60 * 1000;
+  // Paused or not, the phone hears from the TV this often; its silence means
+  // the page was closed, and the phone takes the workout back.
+  var STATE_KEEPALIVE_MS = 4000;
 
   var doc = root.document;
   function el(id) { return doc.getElementById(id); }
@@ -448,6 +451,7 @@
     if (!config.supabaseUrl || !config.anonKey) { show('screen-error'); return; }
     wireVideo();
     wireKeys();
+    root.setInterval(function () { if (playing.active) sendState(); }, STATE_KEEPALIVE_MS);
     checkSession();
   }
 

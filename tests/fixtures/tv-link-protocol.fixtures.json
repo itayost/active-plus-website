@@ -9,8 +9,13 @@
       "event": "phx_join",
       "payload": {
         "config": {
-          "broadcast": { "self": false, "ack": false },
-          "presence": { "key": "" },
+          "broadcast": {
+            "self": false,
+            "ack": false
+          },
+          "presence": {
+            "key": ""
+          },
           "postgres_changes": [],
           "private": true
         },
@@ -22,18 +27,31 @@
   },
   "heartbeat": {
     "ref": "7",
-    "frame": { "topic": "phoenix", "event": "heartbeat", "payload": {}, "ref": "7" }
+    "frame": {
+      "topic": "phoenix",
+      "event": "heartbeat",
+      "payload": {},
+      "ref": "7"
+    }
   },
   "send": [
     {
       "name": "hello",
-      "message": { "t": "hello" },
+      "message": {
+        "t": "hello"
+      },
       "ref": "2",
       "joinRef": "1",
       "frame": {
         "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
         "event": "broadcast",
-        "payload": { "type": "broadcast", "event": "tv", "payload": { "t": "hello" } },
+        "payload": {
+          "type": "broadcast",
+          "event": "tv",
+          "payload": {
+            "t": "hello"
+          }
+        },
         "ref": "2",
         "join_ref": "1"
       }
@@ -43,8 +61,14 @@
       "message": {
         "t": "load",
         "clips": [
-          { "url": "https://x.supabase.co/storage/v1/object/public/videos/a-landscape.mp4", "title": "הליכה במקום" },
-          { "url": "https://x.supabase.co/storage/v1/object/public/videos/b.mp4", "title": "כפיפות מרפק" }
+          {
+            "url": "https://x.supabase.co/storage/v1/object/public/videos/a-landscape.mp4",
+            "title": "הליכה במקום"
+          },
+          {
+            "url": "https://x.supabase.co/storage/v1/object/public/videos/b.mp4",
+            "title": "כפיפות מרפק"
+          }
         ],
         "index": 1,
         "pos": 12.5,
@@ -61,8 +85,14 @@
           "payload": {
             "t": "load",
             "clips": [
-              { "url": "https://x.supabase.co/storage/v1/object/public/videos/a-landscape.mp4", "title": "הליכה במקום" },
-              { "url": "https://x.supabase.co/storage/v1/object/public/videos/b.mp4", "title": "כפיפות מרפק" }
+              {
+                "url": "https://x.supabase.co/storage/v1/object/public/videos/a-landscape.mp4",
+                "title": "הליכה במקום"
+              },
+              {
+                "url": "https://x.supabase.co/storage/v1/object/public/videos/b.mp4",
+                "title": "כפיפות מרפק"
+              }
             ],
             "index": 1,
             "pos": 12.5,
@@ -75,20 +105,37 @@
     },
     {
       "name": "seek",
-      "message": { "t": "seek", "index": 4 },
+      "message": {
+        "t": "seek",
+        "index": 4
+      },
       "ref": "4",
       "joinRef": "1",
       "frame": {
         "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
         "event": "broadcast",
-        "payload": { "type": "broadcast", "event": "tv", "payload": { "t": "seek", "index": 4 } },
+        "payload": {
+          "type": "broadcast",
+          "event": "tv",
+          "payload": {
+            "t": "seek",
+            "index": 4
+          }
+        },
         "ref": "4",
         "join_ref": "1"
       }
     },
     {
       "name": "state",
-      "message": { "t": "state", "index": 2, "pos": 31.25, "dur": 48.5, "playing": true, "ended": false },
+      "message": {
+        "t": "state",
+        "index": 2,
+        "pos": 31.25,
+        "dur": 48.5,
+        "playing": true,
+        "ended": false
+      },
       "ref": "5",
       "joinRef": "1",
       "frame": {
@@ -97,7 +144,14 @@
         "payload": {
           "type": "broadcast",
           "event": "tv",
-          "payload": { "t": "state", "index": 2, "pos": 31.25, "dur": 48.5, "playing": true, "ended": false }
+          "payload": {
+            "t": "state",
+            "index": 2,
+            "pos": 31.25,
+            "dur": 48.5,
+            "playing": true,
+            "ended": false
+          }
         },
         "ref": "5",
         "join_ref": "1"
@@ -107,97 +161,338 @@
   "receive": [
     {
       "name": "join accepted",
-      "frame": { "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330", "event": "phx_reply", "payload": { "status": "ok", "response": {} }, "ref": "1" },
+      "frame": {
+        "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
+        "event": "phx_reply",
+        "payload": {
+          "status": "ok",
+          "response": {}
+        },
+        "ref": "1"
+      },
       "joinRef": "1",
-      "result": { "kind": "joined" }
+      "result": {
+        "kind": "joined"
+      }
     },
     {
       "name": "join refused",
-      "frame": { "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330", "event": "phx_reply", "payload": { "status": "error", "response": { "reason": "Unauthorized" } }, "ref": "1" },
+      "frame": {
+        "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
+        "event": "phx_reply",
+        "payload": {
+          "status": "error",
+          "response": {
+            "reason": "Unauthorized"
+          }
+        },
+        "ref": "1"
+      },
       "joinRef": "1",
-      "result": { "kind": "refused" }
+      "result": {
+        "kind": "refused"
+      }
     },
     {
       "name": "heartbeat reply is nothing",
-      "frame": { "topic": "phoenix", "event": "phx_reply", "payload": { "status": "ok", "response": {} }, "ref": "9" },
+      "frame": {
+        "topic": "phoenix",
+        "event": "phx_reply",
+        "payload": {
+          "status": "ok",
+          "response": {}
+        },
+        "ref": "9"
+      },
       "joinRef": "1",
-      "result": { "kind": "none" }
+      "result": {
+        "kind": "none"
+      }
     },
     {
       "name": "channel closed",
-      "frame": { "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330", "event": "phx_close", "payload": {}, "ref": null },
+      "frame": {
+        "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
+        "event": "phx_close",
+        "payload": {},
+        "ref": null
+      },
       "joinRef": "1",
-      "result": { "kind": "closed" }
+      "result": {
+        "kind": "closed"
+      }
     },
     {
       "name": "channel error",
-      "frame": { "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330", "event": "phx_error", "payload": {}, "ref": null },
+      "frame": {
+        "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
+        "event": "phx_error",
+        "payload": {},
+        "ref": null
+      },
       "joinRef": "1",
-      "result": { "kind": "closed" }
+      "result": {
+        "kind": "closed"
+      }
     },
     {
       "name": "token expired system message",
-      "frame": { "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330", "event": "system", "payload": { "status": "error", "message": "Token has expired 3 seconds ago", "extension": "system" }, "ref": null },
+      "frame": {
+        "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
+        "event": "system",
+        "payload": {
+          "status": "error",
+          "message": "Token has expired 3 seconds ago",
+          "extension": "system"
+        },
+        "ref": null
+      },
       "joinRef": "1",
-      "result": { "kind": "closed" }
+      "result": {
+        "kind": "closed"
+      }
     },
     {
       "name": "state from the TV",
       "frame": {
         "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
         "event": "broadcast",
-        "payload": { "type": "broadcast", "event": "tv", "payload": { "t": "state", "index": 3, "pos": 4, "dur": 50.04, "playing": false, "ended": false } },
+        "payload": {
+          "type": "broadcast",
+          "event": "tv",
+          "payload": {
+            "t": "state",
+            "index": 3,
+            "pos": 4,
+            "dur": 50.04,
+            "playing": false,
+            "ended": false
+          }
+        },
         "ref": null
       },
       "joinRef": "1",
-      "result": { "kind": "message", "message": { "t": "state", "index": 3, "pos": 4, "dur": 50.04, "playing": false, "ended": false } }
+      "result": {
+        "kind": "message",
+        "message": {
+          "t": "state",
+          "index": 3,
+          "pos": 4,
+          "dur": 50.04,
+          "playing": false,
+          "ended": false
+        }
+      }
     },
     {
       "name": "ready from the TV",
       "frame": {
         "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
         "event": "broadcast",
-        "payload": { "type": "broadcast", "event": "tv", "payload": { "t": "ready" } },
+        "payload": {
+          "type": "broadcast",
+          "event": "tv",
+          "payload": {
+            "t": "ready"
+          }
+        },
         "ref": null
       },
       "joinRef": "1",
-      "result": { "kind": "message", "message": { "t": "ready" } }
+      "result": {
+        "kind": "message",
+        "message": {
+          "t": "ready"
+        }
+      }
     },
     {
       "name": "another broadcast event is ignored",
       "frame": {
         "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
         "event": "broadcast",
-        "payload": { "type": "broadcast", "event": "other", "payload": { "t": "ready" } },
+        "payload": {
+          "type": "broadcast",
+          "event": "other",
+          "payload": {
+            "t": "ready"
+          }
+        },
         "ref": null
       },
       "joinRef": "1",
-      "result": { "kind": "none" }
+      "result": {
+        "kind": "none"
+      }
     },
     {
       "name": "a message without t is ignored",
       "frame": {
         "topic": "realtime:tv:5a66bca2-410c-4203-a9cc-af0ecf623330",
         "event": "broadcast",
-        "payload": { "type": "broadcast", "event": "tv", "payload": { "index": 2 } },
+        "payload": {
+          "type": "broadcast",
+          "event": "tv",
+          "payload": {
+            "index": 2
+          }
+        },
         "ref": null
       },
       "joinRef": "1",
-      "result": { "kind": "none" }
+      "result": {
+        "kind": "none"
+      }
     }
   ],
   "codes": [
-    { "input": "1234", "code": "1234" },
-    { "input": " 0042 ", "code": "0042" },
-    { "input": "12 34", "code": "1234" },
-    { "input": "12-34", "code": "1234" },
-    { "input": "123", "code": null },
-    { "input": "12345", "code": null },
-    { "input": "12a4", "code": null },
-    { "input": "", "code": null }
+    {
+      "input": "1234",
+      "code": "1234"
+    },
+    {
+      "input": " 0042 ",
+      "code": "0042"
+    },
+    {
+      "input": "12 34",
+      "code": "1234"
+    },
+    {
+      "input": "12-34",
+      "code": "1234"
+    },
+    {
+      "input": "123",
+      "code": null
+    },
+    {
+      "input": "12345",
+      "code": null
+    },
+    {
+      "input": "12a4",
+      "code": null
+    },
+    {
+      "input": "",
+      "code": null
+    }
   ],
   "websocketUrl": [
-    { "supabaseUrl": "https://fyktrpgufhibhstsnxwo.supabase.co", "anonKey": "ANON", "url": "wss://fyktrpgufhibhstsnxwo.supabase.co/realtime/v1/websocket?apikey=ANON&vsn=1.0.0" },
-    { "supabaseUrl": "http://10.0.2.2:54400/", "anonKey": "ANON", "url": "ws://10.0.2.2:54400/realtime/v1/websocket?apikey=ANON&vsn=1.0.0" }
+    {
+      "supabaseUrl": "https://fyktrpgufhibhstsnxwo.supabase.co",
+      "anonKey": "ANON",
+      "url": "wss://fyktrpgufhibhstsnxwo.supabase.co/realtime/v1/websocket?apikey=ANON&vsn=1.0.0"
+    },
+    {
+      "supabaseUrl": "http://10.0.2.2:54400/",
+      "anonKey": "ANON",
+      "url": "ws://10.0.2.2:54400/realtime/v1/websocket?apikey=ANON&vsn=1.0.0"
+    }
+  ],
+  "clock": [
+    {
+      "name": "playing moves on the phone's clock",
+      "report": {
+        "pos": 10,
+        "dur": 50,
+        "playing": true,
+        "ended": false
+      },
+      "reportedAtMs": 1000,
+      "nowMs": 1750,
+      "positionMs": 10750
+    },
+    {
+      "name": "paused stays put",
+      "report": {
+        "pos": 10,
+        "dur": 50,
+        "playing": false,
+        "ended": false
+      },
+      "reportedAtMs": 1000,
+      "nowMs": 9000,
+      "positionMs": 10000
+    },
+    {
+      "name": "never past the end of the clip",
+      "report": {
+        "pos": 49.5,
+        "dur": 50,
+        "playing": true,
+        "ended": false
+      },
+      "reportedAtMs": 0,
+      "nowMs": 5000,
+      "positionMs": 50000
+    },
+    {
+      "name": "no duration yet: keeps counting",
+      "report": {
+        "pos": 0,
+        "dur": 0,
+        "playing": true,
+        "ended": false
+      },
+      "reportedAtMs": 0,
+      "nowMs": 1200,
+      "positionMs": 1200
+    },
+    {
+      "name": "a clock that runs backwards does not",
+      "report": {
+        "pos": 3.25,
+        "dur": 50,
+        "playing": true,
+        "ended": false
+      },
+      "reportedAtMs": 5000,
+      "nowMs": 4000,
+      "positionMs": 3250
+    }
+  ],
+  "playbackState": [
+    {
+      "name": "finished",
+      "prepared": true,
+      "playWhenReady": true,
+      "playing": false,
+      "ended": true,
+      "state": "ended"
+    },
+    {
+      "name": "not loaded on the TV yet",
+      "prepared": false,
+      "playWhenReady": true,
+      "playing": false,
+      "ended": false,
+      "state": "idle"
+    },
+    {
+      "name": "playing",
+      "prepared": true,
+      "playWhenReady": true,
+      "playing": true,
+      "ended": false,
+      "state": "ready"
+    },
+    {
+      "name": "paused on purpose",
+      "prepared": true,
+      "playWhenReady": false,
+      "playing": false,
+      "ended": false,
+      "state": "ready"
+    },
+    {
+      "name": "asked to play, TV not started",
+      "prepared": true,
+      "playWhenReady": true,
+      "playing": false,
+      "ended": false,
+      "state": "buffering"
+    }
   ]
 }
