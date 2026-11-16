@@ -18,7 +18,7 @@ test("signed out, annual in 6 installments: verifies the phone, opens Grow's wal
   await pay(page);
   await expect(page.getByRole("button", { name: C.openingWallet })).toBeDisabled();
   await expect.poll(() => walletSeen(page)).toEqual(["DEV", 1, ["e2e-auth-code"]]);
-  expect(sent).toEqual([{ plan: "ANNUAL", installments: 6, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 828 }]);
+  expect(sent).toEqual([{ plan: "ANNUAL", installments: 6, fullName: "רחל כהן", expectedTotal: 828 }]);
   // The SDK is served from Grow's CDN address: the checkout's CSP lets it load.
   expect(await violations()).toEqual([]);
   await walletEvent(page, "onSuccess", { status: 1 });
@@ -103,7 +103,7 @@ test("monthly: no installments, standing-order terms, hands off to Grow's hosted
   await expect(page.getByText("חיוב חודשי של 99 ₪ בהוראת קבע")).toBeVisible();
   await pay(page);
   await page.waitForURL(GROW_URL);
-  expect(sent).toEqual([{ plan: "MONTHLY", installments: 1, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 99 }]);
+  expect(sent).toEqual([{ plan: "MONTHLY", installments: 1, fullName: "רחל כהן", expectedTotal: 99 }]);
 });
 
 test("already subscribed: explains, offers the apps, stays on the site", async ({ page }) => {

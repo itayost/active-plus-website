@@ -20,14 +20,11 @@ export const CHECKOUT_COPY = {
   nameError: "צריך שם פרטי ושם משפחה, באותיות בלבד",
   /** The service is sold in Israel only (the phone must be Israeli): shown because Grow's review requires the field. */
   country: "ישראל",
-  emailTitle: "לאן לשלוח את החשבונית?",
-  emailPlaceholder: "האימייל שלך",
-  emailError: "כתובת האימייל לא נראית תקינה",
   phoneLocked: "מספר הטלפון הוא החשבון שאיתו נכנסים לאפליקציה, ולכן הוא לא נערך כאן.",
   edit: "עריכה",
   save: "שמירה",
   summaryTitle: "סיכום הזמנה",
-  rows: { plan: "מסלול", price: "מחיר", total: "סה״כ לתשלום", name: "שם", email: "אימייל", phone: "טלפון", country: "מדינה", installments: "מספר תשלומים" },
+  rows: { plan: "מסלול", price: "מחיר", total: "סה״כ לתשלום", name: "שם", phone: "טלפון", country: "מדינה", installments: "מספר תשלומים" },
   installmentOption: "{n} תשלומים",
   singlePayment: "תשלום אחד",
   perInstallment: "כל תשלום: {amount}",
@@ -75,8 +72,7 @@ export const CHECKOUT_COPY = {
     closing: "האימון הראשון מחכה. מתחילים עוד היום?",
     checking: "בודקים את המנוי",
     // The invoice is issued by the webhook, which may still be running when this page shows.
-    received: "התשלום התקבל, והחשבונית תישלח ל־{email}.",
-    receivedNoEmail: "התשלום התקבל, והחשבונית תישלח לכתובת האימייל שמסרת.",
+    received: "התשלום התקבל, והחשבונית תישלח אליך בוואטסאפ לנייד שאיתו נכנסת.",
     pending: "התשלום התקבל ואנחנו מסיימים להפעיל את המנוי. זה יכול לקחת כמה דקות.",
     steps: [
       { title: "מורידים את האפליקציה", body: "" },

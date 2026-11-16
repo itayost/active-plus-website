@@ -6,14 +6,17 @@ import { MAX_INSTALLMENTS } from "@/lib/pricing";
 import { isWalletEnvironment, type WalletEnvironment } from "./grow-wallet";
 
 export type WebPlan = "ANNUAL" | "MONTHLY";
-export type CheckoutStep = "name" | "email" | "phone" | "summary";
+export type CheckoutStep = "name" | "phone" | "summary";
 
 export const toWebPlan = (plan: PlanId): WebPlan => (plan === "annual" ? "ANNUAL" : "MONTHLY");
 
-/** Signed out: everything. Signed in: the phone is the account; the name only when the profile lacks a full one. */
+/**
+ * Signed out: the name, the phone, the summary. Signed in: the phone is the account; the name only when the profile
+ * lacks a full one. No email (owner, 2026-11-16): the invoice goes by WhatsApp to the phone.
+ */
 export function checkoutSteps(signedIn: boolean, hasFullName: boolean): CheckoutStep[] {
-  if (!signedIn) return ["name", "email", "phone", "summary"];
-  return hasFullName ? ["email", "summary"] : ["name", "email", "summary"];
+  if (!signedIn) return ["name", "phone", "summary"];
+  return hasFullName ? ["summary"] : ["name", "summary"];
 }
 
 /** Mirrors the edge function (D6): two words once only letters, digits and spaces remain. */
@@ -34,10 +37,6 @@ export function splitFullName(value: string): { first: string; last: string } {
 
 export const joinFullName = (first: string, last: string): string => `${first} ${last}`.trim().replace(/\s+/g, " ");
 
-const EMAIL_MAX = 254;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-export const isEmail = (value: string): boolean => value.trim().length <= EMAIL_MAX && EMAIL_RE.test(value.trim());
-
 const GROW_HOST_RE = /^(?:[a-z0-9-]+\.)*meshulam\.co\.il$/;
 
 /** The page we send the buyer to must be Grow's, over https (checked again here, after the server). */
@@ -51,7 +50,7 @@ export function isGrowHostedUrl(value: string): boolean {
 }
 
 /** expectedTotal: the total the page showed; createGrowPayment refuses (409 price_changed) when web_plans now says otherwise. */
-export type StartInput = { plan: WebPlan; installments: number; fullName: string; email: string; expectedTotal: number };
+export type StartInput = { plan: WebPlan; installments: number; fullName: string; expectedTotal: number };
 export type StartError =
   | "already_subscribed" | "price_changed" | "invalid_input" | "signed_out" | "rate_limited" | "not_configured" | "processor_error"
   | "network";
@@ -182,10 +181,9 @@ export function clampInstallments(count: number, ceiling: number): number {
 
 /**
  * What the buyer typed, kept in this tab until the success page: it reopens
- * the checkout (a reload, Grow's cancel URL), and the success page reads
- * the invoice email from it, then removes it.
+ * the checkout (a reload, Grow's cancel URL); the success page removes it.
  */
-export type CheckoutDraft = { plan: PlanId; name: string; email: string; installments: number };
+export type CheckoutDraft = { plan: PlanId; name: string; installments: number };
 
 export function saveCheckoutDraft(draft: CheckoutDraft, storage: Store | undefined = browserSession()): void {
   safeWrite(storage, DRAFT_KEY, JSON.stringify(draft));
@@ -197,10 +195,10 @@ export function readCheckoutDraft(storage: Store | undefined = browserSession())
     if (!parsed || typeof parsed !== "object") return null;
     const d = parsed as Record<string, unknown>;
     if (d.plan !== "annual" && d.plan !== "monthly") return null;
-    if (typeof d.name !== "string" || typeof d.email !== "string") return null;
+    if (typeof d.name !== "string") return null;
     const installments = d.installments;
     if (typeof installments !== "number" || !Number.isInteger(installments) || installments < 1 || installments > MAX_INSTALLMENTS) return null;
-    return { plan: d.plan, name: d.name, email: d.email, installments };
+    return { plan: d.plan, name: d.name, installments };
   } catch {
     return null;
   }

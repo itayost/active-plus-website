@@ -32,7 +32,6 @@ type Props = {
   /** The figure and what it is for (a month, or one payment), derived from the same rows. */
   priceText: string;
   name: string;
-  email: string;
   phone: string | null;
   gender: Answers["gender"];
   installments: number;
@@ -58,7 +57,7 @@ function errorText(error: PayError, gender: Answers["gender"]): string {
 }
 
 export default function CheckoutSummary({
-  plan, price, priceText, name, email, phone, gender, installments, onInstallments, onEdit, onSignedOut,
+  plan, price, priceText, name, phone, gender, installments, onInstallments, onEdit, onSignedOut,
 }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
@@ -86,12 +85,12 @@ export default function CheckoutSummary({
     setStatus({ kind: annual ? "wallet" : "redirecting" });
     const supabase = await loadBrowserSupabase();
     const result = supabase
-      ? await startPayment(supabase, { plan: toWebPlan(plan), installments: count, fullName: name, email, expectedTotal: price.total })
+      ? await startPayment(supabase, { plan: toWebPlan(plan), installments: count, fullName: name, expectedTotal: price.total })
       : ({ error: "network" } as const);
     if ("url" in result || "authCode" in result) {
-      // Stored before paying: the success page reads the invoice email from the draft,
-      // and reports the purchase to the tags with this payment's id and total.
-      saveCheckoutDraft({ plan, name, email, installments });
+      // Stored before paying: Grow's cancel URL reopens the checkout from the draft,
+      // and the success page reports the purchase to the tags with this payment's id and total.
+      saveCheckoutDraft({ plan, name, installments });
       savePendingPurchase({ webPaymentId: result.webPaymentId, plan, value: price.total });
     }
     if ("url" in result) {
@@ -121,7 +120,6 @@ export default function CheckoutSummary({
     { label: C.rows.price, value: priceText },
     { label: C.rows.total, value: formatShekel(price.total), total: true },
     { label: C.rows.name, value: name, edit: "name" },
-    { label: C.rows.email, value: email, edit: "email", ltr: true },
     ...(phone ? [{ label: C.rows.phone, value: formatLocal(phone), ltr: true }] : []),
     { label: C.rows.country, value: C.country },
   ];

@@ -101,10 +101,8 @@ export async function pay(page: Page) {
   await page.getByRole("button", { name: C.pay }).click();
 }
 
-export async function signUp(page: Page, name = "רחל כהן", email = "r@example.com") {
+export async function signUp(page: Page, name = "רחל כהן") {
   await fillName(page, name);
-  await page.getByRole("button", { name: C.next }).click();
-  await page.getByLabel(C.emailTitle).fill(email);
   await page.getByRole("button", { name: C.next }).click();
   await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
   await page.getByRole("button", { name: COPY.register.phoneCta }).click();

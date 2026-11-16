@@ -8,7 +8,7 @@ import { CheckIcon } from "@/components/ui/icons";
 import { takePendingPurchase } from "@/lib/analytics/pending-purchase";
 import { purchaseEvent, pushTag } from "@/lib/analytics/tags";
 import type { Answers } from "@/lib/funnel/types";
-import { clearCheckoutDraft, readCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
+import { clearCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { PROGRAM_CARDS } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
@@ -23,15 +23,11 @@ type State = "checking" | "active" | "pending";
 /** Grow's success URL lands here. The webhook activates the subscription; this page only waits to see it. */
 export default function PaymentSuccess() {
   const [state, setState] = useState<State>("checking");
-  const [email, setEmail] = useState<string | null>(null);
   const [gender, setGender] = useState<Answers["gender"]>(undefined);
 
   useEffect(() => {
     let alive = true;
-    // The invoice email comes from the checkout draft, read once and then removed: nothing personal stays
-    // in the tab (a second effect run finds nothing and keeps the first read).
-    const saved = readCheckoutDraft()?.email;
-    if (saved) setEmail(saved);
+    // The checkout draft is done with once paid: nothing personal stays in the tab.
     setGender(readPaymentGender());
     clearCheckoutDraft();
     void (async () => {
@@ -75,7 +71,7 @@ export default function PaymentSuccess() {
           <h1 id="payment-success-heading" className="font-display text-[clamp(1.9rem,1.4rem+1.7vw,3.2rem)] font-extrabold leading-[1.1]">{title}</h1>
           <p className="mt-3 font-display text-[1.35rem] font-bold">{S.tagline}</p>
           <p role="status" className="mx-auto mt-3 max-w-measure text-[1.05rem] text-white/90">
-            <Message state={state} email={email} />
+            <Message state={state} />
           </p>
         </div>
       </div>
@@ -118,17 +114,9 @@ export default function PaymentSuccess() {
   );
 }
 
-/** The status line; the invoice address is isolated left to right inside the Hebrew sentence. */
-function Message({ state, email }: { state: State; email: string | null }) {
+/** The status line: the invoice goes by WhatsApp to the phone the buyer signed in with. */
+function Message({ state }: { state: State }) {
   if (state === "checking") return <>{S.checking}</>;
   if (state === "pending") return <>{S.pending}</>;
-  if (!email) return <>{S.receivedNoEmail}</>;
-  const [before, after] = S.received.split("{email}");
-  return (
-    <>
-      {before}
-      <bdi dir="ltr">{email}</bdi>
-      {after}
-    </>
-  );
+  return <>{S.received}</>;
 }

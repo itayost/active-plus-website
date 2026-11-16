@@ -6,9 +6,9 @@ import { CHECKOUT_COPY as C } from "../../lib/payment/copy";
 import { fillName, openCheckout, pay, PLAN_CTA, SIGN_UP_STUB, signUp, stubFunctions } from "./checkout-helpers";
 import { stubSupabase } from "./supabase-stub";
 
-/* The checkout steps (flag on): identity, invoice email, phone, the stored draft and ?plan= links, focus, axe. */
+/* The checkout steps (flag on): identity, phone, no email, the stored draft and ?plan= links, focus, axe. */
 
-test("a signed-in buyer with a full profile name only gives the email", async ({ page }) => {
+test("a signed-in buyer with a full profile name goes straight to the summary, with no email anywhere", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
@@ -16,9 +16,10 @@ test("a signed-in buyer with a full profile name only gives the email", async ({
   await page.evaluate(() => sessionStorage.removeItem("ap.checkout.draft"));
   await page.goto("/payment");
   await planButton(page, "annual").click();
-  await expect(page.getByText("שלב 1 מתוך 2")).toBeVisible();
-  await expect(page.getByLabel(C.emailTitle)).toBeVisible();
+  await expect(page.getByRole("heading", { name: C.summaryTitle })).toBeVisible();
+  await expect(page.getByText(/שלב \d מתוך/)).toHaveCount(0);
   await expect(page.getByText("050-1234567")).toBeVisible();
+  await expect(page.locator('input[type="email"]')).toHaveCount(0);
 });
 
 test("the details step asks for a first and last name and shows the country, and the summary repeats them", async ({ page }) => {
@@ -45,16 +46,16 @@ test("a one-word name is refused before anything is sent", async ({ page }) => {
   await expect(page.getByLabel(C.lastName)).toBeFocused();
 });
 
-test("editing the email from the summary after verifying returns to the summary without a new code", async ({ page }) => {
+test("editing the name from the summary after verifying returns to the summary without a new code", async ({ page }) => {
   const supabase = await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
   await signUp(page);
-  await page.getByRole("button", { name: `${C.edit} ${C.rows.email}` }).click();
-  await page.getByLabel(C.emailTitle).fill("rachel@example.com");
+  await page.getByRole("button", { name: `${C.edit} ${C.rows.name}` }).first().click();
+  await page.getByLabel(C.lastName).fill("לוי");
   await page.getByRole("button", { name: C.next }).click();
   await expect(page.getByRole("heading", { name: C.summaryTitle })).toBeVisible();
-  await expect(page.getByText("rachel@example.com")).toBeVisible();
+  await expect(page.getByRole("definition").filter({ hasText: "רחל לוי" })).toBeVisible();
   expect(supabase.to("/auth/v1/otp")).toHaveLength(1);
   // The checkout creates the account for a new number (only the account page signs in existing ones).
   expect(supabase.to("/auth/v1/otp")[0].body).toMatchObject({ create_user: true });
@@ -69,10 +70,10 @@ test("opening the checkout and every step move focus to its heading, in view und
   await expect(heading).toBeInViewport();
   await fillName(page);
   await page.getByRole("button", { name: C.next }).click();
-  await expect(page.getByLabel(C.emailTitle)).toBeVisible();
+  await expect(page.getByLabel(COPY.register.phoneLabel, { exact: true })).toBeVisible();
   await expect(heading).toBeFocused();
   await expect(heading).toBeInViewport();
-  await expect(page.getByLabel(C.emailTitle)).toBeInViewport();
+  await expect(page.getByLabel(COPY.register.phoneLabel, { exact: true })).toBeInViewport();
 });
 
 /* ---- /code-review: an explicit ?plan= link and a stored draft ---- */
@@ -137,16 +138,14 @@ test("opening the checkout stores nothing; typing starts the draft", async ({ pa
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toContain("רחל כהן");
 });
 
-test("the phone number step goes back to the email; the code step does not offer back", async ({ page }) => {
+test("the phone number step goes back to the name; the code step does not offer back", async ({ page }) => {
   await stubSupabase(page, SIGN_UP_STUB);
   await stubFunctions(page);
   await openCheckout(page);
   await fillName(page);
   await page.getByRole("button", { name: C.next }).click();
-  await page.getByLabel(C.emailTitle).fill("r@example.com");
-  await page.getByRole("button", { name: C.next }).click();
   await page.getByRole("button", { name: C.back }).click();
-  await expect(page.getByLabel(C.emailTitle)).toHaveValue("r@example.com");
+  await expect(page.getByLabel(C.lastName)).toHaveValue("כהן");
   await page.getByRole("button", { name: C.next }).click();
   await page.getByLabel(COPY.register.phoneLabel, { exact: true }).fill("0501234567");
   await page.getByRole("button", { name: COPY.register.phoneCta }).click();
@@ -179,10 +178,8 @@ test.describe("accessibility", () => {
     await page.evaluate(() => sessionStorage.removeItem("ap.checkout.draft"));
     await page.goto("/payment");
     await planButton(page, "annual").click();
-    await expect(page.getByLabel(C.emailTitle)).toBeVisible();
+    await expect(page.getByRole("heading", { name: C.summaryTitle })).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);
-    await page.getByLabel(C.emailTitle).fill("r@example.com");
-    await expect.poll(() => page.evaluate(() => sessionStorage.getItem("ap.checkout.draft"))).toContain("r@example.com");
     await page.goto("/payment/success?wp=0f8b6c2e9a414d3b8e571c2d3e4f5a6b");
     await expect(page.getByText(C.success.steps[1].title)).toBeVisible();
     await expect.poll(() => serious(page)).toEqual([]);
