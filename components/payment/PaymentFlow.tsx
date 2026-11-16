@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import PlanSelector from "@/components/payment/PlanSelector";
+import StoreButtons from "@/components/payment/StoreButtons";
 import StoreFallback from "@/components/payment/StoreFallback";
+import { CheckIcon } from "@/components/ui/icons";
+import { loadSupabaseSession } from "@/lib/supabase/lazy";
 import Section from "@/components/ui/Section";
 import { clearPendingPurchase } from "@/lib/analytics/pending-purchase";
 import type { PlanId } from "@/lib/constants";
@@ -42,6 +45,8 @@ type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
  */
 export default function PaymentFlow({ prices, ...props }: Props) {
   usePaymentView(props.cancelled ?? false);
+  const subscribed = useActiveSubscription();
+  if (subscribed) return <AlreadySubscribed />;
   if (!prices) return <PricesUnavailable {...props} />;
   return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
 }
@@ -67,6 +72,80 @@ function usePaymentView(cancelled: boolean) {
 }
 
 const NOTICE = "mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium";
+
+/**
+ * True once the signed-in visitor's subscription is known to be active (checkUserSubscription, as
+ * the apps and the success page ask). Signed out, still checking or a failed check: false, the
+ * plans as before.
+ */
+function useActiveSubscription(): boolean {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      try {
+        const supabase = await loadSupabaseSession();
+        if (!supabase) return;
+        const { data, error } = await supabase.functions.invoke("checkUserSubscription", { body: {} });
+        if (alive && !error && (data as { hasAccess?: unknown } | null)?.hasAccess === true) setActive(true);
+      } catch {
+        // No answer: the plans stay.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return active;
+}
+
+/**
+ * Already subscribed: nothing to buy and no prices (owner, 2026-11-16), only the app to download.
+ * Laid out like the purchase-success page: a green welcome (no photo), then the one action, then the
+ * three steps.
+ */
+function AlreadySubscribed() {
+  return (
+    <section id="plans" aria-labelledby="payment-subscribed-heading">
+      {/* No photo (owner, 2026-11-16): a green welcome only. */}
+      <div className="rounded-b-[2rem] bg-gradient-to-b from-[#2E9E5B] to-green-deep text-white">
+        <div className="gutter-x flex min-h-[17rem] flex-col items-center justify-end pb-10 pt-14 text-center">
+          <span className="success-pop mb-4 inline-flex items-center gap-2 rounded-pill bg-white px-4 py-1.5 font-display text-[1rem] font-bold text-green-deep shadow-lift-2">
+            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+            {C.subscribed.chip}
+          </span>
+          <h1 id="payment-subscribed-heading" className="font-display text-[clamp(1.9rem,1.4rem+1.7vw,3rem)] font-extrabold leading-[1.1]">
+            {C.subscribed.title}
+          </h1>
+          <p className="mt-3 max-w-measure text-[1.15rem] font-medium text-white/90">{C.subscribed.tagline}</p>
+        </div>
+      </div>
+
+      <div className="gutter-x pb-10">
+        <div className="-mt-6 rounded-tile bg-surface p-5 shadow-lift-2">
+          <p className="font-display text-[1.3rem] font-extrabold">{C.subscribed.nowTitle}</p>
+          <p className="mt-1 text-ink-soft">{C.subscribed.body}</p>
+          {/* Side by side, never one under the other (owner, 2026-11-16): the 42px size fits a phone's card. */}
+          <StoreButtons className="mt-4 flex flex-nowrap justify-center gap-2" size="sm" />
+        </div>
+
+        <ol className="mt-6 grid gap-3 text-start">
+          {C.success.steps.map((step, i) => (
+            <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-4">
+              <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">
+                {i + 1}
+              </span>
+              <div>
+                <strong className="block font-display text-[1.2rem] font-bold">{step.title}</strong>
+                <p className="mt-1 text-ink-soft">{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
 
 /** Back from Grow's cancel URL: nothing was charged. Shown whether or not the prices could be read. */
 function CancelledNotice({ cancelled }: { cancelled: boolean }) {

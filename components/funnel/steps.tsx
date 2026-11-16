@@ -216,8 +216,8 @@ export function renderStep(state: FunnelState, actions: StepActions, sessionId: 
           onEditPhone={actions.editPhone}
           onComplete={(kind) => {
             actions.complete();
-            // A new account sees its 28-day plan, then the plans (whose X leads to the free first
-            // workout); an existing user gets the welcome-back screen and its link instead.
+            // A new account sees its 28-day plan, then the free first workout, then the plans;
+            // an existing user gets the welcome-back screen and its link instead.
             if (kind === "new") window.location.assign(MY_PLAN_PATH);
           }}
           onBusy={actions.setBusy}

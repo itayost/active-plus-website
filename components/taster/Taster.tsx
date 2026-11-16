@@ -30,6 +30,24 @@ const NO_TIMER: TimerState = { phase: "explanation", remaining: null };
 /** On to the plans. A document load, never a client navigation: /payment's CSP applies only to a document. */
 const toPlans = () => window.location.assign(PAYMENT_PATH);
 
+/**
+ * The workout takes the whole screen (owner, 2026-11-16): the browser's full-screen mode, asked inside
+ * the start tap as browsers require. Android and computers hide their bars; iPhone Safari has no
+ * full-screen mode for a page, so there the player still covers the page under the address bar.
+ */
+const enterFullScreen = () => {
+  const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+  try {
+    if (el.requestFullscreen) void el.requestFullscreen({ navigationUI: "hide" }).catch(() => undefined);
+    else el.webkitRequestFullscreen?.();
+  } catch {
+    // Refused or unsupported: the player covers the page anyway.
+  }
+};
+const leaveFullScreen = () => {
+  if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+};
+
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 /**
@@ -133,11 +151,13 @@ export default function Taster() {
     startedAt.current = new Date();
     played.current = 0;
     // Inside the tap, like the clip: iPhone plays sound only from what a tap started.
+    enterFullScreen();
     musicOn();
     playClip(0);
   };
 
   const finish = useCallback(async () => {
+    leaveFullScreen();
     setStage("saving");
     video.current?.pause();
     musicOff();
@@ -293,7 +313,7 @@ export default function Taster() {
         />
       )}
 
-      {exitOpen && <TasterExitDialog left={exercises.length - index - (stage === "between" ? 1 : 0)} onStay={stay} onLeave={toPlans} />}
+      {exitOpen && <TasterExitDialog left={exercises.length - index - (stage === "between" ? 1 : 0)} onStay={stay} onLeave={() => { leaveFullScreen(); toPlans(); }} />}
     </div>
   );
 }

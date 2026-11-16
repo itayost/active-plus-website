@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-import { PAYMENT_PATH } from "@/lib/funnel/constants";
+import { TASTER_PATH } from "@/lib/funnel/constants";
 import { readPlanInputs, type PlanInputs } from "@/lib/funnel/storage";
 import { isPressable, tapHaptic } from "@/lib/haptics";
 import { curve, curveAt, PLAN_DAYS, PLAN_LINES, smoothPath, targetDate } from "@/lib/plan/twenty-eight";
 
-/** The plans. A document load: /payment's CSP applies only to a document. */
-const toPlans = () => window.location.assign(PAYMENT_PATH);
+/** The free first workout, then the plans (owner, 2026-11-16: the workout before payment). A document load. */
+const toWorkout = () => window.location.assign(TASTER_PATH);
 
 /**
  * "התוכנית שלך מוכנה!" (owner, 2026-11-15): the visitor's name, the expected progress
  * toward the plan's two goals (muscle strength, memory) by a date 28 days away, then
- * the plans. Closing the plans (their X) leads to the free first workout.
+ * the free first workout, which ends on the plans (owner, 2026-11-16; was the plans first).
  */
 export default function MyPlan() {
   // Read after mount: sessionStorage does not exist on the server.
@@ -77,7 +77,7 @@ export default function MyPlan() {
         <ProgressChart date={shortDate} />
 
         <div className="pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
-          <Button size="lg" className="min-h-[64px] w-full rounded-[32px] text-[1.25rem]" onClick={toPlans}>
+          <Button size="lg" className="min-h-[64px] w-full rounded-[32px] text-[1.25rem]" onClick={toWorkout}>
             מתחילים את התוכנית
           </Button>
         </div>
