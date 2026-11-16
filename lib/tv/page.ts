@@ -60,19 +60,16 @@ p { font-size: 4.6vh; line-height: 1.4; margin: 0 0 2vh; color: #DCE6F5; }
 
 <div id="screen-code" class="screen">
   <div class="center">
-    <h1>האימון שלכם על מסך הטלוויזיה</h1>
-    <p>הקוד לחיבור הטלפון:</p>
+    <h1>המספר לטלפון:</h1>
     <div id="code-digits"></div>
-    <div class="steps">בטלפון: פתחו אימון, לחצו על <b>כפתור הטלוויזיה</b><br>ובחרו <b>"טלוויזיה עם קוד"</b>, ואז הקלידו את הקוד</div>
-    <p class="small">הקוד מתחלף מעצמו כל 10 דקות. בפעם הבאה הטלוויזיה תזכור את הטלפון.</p>
+    <div class="steps">בטלפון, באימון: לחצו על <b>כפתור הטלוויזיה</b> והקלידו את המספר</div>
   </div>
 </div>
 
 <div id="screen-paired" class="screen">
   <div class="center">
     <h1 id="paired-name">שלום</h1>
-    <p>הטלוויזיה מחוברת לטלפון שלכם.</p>
-    <p>פתחו אימון בטלפון ולחצו על <b>כפתור הטלוויזיה</b>. האימון יתחיל כאן.</p>
+    <p>הטלוויזיה מחוברת. באימון בטלפון לחצו על <b>כפתור הטלוויזיה</b>.</p>
     <button id="forget" type="button">לחבר טלפון אחר</button>
   </div>
 </div>
