@@ -4,7 +4,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import PlanSelector from "@/components/payment/PlanSelector";
 import StoreButtons from "@/components/payment/StoreButtons";
 import StoreFallback from "@/components/payment/StoreFallback";
+import Image from "next/image";
 import { CheckIcon } from "@/components/ui/icons";
+import type { Answers } from "@/lib/funnel/types";
+import { readPaymentGender } from "@/lib/payment/checkout";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
 import Section from "@/components/ui/Section";
 import { clearPendingPurchase } from "@/lib/analytics/pending-purchase";
@@ -99,19 +102,54 @@ function useActiveSubscription(): boolean {
   return active;
 }
 
-/** Already subscribed: nothing to buy and no prices (owner, 2026-11-16), only the app to download. */
+/**
+ * Already subscribed: nothing to buy and no prices (owner, 2026-11-16), only the app to download.
+ * Dressed like the purchase-success page he approved: the welcome over a training photo, then the
+ * one action, then the three steps.
+ */
 function AlreadySubscribed() {
+  const [gender, setGender] = useState<Answers["gender"]>(undefined);
+  useEffect(() => setGender(readPaymentGender()), []);
+  const hero = gender === "male" ? "/img/funnel/app/goal-male.webp" : "/img/funnel/app/goal-female-walk.webp";
   return (
-    <Section id="plans" labelledBy="payment-subscribed-heading" className={`${PLANS_TOP} pb-0`}>
-      <span className="success-pop mx-auto mb-4 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-pill bg-green-deep text-white shadow-lift-1" aria-hidden="true">
-        <CheckIcon className="h-9 w-9" />
-      </span>
-      <h1 id="payment-subscribed-heading" className="text-center font-display text-[clamp(1.75rem,1.5rem+1vw,2.25rem)] font-extrabold leading-[1.15] text-ink">
-        {C.subscribed.title}
-      </h1>
-      <p className="mx-auto mt-3 max-w-measure text-center text-lead text-ink-soft">{C.subscribed.body}</p>
-      <StoreButtons className="mt-6 flex flex-wrap justify-center gap-3" size="lg" />
-    </Section>
+    <section id="plans" aria-labelledby="payment-subscribed-heading">
+      <div className="relative isolate overflow-hidden rounded-b-[2rem] bg-green-deep text-white">
+        <Image src={hero} alt="" fill priority sizes="(max-width: 560px) 100vw, 560px" className="-z-10 object-cover object-top opacity-60" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/10 via-green-deep/50 to-green-deep" />
+        <div className="gutter-x flex min-h-[24rem] flex-col items-center justify-end pb-10 pt-16 text-center">
+          <span className="success-pop mb-4 inline-flex items-center gap-2 rounded-pill bg-white px-4 py-1.5 font-display text-[1rem] font-bold text-green-deep shadow-lift-2">
+            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+            {C.subscribed.chip}
+          </span>
+          <h1 id="payment-subscribed-heading" className="font-display text-[clamp(1.9rem,1.4rem+1.7vw,3rem)] font-extrabold leading-[1.1]">
+            {C.subscribed.title}
+          </h1>
+          <p className="mt-3 max-w-measure text-[1.15rem] font-medium text-white/90">{C.subscribed.tagline}</p>
+        </div>
+      </div>
+
+      <div className="gutter-x pb-10">
+        <div className="-mt-6 rounded-tile bg-surface p-5 shadow-lift-2">
+          <p className="font-display text-[1.3rem] font-extrabold">{C.subscribed.nowTitle}</p>
+          <p className="mt-1 text-ink-soft">{C.subscribed.body}</p>
+          <StoreButtons className="mt-4 flex flex-wrap gap-3" size="lg" />
+        </div>
+
+        <ol className="mt-6 grid gap-3 text-start">
+          {C.success.steps.map((step, i) => (
+            <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-4">
+              <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">
+                {i + 1}
+              </span>
+              <div>
+                <strong className="block font-display text-[1.2rem] font-bold">{step.title}</strong>
+                <p className="mt-1 text-ink-soft">{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
   );
 }
 

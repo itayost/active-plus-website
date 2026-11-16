@@ -48,8 +48,11 @@ export const CHECKOUT_COPY = {
   pricesUnavailable: "המחירים לא זמינים כרגע. אפשר לנסות שוב בעוד כמה דקות, או לרכוש מנוי באפליקציה.",
   /** A visitor who already has an active subscription (owner, 2026-11-16): no plans, no prices, the app. */
   subscribed: {
+    chip: "המנוי שלך פעיל",
     title: "כבר יש לך מנוי פעיל",
-    body: "הכל מוכן. מורידים את האפליקציה, נכנסים עם אותו מספר טלפון, ומתאמנים.",
+    tagline: "התוכנית האישית שלך מחכה באפליקציה",
+    nowTitle: "נשאר רק להוריד את האפליקציה",
+    body: "נכנסים עם אותו מספר טלפון, ומתאמנים 10 דקות ביום, מהבית ובקצב שלך.",
   },
   errors: {
     already_subscribed: "כבר יש לך מנוי פעיל. אפשר להמשיך להתאמן באפליקציה.",
