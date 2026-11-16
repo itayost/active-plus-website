@@ -46,6 +46,11 @@ export const CHECKOUT_COPY = {
   secureNote: "התשלום מתבצע במערכת המאובטחת של Grow (משולם). פרטי הכרטיס לא עוברים דרך האתר ולא נשמרים בו.",
   cancelled: "התשלום לא הושלם ולא חויב דבר. אפשר לנסות שוב.",
   pricesUnavailable: "המחירים לא זמינים כרגע. אפשר לנסות שוב בעוד כמה דקות, או לרכוש מנוי באפליקציה.",
+  /** A visitor who already has an active subscription (owner, 2026-11-16): no plans, no prices, the app. */
+  subscribed: {
+    title: "כבר יש לך מנוי פעיל",
+    body: "הכל מוכן. מורידים את האפליקציה, נכנסים עם אותו מספר טלפון, ומתאמנים.",
+  },
   errors: {
     already_subscribed: "כבר יש לך מנוי פעיל. אפשר להמשיך להתאמן באפליקציה.",
     price_changed: "המחיר או מספר התשלומים עודכנו. בדקו את הפרטים ונסו שוב.",
