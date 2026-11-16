@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import JourneySteps from "@/components/funnel/JourneySteps";
 import Button from "@/components/ui/Button";
-import { TASTER_PATH } from "@/lib/funnel/constants";
+import { LockIcon } from "@/components/ui/icons";
+import { PAYMENT_PATH } from "@/lib/funnel/constants";
 import { readPlanInputs, type PlanInputs } from "@/lib/funnel/storage";
 import { isPressable, tapHaptic } from "@/lib/haptics";
 import { curve, curveAt, PLAN_DAYS, PLAN_LINES, smoothPath, targetDate } from "@/lib/plan/twenty-eight";
 
-/** The free first workout, then the plans (owner, 2026-11-16: the workout before payment). A document load. */
-const toWorkout = () => window.location.assign(TASTER_PATH);
+/** Straight to the plans (owner, 2026-11-16, second word: pay before the product, then the app). A document load. */
+const toPlans = () => window.location.assign(PAYMENT_PATH);
 
 /**
  * "התוכנית שלך מוכנה!" (owner, 2026-11-15): the visitor's name, the expected progress
  * toward the plan's two goals (muscle strength, memory) by a date 28 days away, then
- * the free first workout, which ends on the plans (owner, 2026-11-16; was the plans first).
+ * the plans; the first workout is in the app, after payment (owner, 2026-11-16).
  */
 export default function MyPlan() {
   // Read after mount: sessionStorage does not exist on the server.
@@ -39,6 +41,7 @@ export default function MyPlan() {
       }}
     >
       <div className="gutter-x flex w-full max-w-[560px] flex-col pt-[max(2rem,env(safe-area-inset-top))] md:shadow-lift-2">
+        <JourneySteps current={0} className="mb-5" />
         <h1 className="font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
           {name === undefined ? (
             "\u00A0"
@@ -77,9 +80,13 @@ export default function MyPlan() {
         <ProgressChart date={shortDate} />
 
         <div className="pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
-          <Button size="lg" className="min-h-[64px] w-full rounded-[32px] text-[1.25rem]" onClick={toWorkout}>
-            מתחילים את התוכנית
+          <Button size="lg" className="min-h-[64px] w-full rounded-[32px] text-[1.25rem]" onClick={toPlans}>
+            לבחירת המסלול שלי
           </Button>
+          <p className="mt-3 flex items-center justify-center gap-2 text-[0.9375rem] font-bold text-ink-soft">
+            <LockIcon className="h-4 w-4 shrink-0" />
+            תשלום מאובטח · אפשר לבטל בכל עת
+          </p>
         </div>
       </div>
     </div>

@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import FullscreenColumn from "@/components/layout/FullscreenColumn";
-import CloseToTaster from "@/components/payment/CloseToTaster";
 import PaymentFlow from "@/components/payment/PaymentFlow";
+import PaymentHeading from "@/components/payment/PaymentHeading";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadPlanPrices } from "@/lib/plan-prices";
 import { describePlans } from "@/lib/pricing";
 import { GROW_APPLE_PAY_SDK_URL } from "@/lib/security/csp";
 
 const TITLE = "מסלולים ומחירים";
-/** The questionnaire ends here, right after the SMS code: the plan is ready, now the plan type. */
-const HEADING = "התוכנית האישית שלך מוכנה";
-const SUBHEADING = "בחרו מסלול ומתחילים להתאמן";
 // One web_plans read per request, shared by the metadata and the page.
 const planPrices = cache(() => loadPlanPrices());
 
@@ -37,8 +34,9 @@ export default async function PaymentPage({
   searchParams: Promise<{ plan?: string | string[]; cancelled?: string | string[] }>;
 }) {
   const [{ plan, cancelled }, prices] = await Promise.all([searchParams, planPrices()]);
+  // No X to the free workout any more (owner, 2026-11-16: pay first); the way out is a call back under the plans.
   return (
-    <FullscreenColumn corner={<CloseToTaster />}>
+    <FullscreenColumn>
       {/* React moves an async script into the head, where Grow requires it. */}
       <script src={GROW_APPLE_PAY_SDK_URL} async />
       <PaymentFlow
@@ -46,13 +44,7 @@ export default async function PaymentPage({
         linkPlan={parsePlan(plan)}
         cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}
       >
-        <h1
-          id="payment-heading"
-          className="font-display text-[clamp(1.75rem,1.5rem+1vw,2.25rem)] font-extrabold leading-[1.15] text-blue"
-        >
-          {HEADING}
-        </h1>
-        <p className="mt-2 text-lead text-ink-soft">{SUBHEADING}</p>
+        <PaymentHeading />
       </PaymentFlow>
     </FullscreenColumn>
   );

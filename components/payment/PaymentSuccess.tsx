@@ -13,6 +13,7 @@ import { PROGRAM_CARDS } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
+import FirstWorkoutSteps from "./FirstWorkoutSteps";
 import StoreButtons from "./StoreButtons";
 
 const S = CHECKOUT_COPY.success;
@@ -80,25 +81,8 @@ export default function PaymentSuccess() {
       </div>
 
       <div className="gutter-x pb-10">
-        <div className="-mt-6 rounded-tile bg-surface p-5 shadow-lift-2">
-          <p className="font-display text-[1.3rem] font-extrabold">{S.nowTitle}</p>
-          <p className="mt-1 text-ink-soft">{S.nowBody}</p>
-          {/* The one action left: download the app (the plan is already on the account). */}
-          {/* Side by side, never one under the other (owner, 2026-11-16): the 42px size fits a phone's card. */}
-          <StoreButtons className="mt-4 flex flex-nowrap justify-center gap-2" size="sm" />
-        </div>
-
-        <ol className="mt-6 grid gap-3 text-start">
-          {S.steps.map((step, i) => (
-            <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-4">
-              <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">{i + 1}</span>
-              <div>
-                <strong className="block font-display text-[1.2rem] font-bold">{step.title}</strong>
-                <p className="mt-1 text-ink-soft">{step.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        {/* The one action left, laid out as the way to the first workout (owner, 2026-11-16). */}
+        <FirstWorkoutSteps />
 
         <h2 className="mt-10 font-display text-[1.5rem] font-extrabold">{S.insideTitle}</h2>
         <div className="mt-4 grid gap-4">
