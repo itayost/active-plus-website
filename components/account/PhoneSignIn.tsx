@@ -7,6 +7,7 @@ import { useAlive } from "@/components/ui/useAlive";
 import { OTP_LENGTH } from "@/lib/funnel/constants";
 import { COPY } from "@/lib/funnel/copy";
 import { codeDigits, VERIFY_MESSAGE, verifyCode } from "@/lib/funnel/signin";
+import { useSmsCode } from "@/lib/funnel/web-otp";
 import { readPaymentGender } from "@/lib/payment/checkout";
 import { ACCOUNT_COPY as A } from "@/lib/payment/copy";
 import { toE164 } from "@/lib/phone";
@@ -56,6 +57,12 @@ export default function PhoneSignIn({ onSignedIn }: { onSignedIn: () => void }) 
     setError(VERIFY_MESSAGE[result]);
     input.current?.focus();
   };
+
+  // Android Chrome fills the code from the SMS by itself; the visitor still presses verify.
+  useSmsCode(step.kind === "sent", step, (sms) => {
+    setCode(sms);
+    setError("");
+  });
 
   const editPhone = () => {
     setStep({ kind: "phone", phone: step.phone });

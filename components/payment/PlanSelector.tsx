@@ -1,8 +1,10 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { CheckIcon, LockIcon } from "@/components/ui/icons";
+import { tapHaptic } from "@/lib/haptics";
 import { PLAN_INCLUDES, PLANS, type PlanId } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
@@ -40,10 +42,18 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
   // buyer pays in the app stores, so listing them would mislead.
   const showMethods = WEB_CHECKOUT_ENABLED;
   const choose = (id: PlanId) => () => {
+    tapHaptic();
     onSelect(id);
     onContinue?.();
   };
   const href = WEB_CHECKOUT_ENABLED ? undefined : STORE_FALLBACK_HREF;
+  // A tap anywhere on a card chooses its plan, as its button does (owner, 2026-11-16: the monthly
+  // card answered only on its small "לבחירה"). The button stays the keyboard and screen-reader way
+  // in; a tap on it is left to it, so a choice never runs twice.
+  const cardTap = (id: PlanId) => (event: MouseEvent<HTMLElement>) => {
+    if (href || (event.target instanceof Element && event.target.closest("a, button"))) return;
+    choose(id)();
+  };
   const card = annualCardCopy(prices);
   const monthly = priceParts(prices, "monthly");
 
@@ -54,8 +64,10 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
         <section
           data-testid="plan-annual"
           aria-labelledby="plan-annual-name"
+          onClick={cardTap("annual")}
           className={cn(
             "rounded-card border-2 border-green bg-surface p-[clamp(min(1.375rem,6.9vw),3vw,1.75rem)] transition-shadow",
+            !href && "cursor-pointer",
             checkoutOpen && selected === "annual" && "shadow-card ring-2 ring-green ring-offset-2",
           )}
         >
@@ -107,8 +119,10 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
         <Card
           as="section"
           aria-labelledby="plan-monthly-name"
+          onClick={cardTap("monthly")}
           className={cn(
             "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 !rounded-tile p-[18px]",
+            !href && "cursor-pointer",
             checkoutOpen && selected === "monthly" && "ring-2 ring-green ring-offset-2",
           )}
         >
@@ -150,10 +164,11 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
   );
 }
 
-/** The monthly row's action: a text button with the 48px hit area every control keeps. */
+/** The monthly row's action: an outlined pill, so it reads as a button (the whole row answers a tap too). */
 function MonthlyChoice({ href, onClick, pressed }: { href?: string; onClick?: () => void; pressed?: boolean }) {
   const className =
-    "inline-flex min-h-12 items-center rounded-pill px-4 font-display text-lead font-bold text-blue hover:underline";
+    "inline-flex min-h-12 items-center gap-1.5 rounded-pill border-2 border-blue px-5 font-display text-lead font-bold text-blue " +
+    "transition-transform duration-[var(--dur-fast)] hover:bg-blue-wash active:scale-[0.97]";
   const label = (
     <>
       {MONTHLY.cta} <span aria-hidden="true">←</span>
