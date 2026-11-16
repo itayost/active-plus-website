@@ -5,7 +5,6 @@ import { CallIcon } from "@/components/ui/icons";
 import { pushTag } from "@/lib/analytics/tags";
 import { CONTACT_PHONE } from "@/lib/constants";
 import { CHECKOUT_COPY } from "@/lib/payment/copy";
-import { TASTER_PATH } from "@/lib/funnel/constants";
 import { sessionPhone } from "@/lib/funnel/session-phone";
 import { platformOf, storeUrlFor, type Platform } from "@/lib/store-link";
 import StoreButtons from "./StoreButtons";
@@ -17,8 +16,7 @@ const STORE_NAME: Record<Platform, string> = { ios: "App Store", android: "Googl
 /**
  * After paying, the shortest way to the first workout in the app (owner, 2026-11-16): one big
  * button to this phone's own store (both badges on a computer), the number to sign in with, and
- * the button to press once inside. Help by phone, and the workout on the site for someone who
- * cannot install the app right now.
+ * the button to press once inside, and help by phone. The workout is only in the app (owner, 2026-11-16).
  */
 export default function FirstWorkoutSteps() {
   const [platform, setPlatform] = useState<Platform | null>(null);
@@ -70,9 +68,6 @@ export default function FirstWorkoutSteps() {
             <CallIcon className="h-5 w-5" />
             {CONTACT_PHONE}
           </span>
-        </a>
-        <a href={TASTER_PATH} className="inline-flex min-h-[60px] items-center justify-center text-ink-soft underline">
-          {S.onSite}
         </a>
       </div>
     </div>

@@ -86,7 +86,6 @@ export const CHECKOUT_COPY = {
     storeButton: "להורדה מ-{store}",
     yourPhone: "המספר שלך:",
     help: "צריכים עזרה בהתקנה?",
-    onSite: "אין אפשרות להוריד עכשיו? מתחילים את האימון הראשון כאן באתר",
     manage: "ניהול המנוי",
   },
 } as const;

@@ -3,7 +3,7 @@
  * Permissions-Policy, which Grow's wallet needs, apply only to a document.
  */
 export const PAYMENT_PATH = "/payment";
-/** The free first workout on the site. Out of the main path since 2026-11-16 (pay first); reached from the success page for someone who cannot install the app yet. */
+/** The free first workout on the site. Out of the funnel since 2026-11-16 (pay first, the workout is in the app); no page links to it. */
 export const TASTER_PATH = "/taster";
 /** A new account first sees its 28-day plan, then the plans, then the app (owner, 2026-11-16: pay before the product). */
 export const MY_PLAN_PATH = "/my-plan";
