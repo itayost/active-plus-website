@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import CallMeBack from "@/components/payment/CallMeBack";
+import FirstWorkoutSteps from "@/components/payment/FirstWorkoutSteps";
 import PlanSelector from "@/components/payment/PlanSelector";
-import StoreButtons from "@/components/payment/StoreButtons";
 import StoreFallback from "@/components/payment/StoreFallback";
 import { CheckIcon } from "@/components/ui/icons";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
@@ -122,26 +123,7 @@ function AlreadySubscribed() {
       </div>
 
       <div className="gutter-x pb-10">
-        <div className="-mt-6 rounded-tile bg-surface p-5 shadow-lift-2">
-          <p className="font-display text-[1.3rem] font-extrabold">{C.subscribed.nowTitle}</p>
-          <p className="mt-1 text-ink-soft">{C.subscribed.body}</p>
-          {/* Side by side, never one under the other (owner, 2026-11-16): the 42px size fits a phone's card. */}
-          <StoreButtons className="mt-4 flex flex-nowrap justify-center gap-2" size="sm" />
-        </div>
-
-        <ol className="mt-6 grid gap-3 text-start">
-          {C.success.steps.map((step, i) => (
-            <li key={step.title} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-4 rounded-tile bg-sunken p-4">
-              <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-pill bg-blue-deep font-display text-[1.25rem] font-extrabold text-white">
-                {i + 1}
-              </span>
-              <div>
-                <strong className="block font-display text-[1.2rem] font-bold">{step.title}</strong>
-                <p className="mt-1 text-ink-soft">{step.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <FirstWorkoutSteps />
       </div>
     </section>
   );
@@ -185,6 +167,7 @@ function StoreFlow({ prices, linkPlan, children }: Priced) {
       {children}
       <PlanSelector prices={prices} selected={selectedPlan} onSelect={setSelectedPlan} />
       <StoreFallback />
+      <CallMeBack />
     </Section>
   );
 }
@@ -282,6 +265,7 @@ function WebCheckoutFlow({ prices, linkPlan, cancelled = false, children }: Pric
       {children}
       <CancelledNotice cancelled={cancelled} />
       <PlanSelector prices={prices} selected={selectedPlan} onSelect={selectPlan} onContinue={openCheckout} />
+      <CallMeBack />
     </Section>
   );
 }

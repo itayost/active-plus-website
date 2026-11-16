@@ -7,7 +7,7 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const LINE_BREAKS = /[\r\n\u000B\u000C\u0085\u2028\u2029]+/g;
 
 /** Surfaces the site sends as `source`; anything else is stored as unknown. */
-export const LEAD_SOURCES = ["home", "contact"] as const;
+export const LEAD_SOURCES = ["home", "contact", "payment"] as const;
 
 const NAME_MAX = 120;
 const MESSAGE_MAX = 2000;
