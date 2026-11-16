@@ -5,7 +5,7 @@
 export const PAYMENT_PATH = "/payment";
 /** A new account plays the free first workout here before the plans (owner, 2026-11-14); it leaves for PAYMENT_PATH. */
 export const TASTER_PATH = "/taster";
-/** A new account first sees its 28-day plan, then the plans (owner, 2026-11-15); closing the plans leads to TASTER_PATH. */
+/** A new account first sees its 28-day plan, then the free first workout (TASTER_PATH), then the plans (owner, 2026-11-16). */
 export const MY_PLAN_PATH = "/my-plan";
 export const OTP_LENGTH = 6;
 export const RESEND_SECONDS = 12;
