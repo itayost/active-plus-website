@@ -125,7 +125,8 @@ function AlreadySubscribed() {
         <div className="-mt-6 rounded-tile bg-surface p-5 shadow-lift-2">
           <p className="font-display text-[1.3rem] font-extrabold">{C.subscribed.nowTitle}</p>
           <p className="mt-1 text-ink-soft">{C.subscribed.body}</p>
-          <StoreButtons className="mt-4 flex flex-wrap gap-3" size="lg" />
+          {/* Side by side, never one under the other (owner, 2026-11-16): the 42px size fits a phone's card. */}
+          <StoreButtons className="mt-4 flex flex-nowrap justify-center gap-2" size="sm" />
         </div>
 
         <ol className="mt-6 grid gap-3 text-start">
