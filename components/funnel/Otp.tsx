@@ -12,6 +12,7 @@ import { COPY } from "@/lib/funnel/copy";
 import { finishSignup, type FinishResult } from "@/lib/funnel/finish";
 import { codeDigits, sendCode, VERIFY_MESSAGE, verifyCode } from "@/lib/funnel/signin";
 import { handOffToPayment } from "@/lib/funnel/storage";
+import { useSmsCode } from "@/lib/funnel/web-otp";
 import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers } from "@/lib/funnel/types";
 import { formatLocal, toE164 } from "@/lib/phone";
@@ -177,12 +178,15 @@ export default function Otp({ phone, answers, sessionId, onEditPhone, onComplete
     input.current?.focus();
   };
 
-  const onCode = (event: ChangeEvent<HTMLInputElement>) => {
-    const digits = codeDigits(event.target.value);
+  const takeCode = (value: string) => {
+    const digits = codeDigits(value);
     setCode(digits);
     if (digits) setError("");
     if (digits.length === OTP_LENGTH && phase === "enter") void verify(digits);
   };
+  const onCode = (event: ChangeEvent<HTMLInputElement>) => takeCode(event.target.value);
+  // Android Chrome fills the code from the SMS by itself; a resend listens again.
+  useSmsCode(phase === "enter", resendAt, takeCode);
 
   const resend = async () => {
     if (resending || locked) return;
