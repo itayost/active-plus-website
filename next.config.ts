@@ -3,6 +3,7 @@ import { LEGACY_REDIRECTS } from "./lib/redirects";
 import { HOST_REDIRECTS } from "./lib/domains";
 import { MEDIA_CACHE_RULES } from "./lib/cache-headers";
 import { buildCsp, GROW_WALLET_SOURCES } from "./lib/security/csp";
+import { buildTvCsp } from "./lib/tv/page";
 import { gtmId } from "./lib/analytics/gtm";
 
 // Production builds only (next build / next start, which is also what the e2e
@@ -48,6 +49,9 @@ const nextConfig: NextConfig = {
         source: "/payment",
         headers: [permissions(`(self ${GROW_WALLET_SOURCES.frame.map((origin) => `"${origin}"`).join(" ")})`), ...csp(true)],
       },
+      // The TV page (lib/tv/page.ts): Realtime over a websocket and the exercise
+      // videos from Supabase Storage, which the site-wide policy does not allow.
+      ...(PRODUCTION ? [{ source: "/tv", headers: [{ key: "Content-Security-Policy", value: buildTvCsp(process.env.NEXT_PUBLIC_SUPABASE_URL) }] }] : []),
       // Apple's domain file has no extension, so it would go out as
       // application/octet-stream and, with nosniff, browsers download it. Grow
       // checks it in a browser, so it is served as the text it is.
