@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  checkoutSteps, clampInstallments, clearCheckoutDraft, takeResumableDraft, onRestoredFromCache, isEmail, isFullName, isGrowHostedUrl, joinFullName, readCheckoutDraft, splitFullName,
+  checkoutSteps, clampInstallments, clearCheckoutDraft, takeResumableDraft, onRestoredFromCache, isFullName, isGrowHostedUrl, joinFullName, readCheckoutDraft, splitFullName,
   readPaymentGender, resumableDraft, saveCheckoutDraft, startPayment, toWebPlan, waitForAccess,
 } from "@/lib/payment/checkout";
 
@@ -15,16 +15,16 @@ function memoryStorage(seed: Record<string, string> = {}) {
 
 const invoker = (result: unknown) => ({ functions: { invoke: vi.fn().mockResolvedValue(result) } });
 const httpError = (status: number) => ({ data: null, error: { name: "FunctionsHttpError", context: { status } } });
-const INPUT = { plan: "ANNUAL" as const, installments: 6, fullName: "רחל כהן", email: "r@example.com", expectedTotal: 828 };
+const INPUT = { plan: "ANNUAL" as const, installments: 6, fullName: "רחל כהן", expectedTotal: 828 };
 const HOSTED = "https://sandbox.meshulam.co.il/s/abc";
 
 describe("checkout steps", () => {
-  it("asks for everything when signed out", () => {
-    expect(checkoutSteps(false, false)).toEqual(["name", "email", "phone", "summary"]);
+  it("asks a signed-out buyer for the name and the phone, never an email", () => {
+    expect(checkoutSteps(false, false)).toEqual(["name", "phone", "summary"]);
   });
   it("asks a signed-in buyer only for what is missing", () => {
-    expect(checkoutSteps(true, true)).toEqual(["email", "summary"]);
-    expect(checkoutSteps(true, false)).toEqual(["name", "email", "summary"]);
+    expect(checkoutSteps(true, true)).toEqual(["summary"]);
+    expect(checkoutSteps(true, false)).toEqual(["name", "summary"]);
   });
   it("maps site plans to edge-function plans", () => {
     expect([toWebPlan("annual"), toWebPlan("monthly")]).toEqual(["ANNUAL", "MONTHLY"]);
@@ -37,11 +37,6 @@ describe("validation", () => {
     expect(isFullName("ג'ורג'")).toBe(false);
     expect(isFullName("רחל")).toBe(false);
     expect(isFullName("רחל 2")).toBe(false);
-  });
-  it("checks email shape and length", () => {
-    expect(isEmail(" r@example.com ")).toBe(true);
-    expect(isEmail("a@b")).toBe(false);
-    expect(isEmail(`${"a".repeat(250)}@b.co`)).toBe(false);
   });
   it("only Grow's https hosts count as a payment page", () => {
     expect(isGrowHostedUrl(HOSTED)).toBe(true);
@@ -77,7 +72,7 @@ describe("startPayment", () => {
       error: { name: "FunctionsHttpError", context: { status: 400, json: async () => body } },
     });
     expect(await startPayment(invoker(reply({ code: "invalid_input", field: "phone" })) as never, INPUT)).toEqual({ error: "signed_out" });
-    expect(await startPayment(invoker(reply({ code: "invalid_input", field: "email" })) as never, INPUT)).toEqual({ error: "invalid_input" });
+    expect(await startPayment(invoker(reply({ code: "invalid_input", field: "fullName" })) as never, INPUT)).toEqual({ error: "invalid_input" });
     const unreadable = { data: null, error: { name: "FunctionsHttpError", context: { status: 400, json: async () => { throw new Error("x"); } } } };
     expect(await startPayment(invoker(unreadable) as never, INPUT)).toEqual({ error: "invalid_input" });
   });
@@ -135,14 +130,14 @@ describe("session storage", () => {
   });
   it("round-trips the checkout draft and rejects junk", () => {
     const storage = memoryStorage();
-    saveCheckoutDraft({ plan: "annual", name: "רחל כהן", email: "r@example.com", installments: 6 }, storage);
-    expect(readCheckoutDraft(storage)).toEqual({ plan: "annual", name: "רחל כהן", email: "r@example.com", installments: 6 });
+    saveCheckoutDraft({ plan: "annual", name: "רחל כהן", installments: 6 }, storage);
+    expect(readCheckoutDraft(storage)).toEqual({ plan: "annual", name: "רחל כהן", installments: 6 });
     clearCheckoutDraft(storage);
     expect(readCheckoutDraft(storage)).toBeNull();
     expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": "{" }))).toBeNull();
-    expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"weekly","name":"","email":"","installments":1}' }))).toBeNull();
-    expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"annual","name":"","email":"","installments":13}' }))).toBeNull();
-    expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"annual","name":"","email":"","installments":0}' }))).toBeNull();
+    expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"weekly","name":"","installments":1}' }))).toBeNull();
+    expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"annual","name":"","installments":13}' }))).toBeNull();
+    expect(readCheckoutDraft(memoryStorage({ "ap.checkout.draft": '{"plan":"annual","name":"","installments":0}' }))).toBeNull();
   });
 });
 
@@ -164,7 +159,7 @@ describe("back/forward cache", () => {
 
 // /code-review: a stored draft overrode an explicit ?plan= link.
 describe("resumableDraft", () => {
-  const draft = { plan: "monthly" as const, name: "רחל כהן", email: "r@example.com", installments: 1 };
+  const draft = { plan: "monthly" as const, name: "רחל כהן", installments: 1 };
   it("a link without a plan (a reload, Grow's cancel URL) resumes the draft", () => {
     expect(resumableDraft(draft, undefined)).toEqual(draft);
   });
@@ -179,7 +174,7 @@ describe("resumableDraft", () => {
 });
 
 describe("the draft a visit resumes", () => {
-  const DRAFT = '{"plan":"annual","name":"רחל כהן","email":"r@example.com","installments":6}';
+  const DRAFT = '{"plan":"annual","name":"רחל כהן","installments":6}';
   it("keeps a draft the visit may resume, and discards one another plan's link replaces", () => {
     const keep = memoryStorage({ "ap.checkout.draft": DRAFT });
     expect(takeResumableDraft(undefined, keep)?.plan).toBe("annual");

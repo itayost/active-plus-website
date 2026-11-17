@@ -148,11 +148,10 @@ describe("copy the client approves", () => {
     expect(ACCOUNT_COPY.annualNote).toContain("לא יהיה חיוב נוסף");
   });
   it("the success page never claims the invoice was already sent", () => {
-    for (const text of [CHECKOUT_COPY.success.received, CHECKOUT_COPY.success.receivedNoEmail]) {
-      expect(text).toContain("תישלח");
-      expect(text).not.toMatch(/נשלחה|נשלחת/);
-    }
-    expect(CHECKOUT_COPY.success.received).toContain("{email}");
+    expect(CHECKOUT_COPY.success.received).toContain("תישלח");
+    expect(CHECKOUT_COPY.success.received).not.toMatch(/נשלחה|נשלחת/);
+    // No email is asked for (owner, 2026-11-16): the invoice goes by WhatsApp.
+    expect(CHECKOUT_COPY.success.received).toContain("וואטסאפ");
   });
   // /code-review: the same words whether or not the number has an account.
   it("the code screen's hint never says whether the number has an account, and gives the office phone", () => {
@@ -161,7 +160,7 @@ describe("copy the client approves", () => {
     expect("noAccount" in ACCOUNT_COPY).toBe(false);
   });
   it("no em or en dashes in the new strings", () => {
-    const texts = [ACCOUNT_COPY.annualNote, ACCOUNT_COPY.codeHint, CHECKOUT_COPY.success.received, CHECKOUT_COPY.success.receivedNoEmail];
+    const texts = [ACCOUNT_COPY.annualNote, ACCOUNT_COPY.codeHint, CHECKOUT_COPY.success.received];
     expect(texts.filter((t) => /[\u2013\u2014]/.test(t))).toEqual([]);
   });
 });

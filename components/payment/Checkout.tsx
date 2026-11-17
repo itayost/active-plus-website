@@ -9,14 +9,14 @@ import { CheckIcon } from "@/components/ui/icons";
 import { PLANS, type PlanId } from "@/lib/constants";
 import { loadSession } from "@/lib/funnel/storage";
 import {
-  checkoutSteps, clampInstallments, isEmail, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
+  checkoutSteps, clampInstallments, isFullName, readPaymentGender, saveCheckoutDraft, type CheckoutDraft, type CheckoutStep,
 } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { formatLocal } from "@/lib/phone";
 import { priceLabel, type PlanPrices } from "@/lib/pricing";
 import { loadBrowserSupabase } from "@/lib/supabase/lazy";
 import { cn } from "@/lib/utils";
-import { EmailStep, NameStep } from "./CheckoutFields";
+import { NameStep } from "./CheckoutFields";
 import { CheckoutLoading, CheckoutShell } from "./CheckoutShell";
 import CheckoutSummary from "./CheckoutSummary";
 
@@ -45,18 +45,17 @@ type Props = {
   onChangePlan: () => void;
 };
 
-/** The checkout steps under the plan selector: identity, invoice email, then the summary that hands off to Grow. */
+/** The checkout steps under the plan selector: identity, then the summary that hands off to Grow. */
 export default function Checkout({ plan, prices, initialDraft, onChangePlan }: Props) {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [steps, setSteps] = useState<CheckoutStep[]>([]);
   const [index, setIndex] = useState(0);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [installments, setInstallments] = useState(1);
   const [editingName, setEditingName] = useState(false);
   const [phoneView, setPhoneView] = useState<PhoneView>({ sub: "phone", phone: "" });
   const [busy, setBusy] = useState(false);
-  // True once the buyer has typed a name or email (or a draft was resumed): opening the checkout alone stores nothing.
+  // True once the buyer has typed a name (or a draft was resumed): opening the checkout alone stores nothing.
   const [entered, setEntered] = useState(false);
   const [session] = useState(() => loadSession());
   const [gender] = useState(() => readPaymentGender());
@@ -75,12 +74,10 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
       if (!alive) return;
       const draft = resumed.current;
       const fullName = draft && isFullName(draft.name) ? draft.name : loaded.name;
-      const draftEmail = draft?.email ?? "";
       const nextSteps = checkoutSteps(loaded.signedIn, isFullName(fullName));
-      const resume = loaded.signedIn && isFullName(fullName) && isEmail(draftEmail);
+      const resume = loaded.signedIn && isFullName(fullName);
       setIdentity(loaded);
       setName(fullName);
-      setEmail(draftEmail);
       setInstallments(draft?.installments ?? 1);
       setSteps(nextSteps);
       setIndex(resume ? nextSteps.indexOf("summary") : 0);
@@ -92,8 +89,8 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
   }, []);
 
   useEffect(() => {
-    if (identity && entered) saveCheckoutDraft({ plan, name, email, installments: chosen });
-  }, [identity, entered, plan, name, email, chosen]);
+    if (identity && entered) saveCheckoutDraft({ plan, name, installments: chosen });
+  }, [identity, entered, plan, name, chosen]);
 
   // After the checkout opens and after every step change, the heading takes focus (and scrolls into view, under
   // the sticky header via scroll-mt): the submit button that had focus is gone with the step it belonged to.
@@ -105,13 +102,9 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
     setEntered(true);
     setName(value);
   };
-  const typeEmail = (value: string) => {
-    setEntered(true);
-    setEmail(value);
-  };
 
   const step = steps[index];
-  // Once verified, the phone step is done: editing the name or email from the summary never asks for a new code.
+  // Once verified, the phone step is done: editing the name from the summary never asks for a new code.
   const signedIn = identity?.signedIn ?? false;
   const move = (from: number, by: 1 | -1) => {
     let i = Math.min(Math.max(from + by, 0), steps.length - 1);
@@ -146,8 +139,6 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
     <NameStep value={name} onChange={typeName} submitLabel={C.save} onSubmit={(value) => { setName(value); setEditingName(false); }} />
   ) : step === "name" ? (
     <NameStep value={name} onChange={typeName} onSubmit={(value) => { setName(value); next(); }} />
-  ) : step === "email" ? (
-    <EmailStep value={email} onChange={typeEmail} onSubmit={(value) => { setEmail(value); next(); }} />
   ) : step === "phone" ? (
     phoneView.sub === "phone" ? (
       <Register
@@ -175,7 +166,6 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
       price={prices[plan]}
       priceText={priceLabel(prices, plan)}
       name={name}
-      email={email}
       phone={identity.phone}
       gender={gender}
       installments={chosen}
@@ -185,7 +175,8 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
     />
   );
 
-  const showSteps = !editingName;
+  // A lone summary (signed in with a full name) is no "step 1 of 1".
+  const showSteps = !editingName && steps.length > 1;
   // Back is offered on the phone number, never while a code is being verified.
   const canGoBack = index > 0 && !busy && showSteps && (step !== "phone" || phoneView.sub === "phone");
   const showIdentity = identity.signedIn && !editingName && step !== "summary";

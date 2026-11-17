@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent, type Ref } from "react";
 import { ContinueButton, FieldError, fieldClass } from "@/components/funnel/parts";
-import { isEmail, joinFullName, splitFullName } from "@/lib/payment/checkout";
+import { joinFullName, splitFullName } from "@/lib/payment/checkout";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import { cn } from "@/lib/utils";
 
@@ -87,52 +87,6 @@ export function NameStep({ value, onChange, onSubmit, submitLabel = C.next }: St
         </div>
       </div>
       <FieldError id={NAME_ERROR_ID} text={invalid ? C.nameError : ""} />
-      <ContinueButton type="submit" label={submitLabel} />
-    </form>
-  );
-}
-
-const EMAIL_ID = "checkout-email";
-const EMAIL_ERROR_ID = "checkout-email-error";
-
-/** The invoice address; the label is the step's question. */
-export function EmailStep({ value, onChange, onSubmit, submitLabel = C.next }: StepProps) {
-  const [invalid, setInvalid] = useState(false);
-  const input = useRef<HTMLInputElement>(null);
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    const trimmed = value.trim().replace(/\s+/g, " ");
-    if (!isEmail(trimmed)) {
-      setInvalid(true);
-      input.current?.focus();
-      return;
-    }
-    onSubmit(trimmed);
-  };
-  return (
-    <form noValidate onSubmit={submit}>
-      <label htmlFor={EMAIL_ID} className={STEP_QUESTION}>
-        {C.emailTitle}
-      </label>
-      <input
-        ref={input}
-        id={EMAIL_ID}
-        type="email"
-        dir="ltr"
-        inputMode="email"
-        autoComplete="email"
-        placeholder={C.emailPlaceholder}
-        aria-describedby={invalid ? EMAIL_ERROR_ID : undefined}
-        aria-invalid={invalid ? true : undefined}
-        value={value}
-        onChange={(event) => {
-          onChange(event.target.value);
-          if (invalid && isEmail(event.target.value.trim())) setInvalid(false);
-        }}
-        // An address reads left to right but sits on the right edge, under the Hebrew question.
-        className={`mt-6 ${fieldClass(invalid)} text-right`}
-      />
-      <FieldError id={EMAIL_ERROR_ID} text={invalid ? C.emailError : ""} />
       <ContinueButton type="submit" label={submitLabel} />
     </form>
   );
