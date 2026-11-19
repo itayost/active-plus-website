@@ -45,3 +45,43 @@ describe("trackFunnelEvent and the GTM dataLayer", () => {
     expect(JSON.stringify(win.dataLayer)).not.toContain(SESSION);
   });
 });
+
+describe("trackFunnelEvent and the ad that brought the visitor", () => {
+  function stubWindow(search: string, stored: Record<string, string> = {}) {
+    const data = new Map(Object.entries(stored));
+    const win = {
+      location: { search },
+      localStorage: {
+        getItem: (k: string) => data.get(k) ?? null,
+        setItem: (k: string, v: string) => void data.set(k, v),
+        removeItem: (k: string) => void data.delete(k),
+      },
+    };
+    vi.stubGlobal("window", win);
+    return win;
+  }
+
+  it("a visit landing from an ad carries its labels on every event, not to the dataLayer", async () => {
+    const win = stubWindow("?utm_source=facebook&utm_content=120245551262680678&fbclid=abc") as { dataLayer?: unknown[] };
+    const sendBeacon = vi.fn(() => true);
+    vi.stubGlobal("navigator", { sendBeacon });
+    trackFunnelEvent(SESSION, "payment_view", { plan: "annual" });
+    const [, blob] = sendBeacon.mock.calls[0] as unknown as [string, Blob];
+    expect(JSON.parse(await blob.text()).data).toEqual({
+      utm_source: "facebook",
+      utm_content: "120245551262680678",
+      from_meta_click: true,
+      plan: "annual",
+    });
+    expect(JSON.stringify(win.dataLayer)).not.toContain("120245551262680678");
+  });
+
+  it("a visit with no ad and nothing kept sends no labels", async () => {
+    stubWindow("");
+    const sendBeacon = vi.fn(() => true);
+    vi.stubGlobal("navigator", { sendBeacon });
+    trackFunnelEvent(SESSION, "otp_view");
+    const [, blob] = sendBeacon.mock.calls[0] as unknown as [string, Blob];
+    expect(JSON.parse(await blob.text())).toEqual({ sessionId: SESSION, step: "otp_view" });
+  });
+});
