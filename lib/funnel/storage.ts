@@ -128,6 +128,59 @@ export function handOffToPayment(gender: Answers["gender"], sessionId?: string, 
   setForPayment(SESSION_FOR_PAYMENT, sessionId);
   if (answers) setForPayment(PLAN_FOR_PAYMENT, JSON.stringify(planInputsOf(answers)));
   resetSession();
+  savePendingPayment({
+    at: Date.now(),
+    gender: gender ?? null,
+    session: sessionId ?? null,
+    plan: answers ? JSON.stringify(planInputsOf(answers)) : null,
+  });
+}
+
+/**
+ * localStorage key: someone who reached the payment page and left goes back to it on their next
+ * visit, wherever they come in (owner, 2026-11-21), with what the payment page needs. Cleared
+ * once they pay. Kept as long as a questionnaire session (SESSION_TTL_DAYS).
+ */
+export const PENDING_PAYMENT = "ap.funnel.pending_payment";
+
+export type PendingPayment = { at: number; gender: string | null; session: string | null; plan: string | null };
+
+function savePendingPayment(pending: PendingPayment): void {
+  safeSet(PENDING_PAYMENT, JSON.stringify(pending));
+}
+
+/** Pure: a stored value that is still in time, or null. */
+export function parsePendingPayment(raw: string | null, now = Date.now()): PendingPayment | null {
+  try {
+    const p = JSON.parse(raw ?? "null") as Partial<PendingPayment> | null;
+    if (!p || typeof p.at !== "number" || now - p.at > TTL || p.at > now + 60_000) return null;
+    const str = (v: unknown) => (typeof v === "string" && v ? v : null);
+    return { at: p.at, gender: str(p.gender), session: str(p.session), plan: str(p.plan) };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The visitor left the payment page earlier: put back what that page reads in this tab and say
+ * so, so the caller sends them there. False when there is nothing pending.
+ */
+export function restorePendingPayment(now = Date.now()): boolean {
+  const pending = parsePendingPayment(safeGet(PENDING_PAYMENT), now);
+  if (!pending) return false;
+  setForPayment(GENDER_FOR_PAYMENT, pending.gender ?? undefined);
+  setForPayment(SESSION_FOR_PAYMENT, pending.session ?? undefined);
+  setForPayment(PLAN_FOR_PAYMENT, pending.plan ?? undefined);
+  return true;
+}
+
+/** Paid: nothing to come back to. */
+export function clearPendingPayment(): void {
+  try {
+    localStorage.removeItem(PENDING_PAYMENT);
+  } catch {
+    // Blocked storage: nothing was stored.
+  }
 }
 
 /**

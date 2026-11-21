@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advance, canGoBack, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
 import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, firstStep, indicator } from "@/lib/funnel/routing";
-import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
+import { loadSession, loadStep, resetSession, restorePendingPayment, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import { canResumeHere } from "@/lib/funnel/entry";
 import type { Segment } from "@/lib/funnel/time";
 import { trackFunnelEvent } from "@/lib/funnel/track";
@@ -66,6 +66,11 @@ export default function Funnel() {
 
   // `browser` is stable (its callbacks have stable deps), so this runs once.
   useEffect(() => {
+    // Reached the payment page before and left: back to it, wherever they came in (owner, 2026-11-21).
+    if (restorePendingPayment()) {
+      window.location.replace("/payment");
+      return;
+    }
     const { id, answers } = loadSession();
     // A new entry starts at the first page; only a reload or a return in the same visit resumes.
     const next = canResumeHere() ? restore(loadStep(), answers) : { ...restore(null, answers), step: "welcome2" as const, history: [] };
