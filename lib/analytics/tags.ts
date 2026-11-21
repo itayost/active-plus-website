@@ -24,7 +24,8 @@ export type TagEvent =
   | { event: "generate_lead"; form_source: (typeof LEAD_SOURCES)[number] }
   | { event: "purchase"; ecommerce: PurchaseEcommerce };
 
-export type Store = "app_store" | "google_play";
+/** "one_link": the post-payment button through /download, which picks the store by phone. */
+export type Store = "app_store" | "google_play" | "one_link";
 
 type PurchaseEcommerce = {
   transaction_id: string;
