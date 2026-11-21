@@ -21,6 +21,8 @@ export type TagEvent =
   | { event: "sign_up"; method: "phone" }
   | { event: "begin_checkout" }
   | { event: "store_click"; store: Store }
+  /** "פתיחת האפליקציה" after paying: the app opens signed in (owner, 2026-11-21). */
+  | { event: "open_app_signed_in" }
   | { event: "generate_lead"; form_source: (typeof LEAD_SOURCES)[number] }
   | { event: "purchase"; ecommerce: PurchaseEcommerce };
 

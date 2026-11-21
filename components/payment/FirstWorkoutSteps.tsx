@@ -15,7 +15,7 @@ const [DOWNLOAD, SIGN_IN, START] = S.steps;
  * download button through the one link, the two store badges under it (owner, 2026-11-21), the number to sign in with, and
  * the button to press once inside, and help by phone. The workout is only in the app (owner, 2026-11-16).
  */
-export default function FirstWorkoutSteps() {
+export default function FirstWorkoutSteps({ signinCode = null }: { signinCode?: string | null }) {
   const [phone, setPhone] = useState<string | null>(null);
   useEffect(() => {
     void sessionPhone().then(setPhone);
@@ -28,7 +28,7 @@ export default function FirstWorkoutSteps() {
         <Step n={1} title={DOWNLOAD.title}>
           {/* One button for every phone, through the one link (owner, 2026-11-21). */}
           <div className="mt-3">
-            <DownloadAppButton />
+            <DownloadAppButton signinCode={signinCode} />
           </div>
         </Step>
         <Step n={2} title={SIGN_IN.title}>

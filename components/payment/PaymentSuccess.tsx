@@ -14,6 +14,7 @@ import { PROGRAM_CARDS } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
+import { createAppSignin, storedAppSignin } from "@/lib/payment/app-signin";
 import FirstWorkoutSteps from "./FirstWorkoutSteps";
 import DownloadAppButton from "./DownloadAppButton";
 
@@ -25,6 +26,7 @@ type State = "checking" | "active" | "pending";
 export default function PaymentSuccess() {
   const [state, setState] = useState<State>("checking");
   const [gender, setGender] = useState<Answers["gender"]>(undefined);
+  const [signinCode, setSigninCode] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -33,6 +35,13 @@ export default function PaymentSuccess() {
     clearCheckoutDraft();
     clearPendingPayment();
     void (async () => {
+      // A reload after the app code was made: this page already let its session go.
+      const kept = storedAppSignin();
+      if (kept) {
+        setSigninCode(kept.code);
+        setState("active");
+        return;
+      }
       const supabase = await loadSupabaseSession();
       if (!supabase) {
         if (alive) setState("pending");
@@ -53,6 +62,11 @@ export default function PaymentSuccess() {
         if (purchase) pushTag(purchaseEvent(purchase));
       }
       setState(result === "active" ? "active" : "pending");
+      // Paid and active: a one-time code that opens the app signed in (owner, 2026-11-21).
+      if (result === "active") {
+        const signin = await createAppSignin(supabase).catch(() => null);
+        if (alive && signin) setSigninCode(signin.code);
+      }
     })();
     return () => {
       alive = false;
@@ -80,7 +94,7 @@ export default function PaymentSuccess() {
 
       <div className="gutter-x pb-10">
         {/* The one action left, laid out as the way to the first workout (owner, 2026-11-16). */}
-        <FirstWorkoutSteps />
+        <FirstWorkoutSteps signinCode={signinCode} />
 
         <h2 className="mt-10 font-display text-[1.5rem] font-extrabold">{S.insideTitle}</h2>
         <div className="mt-4 grid gap-4">
@@ -100,7 +114,7 @@ export default function PaymentSuccess() {
         <div className="mt-8 rounded-tile bg-green-wash p-5 text-center">
           <p className="font-display text-[1.25rem] font-extrabold text-green-deep">{S.closing}</p>
           <div className="mt-4">
-            <DownloadAppButton />
+            <DownloadAppButton signinCode={signinCode} />
           </div>
         </div>
 
