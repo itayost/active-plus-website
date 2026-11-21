@@ -8,6 +8,7 @@ import { CheckIcon } from "@/components/ui/icons";
 import { takePendingPurchase } from "@/lib/analytics/pending-purchase";
 import { purchaseEvent, pushTag } from "@/lib/analytics/tags";
 import type { Answers } from "@/lib/funnel/types";
+import { clearPendingPayment } from "@/lib/funnel/storage";
 import { clearCheckoutDraft, readPaymentGender, waitForAccess } from "@/lib/payment/checkout";
 import { PROGRAM_CARDS } from "@/lib/constants";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
@@ -30,6 +31,7 @@ export default function PaymentSuccess() {
     // The checkout draft is done with once paid: nothing personal stays in the tab.
     setGender(readPaymentGender());
     clearCheckoutDraft();
+    clearPendingPayment();
     void (async () => {
       const supabase = await loadSupabaseSession();
       if (!supabase) {

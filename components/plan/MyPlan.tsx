@@ -5,7 +5,7 @@ import JourneySteps from "@/components/funnel/JourneySteps";
 import Button from "@/components/ui/Button";
 import { LockIcon } from "@/components/ui/icons";
 import { PAYMENT_PATH } from "@/lib/funnel/constants";
-import { readPlanInputs, type PlanInputs } from "@/lib/funnel/storage";
+import { readPlanInputs, restorePendingPayment, type PlanInputs } from "@/lib/funnel/storage";
 import { isPressable, tapHaptic } from "@/lib/haptics";
 import { curve, curveAt, PLAN_DAYS, PLAN_LINES, smoothPath, targetDate } from "@/lib/plan/twenty-eight";
 
@@ -24,6 +24,8 @@ export default function MyPlan() {
   const [shortDate, setShortDate] = useState("");
   useEffect(() => {
     const now = new Date();
+    // Left the payment page earlier: what it was handed comes back from storage first.
+    restorePendingPayment();
     const read = readPlanInputs();
     // Opened without the questionnaire (a shared link, an old tab): start at its first page
     // (owner, 2026-11-21).
