@@ -14,7 +14,7 @@ import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY, gendered } from "@/lib/payment/copy";
 import { loadSupabaseSession } from "@/lib/supabase/lazy";
 import FirstWorkoutSteps from "./FirstWorkoutSteps";
-import StoreButtons from "./StoreButtons";
+import DownloadAppButton from "./DownloadAppButton";
 
 const S = CHECKOUT_COPY.success;
 
@@ -97,8 +97,9 @@ export default function PaymentSuccess() {
 
         <div className="mt-8 rounded-tile bg-green-wash p-5 text-center">
           <p className="font-display text-[1.25rem] font-extrabold text-green-deep">{S.closing}</p>
-          {/* Side by side, never one under the other (owner, 2026-11-16): the 42px size fits a phone's card. */}
-          <StoreButtons className="mt-4 flex flex-nowrap justify-center gap-2" size="sm" />
+          <div className="mt-4">
+            <DownloadAppButton />
+          </div>
         </div>
 
         {WEB_CHECKOUT_ENABLED ? (

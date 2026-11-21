@@ -24,7 +24,14 @@ export default function MyPlan() {
   const [shortDate, setShortDate] = useState("");
   useEffect(() => {
     const now = new Date();
-    setInputs(readPlanInputs());
+    const read = readPlanInputs();
+    // Opened without the questionnaire (a shared link, an old tab): start at its first page
+    // (owner, 2026-11-21).
+    if (read === null) {
+      window.location.replace("/questionnaire");
+      return;
+    }
+    setInputs(read);
     setDate(targetDate(now));
     setShortDate(targetDate(now, true));
   }, []);

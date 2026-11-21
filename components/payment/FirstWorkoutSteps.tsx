@@ -2,27 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { CallIcon } from "@/components/ui/icons";
-import { pushTag } from "@/lib/analytics/tags";
 import { CONTACT_PHONE } from "@/lib/constants";
 import { CHECKOUT_COPY } from "@/lib/payment/copy";
 import { sessionPhone } from "@/lib/funnel/session-phone";
-import { platformOf, storeUrlFor, type Platform } from "@/lib/store-link";
-import StoreButtons from "./StoreButtons";
+import DownloadAppButton from "./DownloadAppButton";
 
 const S = CHECKOUT_COPY.success;
 const [DOWNLOAD, SIGN_IN, START] = S.steps;
-const STORE_NAME: Record<Platform, string> = { ios: "App Store", android: "Google Play" };
 
 /**
  * After paying, the shortest way to the first workout in the app (owner, 2026-11-16): one big
- * button to this phone's own store (both badges on a computer), the number to sign in with, and
+ * download button through the one link, the two store badges under it (owner, 2026-11-21), the number to sign in with, and
  * the button to press once inside, and help by phone. The workout is only in the app (owner, 2026-11-16).
  */
 export default function FirstWorkoutSteps() {
-  const [platform, setPlatform] = useState<Platform | null>(null);
   const [phone, setPhone] = useState<string | null>(null);
   useEffect(() => {
-    setPlatform(platformOf(navigator.userAgent));
     void sessionPhone().then(setPhone);
   }, []);
 
@@ -31,19 +26,10 @@ export default function FirstWorkoutSteps() {
       <p className="font-display text-[1.3rem] font-extrabold">{S.stepsTitle}</p>
       <ol className="mt-4 grid gap-5">
         <Step n={1} title={DOWNLOAD.title}>
-          {platform ? (
-            <a
-              href={storeUrlFor(platform)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => pushTag({ event: "store_click", store: platform === "ios" ? "app_store" : "google_play" })}
-              className="mt-3 flex min-h-[64px] w-full items-center justify-center rounded-[32px] bg-cta px-5 font-display text-[1.2rem] font-extrabold text-white shadow-lift-2"
-            >
-              {S.storeButton.replace("{store}", STORE_NAME[platform])}
-            </a>
-          ) : (
-            <StoreButtons className="mt-3 flex flex-nowrap justify-center gap-2" size="sm" />
-          )}
+          {/* One button for every phone, through the one link (owner, 2026-11-21). */}
+          <div className="mt-3">
+            <DownloadAppButton />
+          </div>
         </Step>
         <Step n={2} title={SIGN_IN.title}>
           <p className="mt-1 text-ink-soft">
