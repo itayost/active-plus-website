@@ -32,13 +32,14 @@ export type TasterGame = { title: string; picture: string };
 
 /**
  * The games under "כל המשחקים", in the app's order: the silver coins first (owner,
- * 2026-11-14), then DailyProgram.allGames. "זכירת פרצופים" shows a drawn face here:
+ * 2026-11-14), then DailyProgram.allGames. "נגד הזרם" took the place of "שומרים על האוצר"
+ * (owner, 2026-11-21). "זכירת פרצופים" shows a drawn face here:
  * its app icon is a real person's photo, consented for the app only.
  */
 export const TASTER_GAMES: readonly TasterGame[] = [
   { title: "מטבעות הכסף", picture: "/taster/MemorySilverCoin.png" },
   { title: "זכרו את הרצף", picture: "/taster/DualTaskPictureBanana.png" },
-  { title: "שומרים על האוצר", picture: "/taster/MemoryGuardTreasure.png" },
+  { title: "נגד הזרם", picture: "/taster/MemoryAgainstIcon.png" },
   { title: "זיכרון פורח", picture: "/taster/MemoryBloomFlowerPoppy.png" },
   { title: "מה חסר בדוכן?", picture: "/taster/MemoryGamePictureStrawberry.png" },
   { title: "הגולה המהירה", picture: "/taster/MemoryMarbleIcon.png" },

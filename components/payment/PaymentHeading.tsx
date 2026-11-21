@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import JourneySteps from "@/components/funnel/JourneySteps";
+import PaymentIncludes from "./PaymentIncludes";
 import { readPlanInputs } from "@/lib/funnel/storage";
+import { readPaymentGender } from "@/lib/payment/checkout";
 
 /**
  * The plans' heading after the questionnaire (owner, 2026-11-16: pay first): the visitor's name,
@@ -12,9 +14,11 @@ import { readPlanInputs } from "@/lib/funnel/storage";
 export default function PaymentHeading() {
   // undefined until mounted: sessionStorage does not exist on the server.
   const [name, setName] = useState<string | null | undefined>(undefined);
+  const [picture, setPicture] = useState<{ level?: string; gender?: string }>({});
   useEffect(() => {
     const inputs = readPlanInputs();
     setName(inputs ? (inputs.firstName ?? "") : null);
+    setPicture({ level: inputs?.level, gender: readPaymentGender() });
   }, []);
   const fromFunnel = name !== null && name !== undefined;
   return (
@@ -27,6 +31,7 @@ export default function PaymentHeading() {
         {fromFunnel && name ? `${name}, נשאר רק לבחור מסלול` : "התוכנית האישית שלך מוכנה"}
       </h1>
       <p className="mt-2 text-lead text-ink-soft">מיד אחרי התשלום מורידים את האפליקציה ומתחילים את האימון הראשון, עוד היום.</p>
+      <PaymentIncludes level={picture.level} gender={picture.gender} />
     </>
   );
 }

@@ -52,7 +52,7 @@ describe("smoothPath", () => {
 describe("planInputsOf", () => {
   it("keeps only what the plan needs, with the first name", () => {
     expect(
-      planInputsOf({ training_goals: ["strength"], desired_feeling: "daily_energy", training_frequency_choice: "three_week", memory_forgetfulness: "sometimes", full_name: "  רותי כהן ", pain_areas: ["knees"] }),
-    ).toEqual({ goal: "strength", feeling: "daily_energy", frequency: "three_week", memory: "sometimes", firstName: "רותי" });
+      planInputsOf({ training_goals: ["strength"], desired_feeling: "daily_energy", training_frequency_choice: "three_week", memory_forgetfulness: "sometimes", functionality_level: "chair_only", full_name: "  רותי כהן ", pain_areas: ["knees"] }),
+    ).toEqual({ goal: "strength", feeling: "daily_energy", frequency: "three_week", memory: "sometimes", level: "chair_only", firstName: "רותי" });
   });
 });

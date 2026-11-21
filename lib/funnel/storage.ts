@@ -142,6 +142,8 @@ export type PlanInputs = {
   feeling?: string;
   frequency?: string;
   memory?: string;
+  /** functionality_level: picks the payment page's workout picture (owner, 2026-11-21). */
+  level?: string;
   firstName?: string;
 };
 
@@ -152,6 +154,7 @@ export function planInputsOf(answers: Answers): PlanInputs {
     feeling: answers.desired_feeling,
     frequency: answers.training_frequency_choice,
     memory: answers.memory_forgetfulness,
+    level: answers.functionality_level,
     ...(firstName ? { firstName } : {}),
   };
 }
@@ -166,7 +169,7 @@ export function readPlanInputs(): PlanInputs | null {
       const v = (parsed as Record<string, unknown>)[k];
       return typeof v === "string" && v ? v : undefined;
     };
-    return { goal: pick("goal"), feeling: pick("feeling"), frequency: pick("frequency"), memory: pick("memory"), firstName: pick("firstName") };
+    return { goal: pick("goal"), feeling: pick("feeling"), frequency: pick("frequency"), memory: pick("memory"), level: pick("level"), firstName: pick("firstName") };
   } catch {
     return null;
   }
