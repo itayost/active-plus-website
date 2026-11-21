@@ -7,6 +7,8 @@ export const SITE_URL = `https://${CANONICAL_HOST}`;
 export const CONTACT_EMAIL = "office@improve-movement.co.il";
 export const CONTACT_PHONE = "073-729-66-99";
 export const CONTACT_PHONE_TEL = "+972737296699";
+/** Help installing the app, after paying (owner, 2026-11-21). */
+export const INSTALL_HELP_PHONE = "052-631-6060";
 export const CONTACT_HOURS = "ימים א׳–ה׳, 10:00–17:00";
 export const CONTACT_ADDRESS = "יצחק שמיר 2, קרית ביאליק";
 export const CONTACT_WHATSAPP = "050-631-60-60";

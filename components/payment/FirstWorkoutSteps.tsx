@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CallIcon } from "@/components/ui/icons";
-import { CONTACT_PHONE } from "@/lib/constants";
+import { INSTALL_HELP_PHONE } from "@/lib/constants";
 import { CHECKOUT_COPY } from "@/lib/payment/copy";
 import { sessionPhone } from "@/lib/funnel/session-phone";
 import DownloadAppButton from "./DownloadAppButton";
@@ -48,11 +48,11 @@ export default function FirstWorkoutSteps() {
       </ol>
 
       <div className="mt-5 grid gap-2 border-t border-hairline pt-4 text-center">
-        <a href={`tel:${CONTACT_PHONE.replace(/-/g, "")}`} className="flex min-h-[60px] flex-col items-center justify-center font-bold text-blue-deep">
+        <a href={`tel:${INSTALL_HELP_PHONE.replace(/-/g, "")}`} className="flex min-h-[60px] flex-col items-center justify-center font-bold text-blue-deep">
           <span>{S.help}</span>
           <span className="inline-flex items-center gap-2 whitespace-nowrap text-[1.2rem]" dir="ltr">
             <CallIcon className="h-5 w-5" />
-            {CONTACT_PHONE}
+            {INSTALL_HELP_PHONE}
           </span>
         </a>
       </div>
