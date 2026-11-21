@@ -16,7 +16,12 @@ const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_c
 type UtmKey = (typeof UTM_KEYS)[number];
 const MAX_VALUE = 100;
 
-export type AdFields = Partial<Record<UtmKey, string>> & { from_meta_click?: true };
+/**
+ * ad_visit: when the visitor landed from the ad (ms since epoch, as text). One
+ * visitor sends several funnel sessions (the opening screen, the questions, a
+ * reload, the payment page); the dashboard joins them into one person by it.
+ */
+export type AdFields = Partial<Record<UtmKey, string>> & { from_meta_click?: true; ad_visit?: string };
 export type AdSource = AdFields & { at: number };
 
 type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -75,7 +80,7 @@ export function currentAdFields(now: number = Date.now(), store: Store | undefin
       if (cleaned) fields[key] = cleaned;
     }
     if (record.from_meta_click === true) fields.from_meta_click = true;
-    return fields;
+    return Object.keys(fields).length > 0 ? { ...fields, ad_visit: String(record.at) } : fields;
   } catch {
     return {};
   }

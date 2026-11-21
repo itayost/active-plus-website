@@ -67,6 +67,7 @@ describe("rememberAdSource / currentAdFields", () => {
       utm_term: "120245551262680002",
       utm_content: "120245551262680678",
       from_meta_click: true,
+      ad_visit: String(NOW),
     });
   });
 
@@ -76,7 +77,7 @@ describe("rememberAdSource / currentAdFields", () => {
     rememberAdSource("", NOW + 1000, store);
     expect(currentAdFields(NOW + 2000, store).utm_content).toBe("120245551262680678");
     rememberAdSource("?utm_source=facebook&utm_content=999", NOW + 3000, store);
-    expect(currentAdFields(NOW + 4000, store)).toEqual({ utm_source: "facebook", utm_content: "999" });
+    expect(currentAdFields(NOW + 4000, store)).toEqual({ utm_source: "facebook", utm_content: "999", ad_visit: String(NOW + 3000) });
   });
 
   it("forgets the ad after 28 days", () => {

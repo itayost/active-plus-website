@@ -71,6 +71,7 @@ describe("trackFunnelEvent and the ad that brought the visitor", () => {
       utm_source: "facebook",
       utm_content: "120245551262680678",
       from_meta_click: true,
+      ad_visit: expect.stringMatching(/^\d+$/),
       plan: "annual",
     });
     expect(JSON.stringify(win.dataLayer)).not.toContain("120245551262680678");

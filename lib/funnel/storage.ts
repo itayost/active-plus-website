@@ -230,6 +230,16 @@ export function readPlanInputs(): PlanInputs | null {
 
 const SESSION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** The questionnaire session handed over to /payment in this tab, or null. Never creates one. */
+export function handedOverSessionId(): string | null {
+  try {
+    const handedOver = sessionStorage.getItem(SESSION_FOR_PAYMENT);
+    return handedOver && SESSION_ID.test(handedOver) ? handedOver.toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The id /payment reports payment_view under, read without storing anything:
  * the session handed over in this tab, else a questionnaire session still in
@@ -238,13 +248,8 @@ const SESSION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
  * handOffToPayment has just cleared it.
  */
 export function paymentSessionId(now = Date.now()): string {
-  let handedOver: string | null = null;
-  try {
-    handedOver = sessionStorage.getItem(SESSION_FOR_PAYMENT);
-  } catch {
-    // Blocked storage: fall through.
-  }
-  if (handedOver && SESSION_ID.test(handedOver)) return handedOver.toLowerCase();
+  const handedOver = handedOverSessionId();
+  if (handedOver) return handedOver;
   expireIfStale(now);
   const inProgress = safeGet(ID);
   if (inProgress && SESSION_ID.test(inProgress)) return inProgress.toLowerCase();

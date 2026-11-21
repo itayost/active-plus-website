@@ -3,6 +3,8 @@ import type { PlanId } from "@/lib/constants";
 import { GENDER_FOR_PAYMENT } from "@/lib/funnel/storage";
 import type { Answers } from "@/lib/funnel/types";
 import { MAX_INSTALLMENTS } from "@/lib/pricing";
+import { currentAdFields, type AdFields } from "@/lib/analytics/ad-source";
+import { handedOverSessionId } from "@/lib/funnel/storage";
 import { isWalletEnvironment, type WalletEnvironment } from "./grow-wallet";
 
 export type WebPlan = "ANNUAL" | "MONTHLY";
@@ -95,9 +97,30 @@ async function errorFor(error: unknown): Promise<StartError> {
   return STATUS_ERROR[status] ?? "network";
 }
 
-export async function startPayment(supabase: Pick<SupabaseClient, "functions">, input: StartInput): Promise<StartResult> {
+/**
+ * Which ad brought the buyer and the questionnaire they walked, sent with the
+ * payment so the dashboard's per-ad report ties the payer to the ad
+ * (createGrowPayment stores them on web_payments; they never decide the charge).
+ */
+export type PaymentAdContext = { funnelSessionId?: string; ad?: AdFields };
+
+export function paymentAdContext(): PaymentAdContext {
   try {
-    const { data, error } = await supabase.functions.invoke("createGrowPayment", { body: input });
+    const session = handedOverSessionId();
+    const ad = currentAdFields();
+    return { ...(session ? { funnelSessionId: session } : {}), ...(Object.keys(ad).length > 0 ? { ad } : {}) };
+  } catch {
+    return {};
+  }
+}
+
+export async function startPayment(
+  supabase: Pick<SupabaseClient, "functions">,
+  input: StartInput,
+  context: PaymentAdContext = paymentAdContext(),
+): Promise<StartResult> {
+  try {
+    const { data, error } = await supabase.functions.invoke("createGrowPayment", { body: { ...input, ...context } });
     if (error) return { error: await errorFor(error) };
     const { url, authCode, walletEnvironment, webPaymentId } = (data ?? {}) as Record<string, unknown>;
     if (typeof webPaymentId !== "string") return { error: "processor_error" };
