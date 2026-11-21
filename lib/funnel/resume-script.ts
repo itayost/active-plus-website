@@ -15,5 +15,6 @@ import { STAMP, STEP, TTL } from "./storage";
 export const RESUME_SCRIPT =
   `try{var s=localStorage.getItem(${JSON.stringify(STEP)}),` +
   `t=Number(localStorage.getItem(${JSON.stringify(STAMP)})||0);` +
-  `if(s&&s!=="welcome2"&&${JSON.stringify(FUNNEL_STEPS)}.indexOf(s)>-1&&!(t&&Date.now()-t>${TTL}))` +
+  `var n=(performance.getEntriesByType("navigation")[0]||{}).type,v=sessionStorage.getItem("ap.funnel.visit")==="1";` +
+  `if((v||n==="reload"||n==="back_forward")&&s&&s!=="welcome2"&&${JSON.stringify(FUNNEL_STEPS)}.indexOf(s)>-1&&!(t&&Date.now()-t>${TTL}))` +
   `document.documentElement.dataset.funnelResume=""}catch(e){}`;

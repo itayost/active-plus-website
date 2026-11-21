@@ -4,7 +4,12 @@ import { RESUME_SCRIPT } from "@/lib/funnel/resume-script";
 const DAY = 86_400_000;
 
 /** Runs the inline script against a fake storage and <html>, returning the flag it leaves. */
-function run(stored: Record<string, string>, now = Date.now(), throws = false): string | undefined {
+function run(
+  stored: Record<string, string>,
+  now = Date.now(),
+  throws = false,
+  visit: { sameTab?: boolean; nav?: string } = { sameTab: true },
+): string | undefined {
   const dataset: Record<string, string> = {};
   const localStorage = {
     getItem: (key: string) => {
@@ -14,7 +19,15 @@ function run(stored: Record<string, string>, now = Date.now(), throws = false): 
   };
   const document = { documentElement: { dataset } };
   const FakeDate = { now: () => now };
-  new Function("localStorage", "document", "Date", RESUME_SCRIPT)(localStorage, document, FakeDate);
+  const sessionStorage = { getItem: (key: string) => (key === "ap.funnel.visit" && visit.sameTab ? "1" : null) };
+  const performance = { getEntriesByType: () => (visit.nav ? [{ type: visit.nav }] : []) };
+  new Function("localStorage", "sessionStorage", "performance", "document", "Date", RESUME_SCRIPT)(
+    localStorage,
+    sessionStorage,
+    performance,
+    document,
+    FakeDate,
+  );
   return dataset.funnelResume;
 }
 
@@ -30,6 +43,12 @@ describe("resume script", () => {
   it("does not flag a session past the TTL", () => {
     const stamp = Date.now();
     expect(run({ "ap.funnel.step": "frequency", "ap.funnel.updated_at": String(stamp) }, stamp + 31 * DAY)).toBeUndefined();
+  });
+  it("does not flag a new entry from a link, which starts at the first page (owner, 2026-11-21)", () => {
+    const saved = { "ap.funnel.step": "chairRise", "ap.funnel.updated_at": String(Date.now()) };
+    expect(run(saved, Date.now(), false, { sameTab: false, nav: "navigate" })).toBeUndefined();
+    expect(run(saved, Date.now(), false, { sameTab: false, nav: "reload" })).toBe("");
+    expect(run(saved, Date.now(), false, { sameTab: false, nav: "back_forward" })).toBe("");
   });
   it("survives blocked storage", () => {
     expect(run({ "ap.funnel.step": "gender" }, Date.now(), true)).toBeUndefined();

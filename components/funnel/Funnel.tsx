@@ -5,6 +5,7 @@ import { advance, canGoBack, codeSent, initialState, restore, showHours, showPho
 import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, firstStep, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, saveAnswers, saveStep } from "@/lib/funnel/storage";
+import { canResumeHere } from "@/lib/funnel/entry";
 import type { Segment } from "@/lib/funnel/time";
 import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers, Step } from "@/lib/funnel/types";
@@ -66,7 +67,8 @@ export default function Funnel() {
   // `browser` is stable (its callbacks have stable deps), so this runs once.
   useEffect(() => {
     const { id, answers } = loadSession();
-    const next = restore(loadStep(), answers);
+    // A new entry starts at the first page; only a reload or a return in the same visit resumes.
+    const next = canResumeHere() ? restore(loadStep(), answers) : { ...restore(null, answers), step: "welcome2" as const, history: [] };
     setSessionId(id);
     setState(next);
     setRestored(next.step);
