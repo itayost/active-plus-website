@@ -29,6 +29,9 @@ export function storeUrlFor(platform: Platform, params?: URLSearchParams): strin
     const value = params?.get(key);
     if (value) utm.set(key, value.slice(0, 100));
   }
+  // The one-time code that signs the new app in (owner, 2026-11-21), read from the install referrer.
+  const signin = params?.get("signin");
+  if (signin && /^[A-Za-z0-9_-]{43}$/.test(signin)) utm.set("signin", signin);
   const referrer = utm.toString();
   return referrer ? `${STORE_ANDROID}&referrer=${encodeURIComponent(referrer)}` : STORE_ANDROID;
 }
