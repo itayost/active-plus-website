@@ -59,6 +59,8 @@ type Props = {
   onClick?: () => void;
   "aria-pressed"?: boolean;
   "aria-describedby"?: string;
+  /** Names the tap for the office's anonymous page report (PageViewTracker). */
+  track?: string;
 };
 
 export default function Button({
@@ -73,6 +75,7 @@ export default function Button({
   onClick,
   "aria-pressed": ariaPressed,
   "aria-describedby": ariaDescribedBy,
+  track,
 }: Props) {
   const classes = `${SHARED} ${VARIANTS[variant]} ${SIZES[size]} ${className}`;
 
@@ -86,6 +89,7 @@ export default function Button({
           target="_blank"
           rel="noopener noreferrer"
           onClick={onClick}
+          data-track={track}
         >
           {children}
           {/* Every external Button leaves the site in a new tab. A sighted
@@ -97,7 +101,7 @@ export default function Button({
     }
     const Anchor = fullPageLoad ? "a" : Link;
     return (
-      <Anchor href={href} className={classes} aria-describedby={ariaDescribedBy} onClick={onClick}>
+      <Anchor href={href} className={classes} aria-describedby={ariaDescribedBy} onClick={onClick} data-track={track}>
         {children}
       </Anchor>
     );
@@ -111,6 +115,7 @@ export default function Button({
       onClick={onClick}
       aria-pressed={ariaPressed}
       aria-describedby={ariaDescribedBy}
+      data-track={track}
     >
       {children}
     </button>

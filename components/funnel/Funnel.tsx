@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advance, canGoBack, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
-import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
+import { VIEW_EVENT, answerEventData, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, firstStep, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, restorePendingPayment, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import { canResumeHere } from "@/lib/funnel/entry";
@@ -99,10 +99,10 @@ export default function Funnel() {
     answersRef.current = state.answers;
   }, [state.answers]);
   const track = useCallback(
-    (event: FunnelEventName) => {
+    (event: FunnelEventName, data?: Record<string, unknown>) => {
       if (!sessionId) return;
-      const audience = audienceFields(answersRef.current);
-      trackFunnelEvent(sessionId, event, Object.keys(audience).length > 0 ? audience : undefined);
+      const merged = { ...audienceFields(answersRef.current), ...data };
+      trackFunnelEvent(sessionId, event, Object.keys(merged).length > 0 ? merged : undefined);
     },
     [sessionId],
   );
@@ -135,6 +135,7 @@ export default function Funnel() {
     () => ({
       setDraft: (patch: Answers) => setState((s) => ({ ...s, draft: { ...s.draft, ...patch } })),
       answer: (patch: Answers) => {
+        track("questionnaire_answer", answerEventData(state.step, patch));
         const answers = cleanOffBranch({ ...state.answers, ...patch });
         saveAnswers(answers);
         go(advance(state, answers));

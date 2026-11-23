@@ -209,7 +209,7 @@ export default function CheckoutSummary({
       ) : null}
 
       <div className="mt-7 grid gap-3">
-        <Button size="lg" className="w-full gap-2" onClick={() => void pay()} disabled={busy}>
+        <Button size="lg" className="w-full gap-2" onClick={() => void pay()} disabled={busy} track="pay:pay">
           <LockIcon className="h-[22px] w-[22px] shrink-0" />
           {status.kind === "redirecting" ? C.paying : status.kind === "wallet" ? C.openingWallet : C.pay}
         </Button>

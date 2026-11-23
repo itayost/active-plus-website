@@ -95,3 +95,27 @@ describe("POST /api/page-view", () => {
     expect(insert.mock.calls[0][0]).toMatchObject({ target: "store:google_play", path: "/payment" });
   });
 });
+
+import { answerEventData } from "@/lib/funnel/events";
+
+describe("answerEventData", () => {
+  it("sends answer codes only, never the name or the birth date", () => {
+    expect(answerEventData("goals", { training_goals: ["strength", "cognition"] })).toEqual({ screen: "goals", training_goals: "strength,cognition" });
+    expect(answerEventData("register", { full_name: "Dana Levi" })).toEqual({ screen: "register" });
+    expect(answerEventData("dob", { age_group: "60_69", date_of_birth: "1960-01-01" })).toEqual({ screen: "dob", age_group: "60_69" });
+    expect(answerEventData("time", { training_time_of_day: "09:30" })).toEqual({ screen: "time", training_time_of_day: "09:30" });
+  });
+});
+
+import { modelOf } from "@/lib/pageviews/parse";
+
+describe("modelOf", () => {
+  it("names an iPhone by its screen and keeps Android's own model", () => {
+    expect(modelOf("ios", "phone", null, { w: 390, h: 844 })).toBe("iPhone 12 / 13 / 14");
+    expect(modelOf("ios", "phone", null, { w: 844, h: 390 })).toBe("iPhone 12 / 13 / 14");
+    expect(modelOf("ios", "phone", null, { w: 1, h: 2 })).toBe("iPhone");
+    expect(modelOf("android", "phone", "SM-A546E", null)).toBe("SM-A546E");
+    expect(modelOf("android", "phone", "K", null)).toBeNull();
+    expect(modelOf("windows", "desktop", null, null)).toBeNull();
+  });
+});

@@ -25,6 +25,10 @@ export type PageViewMessage =
       referrerHost: string | null;
       fromMeta: boolean;
       metaAdId: string | null;
+      /** Android Chrome's own model name (navigator.userAgentData), first view only. */
+      model: string | null;
+      /** Screen size in CSS pixels, first view only: names an iPhone's group. */
+      screen: { w: number; h: number } | null;
     }
   | { t: "end"; id: string; visit: string; seconds: number }
   | { t: "click"; id: string; visit: string; path: string; target: string };
@@ -55,6 +59,9 @@ export function parsePageView(raw: unknown): PageViewMessage | null {
     const path = cleanPath(o.path);
     if (!path) return null;
     const ad = str(o.ad);
+    const model = str(o.model)?.trim() ?? "";
+    const w = Number(o.sw);
+    const h = Number(o.sh);
     return {
       t: "view",
       id,
@@ -63,6 +70,8 @@ export function parsePageView(raw: unknown): PageViewMessage | null {
       referrerHost: cleanHost(o.ref),
       fromMeta: o.meta === true,
       metaAdId: ad && AD_ID.test(ad) ? ad : null,
+      model: /^[\w \-+().]{1,40}$/.test(model) ? model : null,
+      screen: Number.isInteger(w) && Number.isInteger(h) && w > 0 && h > 0 && w < 5000 && h < 5000 ? { w, h } : null,
     };
   }
   if (o.t === "end") {
@@ -117,4 +126,34 @@ export function linkTarget(href: string, siteOrigin: string): string | null {
 export function fromMetaAd(search: URLSearchParams): boolean {
   if (search.has("fbclid")) return true;
   return /^(facebook|fb|instagram|ig|meta)$/i.test(search.get("utm_source") ?? "");
+}
+
+/** iPhone screen sizes (CSS points, portrait) and the models that share each. */
+const IPHONE_BY_SCREEN: Record<string, string> = {
+  "320x568": "iPhone SE (1) / 5",
+  "375x667": "iPhone SE / 6-8",
+  "414x736": "iPhone 6-8 Plus",
+  "375x812": "iPhone X / XS / 11 Pro / mini",
+  "414x896": "iPhone XR / 11 / XS Max",
+  "390x844": "iPhone 12 / 13 / 14",
+  "428x926": "iPhone 12-13 Pro Max / 14 Plus",
+  "393x852": "iPhone 14 Pro / 15 / 16",
+  "430x932": "iPhone 14-15 Pro Max / Plus",
+  "402x874": "iPhone 16 Pro / 17",
+  "440x956": "iPhone 16-17 Pro Max",
+  "420x912": "iPhone Air",
+};
+
+/**
+ * The model to store: an iPhone's group from its screen (Safari names no
+ * model), else the model Android Chrome reported, else null.
+ */
+export function modelOf(os: Os, device: Device, reported: string | null, screen: { w: number; h: number } | null): string | null {
+  if (os === "ios" && device === "phone") {
+    if (!screen) return "iPhone";
+    const key = `${Math.min(screen.w, screen.h)}x${Math.max(screen.w, screen.h)}`;
+    return IPHONE_BY_SCREEN[key] ?? "iPhone";
+  }
+  if (os === "ios" && device === "tablet") return "iPad";
+  return reported && reported !== "K" ? reported : null;
 }

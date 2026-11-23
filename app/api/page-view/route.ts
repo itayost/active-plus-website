@@ -1,4 +1,4 @@
-import { MAX_PAGE_VIEW_BODY_BYTES, deviceOf, isBot, parsePageView } from "@/lib/pageviews/parse";
+import { MAX_PAGE_VIEW_BODY_BYTES, deviceOf, isBot, modelOf, parsePageView } from "@/lib/pageviews/parse";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { clientIp } from "@/lib/request-ip";
 import { createServiceClient } from "@/lib/supabase";
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
         meta_ad_id: msg.metaAdId,
         device,
         os,
+        model: modelOf(os, device, msg.model, msg.screen),
       });
       // 23505: the same view sent twice (beacon and fetch); already stored.
       if (error && error.code !== "23505") console.error("[page-view] insert failed", { code: error.code });

@@ -68,6 +68,7 @@ type WebPageViewInsert = {
   meta_ad_id: string | null;
   device: string;
   os: string;
+  model?: string | null;
   seconds?: number | null;
 };
 type WebLinkClickInsert = { page_view_id: string; visit_id: string; path: string; target: string };

@@ -48,7 +48,17 @@ export default function PageViewTracker() {
       } catch {
         ref = null;
       }
-      send({ t: "view", id, visit, path, ref, meta: fromMetaAd(search), ad: search.get("utm_content") });
+      const first = { t: "view", id, visit, path, ref, meta: fromMetaAd(search), ad: search.get("utm_content"), sw: window.screen?.width, sh: window.screen?.height };
+      // Android Chrome names the phone model only when asked; the first view goes out without waiting long.
+      const uaData = (navigator as Navigator & { userAgentData?: { getHighEntropyValues?: (h: string[]) => Promise<{ model?: string }> } }).userAgentData;
+      if (uaData?.getHighEntropyValues) {
+        const timeout = new Promise<{ model?: string }>((resolve) => setTimeout(() => resolve({}), 400));
+        void Promise.race([uaData.getHighEntropyValues(["model"]), timeout])
+          .catch(() => ({}) as { model?: string })
+          .then((v) => send({ ...first, model: v.model || null }));
+      } else {
+        send(first);
+      }
     } else {
       send({ t: "view", id, visit, path });
     }

@@ -65,6 +65,7 @@ export default function CallMeBack() {
         <button
           type="button"
           onClick={() => (known ? send() : setOpen(true))}
+          data-track="pay:call_me_back"
           disabled={pending}
           className="mt-4 inline-flex min-h-[60px] w-full items-center justify-center gap-2 rounded-pill border-2 border-blue-deep bg-surface px-5 font-display text-[1.125rem] font-bold text-blue-deep disabled:opacity-60"
         >
