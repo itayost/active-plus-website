@@ -58,6 +58,21 @@ type FunnelEventInsert = {
   client_version: string;
 };
 
+/** public.web_page_views / web_link_clicks: anonymous page views (app/api/page-view). */
+type WebPageViewInsert = {
+  id: string;
+  visit_id: string;
+  path: string;
+  referrer_host: string | null;
+  from_meta: boolean;
+  meta_ad_id: string | null;
+  device: string;
+  os: string;
+  model?: string | null;
+  seconds?: number | null;
+};
+type WebLinkClickInsert = { page_view_id: string; visit_id: string; path: string; target: string };
+
 export type Database = {
   public: {
     Tables: {
@@ -75,6 +90,18 @@ export type Database = {
         Row: FunnelEventInsert & { id: string; created_at: string };
         Insert: FunnelEventInsert;
         Update: Partial<FunnelEventInsert>;
+        Relationships: [];
+      };
+      web_page_views: {
+        Row: WebPageViewInsert & { started_at: string };
+        Insert: WebPageViewInsert;
+        Update: Partial<WebPageViewInsert>;
+        Relationships: [];
+      };
+      web_link_clicks: {
+        Row: WebLinkClickInsert & { id: number; clicked_at: string };
+        Insert: WebLinkClickInsert;
+        Update: Partial<WebLinkClickInsert>;
         Relationships: [];
       };
       leads: {

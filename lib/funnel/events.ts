@@ -45,6 +45,7 @@ export const ACTION_EVENTS = [
   "otp_resend_tap",
   "otp_edit_phone_tap",
   "otp_verified",
+  "questionnaire_answer",
 ] as const;
 
 export type ActionEvent = (typeof ACTION_EVENTS)[number];
@@ -86,4 +87,23 @@ export function parseFunnelEvent(body: unknown): ParsedFunnelEvent | null {
   if (!Object.values(kept).every(isPrimitive)) return null;
   if (new TextEncoder().encode(JSON.stringify(kept)).length > MAX_DATA_BYTES) return null;
   return { sessionId: sessionId.toLowerCase(), step, data: kept };
+}
+
+/** Never sent with an answer: who the person is (name, birth date). */
+const NOT_ANSWER_KEYS = new Set(["full_name", "date_of_birth"]);
+const ANSWER_CODE = /^[a-z0-9_:]{1,40}$/i;
+
+/**
+ * The answer a screen took, as codes only, for the office's page report
+ * (owner, 2026-11-23: which answers people chose): `screen` is the step, each
+ * key its code ("female", "60_69"), a multi-choice joined with ",". Never the
+ * name or the date of birth; anything that is not a short code is dropped.
+ */
+export function answerEventData(step: Step, patch: Record<string, unknown>): Record<string, string> {
+  const kept = Object.entries(patch).flatMap(([key, value]): [string, string][] => {
+    if (NOT_ANSWER_KEYS.has(key)) return [];
+    const codes = (Array.isArray(value) ? value : [value]).filter((v): v is string => typeof v === "string" && ANSWER_CODE.test(v));
+    return codes.length > 0 ? [[key, codes.join(",")]] : [];
+  });
+  return { screen: step, ...Object.fromEntries(kept) };
 }

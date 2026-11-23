@@ -63,6 +63,7 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
       <div className="mt-8 grid gap-4">
         <section
           data-testid="plan-annual"
+          data-track="pay:card_annual"
           aria-labelledby="plan-annual-name"
           onClick={cardTap("annual")}
           className={cn(
@@ -97,6 +98,7 @@ export default function PlanSelector({ prices, selected, onSelect, onContinue, c
             href={href}
             className="mt-4 w-full"
             onClick={href ? undefined : choose("annual")}
+            track="pay:choose_annual"
             aria-describedby="plan-annual-name"
             aria-pressed={checkoutOpen ? selected === "annual" : undefined}
           >
@@ -175,7 +177,7 @@ function MonthlyChoice({ href, onClick, pressed }: { href?: string; onClick?: ()
     </>
   );
   // The arrow is decoration, so the accessible name is just "לבחירה"; the row's heading says which plan.
-  const props = { className, "aria-describedby": "plan-monthly-name" } as const;
+  const props = { className, "aria-describedby": "plan-monthly-name", "data-track": "pay:choose_monthly" } as const;
   return href ? (
     <a href={href} {...props}>
       {label}

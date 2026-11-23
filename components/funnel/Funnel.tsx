@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advance, canGoBack, codeSent, initialState, restore, showHours, showPhone, type FunnelState } from "@/lib/funnel/machine";
-import { VIEW_EVENT, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
+import { VIEW_EVENT, answerEventData, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, firstStep, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, restorePendingPayment, saveAnswers, saveStep } from "@/lib/funnel/storage";
 import { canResumeHere } from "@/lib/funnel/entry";
 import type { Segment } from "@/lib/funnel/time";
+import { audienceFields } from "@/lib/analytics/ad-source";
 import { trackFunnelEvent } from "@/lib/funnel/track";
 import type { Answers, Step } from "@/lib/funnel/types";
 import FunnelChrome from "./FunnelChrome";
@@ -92,9 +93,16 @@ export default function Funnel() {
   // The next screens' photos load while this one is read (after the restore, so a returning visitor warms their own step's next).
   usePreloadImages(state.step, state.answers, restored !== null);
 
+  // The age group and gender ride on each event once answered (our own report by age, never GTM).
+  const answersRef = useRef(state.answers);
+  useEffect(() => {
+    answersRef.current = state.answers;
+  }, [state.answers]);
   const track = useCallback(
-    (event: FunnelEventName) => {
-      if (sessionId) trackFunnelEvent(sessionId, event);
+    (event: FunnelEventName, data?: Record<string, unknown>) => {
+      if (!sessionId) return;
+      const merged = { ...audienceFields(answersRef.current), ...data };
+      trackFunnelEvent(sessionId, event, Object.keys(merged).length > 0 ? merged : undefined);
     },
     [sessionId],
   );
@@ -127,6 +135,7 @@ export default function Funnel() {
     () => ({
       setDraft: (patch: Answers) => setState((s) => ({ ...s, draft: { ...s.draft, ...patch } })),
       answer: (patch: Answers) => {
+        track("questionnaire_answer", answerEventData(state.step, patch));
         const answers = cleanOffBranch({ ...state.answers, ...patch });
         saveAnswers(answers);
         go(advance(state, answers));

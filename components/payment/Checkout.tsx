@@ -190,7 +190,7 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
           </h2>
           <p className="mt-4 flex flex-wrap items-center gap-x-3 text-lead text-ink-soft">
             {C.chosenPlan} <strong className="font-display text-ink">{`${info.longName}, ${priceLabel(prices, plan)}`}</strong>
-            <button type="button" className={LINKISH} onClick={onChangePlan}>
+            <button type="button" className={LINKISH} onClick={onChangePlan} data-track="pay:change_plan">
               {C.changePlan}
             </button>
           </p>
@@ -205,7 +205,7 @@ export default function Checkout({ plan, prices, initialDraft, onChangePlan }: P
       <div className="mt-8">{body}</div>
       {canGoBack ? (
         <div className="mt-3 grid">
-          <Button variant="outline" size="lg" className="w-full" onClick={back}>
+          <Button variant="outline" size="lg" className="w-full" onClick={back} track="pay:back">
             {C.back}
           </Button>
         </div>

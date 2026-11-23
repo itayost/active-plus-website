@@ -48,8 +48,14 @@ describe("validation", () => {
 describe("startPayment", () => {
   it("sends the checkout body and returns the hosted url", async () => {
     const supabase = invoker({ data: { url: HOSTED, webPaymentId: "wp-1" }, error: null });
-    expect(await startPayment(supabase as never, INPUT)).toEqual({ url: HOSTED, webPaymentId: "wp-1" });
+    expect(await startPayment(supabase as never, INPUT, {})).toEqual({ url: HOSTED, webPaymentId: "wp-1" });
     expect(supabase.functions.invoke).toHaveBeenCalledWith("createGrowPayment", { body: INPUT });
+  });
+  it("sends the ad and the questionnaire session with the payment, so the payer is tied to the ad", async () => {
+    const supabase = invoker({ data: { url: HOSTED, webPaymentId: "wp-1" }, error: null });
+    const context = { funnelSessionId: "1a2b3c4d-1a2b-4c3d-8e9f-0a1b2c3d4e5f", ad: { utm_content: "120249006431780678", ad_visit: "1763700000000" } };
+    await startPayment(supabase as never, INPUT, context);
+    expect(supabase.functions.invoke).toHaveBeenCalledWith("createGrowPayment", { body: { ...INPUT, ...context } });
   });
   it.each([
     [400, "invalid_input"], [401, "signed_out"], [409, "already_subscribed"], [429, "rate_limited"],
