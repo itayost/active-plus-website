@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import SiteChrome from "@/components/layout/SiteChrome";
 import CookieConsent from "@/components/consent/CookieConsent";
 import AdSourceCapture from "@/components/analytics/AdSourceCapture";
+import PageViewTracker from "@/components/analytics/PageViewTracker";
 import { gtmId } from "@/lib/analytics/gtm";
 import { SITE_NAME_FULL, SITE_URL } from "@/lib/constants";
 import { HOME_META } from "@/content/home";
@@ -85,6 +86,7 @@ export default function RootLayout({
         </a>
         <AdSourceCapture />
         {GTM_ID ? <CookieConsent gtmId={GTM_ID} /> : null}
+        <PageViewTracker />
         <SiteChrome>
           <Header />
         </SiteChrome>
