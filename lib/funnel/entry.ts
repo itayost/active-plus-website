@@ -39,3 +39,39 @@ export function canResumeHere(): boolean {
   }
   return resume;
 }
+
+/**
+ * Back to the payment page (owner, 2026-11-21) only on a fresh entry, never on the browser's back
+ * (owner, 2026-11-24: a visitor pressing back on the payment page landed on the questionnaire,
+ * was sent straight to the payment page again, and could not leave: 11 loads in 5 seconds). Also
+ * at most once in 30 seconds in a tab, for in-app browsers that report a back as a new load.
+ */
+export const PAYMENT_JUMP_AT = "ap.funnel.payment_jump_at";
+const JUMP_GAP_MS = 30_000;
+
+/** Pure rule, for tests. */
+export function mayJumpToPayment(navType: NavType | null, lastJumpAt: number | null, now: number): boolean {
+  if (navType === "back_forward") return false;
+  return lastJumpAt === null || now - lastJumpAt > JUMP_GAP_MS;
+}
+
+/** Whether this mount may send the visitor on to the payment page. */
+export function canJumpToPayment(now = Date.now()): boolean {
+  let last: number | null = null;
+  try {
+    const raw = Number(sessionStorage.getItem(PAYMENT_JUMP_AT));
+    last = Number.isFinite(raw) && raw > 0 ? raw : null;
+  } catch {
+    last = null;
+  }
+  return mayJumpToPayment(navigationType(), last, now);
+}
+
+/** Called right before the jump, so the next mount in this tab within the gap stays. */
+export function markJumpToPayment(now = Date.now()): void {
+  try {
+    sessionStorage.setItem(PAYMENT_JUMP_AT, String(now));
+  } catch {
+    // Blocked storage: the back-button rule still holds.
+  }
+}
