@@ -5,7 +5,7 @@ import { advance, canGoBack, codeSent, initialState, restore, showHours, showPho
 import { VIEW_EVENT, answerEventData, type ActionEvent, type FunnelEventName } from "@/lib/funnel/events";
 import { cleanOffBranch, firstStep, indicator } from "@/lib/funnel/routing";
 import { loadSession, loadStep, resetSession, restorePendingPayment, saveAnswers, saveStep } from "@/lib/funnel/storage";
-import { canResumeHere } from "@/lib/funnel/entry";
+import { canResumeHere, canJumpToPayment, markJumpToPayment } from "@/lib/funnel/entry";
 import type { Segment } from "@/lib/funnel/time";
 import { audienceFields } from "@/lib/analytics/ad-source";
 import { trackFunnelEvent } from "@/lib/funnel/track";
@@ -67,8 +67,10 @@ export default function Funnel() {
 
   // `browser` is stable (its callbacks have stable deps), so this runs once.
   useEffect(() => {
-    // Reached the payment page before and left: back to it, wherever they came in (owner, 2026-11-21).
-    if (restorePendingPayment()) {
+    // Reached the payment page before and left: back to it, wherever they came in (owner, 2026-11-21),
+    // but never on the browser's back, or a visitor could not leave the payment page (owner, 2026-11-24).
+    if (canJumpToPayment() && restorePendingPayment()) {
+      markJumpToPayment();
       window.location.replace("/payment");
       return;
     }
