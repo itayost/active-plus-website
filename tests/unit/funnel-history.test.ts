@@ -12,9 +12,9 @@ const THROUGH_CHAIR: Answers = {
 };
 
 describe("resumeStep", () => {
-  it("starts at welcome2 when nothing was saved", () => {
-    expect(resumeStep(null, {})).toBe("welcome2");
-    expect(resumeStep("welcome2", { gender: "male" })).toBe("welcome2");
+  it("starts at the goals question when nothing was saved (the entry screen is gone)", () => {
+    expect(resumeStep(null, {})).toBe("goals");
+    expect(resumeStep("welcome2", { gender: "male" })).toBe("goals");
   });
   it("resumes on the saved step when every earlier answer is present", () => {
     expect(resumeStep("standingComfort", THROUGH_CHAIR)).toBe("standingComfort");

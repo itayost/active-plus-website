@@ -26,7 +26,9 @@ export type FunnelState = {
 };
 
 export const initialState = (): FunnelState => ({
-  step: "welcome2",
+  // The website opens straight on the goals question (owner, 2026-11-24: the entry
+  // photo screen is gone, for the home page button and the Meta ads alike).
+  step: "goals",
   history: [],
   answers: {},
   draft: {},

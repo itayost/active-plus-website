@@ -24,8 +24,8 @@ const at = (step: FunnelState["step"], history: FunnelState["step"][], answers: 
 });
 
 describe("funnel machine", () => {
-  it("starts on welcome2 with nothing behind it", () => {
-    expect(initialState()).toMatchObject({ step: "welcome2", history: [], answers: {} });
+  it("starts on the goals question with nothing behind it", () => {
+    expect(initialState()).toMatchObject({ step: "goals", history: [], answers: {} });
   });
 
   it("entering goals (the first question) clears the back history", () => {

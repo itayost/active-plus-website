@@ -46,7 +46,7 @@ function routeTo(target: Step, answers: Answers): Step[] | null {
  * on the route their answers take is still unanswered, in which case that one.
  */
 export function resumeStep(saved: Step | null, answers: Answers): Step {
-  if (!saved || saved === "welcome2") return "welcome2";
+  if (!saved || saved === "welcome2") return firstStep();
   const target = RESUME_AS[saved] ?? saved;
   for (let step: Step | null = firstStep(); step; step = nextStep(step, answers)) {
     if (step === target || !isAnswered(step, answers)) return step;
@@ -56,7 +56,7 @@ export function resumeStep(saved: Step | null, answers: Answers): Step {
 
 /** The back stack for a resumed step: the route walked so far, minus pass-through steps. */
 export function restoreHistory(step: Step, answers: Answers): Step[] {
-  if (step === "welcome2") return [];
+  if (step === "welcome2" || step === firstStep()) return [];
   return (routeTo(step, answers) ?? []).filter((s) => !TRANSIENT.has(s));
 }
 

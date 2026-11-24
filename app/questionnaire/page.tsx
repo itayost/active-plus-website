@@ -15,7 +15,7 @@ export const viewport: Viewport = { themeColor: "#F7F9FC" };
 export default function QuestionnairePage() {
   return (
     <>
-      {/* Before the funnel so it runs ahead of welcome2's markup: see lib/funnel/resume-script. */}
+      {/* Before the funnel so it runs ahead of the first question's markup: see lib/funnel/resume-script. */}
       <script dangerouslySetInnerHTML={{ __html: RESUME_SCRIPT }} />
       <Funnel />
     </>
