@@ -17,7 +17,7 @@ const ALL: Answers = {
   training_time_of_day: "09:00",
 };
 
-/** Every screen of a full forward walk, welcome2 to otp, with the moves the funnel makes. */
+/** Every screen of a full forward walk, goals to otp, with the moves the funnel makes. */
 function walk(): FunnelState[] {
   const states: FunnelState[] = [initialState()];
   let s = initialState();
@@ -60,9 +60,9 @@ describe("history entries", () => {
 });
 
 describe("backDepth", () => {
-  it("counts the backs left: none on welcome2 and goals", () => {
+  it("counts the backs left: none on goals, the first screen", () => {
     expect(backDepth(initialState())).toBe(0);
-    expect(backDepth(advance(initialState()))).toBe(0);
+    expect(backDepth(advance(initialState()))).toBe(1);
   });
 
   it("counts sub-screens: time B, register's phone, and otp's way back through it", () => {
@@ -82,7 +82,7 @@ describe("backDepth", () => {
 });
 
 describe("pushesEntry", () => {
-  it("adds one entry per forward move, none for welcome2 -> goals or the loader -> time", () => {
+  it("adds one entry per forward move, none for the loader -> time", () => {
     const states = walk();
     const kept: string[] = [];
     for (let i = 1; i < states.length; i++) {
@@ -91,7 +91,7 @@ describe("pushesEntry", () => {
       expect(pushesEntry(states[i - 1], states[i])).toBe(grew === 1);
       if (grew === 0) kept.push(`${states[i - 1].step}->${states[i].step}`);
     }
-    expect(kept).toEqual(["welcome2->goals", "planBuilding->time"]);
+    expect(kept).toEqual(["planBuilding->time"]);
   });
 });
 
@@ -122,13 +122,13 @@ describe("planPop", () => {
   });
 
   it("leaves to the page before the funnel when there is nothing left to go back to", () => {
-    const gender = advance(initialState());
+    const gender = initialState();
     expect(planPop({ idx: 4, base: 1 }, { idx: 3, base: 1 }, gender, false)).toEqual({ kind: "leave", delta: -3 });
     expect(planPop({ idx: 4, base: 1, before: 2 }, { idx: 3, base: 1, before: 2 }, gender, false)).toEqual({ kind: "leave", delta: -3 });
   });
 
   it("exits to the home page when the funnel's first entry is the tab's first (a link opened in a new tab)", () => {
-    const gender = advance(initialState());
+    const gender = initialState();
     expect(planPop({ idx: 2, base: 0, before: 0 }, { idx: 1, base: 0, before: 0 }, gender, false)).toEqual({ kind: "exit" });
   });
 });

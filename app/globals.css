@@ -580,10 +580,10 @@ html {
   }
 }
 
-/* A returning visitor's saved step replaces the server-rendered welcome2 on
-   mount. Until then (flag set by lib/funnel/resume-script, cleared by Funnel)
-   welcome2 keeps its height but is not shown, announced or clickable. */
-[data-funnel-resume] section[data-step="welcome2"] {
+/* A returning visitor's saved step replaces the server-rendered first question
+   (goals) on mount. Until then (flag set by lib/funnel/resume-script, cleared by Funnel)
+   it keeps its height but is not shown, announced or clickable. */
+[data-funnel-resume] section[data-step="goals"] {
   visibility: hidden;
 }
 

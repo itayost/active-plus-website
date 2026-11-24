@@ -74,9 +74,15 @@ export default function Funnel() {
       window.location.replace("/payment");
       return;
     }
+    // A new entry starts a fresh session on the first question (what "מתחילים!" on the
+    // old entry screen did); only a reload or a return in the same visit resumes.
+    const resume = canResumeHere();
+    if (!resume) resetSession();
     const { id, answers } = loadSession();
-    // A new entry starts at the first page; only a reload or a return in the same visit resumes.
-    const next = canResumeHere() ? restore(loadStep(), answers) : { ...restore(null, answers), step: "welcome2" as const, history: [] };
+    const next = resume ? restore(loadStep(), answers) : initialState();
+    // Still sent on a new entry, now meaning "entered the questionnaire": the office's
+    // reports count entries (and entries per ad) by it.
+    if (!resume) trackFunnelEvent(id, "welcome2_view");
     setSessionId(id);
     setState(next);
     setRestored(next.step);
@@ -89,7 +95,7 @@ export default function Funnel() {
   useEffect(() => {
     if (restored === null) return;
     delete document.documentElement.dataset.funnelResume;
-    if (restored !== "welcome2") document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
+    if (restored !== initialState().step) document.getElementById(STEP_TITLE_ID)?.focus({ preventScroll: true });
   }, [restored]);
 
   // The next screens' photos load while this one is read (after the restore, so a returning visitor warms their own step's next).

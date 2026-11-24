@@ -16,7 +16,7 @@ export const RESUME_SCRIPT =
   `try{var s=localStorage.getItem(${JSON.stringify(STEP)}),` +
   `t=Number(localStorage.getItem(${JSON.stringify(STAMP)})||0);` +
   `var n=(performance.getEntriesByType("navigation")[0]||{}).type,v=sessionStorage.getItem("ap.funnel.visit")==="1";` +
-  `if((v||n==="reload"||n==="back_forward")&&s&&s!=="welcome2"&&${JSON.stringify(FUNNEL_STEPS)}.indexOf(s)>-1&&!(t&&Date.now()-t>${TTL}))` +
+  `if((v||n==="reload"||n==="back_forward")&&s&&s!=="welcome2"&&s!=="goals"&&${JSON.stringify(FUNNEL_STEPS)}.indexOf(s)>-1&&!(t&&Date.now()-t>${TTL}))` +
   `document.documentElement.dataset.funnelResume="";` +
   // Left the payment page earlier: hide the first page too, Funnel sends them back to it.
   `if(localStorage.getItem("ap.funnel.pending_payment"))document.documentElement.dataset.funnelResume=""}catch(e){}`;
