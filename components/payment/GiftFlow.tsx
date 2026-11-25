@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import JourneySteps from "@/components/funnel/JourneySteps";
 import Button from "@/components/ui/Button";
-import { ClockIcon, GiftIcon, MindIcon, MovementIcon, StrengthIcon } from "@/components/ui/icons";
+import { CheckIcon, ClockIcon, GiftIcon, MindIcon, MovementIcon, StrengthIcon } from "@/components/ui/icons";
 import { readPlanInputs } from "@/lib/funnel/storage";
 import { tapHaptic } from "@/lib/haptics";
 import { downloadHref, openAppHref, storedAppSignin } from "@/lib/payment/app-signin";
@@ -74,12 +74,12 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
           <Claimed signinCode={signinCode} />
         ) : (
           <>
-            <h1 id="payment-heading" className="font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
+            <h1 id="payment-heading" className="text-center font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
               {name ? <span className="text-[#1F6B3D]">{name},</span> : null} {name ? G.headingLead : G.headingLeadPlain}{" "}
               <span className="whitespace-nowrap">{G.headingGift}</span>
             </h1>
 
-            <p className="mt-4 inline-flex w-fit items-center gap-2 whitespace-nowrap rounded-full bg-white/80 px-3.5 py-2 text-[0.9375rem] font-bold text-ink-soft shadow-[0_2px_10px_rgb(31_107_61/0.08)]">
+            <p className="mx-auto mt-4 inline-flex w-fit items-center gap-2 whitespace-nowrap rounded-full bg-white/80 px-3.5 py-2 text-[0.9375rem] font-bold text-ink-soft shadow-[0_2px_10px_rgb(31_107_61/0.08)]">
               <GiftIcon className="h-5 w-5 text-[#C98A12]" />
               {G.lede}
             </p>
@@ -90,22 +90,13 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
               </div>
             </div>
 
-            <ul className="mt-4 grid grid-cols-2 gap-3">
-              {HIGHLIGHTS.map(({ icon: Icon, text }, i) => (
-                <li
-                  key={text}
-                  className="flex items-center gap-2 rounded-2xl px-3 py-2"
-                  style={{ background: i % 2 === 0 ? "#E3F4E9" : "#E6F0FC" }}
-                >
-                  <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgb(0_0_0/0.06)]"
-                    style={{ color: i % 2 === 0 ? "#1F6B3D" : "#1A56B0" }}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="whitespace-nowrap text-[0.9375rem] font-extrabold leading-tight" style={{ color: i % 2 === 0 ? "#1F6B3D" : "#1A56B0" }}>
-                    {text}
-                  </span>
+            {/* One quiet colour for what is inside (owner, 2026-11-25: too many colours made it hard to see
+                what to tap): the gold button is the only colour that calls. */}
+            <ul className="mx-auto mt-5 grid w-fit grid-cols-2 gap-x-6 gap-y-3">
+              {HIGHLIGHTS.map(({ text }) => (
+                <li key={text} className="flex items-center gap-2 whitespace-nowrap text-[1.0625rem] font-bold text-ink">
+                  <CheckIcon className="h-5 w-5 shrink-0 text-[#1F6B3D]" />
+                  {text}
                 </li>
               ))}
             </ul>
@@ -118,9 +109,9 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
                 onClick={() => void claim()}
                 disabled={stage === "claiming"}
                 data-track="pay:claim_gift"
-                className="flex min-h-[64px] w-full items-center justify-center gap-2.5 rounded-[32px] bg-[linear-gradient(180deg,#F8D46A_0%,#E9AE2E_100%)] px-5 font-display text-[1.25rem] font-extrabold text-[#173F27] shadow-[0_10px_22px_rgb(201_138_18/0.32),inset_0_1px_0_rgb(255_255_255/0.55)] transition-transform duration-[var(--dur-fast)] hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-60"
+                className="gift-cta relative flex min-h-[72px] w-full items-center justify-center gap-3 overflow-hidden rounded-[36px] bg-[linear-gradient(180deg,#F8D46A_0%,#E9AE2E_100%)] px-5 font-display text-[1.5rem] font-extrabold text-[#173F27] shadow-[0_14px_30px_rgb(201_138_18/0.45),inset_0_1px_0_rgb(255_255_255/0.6)] ring-4 ring-[#F8D46A]/35 transition-transform duration-[var(--dur-fast)] hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-60"
               >
-                <GiftIcon className="h-6 w-6 shrink-0" />
+                <GiftIcon className="h-7 w-7 shrink-0" />
                 {stage === "claiming" ? G.claiming : G.cta}
               </button>
               <p className="mt-3 text-center text-[0.9375rem] font-bold text-ink-soft">{G.underCta}</p>
@@ -144,7 +135,7 @@ function Claimed({ signinCode }: { signinCode: string | null }) {
       <h1 className="font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
         {G.claimed.title} <span className="text-[#1F6B3D]">{G.claimed.titleGift}</span>
       </h1>
-      <p className="mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-3.5 py-2 text-[0.9375rem] font-bold text-ink-soft shadow-[0_2px_10px_rgb(31_107_61/0.08)]">
+      <p className="mx-auto mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-3.5 py-2 text-[0.9375rem] font-bold text-ink-soft shadow-[0_2px_10px_rgb(31_107_61/0.08)]">
         <GiftIcon className="h-5 w-5 shrink-0 text-[#C98A12]" />
         {G.claimed.lede}
       </p>
