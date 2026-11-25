@@ -13,7 +13,7 @@ export type Testimonial = {
  * (issue #16), spacing and final period included. The root layout's defaults.
  */
 export const HOME_META = {
-  title: "פעילים + | פלטפורמה לאימון הגוף וחדות המחשבה.",
+  title: "פעילים+ | אפליקציה לאימון הגוף וחדות המחשבה",
   description: "רק 10 דקות ביום כדי לשמור על גוף חזק ובריא ויכולות ריכוז וחשיבה.",
 };
 
