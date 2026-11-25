@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import CallMeBack from "@/components/payment/CallMeBack";
 import FirstWorkoutSteps from "@/components/payment/FirstWorkoutSteps";
 import GiftFlow from "@/components/payment/GiftFlow";
+import FullscreenColumn from "@/components/layout/FullscreenColumn";
 import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
 import { CheckIcon } from "@/components/ui/icons";
@@ -17,6 +18,7 @@ import { trackFunnelEvent } from "@/lib/funnel/track";
 import { storedAppSignin } from "@/lib/payment/app-signin";
 import { takeResumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
+import { GROW_APPLE_PAY_SDK_URL } from "@/lib/security/csp";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
 import type { PlanPrices } from "@/lib/pricing";
 import { CheckoutLoading } from "./CheckoutShell";
@@ -56,13 +58,28 @@ export default function PaymentFlow({ prices, gift = false, previewGiftClaimed =
   // A paying subscriber never sees the gift (owner, 2026-11-25: one went through the questionnaire and
   // was offered it). A gift already claimed in this tab is access too, so its own screen (with the app's
   // sign-in code) still answers first. The check is async: the gift shows until it says otherwise.
-  if (gift) {
-    if (subscribed && !previewGiftClaimed && !storedAppSignin()) return <AlreadySubscribed />;
-    return <GiftFlow previewClaimed={previewGiftClaimed} />;
-  }
-  if (subscribed) return <AlreadySubscribed />;
-  if (!prices) return <PricesUnavailable {...props} />;
-  return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
+  // A former subscriber or a frontal trainee is never given the gift by the server, so they get the plans
+  // (owner, 2026-11-25) instead of a gift button that ends in "not available".
+  const giftOffered = useGiftOffered(gift && !previewGiftClaimed);
+  const giftClaimedHere = useGiftClaimedHere(previewGiftClaimed);
+  if (gift && (giftClaimedHere || (giftOffered && !subscribed))) return <GiftFlow previewClaimed={previewGiftClaimed} />;
+  const plans = subscribed ? (
+    <AlreadySubscribed />
+  ) : !prices ? (
+    <PricesUnavailable {...props} />
+  ) : WEB_CHECKOUT_ENABLED ? (
+    <WebCheckoutFlow {...props} prices={prices} />
+  ) : (
+    <StoreFlow {...props} prices={prices} />
+  );
+  // Off the gift page the page's own frame is missing (it renders the gift full-screen), so it is added here.
+  if (!gift) return plans;
+  return (
+    <FullscreenColumn>
+      <script src={GROW_APPLE_PAY_SDK_URL} async />
+      {plans}
+    </FullscreenColumn>
+  );
 }
 
 /**
@@ -83,6 +100,41 @@ function usePaymentView(cancelled: boolean) {
     // Never loadSession(): it would mint and store a funnel session right after handOffToPayment cleared it.
     trackFunnelEvent(paymentSessionId(), VIEW_EVENT.payment);
   }, [cancelled]);
+}
+
+/** A gift already claimed in this tab (its app sign-in code is kept), read after hydration. */
+function useGiftClaimedHere(preview: boolean): boolean {
+  const [claimed, setClaimed] = useState(preview);
+  useEffect(() => {
+    if (storedAppSignin()) setClaimed(true);
+  }, []);
+  return claimed;
+}
+
+/**
+ * Whether the server would give this visitor the gift (my_gift_trial_offer, user from the JWT). True
+ * until it answers no: signed out, still checking or a failed check keep the gift page, as before.
+ */
+function useGiftOffered(ask: boolean): boolean {
+  const [offered, setOffered] = useState(true);
+  useEffect(() => {
+    if (!ask) return;
+    let alive = true;
+    void (async () => {
+      try {
+        const supabase = await loadSupabaseSession();
+        if (!supabase) return;
+        const { data, error } = await supabase.rpc("my_gift_trial_offer");
+        if (alive && !error && data === false) setOffered(false);
+      } catch {
+        // No answer: the gift stays.
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [ask]);
+  return offered;
 }
 
 const NOTICE = "mt-6 rounded-field bg-blue-wash px-4 py-3 text-lead font-medium";
