@@ -112,6 +112,13 @@ export default function Footer() {
             </li>
           ))}
         </ul>
+
+        <p className="mt-2 text-center text-sm text-ink-faint md:col-span-full">
+          עוצב ופותח על ידי{" "}
+          <a href="https://www.itayost.com" target="_blank" rel="noopener" className={ROW}>
+            ITAYOST
+          </a>
+        </p>
       </div>
     </footer>
   );
