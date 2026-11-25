@@ -111,16 +111,18 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
             </ul>
 
             <div className="mt-auto pt-5">
-              <Button
-                size="lg"
-                className="min-h-[64px] w-full rounded-[32px] text-[1.25rem]"
+              {/* Gold on the one decisive tap (owner, 2026-11-25): the gift stands out from the green
+                  of the pages around it, with the same shape and size as their button. */}
+              <button
+                type="button"
                 onClick={() => void claim()}
                 disabled={stage === "claiming"}
-                track="pay:claim_gift"
+                data-track="pay:claim_gift"
+                className="flex min-h-[64px] w-full items-center justify-center gap-2.5 rounded-[32px] bg-[linear-gradient(180deg,#F8D46A_0%,#E9AE2E_100%)] px-5 font-display text-[1.25rem] font-extrabold text-[#173F27] shadow-[0_10px_22px_rgb(201_138_18/0.32),inset_0_1px_0_rgb(255_255_255/0.55)] transition-transform duration-[var(--dur-fast)] hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-60"
               >
                 <GiftIcon className="h-6 w-6 shrink-0" />
                 {stage === "claiming" ? G.claiming : G.cta}
-              </Button>
+              </button>
               <p className="mt-3 text-center text-[0.9375rem] font-bold text-ink-soft">{G.underCta}</p>
               {error ? (
                 <p role="alert" className="mt-3 rounded-2xl bg-white/80 px-4 py-3 text-center text-[1rem] font-medium">
