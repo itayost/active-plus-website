@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils";
  * is filled, the next one is outlined, so every page says what comes after it.
  */
 const STEPS = ["התוכנית שלך", "בחירת מסלול", "אימון ראשון באפליקציה"] as const;
+/** With the 7-day gift on (owner, 2026-11-25) the middle step is the gift, not a plan to choose. */
+const GIFT_STEPS = ["התוכנית שלך", "7 ימים מתנה", "אימון ראשון באפליקציה"] as const;
 
-export default function JourneySteps({ current, className }: { current: 0 | 1 | 2; className?: string }) {
+export default function JourneySteps({ current, className, gift = false }: { current: 0 | 1 | 2; className?: string; gift?: boolean }) {
   return (
     <ol aria-label="השלבים עד האימון הראשון" className={cn("grid grid-cols-3 gap-2", className)}>
-      {STEPS.map((label, i) => {
+      {(gift ? GIFT_STEPS : STEPS).map((label, i) => {
         const done = i < current;
         const now = i === current;
         return (

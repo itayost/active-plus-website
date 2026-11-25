@@ -4,6 +4,7 @@ import FullscreenColumn from "@/components/layout/FullscreenColumn";
 import PaymentFlow from "@/components/payment/PaymentFlow";
 import PaymentHeading from "@/components/payment/PaymentHeading";
 import { PLANS, type PlanId } from "@/lib/constants";
+import { loadGiftTrialEnabled } from "@/lib/payment/gift";
 import { loadPlanPrices } from "@/lib/plan-prices";
 import { describePlans } from "@/lib/pricing";
 import { GROW_APPLE_PAY_SDK_URL } from "@/lib/security/csp";
@@ -31,9 +32,12 @@ function parsePlan(value: string | string[] | undefined): PlanId | undefined {
 export default async function PaymentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ plan?: string | string[]; cancelled?: string | string[] }>;
+  searchParams: Promise<{ plan?: string | string[]; cancelled?: string | string[]; giftPreview?: string | string[] }>;
 }) {
-  const [{ plan, cancelled }, prices] = await Promise.all([searchParams, planPrices()]);
+  const [{ plan, cancelled, giftPreview }, prices, giftOn] = await Promise.all([searchParams, planPrices(), loadGiftTrialEnabled()]);
+  // Local preview only: ?giftPreview=offer|claimed shows the gift without the server switch.
+  const preview = process.env.NODE_ENV !== "production" ? (Array.isArray(giftPreview) ? giftPreview[0] : giftPreview) : undefined;
+  const gift = giftOn || preview === "offer" || preview === "claimed";
   // No X to the free workout any more (owner, 2026-11-16: pay first); the way out is a call back under the plans.
   return (
     <FullscreenColumn>
@@ -43,8 +47,10 @@ export default async function PaymentPage({
         prices={prices}
         linkPlan={parsePlan(plan)}
         cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}
+        gift={gift}
+        previewGiftClaimed={preview === "claimed"}
       >
-        <PaymentHeading />
+        <PaymentHeading gift={gift} />
       </PaymentFlow>
     </FullscreenColumn>
   );
