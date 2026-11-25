@@ -25,4 +25,13 @@ describe("app sign-in after paying", () => {
     expect(storeUrlFor("ios", params)).not.toContain(CODE);
     expect(storeUrlFor("android", new URLSearchParams("signin=bad"))).not.toContain("signin");
   });
+
+  it("carries the questionnaire's gender for the app's opening photo, and nothing else", () => {
+    expect(downloadHref(CODE, "female")).toBe(`/download?utm_source=website&utm_medium=payment_success&signin=${CODE}&g=female`);
+    expect(openAppHref(CODE, "male")).toBe(`activeplus://signin?code=${CODE}&g=male`);
+    expect(openAppHref(CODE, null)).toBe(`activeplus://signin?code=${CODE}`);
+    const params = new URLSearchParams(`signin=${CODE}&g=female`);
+    expect(decodeURIComponent(storeUrlFor("android", params).split("referrer=")[1])).toBe(`signin=${CODE}&g=female`);
+    expect(storeUrlFor("android", new URLSearchParams("g=other"))).not.toContain("g%3D");
+  });
 });

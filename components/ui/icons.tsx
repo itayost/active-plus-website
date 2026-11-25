@@ -236,3 +236,16 @@ export function HeartIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+/** A gift box with a ribbon: the 7-day gift (owner, 2026-11-25). */
+export function GiftIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="3.5" y="8.5" width="17" height="4" rx="1" />
+      <path d="M5 12.5v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" />
+      <path d="M12 8.5v12" />
+      <path d="M12 8.5c-1.5-3.5-5.5-4-5.5-1.5 0 1.5 2.5 1.5 5.5 1.5Z" />
+      <path d="M12 8.5c1.5-3.5 5.5-4 5.5-1.5 0 1.5-2.5 1.5-5.5 1.5Z" />
+    </svg>
+  );
+}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import JourneySteps from "@/components/funnel/JourneySteps";
 import Button from "@/components/ui/Button";
-import { LockIcon } from "@/components/ui/icons";
+import { GiftIcon, LockIcon } from "@/components/ui/icons";
 import { PAYMENT_PATH } from "@/lib/funnel/constants";
 import { readPlanInputs, restorePendingPayment, type PlanInputs } from "@/lib/funnel/storage";
 import { isPressable, tapHaptic } from "@/lib/haptics";
@@ -17,7 +17,7 @@ const toPlans = () => window.location.assign(PAYMENT_PATH);
  * toward the plan's two goals (muscle strength, memory) by a date 28 days away, then
  * the plans; the first workout is in the app, after payment (owner, 2026-11-16).
  */
-export default function MyPlan() {
+export default function MyPlan({ gift = false }: { gift?: boolean }) {
   // Read after mount: sessionStorage does not exist on the server.
   const [inputs, setInputs] = useState<PlanInputs | null | undefined>(undefined);
   const [date, setDate] = useState("");
@@ -50,7 +50,7 @@ export default function MyPlan() {
       }}
     >
       <div className="gutter-x flex w-full max-w-[560px] flex-col pt-[max(2rem,env(safe-area-inset-top))] md:shadow-lift-2">
-        <JourneySteps current={0} className="mb-5" />
+        <JourneySteps current={0} className="mb-5" gift={gift} />
         <h1 className="font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
           {name === undefined ? (
             "\u00A0"
@@ -90,11 +90,18 @@ export default function MyPlan() {
 
         <div className="pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
           <Button size="lg" className="min-h-[64px] w-full rounded-[32px] text-[1.25rem]" onClick={toPlans}>
-            לבחירת המסלול שלי
+            {gift ? (
+              <>
+                <GiftIcon className="h-6 w-6 shrink-0" />
+                ל-7 ימים מתנה
+              </>
+            ) : (
+              "לבחירת המסלול שלי"
+            )}
           </Button>
           <p className="mt-3 flex items-center justify-center gap-2 text-[0.9375rem] font-bold text-ink-soft">
-            <LockIcon className="h-4 w-4 shrink-0" />
-            תשלום מאובטח · אפשר לבטל בכל עת
+            {gift ? null : <LockIcon className="h-4 w-4 shrink-0" />}
+            {gift ? "בלי כרטיס אשראי ובלי התחייבות" : "תשלום מאובטח · אפשר לבטל בכל עת"}
           </p>
         </div>
       </div>
@@ -179,7 +186,7 @@ function ProgressChart({ date }: { date: string }) {
           ))}
         </g>
       </svg>
-      <p className="mt-1 text-[0.875rem] text-ink-faint">המחשה של התקדמות צפויה. הקצב של כל אחד שונה.</p>
+      <p className="mt-1 text-[0.875rem] text-ink-faint">הצפי שלך להתקדמות</p>
     </figure>
   );
 }

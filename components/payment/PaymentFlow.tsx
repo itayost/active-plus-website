@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import CallMeBack from "@/components/payment/CallMeBack";
 import FirstWorkoutSteps from "@/components/payment/FirstWorkoutSteps";
+import GiftFlow from "@/components/payment/GiftFlow";
 import PlanSelector from "@/components/payment/PlanSelector";
 import StoreFallback from "@/components/payment/StoreFallback";
 import { CheckIcon } from "@/components/ui/icons";
@@ -30,6 +31,10 @@ type Props = {
   cancelled?: boolean;
   /** The page's headings, at the top of the plans section. */
   children?: ReactNode;
+  /** The 7-day gift is on (owner, 2026-11-25): one gift card instead of the plans, no price. */
+  gift?: boolean;
+  /** Dev preview only: the gift's claimed screen. */
+  previewGiftClaimed?: boolean;
 };
 
 const PLANS_TOP = "pt-6";
@@ -44,9 +49,12 @@ type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
  * Without prices no plan card or checkout is shown (no figure that did not come from web_plans):
  * a notice and the store fallback instead.
  */
-export default function PaymentFlow({ prices, ...props }: Props) {
+export default function PaymentFlow({ prices, gift = false, previewGiftClaimed = false, ...props }: Props) {
   usePaymentView(props.cancelled ?? false);
   const subscribed = useActiveSubscription();
+  // The gift answers before "already subscribed": a gift already claimed is active access too, and its own
+  // screen (with the app's sign-in code) is the right one to come back to.
+  if (gift) return <GiftFlow previewClaimed={previewGiftClaimed} />;
   if (subscribed) return <AlreadySubscribed />;
   if (!prices) return <PricesUnavailable {...props} />;
   return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
