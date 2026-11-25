@@ -14,6 +14,7 @@ import type { PlanId } from "@/lib/constants";
 import { VIEW_EVENT } from "@/lib/funnel/events";
 import { paymentSessionId } from "@/lib/funnel/storage";
 import { trackFunnelEvent } from "@/lib/funnel/track";
+import { storedAppSignin } from "@/lib/payment/app-signin";
 import { takeResumableDraft, type CheckoutDraft } from "@/lib/payment/checkout";
 import { WEB_CHECKOUT_ENABLED } from "@/lib/payment/config";
 import { CHECKOUT_COPY as C } from "@/lib/payment/copy";
@@ -52,9 +53,13 @@ type Priced = Omit<Props, "prices"> & { prices: PlanPrices };
 export default function PaymentFlow({ prices, gift = false, previewGiftClaimed = false, ...props }: Props) {
   usePaymentView(props.cancelled ?? false);
   const subscribed = useActiveSubscription();
-  // The gift answers before "already subscribed": a gift already claimed is active access too, and its own
-  // screen (with the app's sign-in code) is the right one to come back to.
-  if (gift) return <GiftFlow previewClaimed={previewGiftClaimed} />;
+  // A paying subscriber never sees the gift (owner, 2026-11-25: one went through the questionnaire and
+  // was offered it). A gift already claimed in this tab is access too, so its own screen (with the app's
+  // sign-in code) still answers first. The check is async: the gift shows until it says otherwise.
+  if (gift) {
+    if (subscribed && !previewGiftClaimed && !storedAppSignin()) return <AlreadySubscribed />;
+    return <GiftFlow previewClaimed={previewGiftClaimed} />;
+  }
   if (subscribed) return <AlreadySubscribed />;
   if (!prices) return <PricesUnavailable {...props} />;
   return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
