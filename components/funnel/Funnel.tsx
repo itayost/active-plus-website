@@ -20,6 +20,7 @@ import { usePreloadImages } from "./usePreloadImages";
 /** The continue taps the app reports as their own events, by the step they leave. */
 const CONTINUE_EVENT: Partial<Record<Step, ActionEvent>> = {
   goalReinforcement: "goal_reinforcement_continue",
+  levelPreview: "level_preview_continue",
   reinforcement2: "reinforcement2_continue",
   planBuilding: "plan_build_complete",
 };

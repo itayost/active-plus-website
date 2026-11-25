@@ -43,8 +43,10 @@ describe("upcomingImages", () => {
     expect(srcs(upcomingImages("gender", {})).some((s) => s.includes("goal-") || s.includes("reinforcement2"))).toBe(false);
   });
 
-  it("warms reinforcement2 two screens ahead, whichever branch chairRise takes", () => {
-    expect(srcs(upcomingImages("chairRise", { gender: "male" }))).toContain("/img/funnel/app/reinforcement2-male.webp");
+  it("warms the training preference's photos and reinforcement2 from the memory question", () => {
+    const next = srcs(upcomingImages("memoryForgetfulness", { gender: "male" }));
+    expect(next).toContain("/img/funnel/level/seated.webp");
+    expect(next).toContain("/img/funnel/app/reinforcement2-male.webp");
   });
 
   it("never lists the current step's own images", () => {

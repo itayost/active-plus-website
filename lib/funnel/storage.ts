@@ -1,4 +1,5 @@
 import { SESSION_TTL_DAYS } from "./constants";
+import { functionalityLevelOf } from "./level";
 import { FUNNEL_STEPS } from "./contract.generated";
 import type { Answers, Step } from "./types";
 
@@ -207,7 +208,7 @@ export function planInputsOf(answers: Answers): PlanInputs {
     feeling: answers.desired_feeling,
     frequency: answers.training_frequency_choice,
     memory: answers.memory_forgetfulness,
-    level: answers.functionality_level,
+    level: answers.functionality_level ?? functionalityLevelOf(answers),
     ...(firstName ? { firstName } : {}),
   };
 }

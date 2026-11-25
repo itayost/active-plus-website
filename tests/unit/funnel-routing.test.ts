@@ -21,22 +21,24 @@ describe("routing parity with the app's orchestrator fixtures", () => {
 
 describe("indicator", () => {
   it("shows the apps' three sections, each restarting after a reinforcement", () => {
-    const a: Answers = { chair_rise_capability: "alone" };
+    const a: Answers = { functionality_level: "chair_only" };
     const shown = walk(a).flatMap((s) => {
       const bar = indicator(s, a);
       return bar ? [`${bar.label}:${bar.index}/${bar.total}`] : [];
     });
     expect(shown).toEqual([
       "נעים להכיר:1/3", "נעים להכיר:2/3", "נעים להכיר:3/3",
-      "מכירים אתכם טוב יותר:1/4", "מכירים אתכם טוב יותר:2/4", "מכירים אתכם טוב יותר:3/4", "מכירים אתכם טוב יותר:4/4",
+      "מכירים אתכם טוב יותר:1/3", "מכירים אתכם טוב יותר:2/3", "מכירים אתכם טוב יותר:3/3",
       "התאמה אישית:1/3", "התאמה אישית:2/3", "התאמה אישית:3/3",
     ]);
     expect(indicator("goalReinforcement", a)).toBeNull();
     expect(indicator("register", a)).toBeNull();
   });
-  it("puts standingComfort last in the second section on the handles branch", () => {
-    expect(indicator("standingComfort", { chair_rise_capability: "with_handles" })).toMatchObject({ index: 4, total: 4 });
-    expect(indicator("challengeArea", { chair_rise_capability: "with_handles" })).toBeNull();
+  it("ends the second section on the training preference; the chair questions carry no bar", () => {
+    expect(indicator("levelPreview", {})).toMatchObject({ index: 3, total: 3 });
+    for (const step of ["chairRise", "challengeArea", "standingComfort"] as const) {
+      expect(indicator(step, { chair_rise_capability: "with_handles" })).toBeNull();
+    }
   });
 });
 

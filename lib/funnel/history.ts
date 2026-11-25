@@ -11,6 +11,7 @@ const ANSWER_OF: Partial<Record<Step, keyof Answers>> = {
   chairRise: "chair_rise_capability",
   challengeArea: "mobility_challenge",
   standingComfort: "standing_stability",
+  levelPreview: "functionality_level",
   sedentaryLifestyle: "sedentary_lifestyle",
   frequency: "training_frequency_choice",
   bodyAreas: "pain_areas",

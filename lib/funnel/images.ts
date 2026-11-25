@@ -23,6 +23,8 @@ export const SIZES = {
   card: "(min-width: 560px) 260px, 45vw",
   /** The body figure on bodyAreas. */
   body: "150px",
+  /** The trainer photos on levelPreview's three cards. */
+  level: "68px",
 } as const;
 
 type FunnelImage = { src: string; sizes: string };
@@ -73,6 +75,8 @@ export function stepImages(step: Step, answers: Answers): FunnelImage[] {
     }
     case "goalReinforcement":
       return gender ? many(SIZES.screen, [goalImage(gender, answers.training_goals?.[0])]) : [];
+    case "levelPreview":
+      return many(SIZES.level, ["/img/funnel/level/standing.webp", "/img/funnel/level/support.webp", "/img/funnel/level/seated.webp"]);
     case "reinforcement2":
       return gender ? many(SIZES.screen, [reinforcement2Image(gender)]) : [];
     case "bodyAreas":

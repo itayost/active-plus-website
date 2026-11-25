@@ -24,6 +24,7 @@ export const FUNNEL_STEPS = [
   "time",
   "register",
   "otp",
+  "levelPreview",
   "payment",
 ] as const;
 
@@ -31,7 +32,7 @@ export type FunnelStep = (typeof FUNNEL_STEPS)[number];
 
 /** JSONB payload for merge_funnel_session / fill_missing_funnel_answers. Every key optional. */
 export type QuestionnaireAnswers = Partial<{
-  functionality_level: string; // Q1: fully_independent / balance_issues / chair_only
+  functionality_level: string; // levelPreview (since 2026-11-25, the trainee's own choice): fully_independent / balance_issues / chair_only
   functionality_path_followup: string; // Q2: per-path enum value (legacy; RPC v4 ignores)
   focus_areas: string[]; // Q3: balance / strength / flexibility / cardio
   daily_activity_level: string; // activityLevel: very_active / partially_active / mostly_sitting
