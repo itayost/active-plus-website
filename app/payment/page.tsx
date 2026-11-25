@@ -39,6 +39,10 @@ export default async function PaymentPage({
   const preview = process.env.NODE_ENV !== "production" ? (Array.isArray(giftPreview) ? giftPreview[0] : giftPreview) : undefined;
   const gift = giftOn || preview === "offer" || preview === "claimed";
   // No X to the free workout any more (owner, 2026-11-16: pay first); the way out is a call back under the plans.
+  // The 7-day gift (owner, 2026-11-25) is one premium screen of its own: no plans, no payment.
+  if (gift) {
+    return <PaymentFlow prices={prices} gift previewGiftClaimed={preview === "claimed"} />;
+  }
   return (
     <FullscreenColumn>
       {/* React moves an async script into the head, where Grow requires it. */}
@@ -47,10 +51,8 @@ export default async function PaymentPage({
         prices={prices}
         linkPlan={parsePlan(plan)}
         cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}
-        gift={gift}
-        previewGiftClaimed={preview === "claimed"}
       >
-        <PaymentHeading gift={gift} />
+        <PaymentHeading />
       </PaymentFlow>
     </FullscreenColumn>
   );

@@ -10,22 +10,21 @@ import { publicSupabaseEnv } from "@/lib/supabase/env";
 export const GIFT_DAYS = 7;
 
 export const GIFT_COPY = {
-  headingNamed: "{name}, יש לך 7 ימים מתנה",
-  headingPlain: "7 ימים מתנה מחכים לך",
-  lede: "מורידים את האפליקציה ומתחילים את האימון הראשון, עוד היום. בלי כרטיס אשראי.",
-  badge: "מתנה",
-  amount: "7 ימים",
-  suffix: "חינם",
-  terms: "כל האימונים, האתגרים ומשחקי הזיכרון פתוחים לך.",
-  noCard: "בלי כרטיס אשראי ובלי התחייבות",
+  /** Owner, 2026-11-25: only "מתנה", never "חינם", and no price or payment anywhere. */
+  headingLead: "יש לך",
+  headingLeadPlain: "מחכים לך",
+  headingGift: "7 ימים מתנה",
+  lede: "בלי כרטיס אשראי ובלי התחייבות",
+  highlights: ["אימון יומי מותאם", "משחקי זיכרון", "אתגרי כוח וזיכרון", "10 דקות ביום"],
   cta: "לקבלת 7 ימים מתנה",
+  underCta: "הכפתור מוריד את האפליקציה ומתחילים להתאמן",
   claiming: "רגע, מכינים לך את המתנה",
-  includesTitle: "מה מחכה לך ב-7 הימים",
   claimed: {
-    chip: "7 ימים מתנה",
-    title: { fem: "ברוכה הבאה לפעילים+", masc: "ברוך הבא לפעילים+" },
-    titleNeutral: "ברוכים הבאים לפעילים+",
-    tagline: "7 הימים שלך מתחילים כשנכנסים לאפליקציה",
+    title: "המתנה שלך",
+    titleGift: "מחכה באפליקציה",
+    lede: "פותחים את האפליקציה ונכנסים ישר לאימון הראשון. בלי טלפון ובלי קוד.",
+    open: "פתיחת האפליקציה",
+    download: "להורדת האפליקציה",
   },
   errors: {
     signed_out: "צריך לאמת שוב את מספר הטלפון.",

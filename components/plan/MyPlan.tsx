@@ -186,7 +186,7 @@ function ProgressChart({ date }: { date: string }) {
           ))}
         </g>
       </svg>
-      <p className="mt-1 text-[0.875rem] text-ink-faint">המחשה של התקדמות צפויה. הקצב של כל אחד שונה.</p>
+      <p className="mt-1 text-[0.875rem] text-ink-faint">הצפי שלך להתקדמות</p>
     </figure>
   );
 }

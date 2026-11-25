@@ -1,4 +1,4 @@
-import { CheckIcon } from "@/components/ui/icons";
+import { CheckIcon, GiftIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,7 +28,10 @@ export default function JourneySteps({ current, className, gift = false }: { cur
             >
               {done ? <CheckIcon className="h-4 w-4" /> : i + 1}
             </span>
-            <span className={cn("text-[0.875rem] font-bold leading-tight", now ? "text-ink" : "text-ink-soft")}>{label}</span>
+            <span className={cn("inline-flex items-center gap-1 text-[0.875rem] font-bold leading-tight", now ? "text-ink" : "text-ink-soft")}>
+              {gift && i === 1 ? <GiftIcon className="h-[18px] w-[18px] shrink-0 text-[#C98A12]" /> : null}
+              {label}
+            </span>
           </li>
         );
       })}

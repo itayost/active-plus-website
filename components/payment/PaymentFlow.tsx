@@ -54,7 +54,7 @@ export default function PaymentFlow({ prices, gift = false, previewGiftClaimed =
   const subscribed = useActiveSubscription();
   // The gift answers before "already subscribed": a gift already claimed is active access too, and its own
   // screen (with the app's sign-in code) is the right one to come back to.
-  if (gift) return <GiftFlow previewClaimed={previewGiftClaimed}>{props.children}</GiftFlow>;
+  if (gift) return <GiftFlow previewClaimed={previewGiftClaimed} />;
   if (subscribed) return <AlreadySubscribed />;
   if (!prices) return <PricesUnavailable {...props} />;
   return WEB_CHECKOUT_ENABLED ? <WebCheckoutFlow {...props} prices={prices} /> : <StoreFlow {...props} prices={prices} />;
