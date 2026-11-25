@@ -41,7 +41,18 @@ export default async function PaymentPage({
   // No X to the free workout any more (owner, 2026-11-16: pay first); the way out is a call back under the plans.
   // The 7-day gift (owner, 2026-11-25) is one premium screen of its own: no plans, no payment.
   if (gift) {
-    return <PaymentFlow prices={prices} gift previewGiftClaimed={preview === "claimed"} />;
+    // The plans travel along for a visitor the server will not give the gift to (a former subscriber).
+    return (
+      <PaymentFlow
+        prices={prices}
+        gift
+        previewGiftClaimed={preview === "claimed"}
+        linkPlan={parsePlan(plan)}
+        cancelled={(Array.isArray(cancelled) ? cancelled[0] : cancelled) === "1"}
+      >
+        <PaymentHeading />
+      </PaymentFlow>
+    );
   }
   return (
     <FullscreenColumn>
