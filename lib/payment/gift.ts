@@ -15,7 +15,7 @@ export const GIFT_COPY = {
   headingLeadPlain: "מחכים לך",
   headingGift: "7 ימים מתנה",
   lede: "בלי כרטיס אשראי ובלי התחייבות",
-  highlights: ["אימון יומי מותאם", "משחקי זיכרון", "אתגרי כוח וזיכרון", "10 דקות ביום"],
+  highlights: ["אימון מותאם לך", "משחקי זיכרון", "אתגרים", "10 דקות ביום"],
   cta: "לקבלת 7 ימים מתנה",
   underCta: "הכפתור מוריד את האפליקציה ומתחילים להתאמן",
   claiming: "רגע, מכינים לך את המתנה",
@@ -70,4 +70,29 @@ export async function claimGiftTrial(supabase: SupabaseClient): Promise<{ ok: tr
   } catch {
     return { ok: false, error: "network" };
   }
+}
+
+/**
+ * The one tap (owner, 2026-11-25: the gift is tapped once, never twice): claim the 7 days, make
+ * the one-time code that opens the app signed in, and go to the download. The page is first
+ * replaced by the gift page in history, so coming back to the site (an iPhone after the App
+ * Store) lands on its "פתיחת האפליקציה" screen. Returns the error when it could not go on.
+ */
+export async function claimGiftAndDownload(): Promise<GiftError | null> {
+  const [{ loadSupabaseSession }, { createAppSignin, downloadHref }] = await Promise.all([
+    import("@/lib/supabase/lazy"),
+    import("@/lib/payment/app-signin"),
+  ]);
+  const supabase = await loadSupabaseSession();
+  if (!supabase) return "signed_out";
+  const result = await claimGiftTrial(supabase);
+  if (!result.ok) return result.error;
+  const signin = await createAppSignin(supabase).catch(() => null);
+  try {
+    window.history.replaceState(null, "", "/payment");
+  } catch {
+    // The download still goes.
+  }
+  window.location.assign(downloadHref(signin?.code ?? null));
+  return null;
 }
