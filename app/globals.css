@@ -682,3 +682,21 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .phone-confetti { animation: none; }
 }
+
+/* The gift button's slow shine (owner, 2026-11-25: the one tap should call). */
+@keyframes gift-shine {
+  0%, 70% { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+.gift-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: gift-shine 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift-cta::after { animation: none; display: none; }
+}
