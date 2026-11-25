@@ -7,6 +7,7 @@ import { toggleBodyArea } from "@/lib/funnel/payload";
 import type { Segment } from "@/lib/funnel/time";
 import type { Answers, Step } from "@/lib/funnel/types";
 import BodyAreas from "./BodyAreas";
+import LevelPreview from "./LevelPreview";
 import { GoalReinforcement, Reinforcement2, Welcome2 } from "./Interstitial";
 import OptionList, { type Option } from "./OptionList";
 import Otp from "./Otp";
@@ -184,6 +185,8 @@ export function renderStep(state: FunnelState, actions: StepActions, sessionId: 
       return <AgeGroupStep state={state} actions={actions} />;
     case "goalReinforcement":
       return <GoalReinforcement gender={gender} goal={answers.training_goals?.[0]} onContinue={actions.advance} />;
+    case "levelPreview":
+      return <LevelPreview answers={answers} onChoose={(level) => actions.answer({ functionality_level: level })} />;
     case "reinforcement2":
       return <Reinforcement2 gender={gender} onContinue={actions.advance} />;
     case "bodyAreas":

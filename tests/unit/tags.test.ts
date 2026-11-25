@@ -10,7 +10,9 @@ describe("tagEventFor", () => {
       expect(tagEventFor(VIEW_EVENT[step])).toEqual({ event: "funnel_step", step_number: index + 1, step_total: FUNNEL_STEP_TOTAL });
     });
     expect(tagEventFor(VIEW_EVENT.welcome2)).toMatchObject({ step_number: 1 });
-    expect(tagEventFor(VIEW_EVENT.otp)).toMatchObject({ step_number: FUNNEL_STEP_TOTAL });
+    // levelPreview (2026-11-25) is numbered last, so every older screen keeps its number.
+    expect(tagEventFor(VIEW_EVENT.otp)).toMatchObject({ step_number: 21 });
+    expect(tagEventFor(VIEW_EVENT.levelPreview)).toMatchObject({ step_number: 22, step_total: 22 });
   });
   it("makes the payment page begin_checkout, and the start and plan screens their own events", () => {
     expect(tagEventFor(VIEW_EVENT.payment)).toEqual({ event: "begin_checkout" });

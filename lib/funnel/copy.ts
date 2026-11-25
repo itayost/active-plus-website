@@ -164,6 +164,11 @@ export const COPY = {
       { value: "seated", fem: "אני מרגישה בטוחה יותר כשאני יושבת", masc: "אני מרגיש בטוח יותר כשאני יושב" },
     ] as readonly GenderedOption[],
   },
+  /** "איך היית מעדיפה להתאמן?" after the memory question, in place of the chair questions (owner, 2026-11-25). */
+  levelPreview: {
+    title: { fem: "איך היית מעדיפה להתאמן?", masc: "איך היית מעדיף להתאמן?" } as Gendered,
+    subtitle: { fem: "בחרי את הדרך שנוחה לך. אפשר לשנות בכל זמן", masc: "בחר את הדרך שנוחה לך. אפשר לשנות בכל זמן" } as Gendered,
+  },
   /** "התאמה אישית" over a full-screen photo (Reinforcement2View, owner copy 2026-10-18). */
   reinforcement2: {
     titleLead: "התאמה ",

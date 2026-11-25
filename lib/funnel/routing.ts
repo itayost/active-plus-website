@@ -25,7 +25,10 @@ export function nextStep(step: Step, answers: Answers): Step | null {
     case "desiredFeeling":
       return "memoryForgetfulness";
     case "memoryForgetfulness":
-      return "chairRise";
+      // Owner, 2026-11-25: no functional questions ("כשאת קמה מכיסא"); the visitor says how they
+      // prefer to train, and that choice is the level. chairRise / challengeArea / standingComfort
+      // stay in the contract, unreached.
+      return "levelPreview";
     case "socialProof":
       return "aspiration";
     case "aspiration":
@@ -36,6 +39,8 @@ export function nextStep(step: Step, answers: Answers): Step | null {
       return onHandlesBranch(answers) ? "standingComfort" : "challengeArea";
     case "challengeArea":
     case "standingComfort":
+      return "levelPreview";
+    case "levelPreview":
       return "reinforcement2";
     case "reinforcement2":
       return "sedentaryLifestyle";
@@ -65,13 +70,13 @@ export type Indicator = { index: number; total: number; label: string };
 
 /**
  * The apps' progress sections: each runs up to a reinforcement screen and
- * restarts after it. Exactly one of challengeArea / standingComfort shows.
+ * restarts after it. The second ends on the training preference (2026-11-25).
  */
 function sections(answers: Answers): Step[][] {
-  const branch: Step = onHandlesBranch(answers) ? "standingComfort" : "challengeArea";
+  void answers;
   return [
     ["goals", "gender", "dob"],
-    ["desiredFeeling", "memoryForgetfulness", "chairRise", branch],
+    ["desiredFeeling", "memoryForgetfulness", "levelPreview"],
     ["sedentaryLifestyle", "frequency", "bodyAreas"],
   ];
 }

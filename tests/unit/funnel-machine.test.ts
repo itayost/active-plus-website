@@ -8,8 +8,7 @@ const ALL: Answers = {
   age_group: "60_69",
   desired_feeling: "healthy_habit",
   memory_forgetfulness: "often",
-  chair_rise_capability: "alone",
-  mobility_challenge: "stairs",
+  functionality_level: "fully_independent",
   sedentary_lifestyle: "yes",
   training_frequency_choice: "none",
   pain_areas: ["knees"],
@@ -34,16 +33,16 @@ describe("funnel machine", () => {
     expect(next.history).toEqual([]);
   });
 
-  it("pushes the step it leaves and follows the chair branch", () => {
-    const next = advance(at("chairRise", ["gender"], { chair_rise_capability: "with_handles" }));
-    expect(next.step).toBe("standingComfort");
-    expect(next.history).toEqual(["gender", "chairRise"]);
+  it("pushes the step it leaves and goes from memory to the training preference", () => {
+    const next = advance(at("memoryForgetfulness", ["gender"], { memory_forgetfulness: "often" }));
+    expect(next.step).toBe("levelPreview");
+    expect(next.history).toEqual(["gender", "memoryForgetfulness"]);
   });
 
   it("uses the answers it is given, not the stale ones on the state", () => {
-    const next = advance(at("chairRise", [], {}), { chair_rise_capability: "with_handles" });
-    expect(next.step).toBe("standingComfort");
-    expect(next.answers).toEqual({ chair_rise_capability: "with_handles" });
+    const next = advance(at("levelPreview", [], {}), { functionality_level: "chair_only" });
+    expect(next.step).toBe("reinforcement2");
+    expect(next.answers).toEqual({ functionality_level: "chair_only" });
   });
 
   it("drops the draft when it moves", () => {
