@@ -32,6 +32,9 @@ export function storeUrlFor(platform: Platform, params?: URLSearchParams): strin
   // The one-time code that signs the new app in (owner, 2026-11-21), read from the install referrer.
   const signin = params?.get("signin");
   if (signin && /^[A-Za-z0-9_-]{43}$/.test(signin)) utm.set("signin", signin);
+  // The visitor's gender picks the app's opening photo (owner, 2026-11-25).
+  const gender = params?.get("g");
+  if (gender === "female" || gender === "male") utm.set("g", gender);
   const referrer = utm.toString();
   return referrer ? `${STORE_ANDROID}&referrer=${encodeURIComponent(referrer)}` : STORE_ANDROID;
 }

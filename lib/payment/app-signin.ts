@@ -1,6 +1,7 @@
 "use client";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { GENDER_FOR_PAYMENT } from "@/lib/funnel/storage";
 
 /**
  * After paying, a one-time code that opens the app already signed in (owner, 2026-11-21): the
@@ -71,11 +72,27 @@ export async function createAppSignin(supabase: SupabaseClient): Promise<AppSign
   return signin;
 }
 
+/**
+ * The visitor's gender from the questionnaire, only to pick the app's opening photo (owner,
+ * 2026-11-25): a woman sees the woman, a man the man. Null when unknown.
+ */
+function giftGender(): "female" | "male" | null {
+  try {
+    const value = sessionStorage.getItem(GENDER_FOR_PAYMENT);
+    return value === "female" || value === "male" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The download link with the code for Google Play; the plain one link without it. */
-export function downloadHref(code: string | null): string {
+export function downloadHref(code: string | null, gender: "female" | "male" | null = giftGender()): string {
   const params = new URLSearchParams({ utm_source: "website", utm_medium: "payment_success" });
   if (code) params.set("signin", code);
+  if (gender) params.set("g", gender);
   return `/download?${params.toString()}`;
 }
 
-export const openAppHref = (code: string) => `activeplus://signin?code=${code}`;
+export function openAppHref(code: string, gender: "female" | "male" | null = giftGender()): string {
+  return gender ? `activeplus://signin?code=${code}&g=${gender}` : `activeplus://signin?code=${code}`;
+}
