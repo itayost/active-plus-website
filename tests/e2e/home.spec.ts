@@ -20,7 +20,7 @@ test("hero: the family photo, described, and the CTA to the questionnaire; no vi
   const hero = page.locator("section[aria-labelledby='hero-heading']");
   const photo = hero.getByRole("img", { name: "סבא וסבתא רצים בפארק עם שני נכדים" });
   await expect(photo).toBeVisible();
-  await expect(photo).toHaveAttribute("src", /hero-family/);
+  await expect(photo).toHaveAttribute("src", /hero-home-lunge/);
   await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await expect(hero.getByRole("link", { name: "לתוכנית אישית לחצו כאן" })).toHaveAttribute("href", "/questionnaire");
   await expect(hero.locator("video")).toHaveCount(0);

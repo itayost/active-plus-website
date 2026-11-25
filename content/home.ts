@@ -23,10 +23,10 @@ export const HERO = {
   titleAccent: "לאימון וחיזוק הגוף וחדות המחשבה",
   sub: "רק 10 דקות ביום מהבית ובקצב שלך",
   cta: "לתוכנית אישית לחצו כאן",
-  /** The client's hero photo (2026-10-16), which replaced the hero video. */
+  /** Hero photo: two older adults exercising together in a living room (owner, 2026-11-25; licensed Adobe Stock 578328891). Replaced the family photo of 2026-10-16. */
   image: {
-    src: "/img/v2/hero-family.webp",
-    alt: "סבא וסבתא רצים בפארק עם שני נכדים",
+    src: "/img/v2/hero-home-lunge.webp",
+    alt: "גבר ואישה מבוגרים מתאמנים יחד בסלון",
     width: 1370,
     height: 1148,
   },
