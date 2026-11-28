@@ -11,7 +11,7 @@ import { loadSession, readPlanInputs } from "@/lib/funnel/storage";
 import { tapHaptic } from "@/lib/haptics";
 import { downloadHref, openAppHref, storedAppSignin } from "@/lib/payment/app-signin";
 import { readPaymentGender } from "@/lib/payment/checkout";
-import { claimGiftAndDownload, GIFT_COPY as G, type GiftError } from "@/lib/payment/gift";
+import { claimGiftAndDownload, GIFT_COPY as G, type GiftError, wasExistingAccount } from "@/lib/payment/gift";
 import { paymentPicture } from "./PaymentIncludes";
 
 type Props = {
@@ -164,14 +164,17 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
 
 /** Back from the store (or after the tap): open the app, signed in, straight to the workout. */
 function Claimed({ signinCode }: { signinCode: string | null }) {
+  const [existing, setExisting] = useState(false);
+  useEffect(() => setExisting(wasExistingAccount()), []);
+  const copy = existing ? { ...G.claimed, ...G.existing } : G.claimed;
   return (
     <div className="flex flex-1 flex-col">
       <h1 className="font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
-        {G.claimed.title} <span className="text-[#1F6B3D]">{G.claimed.titleGift}</span>
+        {copy.title} <span className="text-[#1F6B3D]">{copy.titleGift}</span>
       </h1>
       <p className="mx-auto mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-3.5 py-2 text-[0.9375rem] font-bold text-ink-soft shadow-[0_2px_10px_rgb(31_107_61/0.08)]">
         <GiftIcon className="h-5 w-5 shrink-0 text-[#C98A12]" />
-        {G.claimed.lede}
+        {copy.lede}
       </p>
       <div className="mt-auto pt-6">
         {signinCode ? (
