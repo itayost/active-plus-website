@@ -13,7 +13,7 @@ describe("trackFunnelEvent", () => {
     const [url, blob] = sendBeacon.mock.calls[0] as unknown as [string, Blob];
     expect(url).toBe("/api/funnel-event");
     expect(blob.type).toBe("application/json");
-    expect(JSON.parse(await blob.text())).toEqual({ sessionId: SESSION, step: "otp_view" });
+    expect(JSON.parse(await blob.text())).toEqual({ sessionId: SESSION, step: "otp_view", data: { goals_variant: expect.stringMatching(/^(list|photo)$/) } });
   });
 
   it("falls back to a keepalive fetch when sendBeacon is missing or refuses", () => {
@@ -72,17 +72,18 @@ describe("trackFunnelEvent and the ad that brought the visitor", () => {
       utm_content: "120245551262680678",
       from_meta_click: true,
       ad_visit: expect.stringMatching(/^\d+$/),
+      goals_variant: expect.stringMatching(/^(list|photo)$/),
       plan: "annual",
     });
     expect(JSON.stringify(win.dataLayer)).not.toContain("120245551262680678");
   });
 
-  it("a visit with no ad and nothing kept sends no labels", async () => {
+  it("a visit with no ad and nothing kept sends no ad labels, only its goals version", async () => {
     stubWindow("");
     const sendBeacon = vi.fn(() => true);
     vi.stubGlobal("navigator", { sendBeacon });
     trackFunnelEvent(SESSION, "otp_view");
     const [, blob] = sendBeacon.mock.calls[0] as unknown as [string, Blob];
-    expect(JSON.parse(await blob.text())).toEqual({ sessionId: SESSION, step: "otp_view" });
+    expect(JSON.parse(await blob.text())).toEqual({ sessionId: SESSION, step: "otp_view", data: { goals_variant: expect.stringMatching(/^(list|photo)$/) } });
   });
 });

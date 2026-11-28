@@ -38,6 +38,18 @@ export const COPY = {
     body: "רק 10 דקות ביום, מכל מקום ובקצב שלך.",
     cta: "מתחילים!",
   },
+  /** The goals question's photo version, tested against the list (lib/funnel/goals-variant). */
+  goalsPhoto: {
+    title: "מה הכי חשוב לך עכשיו?",
+    subtitle: "בחירה אחת, ונבנה לך תוכנית סביבה",
+    note: "אפשר לשנות את הבחירה גם אחר כך",
+    options: [
+      { value: "strength", label: "לחזק את השרירים", image: "/img/v2/hero-home-lunge.webp" },
+      { value: "weight_loss", label: "לרדת במשקל", image: "/img/funnel/app/goal-male.webp" },
+      { value: "cognition", label: "זיכרון חד וריכוז", image: "/img/funnel/app/goal-female-chess.webp" },
+      { value: "flexibility_balance", label: "גמישות ושיווי משקל", image: "/img/funnel/app/goal-female-stretch.webp" },
+    ] as readonly PhotoOption[],
+  },
   common: {
     next: "המשך",
     /** The apps' gendered continue ("המשיכי" / "המשך"). */
