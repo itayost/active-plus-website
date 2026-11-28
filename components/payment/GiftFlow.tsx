@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import JourneySteps from "@/components/funnel/JourneySteps";
+import Otp from "@/components/funnel/Otp";
+import Register from "@/components/funnel/Register";
 import Button from "@/components/ui/Button";
 import { CheckIcon, ClockIcon, GiftIcon, MindIcon, MovementIcon, StrengthIcon } from "@/components/ui/icons";
-import { readPlanInputs } from "@/lib/funnel/storage";
+import { loadSession, readPlanInputs } from "@/lib/funnel/storage";
 import { tapHaptic } from "@/lib/haptics";
 import { downloadHref, openAppHref, storedAppSignin } from "@/lib/payment/app-signin";
 import { readPaymentGender } from "@/lib/payment/checkout";
@@ -31,7 +33,12 @@ const HIGHLIGHTS = [
  * after the App Store), the same screen offers to open the app.
  */
 export default function GiftFlow({ previewClaimed = false }: Props) {
-  const [stage, setStage] = useState<"offer" | "claiming" | "claimed">(previewClaimed ? "claimed" : "offer");
+  const [stage, setStage] = useState<"offer" | "claiming" | "verify" | "claimed">(previewClaimed ? "claimed" : "offer");
+  // Signed out (the sign-in expired, or the page opened in another browser): the phone and its
+  // code right here, as the paid checkout does, then the gift is claimed by itself (owner,
+  // 2026-11-28: on an iPhone the button only said "צריך לאמת שוב את מספר הטלפון", with no way on).
+  const [phoneView, setPhoneView] = useState<{ sub: "phone" | "otp"; phone: string }>({ sub: "phone", phone: "" });
+  const [session] = useState(() => loadSession());
   const [error, setError] = useState<GiftError | null>(null);
   // The dev preview shows the back-from-store screen as it looks with a code (a dummy one; it opens nothing).
   const [signinCode, setSigninCode] = useState<string | null>(previewClaimed ? "preview-only-code-preview-only-code-0000000" : null);
@@ -54,7 +61,10 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
     setError(null);
     setStage("claiming");
     const failed = await claimGiftAndDownload();
-    if (failed) {
+    if (failed === "signed_out") {
+      setPhoneView({ sub: "phone", phone: "" });
+      setStage("verify");
+    } else if (failed) {
       setError(failed);
       setStage("offer");
     }
@@ -72,6 +82,30 @@ export default function GiftFlow({ previewClaimed = false }: Props) {
         <JourneySteps current={stage === "claimed" ? 2 : 1} className="mb-5" gift />
         {stage === "claimed" ? (
           <Claimed signinCode={signinCode} />
+        ) : stage === "verify" ? (
+          <div>
+            <p className="mb-4 text-center text-[1.0625rem] font-bold text-ink-soft">{G.verifyLead}</p>
+            {phoneView.sub === "phone" ? (
+              <Register
+                view={{ sub: "phone", phone: phoneView.phone }}
+                gender={readPaymentGender()}
+                name={name ?? ""}
+                onNameChange={() => {}}
+                onName={() => {}}
+                onCodeSent={(phone) => setPhoneView({ sub: "otp", phone })}
+                onBusy={() => {}}
+              />
+            ) : (
+              <Otp
+                phone={phoneView.phone}
+                answers={session.answers}
+                sessionId={session.id}
+                onEditPhone={() => setPhoneView((view) => ({ ...view, sub: "phone" }))}
+                onComplete={() => void claim()}
+                onBusy={() => {}}
+              />
+            )}
+          </div>
         ) : (
           <>
             <h1 id="payment-heading" className="text-center font-display text-[clamp(1.875rem,1.5rem+1.4vw,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-ink">
