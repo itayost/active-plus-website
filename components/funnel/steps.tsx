@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { MY_PLAN_PATH } from "@/lib/funnel/constants";
 import { COPY, g, type Gendered, type GenderedOption, type IconOption, type Plain } from "@/lib/funnel/copy";
 import { ageImage } from "@/lib/funnel/images";
@@ -16,6 +16,7 @@ import PhotoChoice from "./PhotoChoice";
 import PlanBuilding from "./PlanBuilding";
 import Register from "./Register";
 import TimeStep from "./TimeStep";
+import { useGoalsVariant } from "./useGoalsVariant";
 
 /** What a step can ask of the funnel. The funnel owns all state; steps only render it. */
 export type StepActions = {
@@ -103,6 +104,41 @@ function QuestionStep({ question, state, actions }: { question: Question; state:
   );
 }
 
+/** How long the chosen photo stays marked before the next question (photo version only). */
+const PHOTO_ADVANCE_MS = 450;
+
+/**
+ * The goals question, in the visitor's version (lib/funnel/goals-variant): the
+ * list as it was, or four photos where a tap moves on by itself. Until the
+ * version is known (the first render) only the screen's frame is drawn.
+ */
+function GoalsStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
+  const variant = useGoalsVariant();
+  if (variant === "list") return <QuestionStep question={QUESTIONS.goals as Question} state={state} actions={actions} />;
+  if (variant === "photo") return <GoalsPhotoStep actions={actions} />;
+  return <div aria-hidden className="min-h-[60vh]" />;
+}
+
+function GoalsPhotoStep({ actions }: { actions: StepActions }) {
+  const [chosen, setChosen] = useState<string>();
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const choose = (value: string) => {
+    if (chosen) return;
+    setChosen(value);
+    actions.setDraft({ training_goals: [value] });
+    timer.current = setTimeout(() => actions.answer({ training_goals: [value] }), PHOTO_ADVANCE_MS);
+  };
+  return (
+    <>
+      <StepTitle>{COPY.goalsPhoto.title}</StepTitle>
+      <Subtitle text={COPY.goalsPhoto.subtitle} />
+      <PhotoChoice options={COPY.goalsPhoto.options} value={chosen} aspect="portrait" onChoose={choose} />
+      <FootNote text={COPY.goalsPhoto.note} />
+    </>
+  );
+}
+
 function GenderStep({ state, actions }: { state: FunnelState; actions: StepActions }) {
   const gender = state.draft.gender;
   return (
@@ -173,6 +209,7 @@ function BodyAreasStep({ state, actions }: { state: FunnelState; actions: StepAc
 export function renderStep(state: FunnelState, actions: StepActions, sessionId: string): ReactElement {
   const { step, answers } = state;
   const gender = answers.gender;
+  if (step === "goals") return <GoalsStep state={state} actions={actions} />;
   const question = QUESTIONS[step];
   if (question) return <QuestionStep question={question} state={state} actions={actions} />;
 

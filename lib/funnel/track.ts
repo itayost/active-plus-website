@@ -1,5 +1,6 @@
 import { currentAdFields, rememberAdSource } from "@/lib/analytics/ad-source";
 import { pushTag, tagEventFor } from "@/lib/analytics/tags";
+import { currentGoalsVariant } from "./goals-variant";
 import type { FunnelEventName } from "./events";
 
 const ENDPOINT = "/api/funnel-event";
@@ -19,7 +20,7 @@ const ENDPOINT = "/api/funnel-event";
 export function trackFunnelEvent(sessionId: string, event: FunnelEventName, data?: Record<string, unknown>): void {
   pushTag(tagEventFor(event));
   try {
-    const merged = { ...adFields(), ...data };
+    const merged = { ...adFields(), goals_variant: currentGoalsVariant(), ...data };
     const payload = JSON.stringify({ sessionId, step: event, ...(Object.keys(merged).length > 0 ? { data: merged } : {}) });
     const blob = new Blob([payload], { type: "application/json" });
     if (typeof navigator.sendBeacon === "function" && navigator.sendBeacon(ENDPOINT, blob)) return;
