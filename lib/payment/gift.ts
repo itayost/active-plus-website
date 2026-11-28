@@ -28,9 +28,17 @@ export const GIFT_COPY = {
     open: "פתיחת האפליקציה",
     download: "להורדת האפליקציה",
   },
+  /** Back on the site with an account the gift is not for (it is for new people only). */
+  existing: {
+    title: "החשבון שלך",
+    titleGift: "מחכה באפליקציה",
+    lede: "כבר יש לך חשבון אצלנו. פותחים את האפליקציה ונכנסים ישר לאימון.",
+  },
   errors: {
     signed_out: "צריך לאמת שוב את מספר הטלפון.",
     not_offered: "המתנה לא זמינה כרגע.",
+    /** Never shown: an existing account goes on to the app (owner, 2026-11-28). */
+    not_eligible: "כבר יש לך חשבון באפליקציה.",
     network: "אין חיבור כרגע. אפשר לנסות שוב.",
   },
 } as const;
@@ -68,9 +76,31 @@ export async function claimGiftTrial(supabase: SupabaseClient): Promise<{ ok: tr
     if (error) return { ok: false, error: "network" };
     const result = data as { ok?: unknown; reason?: unknown } | null;
     if (result?.ok === true) return { ok: true };
-    return { ok: false, error: result?.reason === "signed_out" ? "signed_out" : "not_offered" };
+    if (result?.reason === "signed_out") return { ok: false, error: "signed_out" };
+    if (result?.reason === "not_eligible") return { ok: false, error: "not_eligible" };
+    return { ok: false, error: "not_offered" };
   } catch {
     return { ok: false, error: "network" };
+  }
+}
+
+const EXISTING_KEY = "ap.gift.existing";
+
+function markExistingAccount(existing: boolean): void {
+  try {
+    if (existing) sessionStorage.setItem(EXISTING_KEY, "1");
+    else sessionStorage.removeItem(EXISTING_KEY);
+  } catch {
+    // Blocked storage: the screen back from the store says "the gift" instead.
+  }
+}
+
+/** Was the account that went to the app one the gift is not for? */
+export function wasExistingAccount(): boolean {
+  try {
+    return sessionStorage.getItem(EXISTING_KEY) === "1";
+  } catch {
+    return false;
   }
 }
 
@@ -88,7 +118,12 @@ export async function claimGiftAndDownload(): Promise<GiftError | null> {
   const supabase = await loadSupabaseSession();
   if (!supabase) return "signed_out";
   const result = await claimGiftTrial(supabase);
-  if (!result.ok) return result.error;
+  // Someone the gift is not for (a subscriber, past or present): after the phone and its code
+  // they go on to the app signed in like everyone else, never back to the gift button (owner,
+  // 2026-11-28: "אחרי הקוד לקבלת המתנה או להתחלת האימון").
+  const existing = !result.ok && result.error === "not_eligible";
+  if (!result.ok && !existing) return result.error;
+  markExistingAccount(existing);
   const signin = await createAppSignin(supabase).catch(() => null);
   try {
     window.history.replaceState(null, "", "/payment");
