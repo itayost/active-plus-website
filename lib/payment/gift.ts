@@ -19,6 +19,8 @@ export const GIFT_COPY = {
   cta: "לקבלת 7 ימים מתנה",
   underCta: "הכפתור מוריד את האפליקציה ומתחילים להתאמן",
   claiming: "רגע, מכינים לך את המתנה",
+  /** Over the phone and code steps when the sign-in expired; the gift follows by itself. */
+  verifyLead: "רגע לפני המתנה: מאמתים את מספר הטלפון",
   claimed: {
     title: "המתנה שלך",
     titleGift: "מחכה באפליקציה",
