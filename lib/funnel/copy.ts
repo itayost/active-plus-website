@@ -42,7 +42,7 @@ export const COPY = {
   goalsPhoto: {
     title: "מה הכי חשוב לך עכשיו?",
     subtitle: "בחירה אחת, ונבנה לך תוכנית סביבה",
-    note: "אפשר לשנות את הבחירה גם אחר כך",
+    note: "אפשר לשנות את הבחירה גם אחר כך.",
     options: [
       { value: "strength", label: "לחזק את השרירים", image: "/img/v2/hero-home-lunge.webp" },
       { value: "weight_loss", label: "לרדת במשקל", image: "/img/funnel/app/goal-male.webp" },
